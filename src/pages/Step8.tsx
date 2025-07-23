@@ -1,69 +1,69 @@
 import StepLayout from "@/components/StepLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, Code, TestTube, GitBranch } from "lucide-react";
+import { CheckCircle, Award, TestTube, FileCheck } from "lucide-react";
 import { useState } from "react";
 
-export default function Step3() {
+export default function Step8() {
   const [checklist, setChecklist] = useState({
-    proofOfConcept: false,
-    analyticalDemo: false,
-    experimentalValidation: false,
-    performanceMetrics: false,
-    documentationComplete: false
+    qualificationTesting: false,
+    demonstrationCompleted: false,
+    certificationObtained: false,
+    documentationComplete: false,
+    qualityAssurance: false
   });
 
   const checklistItems = [
-    { key: 'proofOfConcept', label: 'Proof of concept demonstrated', score: 20 },
-    { key: 'analyticalDemo', label: 'Analytical demonstration completed', score: 20 },
-    { key: 'experimentalValidation', label: 'Experimental validation performed', score: 20 },
-    { key: 'performanceMetrics', label: 'Performance metrics established', score: 20 },
-    { key: 'documentationComplete', label: 'Technical documentation completed', score: 20 }
+    { key: 'qualificationTesting', label: 'Formal qualification testing completed', score: 20 },
+    { key: 'demonstrationCompleted', label: 'Final demonstration successfully executed', score: 20 },
+    { key: 'certificationObtained', label: 'Required certifications obtained', score: 20 },
+    { key: 'documentationComplete', label: 'Complete documentation delivered', score: 20 },
+    { key: 'qualityAssurance', label: 'Quality assurance protocols verified', score: 20 }
   ];
 
   const currentScore = checklistItems.reduce((sum, item) => 
     sum + (checklist[item.key as keyof typeof checklist] ? item.score : 0), 0
   );
   const totalPossibleScore = checklistItems.reduce((sum, item) => sum + item.score, 0);
-  const cumulativeScore = 200 + currentScore; // Previous 2 steps max score + current
+  const cumulativeScore = 700 + currentScore; // Previous 7 steps max score + current
 
   const handleChecklistChange = (key: string, checked: boolean) => {
     setChecklist(prev => ({ ...prev, [key]: checked }));
   };
 
-  const implementationItems = [
-    {
-      icon: <Code className="w-5 h-5 text-primary" />,
-      title: "Core Development",
-      description: "Build the main features and functionality according to specifications and requirements."
-    },
+  const qualificationItems = [
     {
       icon: <TestTube className="w-5 h-5 text-primary" />,
-      title: "Testing & Quality",
-      description: "Implement comprehensive testing strategies including unit, integration, and user acceptance tests."
+      title: "Qualification Testing",
+      description: "Execute formal qualification tests to verify deliverable meets all specified requirements."
     },
     {
-      icon: <GitBranch className="w-5 h-5 text-primary" />,
-      title: "Version Control",
-      description: "Maintain proper version control with meaningful commits and branch management."
+      icon: <Award className="w-5 h-5 text-primary" />,
+      title: "Final Demonstration",
+      description: "Conduct comprehensive demonstration showcasing full operational capabilities."
+    },
+    {
+      icon: <FileCheck className="w-5 h-5 text-primary" />,
+      title: "Documentation & Certification",
+      description: "Complete all required documentation and obtain necessary certifications for deployment."
     }
   ];
 
   return (
     <StepLayout
-      currentStep={3}
-      title="Concepts Demonstrated Analytically or Experimentally"
-      description="Validate core concepts through analytical models and experimental demonstrations."
+      currentStep={8}
+      title="Actual Deliverable Qualified Through Test and Demonstration"
+      description="Formally qualify the deliverable through rigorous testing and comprehensive demonstration."
     >
       <div className="space-y-6">
         {/* Checklist Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
-              <span>Step 3 Checklist</span>
+              <span>Step 8 Checklist</span>
               <div className="text-sm font-normal text-muted-foreground space-y-1">
                 <div>Step Score: {currentScore}/{totalPossibleScore} ({Math.round((currentScore/totalPossibleScore)*100)}%)</div>
-                <div>Cumulative: {cumulativeScore}/300 ({Math.round((cumulativeScore/300)*100)}%)</div>
+                <div>Cumulative: {cumulativeScore}/800 ({Math.round((cumulativeScore/800)*100)}%)</div>
               </div>
             </CardTitle>
           </CardHeader>
@@ -99,7 +99,7 @@ export default function Step3() {
         </Card>
 
         <div className="grid gap-4">
-          {implementationItems.map((item, index) => (
+          {qualificationItems.map((item, index) => (
             <Card key={index} className="border-l-4 border-l-primary">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center space-x-3 text-lg">

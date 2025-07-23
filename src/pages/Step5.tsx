@@ -1,69 +1,69 @@
 import StepLayout from "@/components/StepLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, Code, TestTube, GitBranch } from "lucide-react";
+import { CheckCircle, Monitor, Settings, TestTube2 } from "lucide-react";
 import { useState } from "react";
 
-export default function Step3() {
+export default function Step5() {
   const [checklist, setChecklist] = useState({
-    proofOfConcept: false,
-    analyticalDemo: false,
-    experimentalValidation: false,
+    simulationEnvironment: false,
+    realWorldConditions: false,
     performanceMetrics: false,
-    documentationComplete: false
+    scalabilityTesting: false,
+    integrationTesting: false
   });
 
   const checklistItems = [
-    { key: 'proofOfConcept', label: 'Proof of concept demonstrated', score: 20 },
-    { key: 'analyticalDemo', label: 'Analytical demonstration completed', score: 20 },
-    { key: 'experimentalValidation', label: 'Experimental validation performed', score: 20 },
-    { key: 'performanceMetrics', label: 'Performance metrics established', score: 20 },
-    { key: 'documentationComplete', label: 'Technical documentation completed', score: 20 }
+    { key: 'simulationEnvironment', label: 'Simulation environment established', score: 20 },
+    { key: 'realWorldConditions', label: 'Real-world conditions accurately modeled', score: 20 },
+    { key: 'performanceMetrics', label: 'Performance metrics defined and measured', score: 20 },
+    { key: 'scalabilityTesting', label: 'Scalability testing completed', score: 20 },
+    { key: 'integrationTesting', label: 'System integration validated', score: 20 }
   ];
 
   const currentScore = checklistItems.reduce((sum, item) => 
     sum + (checklist[item.key as keyof typeof checklist] ? item.score : 0), 0
   );
   const totalPossibleScore = checklistItems.reduce((sum, item) => sum + item.score, 0);
-  const cumulativeScore = 200 + currentScore; // Previous 2 steps max score + current
+  const cumulativeScore = 400 + currentScore; // Previous 4 steps max score + current
 
   const handleChecklistChange = (key: string, checked: boolean) => {
     setChecklist(prev => ({ ...prev, [key]: checked }));
   };
 
-  const implementationItems = [
+  const simulationItems = [
     {
-      icon: <Code className="w-5 h-5 text-primary" />,
-      title: "Core Development",
-      description: "Build the main features and functionality according to specifications and requirements."
+      icon: <Monitor className="w-5 h-5 text-primary" />,
+      title: "Simulated Environment Setup",
+      description: "Create controlled simulation environment that mimics real-world operational conditions."
     },
     {
-      icon: <TestTube className="w-5 h-5 text-primary" />,
-      title: "Testing & Quality",
-      description: "Implement comprehensive testing strategies including unit, integration, and user acceptance tests."
+      icon: <Settings className="w-5 h-5 text-primary" />,
+      title: "Parameter Validation",
+      description: "Validate key performance parameters under simulated operational scenarios."
     },
     {
-      icon: <GitBranch className="w-5 h-5 text-primary" />,
-      title: "Version Control",
-      description: "Maintain proper version control with meaningful commits and branch management."
+      icon: <TestTube2 className="w-5 h-5 text-primary" />,
+      title: "System Integration",
+      description: "Test integration capabilities within the simulated environment framework."
     }
   ];
 
   return (
     <StepLayout
-      currentStep={3}
-      title="Concepts Demonstrated Analytically or Experimentally"
-      description="Validate core concepts through analytical models and experimental demonstrations."
+      currentStep={5}
+      title="Key Elements Demonstrated in Simulated Environment"
+      description="Validate system performance and integration capabilities in controlled simulation conditions."
     >
       <div className="space-y-6">
         {/* Checklist Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
-              <span>Step 3 Checklist</span>
+              <span>Step 5 Checklist</span>
               <div className="text-sm font-normal text-muted-foreground space-y-1">
                 <div>Step Score: {currentScore}/{totalPossibleScore} ({Math.round((currentScore/totalPossibleScore)*100)}%)</div>
-                <div>Cumulative: {cumulativeScore}/300 ({Math.round((cumulativeScore/300)*100)}%)</div>
+                <div>Cumulative: {cumulativeScore}/500 ({Math.round((cumulativeScore/500)*100)}%)</div>
               </div>
             </CardTitle>
           </CardHeader>
@@ -99,7 +99,7 @@ export default function Step3() {
         </Card>
 
         <div className="grid gap-4">
-          {implementationItems.map((item, index) => (
+          {simulationItems.map((item, index) => (
             <Card key={index} className="border-l-4 border-l-primary">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center space-x-3 text-lg">

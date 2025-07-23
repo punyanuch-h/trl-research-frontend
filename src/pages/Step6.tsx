@@ -1,69 +1,69 @@
 import StepLayout from "@/components/StepLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, Code, TestTube, GitBranch } from "lucide-react";
+import { CheckCircle, Globe, Users, Shield } from "lucide-react";
 import { useState } from "react";
 
-export default function Step3() {
+export default function Step6() {
   const [checklist, setChecklist] = useState({
-    proofOfConcept: false,
-    analyticalDemo: false,
-    experimentalValidation: false,
-    performanceMetrics: false,
-    documentationComplete: false
+    relevantEnvironment: false,
+    stakeholderValidation: false,
+    realWorldTesting: false,
+    userAcceptance: false,
+    performanceValidation: false
   });
 
   const checklistItems = [
-    { key: 'proofOfConcept', label: 'Proof of concept demonstrated', score: 20 },
-    { key: 'analyticalDemo', label: 'Analytical demonstration completed', score: 20 },
-    { key: 'experimentalValidation', label: 'Experimental validation performed', score: 20 },
-    { key: 'performanceMetrics', label: 'Performance metrics established', score: 20 },
-    { key: 'documentationComplete', label: 'Technical documentation completed', score: 20 }
+    { key: 'relevantEnvironment', label: 'Relevant operational environment established', score: 20 },
+    { key: 'stakeholderValidation', label: 'Key stakeholder validation completed', score: 20 },
+    { key: 'realWorldTesting', label: 'Real-world testing scenarios executed', score: 20 },
+    { key: 'userAcceptance', label: 'User acceptance criteria met', score: 20 },
+    { key: 'performanceValidation', label: 'Performance benchmarks validated', score: 20 }
   ];
 
   const currentScore = checklistItems.reduce((sum, item) => 
     sum + (checklist[item.key as keyof typeof checklist] ? item.score : 0), 0
   );
   const totalPossibleScore = checklistItems.reduce((sum, item) => sum + item.score, 0);
-  const cumulativeScore = 200 + currentScore; // Previous 2 steps max score + current
+  const cumulativeScore = 500 + currentScore; // Previous 5 steps max score + current
 
   const handleChecklistChange = (key: string, checked: boolean) => {
     setChecklist(prev => ({ ...prev, [key]: checked }));
   };
 
-  const implementationItems = [
+  const demonstrationItems = [
     {
-      icon: <Code className="w-5 h-5 text-primary" />,
-      title: "Core Development",
-      description: "Build the main features and functionality according to specifications and requirements."
+      icon: <Globe className="w-5 h-5 text-primary" />,
+      title: "Relevant Environment Testing",
+      description: "Demonstrate deliverable performance in conditions closely matching intended operational environment."
     },
     {
-      icon: <TestTube className="w-5 h-5 text-primary" />,
-      title: "Testing & Quality",
-      description: "Implement comprehensive testing strategies including unit, integration, and user acceptance tests."
+      icon: <Users className="w-5 h-5 text-primary" />,
+      title: "Stakeholder Validation",
+      description: "Engage key stakeholders and end-users to validate functionality and usability."
     },
     {
-      icon: <GitBranch className="w-5 h-5 text-primary" />,
-      title: "Version Control",
-      description: "Maintain proper version control with meaningful commits and branch management."
+      icon: <Shield className="w-5 h-5 text-primary" />,
+      title: "Risk Assessment",
+      description: "Identify and mitigate potential risks in operational deployment scenarios."
     }
   ];
 
   return (
     <StepLayout
-      currentStep={3}
-      title="Concepts Demonstrated Analytically or Experimentally"
-      description="Validate core concepts through analytical models and experimental demonstrations."
+      currentStep={6}
+      title="Representative of Deliverable Demonstrated in Relevant Environment"
+      description="Showcase deliverable capabilities in conditions that closely match the intended operational environment."
     >
       <div className="space-y-6">
         {/* Checklist Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
-              <span>Step 3 Checklist</span>
+              <span>Step 6 Checklist</span>
               <div className="text-sm font-normal text-muted-foreground space-y-1">
                 <div>Step Score: {currentScore}/{totalPossibleScore} ({Math.round((currentScore/totalPossibleScore)*100)}%)</div>
-                <div>Cumulative: {cumulativeScore}/300 ({Math.round((cumulativeScore/300)*100)}%)</div>
+                <div>Cumulative: {cumulativeScore}/600 ({Math.round((cumulativeScore/600)*100)}%)</div>
               </div>
             </CardTitle>
           </CardHeader>
@@ -99,7 +99,7 @@ export default function Step3() {
         </Card>
 
         <div className="grid gap-4">
-          {implementationItems.map((item, index) => (
+          {demonstrationItems.map((item, index) => (
             <Card key={index} className="border-l-4 border-l-primary">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center space-x-3 text-lg">

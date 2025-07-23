@@ -10,10 +10,15 @@ interface StepLayoutProps {
 }
 
 const steps = [
-  { id: 1, title: "Planning", path: "/" },
-  { id: 2, title: "Setup", path: "/step-2" },
-  { id: 3, title: "Implementation", path: "/step-3" },
-  { id: 4, title: "Review", path: "/step-4" }
+  { id: 1, title: "Basic Principle", path: "/" },
+  { id: 2, title: "Technology Concept", path: "/step-2" },
+  { id: 3, title: "Concepts Demonstrated", path: "/step-3" },
+  { id: 4, title: "Laboratory Environment", path: "/step-4" },
+  { id: 5, title: "Simulated Environment", path: "/step-5" },
+  { id: 6, title: "Relevant Environment", path: "/step-6" },
+  { id: 7, title: "Operational Environment", path: "/step-7" },
+  { id: 8, title: "Test & Demonstration", path: "/step-8" },
+  { id: 9, title: "Operational Use", path: "/step-9" }
 ];
 
 export default function StepLayout({ children, currentStep, title, description }: StepLayoutProps) {
@@ -29,7 +34,7 @@ export default function StepLayout({ children, currentStep, title, description }
       <div className="border-b bg-card">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Workflow Process</h1>
+            <h1 className="text-2xl font-bold text-foreground">Research Development Process</h1>
             <div className="text-sm text-muted-foreground">
               Step {currentStep} of {steps.length}
             </div>
