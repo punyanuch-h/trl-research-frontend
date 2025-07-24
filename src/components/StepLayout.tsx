@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Circle } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
 interface StepLayoutProps {
   children: React.ReactNode;
@@ -10,20 +10,24 @@ interface StepLayoutProps {
 }
 
 const steps = [
-  { id: 1, title: "Basic Principle", path: "/" },
-  { id: 2, title: "Technology Concept", path: "/step-2" },
-  { id: 3, title: "Concepts Demonstrated", path: "/step-3" },
-  { id: 4, title: "Laboratory Environment", path: "/step-4" },
-  { id: 5, title: "Simulated Environment", path: "/step-5" },
-  { id: 6, title: "Relevant Environment", path: "/step-6" },
-  { id: 7, title: "Operational Environment", path: "/step-7" },
-  { id: 8, title: "Test & Demonstration", path: "/step-8" },
-  { id: 9, title: "Operational Use", path: "/step-9" }
+  { id: 1, title: "Basic Principle", path: "/trl-1" },
+  { id: 2, title: "Technology Concept", path: "/trl-2" },
+  { id: 3, title: "Concepts Demonstrated", path: "/trl-3" },
+  { id: 4, title: "Laboratory Environment", path: "/trl-4" },
+  { id: 5, title: "Simulated Environment", path: "/trl-5" },
+  { id: 6, title: "Relevant Environment", path: "/trl-6" },
+  { id: 7, title: "Operational Environment", path: "/trl-7" },
+  { id: 8, title: "Test & Demonstration", path: "/trl-8" },
+  { id: 9, title: "Operational Use", path: "/trl-9" }
 ];
 
 export default function StepLayout({ children, currentStep, title, description }: StepLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  
+  const researchName = searchParams.get('research') || 'Research Project';
+  const researchType = searchParams.get('type') || 'TRL Assessment';
 
   const isStepCompleted = (stepId: number) => stepId < currentStep;
   const isCurrentStep = (stepId: number) => stepId === currentStep;
@@ -44,8 +48,8 @@ export default function StepLayout({ children, currentStep, title, description }
           <div className="flex items-center space-x-4">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
-                <button
-                  onClick={() => navigate(step.path)}
+                 <button
+                  onClick={() => navigate(`${step.path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}`)}
                   className="flex items-center space-x-2 group"
                 >
                   {isStepCompleted(step.id) ? (
@@ -62,7 +66,7 @@ export default function StepLayout({ children, currentStep, title, description }
                       ? "text-foreground"
                       : "text-muted-foreground"
                   }`}>
-                    {step.title}
+                    TRL{step.id}
                   </span>
                 </button>
                 {index < steps.length - 1 && (
@@ -72,6 +76,21 @@ export default function StepLayout({ children, currentStep, title, description }
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Research Info */}
+      <div className="bg-muted/30 border-b">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold text-foreground">{researchName}</h3>
+              <p className="text-sm text-muted-foreground">{researchType}</p>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              TRL Assessment Progress
+            </div>
           </div>
         </div>
       </div>
@@ -93,7 +112,7 @@ export default function StepLayout({ children, currentStep, title, description }
             variant="outline"
             onClick={() => {
               if (currentStep > 1) {
-                navigate(steps[currentStep - 2].path);
+                navigate(`${steps[currentStep - 2].path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}`);
               }
             }}
             disabled={currentStep === 1}
@@ -104,12 +123,13 @@ export default function StepLayout({ children, currentStep, title, description }
           <Button
             onClick={() => {
               if (currentStep < steps.length) {
-                navigate(steps[currentStep].path);
+                navigate(`${steps[currentStep].path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}`);
+              } else {
+                navigate(`/complete?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}`);
               }
             }}
-            disabled={currentStep === steps.length}
           >
-            {currentStep === steps.length ? "Complete" : "Next Step"}
+            {currentStep === steps.length ? "Complete Assessment" : "Next Step"}
           </Button>
         </div>
       </div>

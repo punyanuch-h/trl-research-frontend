@@ -98,21 +98,6 @@ export default function Step4() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-4">
-          {reviewItems.map((item, index) => (
-            <Card key={index} className="border-l-4 border-l-primary">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-3 text-lg">
-                  {item.icon}
-                  <span>{item.title}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{item.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
       </div>
     </StepLayout>
   );
