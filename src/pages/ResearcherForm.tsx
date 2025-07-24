@@ -75,8 +75,8 @@ export default function ResearcherForm() {
   };
 
   const handleSubmit = () => {
-    // Navigate to TRL assessment with research data
-    navigate(`/trl-1?research=${encodeURIComponent(formData.researchTitle)}&type=${encodeURIComponent(formData.researchType)}`);
+    // Navigate to researcher dashboard after form submission
+    navigate('/researcher-dashboard');
   };
 
   const renderFormStep = () => {
@@ -372,7 +372,7 @@ export default function ResearcherForm() {
               
               {currentFormStep === 5 ? (
                 <Button onClick={handleSubmit}>
-                  Start TRL Assessment
+                  Submit Research
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (

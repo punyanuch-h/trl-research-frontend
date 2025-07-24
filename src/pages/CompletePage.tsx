@@ -214,8 +214,8 @@ ${getSuggestions(trlResult.level).map(suggestion => `• ${suggestion}`).join('\
               <Download className="w-4 h-4 mr-2" />
               Download Report
             </Button>
-            <Button variant="outline" onClick={() => navigate('/')} size="lg">
-              New Assessment
+            <Button variant="outline" onClick={() => navigate('/professor-dashboard')} size="lg">
+              Return to Dashboard
             </Button>
           </div>
         </div>

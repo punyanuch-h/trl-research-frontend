@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { Plus, ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 
-export default function ProfessorDashboard() {
+export default function ResearcherDashboard() {
   const navigate = useNavigate();
 
-  const researchProjects = [
+  const myResearch = [
     {
       id: 1,
       name: "AI-Powered Medical Diagnosis System",
@@ -29,13 +29,6 @@ export default function ProfessorDashboard() {
       type: "TRL medicines vaccines stem cells",
       status: "Done",
       result: "resultReport.pdf"
-    },
-    {
-      id: 4,
-      name: "Drought Resistant Wheat Variety",
-      type: "TRL plant/animal breeds",
-      status: "In process",
-      result: null
     }
   ];
 
@@ -46,10 +39,6 @@ export default function ProfessorDashboard() {
       case "Todo": return "bg-gray-100 text-gray-800";
       default: return "bg-gray-100 text-gray-800";
     }
-  };
-
-  const handleResearchClick = (id: number, name: string, type: string) => {
-    navigate(`/trl-1?research=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}`);
   };
 
   const handleDownloadResult = (filename: string) => {
@@ -74,19 +63,18 @@ export default function ProfessorDashboard() {
               Back
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Research Dashboard</h1>
-              <p className="text-muted-foreground">Manage your TRL assessment projects</p>
+              <h1 className="text-3xl font-bold text-foreground">My Research</h1>
+              <p className="text-muted-foreground">View your research submission status</p>
             </div>
           </div>
           <Button onClick={() => navigate('/researcher-form')}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Research
+            Submit New Research
           </Button>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Research Projects</CardTitle>
+            <CardTitle>Research Submissions</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -100,28 +88,22 @@ export default function ProfessorDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {researchProjects.map((project, index) => (
-                  <TableRow 
-                    key={project.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleResearchClick(project.id, project.name, project.type)}
-                  >
+                {myResearch.map((research, index) => (
+                  <TableRow key={research.id}>
                     <TableCell className="font-medium">{index + 1}</TableCell>
-                    <TableCell className="font-medium text-primary hover:underline">
-                      {project.name}
-                    </TableCell>
-                    <TableCell>{project.type}</TableCell>
+                    <TableCell className="font-medium">{research.name}</TableCell>
+                    <TableCell>{research.type}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(project.status)}>
-                        {project.status}
+                      <Badge className={getStatusColor(research.status)}>
+                        {research.status}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {project.result ? (
+                      {research.result ? (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDownloadResult(project.result)}
+                          onClick={() => handleDownloadResult(research.result)}
                         >
                           <Download className="w-4 h-4 mr-2" />
                           Download
