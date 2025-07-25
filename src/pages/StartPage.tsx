@@ -15,7 +15,7 @@ export default function StartPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/researcher-form')}>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/researcher-dashboard')}>
             <CardHeader className="text-center">
               <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                 <Search className="w-8 h-8 text-primary" />
@@ -24,10 +24,10 @@ export default function StartPage() {
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-muted-foreground mb-6">
-                Submit your research for TRL assessment through our comprehensive evaluation form.
+                Access your research dashboard to manage and submit TRL assessments.
               </p>
               <Button className="w-full" size="lg">
-                Start Assessment
+                Access Dashboard
               </Button>
             </CardContent>
           </Card>

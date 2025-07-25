@@ -35,9 +35,16 @@ export default function ResearcherDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Done": return "bg-green-100 text-green-800";
-      case "In process": return "bg-yellow-100 text-yellow-800";
+      case "In process": return "bg-cyan-100 text-cyan-800";
       case "Todo": return "bg-gray-100 text-gray-800";
       default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handleEditResearch = (researchId: number) => {
+    const research = myResearch.find(r => r.id === researchId);
+    if (research?.status === "Todo") {
+      navigate(`/researcher-form?edit=${researchId}`);
     }
   };
 
@@ -85,6 +92,7 @@ export default function ResearcherDashboard() {
                   <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Result</TableHead>
+                  <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -107,6 +115,19 @@ export default function ResearcherDashboard() {
                         >
                           <Download className="w-4 h-4 mr-2" />
                           Download
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {research.status === "Todo" ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditResearch(research.id)}
+                        >
+                          Edit
                         </Button>
                       ) : (
                         <span className="text-muted-foreground">-</span>

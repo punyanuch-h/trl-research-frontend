@@ -334,7 +334,7 @@ export default function ResearcherForm() {
           <div className="flex items-center space-x-4">
             {formSteps.map((step, index) => (
               <div key={step.id} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
                   step.id === currentFormStep
                     ? "bg-primary text-primary-foreground"
                     : step.id < currentFormStep
@@ -343,8 +343,11 @@ export default function ResearcherForm() {
                 }`}>
                   {step.id}
                 </div>
+                <div className="ml-2 text-sm font-medium">
+                  Step {step.id}
+                </div>
                 {index < formSteps.length - 1 && (
-                  <div className={`w-16 h-0.5 mx-2 ${
+                  <div className={`w-16 h-0.5 mx-4 ${
                     step.id < currentFormStep ? "bg-primary" : "bg-muted"
                   }`} />
                 )}
@@ -355,7 +358,7 @@ export default function ResearcherForm() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{formSteps[currentFormStep - 1].title}</CardTitle>
+            <CardTitle>Step {currentFormStep}: {formSteps[currentFormStep - 1].title}</CardTitle>
           </CardHeader>
           <CardContent>
             {renderFormStep()}
