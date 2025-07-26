@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -104,45 +105,78 @@ export default function ResearcherDashboard() {
                 <TableRow>
                   <TableHead className="w-12">No</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    Type
-                    <select 
-                      value={typeFilter} 
-                      onChange={(e) => setTypeFilter(e.target.value)}
-                      className="border rounded px-1 py-0.5 text-xs"
-                    >
-                      <option value="all">All</option>
-                      <option value="TRL software">Software</option>
-                      <option value="TRL medical devices">Medical</option>
-                      <option value="TRL medicines vaccines stem cells">Medicine</option>
-                      <option value="TRL plant/animal breeds">Biology</option>
-                    </select>
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      Type
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <Filter className="h-3 w-3" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-40 p-2">
+                          <select 
+                            value={typeFilter} 
+                            onChange={(e) => setTypeFilter(e.target.value)}
+                            className="w-full border rounded px-2 py-1 text-sm"
+                          >
+                            <option value="all">All Types</option>
+                            <option value="TRL software">Software</option>
+                            <option value="TRL medical devices">Medical</option>
+                            <option value="TRL medicines vaccines stem cells">Medicine</option>
+                            <option value="TRL plant/animal breeds">Biology</option>
+                          </select>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    TRL Score
-                    <select 
-                      value={trlFilter} 
-                      onChange={(e) => setTrlFilter(e.target.value)}
-                      className="border rounded px-1 py-0.5 text-xs"
-                    >
-                      <option value="all">All</option>
-                      {[1,2,3,4,5,6,7,8,9].map(num => (
-                        <option key={num} value={`TRL${num}`}>TRL{num}</option>
-                      ))}
-                    </select>
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      TRL Score
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <Filter className="h-3 w-3" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-32 p-2">
+                          <select 
+                            value={trlFilter} 
+                            onChange={(e) => setTrlFilter(e.target.value)}
+                            className="w-full border rounded px-2 py-1 text-sm"
+                          >
+                            <option value="all">All TRL</option>
+                            {[1,2,3,4,5,6,7,8,9].map(num => (
+                              <option key={num} value={`TRL${num}`}>TRL{num}</option>
+                            ))}
+                          </select>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    Status
-                    <select 
-                      value={statusFilter} 
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      className="border rounded px-1 py-0.5 text-xs"
-                    >
-                      <option value="all">All</option>
-                      <option value="Todo">Todo</option>
-                      <option value="In process">In process</option>
-                      <option value="Approve">Approve</option>
-                    </select>
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      Status
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <Filter className="h-3 w-3" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-32 p-2">
+                          <select 
+                            value={statusFilter} 
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="w-full border rounded px-2 py-1 text-sm"
+                          >
+                            <option value="all">All Status</option>
+                            <option value="Todo">Todo</option>
+                            <option value="In process">In process</option>
+                            <option value="Approve">Approve</option>
+                          </select>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </TableHead>
                   <TableHead>Result</TableHead>
                   <TableHead>Action</TableHead>
