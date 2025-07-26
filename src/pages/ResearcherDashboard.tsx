@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Filter } from "lucide-react";
 
 export default function ResearcherDashboard() {
   const navigate = useNavigate();
@@ -97,48 +97,6 @@ export default function ResearcherDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Research Submissions</CardTitle>
-            <div className="flex gap-4 mt-4">
-              <div>
-                <label className="text-sm font-medium">Filter by Type:</label>
-                <select 
-                  value={typeFilter} 
-                  onChange={(e) => setTypeFilter(e.target.value)}
-                  className="ml-2 border rounded px-2 py-1"
-                >
-                  <option value="all">All Types</option>
-                  <option value="TRL software">TRL software</option>
-                  <option value="TRL medical devices">TRL medical devices</option>
-                  <option value="TRL medicines vaccines stem cells">TRL medicines vaccines stem cells</option>
-                  <option value="TRL plant/animal breeds">TRL plant/animal breeds</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Filter by TRL Score:</label>
-                <select 
-                  value={trlFilter} 
-                  onChange={(e) => setTrlFilter(e.target.value)}
-                  className="ml-2 border rounded px-2 py-1"
-                >
-                  <option value="all">All TRL</option>
-                  {[1,2,3,4,5,6,7,8,9].map(num => (
-                    <option key={num} value={`TRL${num}`}>TRL{num}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Filter by Status:</label>
-                <select 
-                  value={statusFilter} 
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="ml-2 border rounded px-2 py-1"
-                >
-                  <option value="all">All Status</option>
-                  <option value="Todo">Todo</option>
-                  <option value="In process">In process</option>
-                  <option value="Approve">Approve</option>
-                </select>
-              </div>
-            </div>
           </CardHeader>
           <CardContent>
             <Table>
@@ -146,9 +104,46 @@ export default function ResearcherDashboard() {
                 <TableRow>
                   <TableHead className="w-12">No</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>TRL Score</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="flex items-center gap-2">
+                    Type
+                    <select 
+                      value={typeFilter} 
+                      onChange={(e) => setTypeFilter(e.target.value)}
+                      className="border rounded px-1 py-0.5 text-xs"
+                    >
+                      <option value="all">All</option>
+                      <option value="TRL software">Software</option>
+                      <option value="TRL medical devices">Medical</option>
+                      <option value="TRL medicines vaccines stem cells">Medicine</option>
+                      <option value="TRL plant/animal breeds">Biology</option>
+                    </select>
+                  </TableHead>
+                  <TableHead className="flex items-center gap-2">
+                    TRL Score
+                    <select 
+                      value={trlFilter} 
+                      onChange={(e) => setTrlFilter(e.target.value)}
+                      className="border rounded px-1 py-0.5 text-xs"
+                    >
+                      <option value="all">All</option>
+                      {[1,2,3,4,5,6,7,8,9].map(num => (
+                        <option key={num} value={`TRL${num}`}>TRL{num}</option>
+                      ))}
+                    </select>
+                  </TableHead>
+                  <TableHead className="flex items-center gap-2">
+                    Status
+                    <select 
+                      value={statusFilter} 
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="border rounded px-1 py-0.5 text-xs"
+                    >
+                      <option value="all">All</option>
+                      <option value="Todo">Todo</option>
+                      <option value="In process">In process</option>
+                      <option value="Approve">Approve</option>
+                    </select>
+                  </TableHead>
                   <TableHead>Result</TableHead>
                   <TableHead>Action</TableHead>
                 </TableRow>
@@ -160,7 +155,11 @@ export default function ResearcherDashboard() {
                     <TableCell className="font-medium">{research.name}</TableCell>
                     <TableCell>{research.type}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{research.trlScore}</Badge>
+                      {research.status === "Approve" ? (
+                        <Badge variant="outline">{research.trlScore}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(research.status)}>
