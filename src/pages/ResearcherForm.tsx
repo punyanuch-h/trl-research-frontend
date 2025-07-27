@@ -5,8 +5,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, ArrowLeft as PrevIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowLeft as PrevIcon, CheckSquare } from "lucide-react";
 import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function ResearcherForm() {
   const navigate = useNavigate();
@@ -373,17 +384,46 @@ export default function ResearcherForm() {
                 Previous
               </Button>
               
-              {currentFormStep === 5 ? (
-                <Button onClick={handleSubmit}>
-                  Submit Research
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
-                <Button onClick={handleNext}>
-                  Next
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
+              <div className="flex gap-3">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline">
+                      <CheckSquare className="w-4 h-4 mr-2" />
+                      Confirm Changes
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you finished editing this research? This will save your changes and return you to the researcher dashboard.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Continue Editing</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => {
+                          navigate('/researcher-dashboard');
+                        }}
+                      >
+                        Confirm & Return to Dashboard
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                {currentFormStep === 5 ? (
+                  <Button onClick={handleSubmit}>
+                    Submit Research
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                ) : (
+                  <Button onClick={handleNext}>
+                    Next
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
