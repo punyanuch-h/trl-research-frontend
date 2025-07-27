@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Circle } from "lucide-react";
+import { CheckCircle, Circle, SkipForward, CheckSquare } from "lucide-react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
 interface StepLayoutProps {
@@ -28,6 +28,7 @@ export default function StepLayout({ children, currentStep, title, description }
   
   const researchName = searchParams.get('research') || 'Research Project';
   const researchType = searchParams.get('type') || 'TRL Assessment';
+  const userRole = searchParams.get('role') || 'researcher'; // 'professor' or 'researcher'
 
   const isStepCompleted = (stepId: number) => stepId < currentStep;
   const isCurrentStep = (stepId: number) => stepId === currentStep;
@@ -49,7 +50,7 @@ export default function StepLayout({ children, currentStep, title, description }
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                  <button
-                  onClick={() => navigate(`${step.path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}`)}
+                  onClick={() => navigate(`${step.path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`)}
                   className="flex items-center space-x-2 group"
                 >
                   {isStepCompleted(step.id) ? (
@@ -112,7 +113,7 @@ export default function StepLayout({ children, currentStep, title, description }
             variant="outline"
             onClick={() => {
               if (currentStep > 1) {
-                navigate(`${steps[currentStep - 2].path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}`);
+                navigate(`${steps[currentStep - 2].path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
               }
             }}
             disabled={currentStep === 1}
@@ -120,17 +121,50 @@ export default function StepLayout({ children, currentStep, title, description }
             Previous
           </Button>
           
-          <Button
-            onClick={() => {
-              if (currentStep < steps.length) {
-                navigate(`${steps[currentStep].path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}`);
-              } else {
-                navigate(`/complete?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}`);
-              }
-            }}
-          >
-            {currentStep === steps.length ? "Complete Assessment" : "Next Step"}
-          </Button>
+          <div className="flex gap-3">
+            {/* Role-specific buttons */}
+            {userRole === 'professor' && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  navigate(`/complete?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
+                }}
+              >
+                <SkipForward className="w-4 h-4 mr-2" />
+                Skip to Results
+              </Button>
+            )}
+            
+            {userRole === 'researcher' && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // Handle confirm changes logic - could show a confirmation dialog
+                  // For now, just move to next step
+                  if (currentStep < steps.length) {
+                    navigate(`${steps[currentStep].path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
+                  } else {
+                    navigate(`/complete?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
+                  }
+                }}
+              >
+                <CheckSquare className="w-4 h-4 mr-2" />
+                Confirm Changes
+              </Button>
+            )}
+            
+            <Button
+              onClick={() => {
+                if (currentStep < steps.length) {
+                  navigate(`${steps[currentStep].path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
+                } else {
+                  navigate(`/complete?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
+                }
+              }}
+            >
+              {currentStep === steps.length ? "Complete Assessment" : "Next Step"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
