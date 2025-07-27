@@ -10,14 +10,15 @@ import { Plus, ArrowLeft, Download, Filter, Sparkles } from "lucide-react";
 export default function ProfessorDashboard() {
   const navigate = useNavigate();
 
-  const researchProjects = [
+  const [researchProjects, setResearchProjects] = React.useState([
     {
       id: 1,
       name: "AI-Powered Medical Diagnosis System",
       type: "TRL medical devices",
       trlScore: "TRL3",
       status: "In process",
-      result: null
+      result: null,
+      aiEstimate: null
     },
     {
       id: 2,
@@ -25,7 +26,8 @@ export default function ProfessorDashboard() {
       type: "TRL software",
       trlScore: "TRL2",
       status: "Todo",
-      result: null
+      result: null,
+      aiEstimate: null
     },
     {
       id: 3,
@@ -33,7 +35,8 @@ export default function ProfessorDashboard() {
       type: "TRL medicines vaccines stem cells",
       trlScore: "TRL7",
       status: "Approve",
-      result: "resultReport.pdf"
+      result: "resultReport.pdf",
+      aiEstimate: null
     },
     {
       id: 4,
@@ -41,9 +44,10 @@ export default function ProfessorDashboard() {
       type: "TRL plant/animal breeds",
       trlScore: "TRL4",
       status: "In process",
-      result: null
+      result: null,
+      aiEstimate: null
     }
-  ];
+  ]);
 
   const [typeFilter, setTypeFilter] = React.useState("all");
   const [trlFilter, setTrlFilter] = React.useState("all");
@@ -89,7 +93,12 @@ export default function ProfessorDashboard() {
     const estimates = aiEstimates[project.type] || ["TRL3", "TRL4"];
     const randomEstimate = estimates[Math.floor(Math.random() * estimates.length)];
     
-    alert(`AI Suggestion for "${project.name}": ${randomEstimate}\n\nBased on project type and current research phase.`);
+    // Update the project with AI estimate
+    setResearchProjects(prevProjects =>
+      prevProjects.map(p =>
+        p.id === project.id ? { ...p, aiEstimate: randomEstimate } : p
+      )
+    );
   };
 
   return (
@@ -228,17 +237,23 @@ export default function ProfessorDashboard() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAIEstimate(project);
-                        }}
-                      >
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        AI Estimate
-                      </Button>
+                      {project.aiEstimate ? (
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                          {project.aiEstimate}
+                        </Badge>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAIEstimate(project);
+                          }}
+                        >
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          AI Estimate
+                        </Button>
+                      )}
                     </TableCell>
                     <TableCell>
                       {project.result ? (
