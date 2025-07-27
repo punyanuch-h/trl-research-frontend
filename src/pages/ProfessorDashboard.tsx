@@ -5,7 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { Plus, ArrowLeft, Download, Filter } from "lucide-react";
+import { Plus, ArrowLeft, Download, Filter, Sparkles } from "lucide-react";
 
 export default function ProfessorDashboard() {
   const navigate = useNavigate();
@@ -75,6 +75,21 @@ export default function ProfessorDashboard() {
     link.href = '#';
     link.download = filename;
     link.click();
+  };
+
+  const handleAIEstimate = (project: any) => {
+    // AI estimation logic based on project type and details
+    const aiEstimates = {
+      "TRL software": ["TRL3", "TRL4", "TRL5"],
+      "TRL medical devices": ["TRL2", "TRL3", "TRL4"],
+      "TRL medicines vaccines stem cells": ["TRL6", "TRL7", "TRL8"],
+      "TRL plant/animal breeds": ["TRL3", "TRL4", "TRL5"]
+    };
+    
+    const estimates = aiEstimates[project.type] || ["TRL3", "TRL4"];
+    const randomEstimate = estimates[Math.floor(Math.random() * estimates.length)];
+    
+    alert(`AI Suggestion for "${project.name}": ${randomEstimate}\n\nBased on project type and current research phase.`);
   };
 
   return (
@@ -184,6 +199,7 @@ export default function ProfessorDashboard() {
                       </Popover>
                     </div>
                   </TableHead>
+                  <TableHead>Generate by AI</TableHead>
                   <TableHead>Result</TableHead>
                 </TableRow>
               </TableHeader>
@@ -210,6 +226,19 @@ export default function ProfessorDashboard() {
                       <Badge className={getStatusColor(project.status)}>
                         {project.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAIEstimate(project);
+                        }}
+                      >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        AI Estimate
+                      </Button>
                     </TableCell>
                     <TableCell>
                       {project.result ? (
