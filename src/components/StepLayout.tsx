@@ -169,25 +169,25 @@ export default function StepLayout({ children, currentStep, title, description }
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline">
-                    <CheckSquare className="w-4 h-4 mr-2" />
-                    Confirm Changes
+                    <SkipForward className="w-4 h-4 mr-2" />
+                    Skip this step
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
+                    <AlertDialogTitle>Skip this step</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Are you finished editing this research? This will save your changes and return you to the dashboard.
+                      Are you sure you want to skip this step and return to the professor dashboard?
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Continue Editing</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => {
-                        navigate(`/researcher-dashboard?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
+                        navigate(`/professor-dashboard?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
                       }}
                     >
-                      Confirm & Return to Dashboard
+                      Skip & Return to Dashboard
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
