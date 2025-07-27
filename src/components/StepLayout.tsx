@@ -1,6 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Circle, SkipForward, CheckSquare } from "lucide-react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 interface StepLayoutProps {
   children: React.ReactNode;
@@ -124,33 +136,62 @@ export default function StepLayout({ children, currentStep, title, description }
           <div className="flex gap-3">
             {/* Role-specific buttons */}
             {userRole === 'professor' && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  navigate(`/complete?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
-                }}
-              >
-                <SkipForward className="w-4 h-4 mr-2" />
-                Skip to Results
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline">
+                    <SkipForward className="w-4 h-4 mr-2" />
+                    Skip to Results
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Skip to Results?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to skip the remaining steps and go directly to the results page? 
+                      You can always come back to complete the other steps later.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        navigate(`/complete?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
+                      }}
+                    >
+                      Skip to Results
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
             
             {userRole === 'researcher' && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  // Handle confirm changes logic - could show a confirmation dialog
-                  // For now, just move to next step
-                  if (currentStep < steps.length) {
-                    navigate(`${steps[currentStep].path}?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
-                  } else {
-                    navigate(`/complete?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
-                  }
-                }}
-              >
-                <CheckSquare className="w-4 h-4 mr-2" />
-                Confirm Changes
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline">
+                    <CheckSquare className="w-4 h-4 mr-2" />
+                    Confirm Changes
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you finished editing this research? This will save your changes and return you to the dashboard.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Continue Editing</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        navigate(`/researcher-dashboard?research=${encodeURIComponent(researchName)}&type=${encodeURIComponent(researchType)}&role=${userRole}`);
+                      }}
+                    >
+                      Confirm & Return to Dashboard
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
             
             <Button
