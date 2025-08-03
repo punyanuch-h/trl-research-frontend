@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ArrowLeft as PrevIcon, CheckSquare } from "lucide-react";
 import { useState } from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,20 +19,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 
 export default function ResearcherForm() {
   const navigate = useNavigate();
   const [currentFormStep, setCurrentFormStep] = useState(1);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [formData, setFormData] = useState({
-    // Step 1: Researcher Information
-    name: "",
-    email: "",
-    institution: "",
-    position: "",
+    // Step 1: TRL Type
+    researchType: "",
     
     // Step 2: Research Details
     researchTitle: "",
-    researchType: "",
     description: "",
     objectives: "",
     
@@ -55,18 +63,12 @@ export default function ResearcherForm() {
   });
 
   const formSteps = [
-    { id: 1, title: "Researcher Information", fields: ["name", "email", "institution", "position"] },
+    { id: 1, title: "TRL Type", fields: ["researchType"] },
+    // { id: 1, title: "Researcher Information", fields: ["name", "email", "institution", "position"] },
     { id: 2, title: "Research Details", fields: ["researchTitle", "researchType", "description", "objectives"] },
     { id: 3, title: "Technical Details", fields: ["methodology", "technologies", "timeline", "resources"] },
     { id: 4, title: "Commercial Opportunity", fields: ["marketPotential", "competitiveAdvantage", "businessModel", "funding"] },
     { id: 5, title: "Innovation Showcase", fields: ["innovation", "impact", "publications", "patents"] }
-  ];
-
-  const researchTypes = [
-    "TRL software",
-    "TRL medical devices",
-    "TRL medicines vaccines stem cells",
-    "TRL plant/animal breeds"
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -96,41 +98,29 @@ export default function ResearcherForm() {
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                placeholder="Enter your full name"
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                placeholder="Enter your email"
-              />
-            </div>
-            <div>
-              <Label htmlFor="institution">Institution/Organization</Label>
-              <Input
-                id="institution"
-                value={formData.institution}
-                onChange={(e) => handleInputChange("institution", e.target.value)}
-                placeholder="Enter your institution"
-              />
-            </div>
-            <div>
-              <Label htmlFor="position">Position/Title</Label>
-              <Input
-                id="position"
-                value={formData.position}
-                onChange={(e) => handleInputChange("position", e.target.value)}
-                placeholder="Enter your position"
-              />
+              <RadioGroup
+                id="researchType"
+                value={formData.researchType}
+                onValueChange={(value) => handleInputChange("researchType", value)}
+                className="space-y-2 mt-2"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="TRL software" id="software" />
+                  <Label htmlFor="software">TRL software</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="TRL medical devices" id="medical" />
+                  <Label htmlFor="medical">TRL medical devices</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="TRL medicines vaccines stem cells" id="medicines" />
+                  <Label htmlFor="medicines">TRL medicines vaccines stem cells</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="TRL plant/animal breeds" id="plant" />
+                  <Label htmlFor="plant">TRL plant/animal breeds</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
         );
@@ -145,21 +135,6 @@ export default function ResearcherForm() {
                 onChange={(e) => handleInputChange("researchTitle", e.target.value)}
                 placeholder="Enter research title"
               />
-            </div>
-            <div>
-              <Label htmlFor="researchType">Research Type</Label>
-              <Select value={formData.researchType} onValueChange={(value) => handleInputChange("researchType", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select research type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {researchTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div>
               <Label htmlFor="description">Research Description</Label>
@@ -386,12 +361,6 @@ export default function ResearcherForm() {
               
               <div className="flex gap-3">
                 <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline">
-                      <CheckSquare className="w-4 h-4 mr-2" />
-                      Confirm Changes
-                    </Button>
-                  </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
@@ -413,7 +382,7 @@ export default function ResearcherForm() {
                 </AlertDialog>
 
                 {currentFormStep === 5 ? (
-                  <Button onClick={handleSubmit}>
+                  <Button onClick={() => setShowConfirmDialog(true)}>
                     Submit Research
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
@@ -427,6 +396,78 @@ export default function ResearcherForm() {
             </div>
           </CardContent>
         </Card>
+
+        <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Your Submission</DialogTitle>
+              <DialogDescription>
+                Please review the information before submitting your research.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6 text-sm text-foreground">
+              {/* Research Type */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-2">Research Type</h3>
+                <p>{formData.researchType}</p>
+              </div>
+
+              {/* Research Details */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-2">Research Details</h3>
+                <div className="space-y-1">
+                  <p><strong>Title:</strong> {formData.researchTitle}</p>
+                  <p><strong>Description:</strong> {formData.description}</p>
+                  <p><strong>Objectives:</strong> {formData.objectives}</p>
+                </div>
+              </div>
+
+              {/* Technical Details */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-2">Technical Details</h3>
+                <div className="space-y-1">
+                  <p><strong>Methodology:</strong> {formData.methodology}</p>
+                  <p><strong>Technologies:</strong> {formData.technologies}</p>
+                  <p><strong>Timeline:</strong> {formData.timeline}</p>
+                  <p><strong>Resources:</strong> {formData.resources}</p>
+                </div>
+              </div>
+
+              {/* Commercial Opportunity */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-2">Commercial Opportunity</h3>
+                <div className="space-y-1">
+                  <p><strong>Market Potential:</strong> {formData.marketPotential}</p>
+                  <p><strong>Competitive Advantage:</strong> {formData.competitiveAdvantage}</p>
+                  <p><strong>Business Model:</strong> {formData.businessModel}</p>
+                  <p><strong>Funding:</strong> {formData.funding}</p>
+                </div>
+              </div>
+
+              {/* Innovation Showcase */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-2">Innovation Showcase</h3>
+                <div className="space-y-1">
+                  <p><strong>Innovation:</strong> {formData.innovation}</p>
+                  <p><strong>Impact:</strong> {formData.impact}</p>
+                  <p><strong>Publications:</strong> {formData.publications}</p>
+                  <p><strong>Patents:</strong> {formData.patents}</p>
+                </div>
+              </div>
+            </div>
+
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit}>
+                Confirm & Submit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

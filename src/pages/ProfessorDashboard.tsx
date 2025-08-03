@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { Plus, ArrowLeft, Download, Filter, Sparkles } from "lucide-react";
+import Header from "../components/Header"; 
 
 export default function ProfessorDashboard() {
   const navigate = useNavigate();
@@ -103,6 +104,7 @@ export default function ProfessorDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
