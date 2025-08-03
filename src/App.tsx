@@ -17,6 +17,7 @@ import Step7 from "./pages/Step7";
 import Step8 from "./pages/Step8";
 import Step9 from "./pages/Step9";
 import CompletePage from "./pages/CompletePage";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/trl-8" element={<Step8 />} />
           <Route path="/trl-9" element={<Step9 />} />
           <Route path="/complete" element={<CompletePage />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
