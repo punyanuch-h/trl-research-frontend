@@ -6,11 +6,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
-import { Plus, ArrowLeft, Download, Filter, Sparkles, BarChart3 } from "lucide-react";
-import Header from "../components/Header"; 
+import { Plus, ArrowLeft, Download, Filter, Sparkles, ChartArea } from "lucide-react";
+import ProfessorNavbar from "../components/ProfessorNavbar";
+import AdminDashboard from "./AdminDashboard"; 
 
 export default function ProfessorDashboard() {
   const navigate = useNavigate();
+  const [activeView, setActiveView] = React.useState<'management' | 'dashboard'>('management');
 
   const [researchProjects, setResearchProjects] = React.useState([
     {
@@ -104,36 +106,8 @@ export default function ProfessorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/')}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Research Dashboard</h1>
-              <p className="text-muted-foreground">Manage your TRL assessment projects</p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => navigate("/admin-dashboard")}>
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Dashboard
-            </Button>
-            <Button onClick={() => navigate('/researcher-form')}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Research
-            </Button>
-          </div>
-        </div>
-
+    <ProfessorNavbar activeView={activeView} onViewChange={setActiveView}>
+      {activeView === 'management' ? (
         <Card>
           <CardHeader>
             <CardTitle>Research Projects</CardTitle>
@@ -284,7 +258,11 @@ export default function ProfessorDashboard() {
             </Table>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      ) : (
+        <div className="bg-gray-50">
+          <AdminDashboard />
+        </div>
+      )}
+    </ProfessorNavbar>
   );
 }

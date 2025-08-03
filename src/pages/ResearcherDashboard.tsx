@@ -5,17 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TablePagination } from "@/components/TablePagination";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Filter } from "lucide-react";
+import { Download, Filter, Plus } from "lucide-react";
 import Header from "../components/Header";
-import AddIcon from '@mui/icons-material/Add';
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export default function ResearcherDashboard() {
   const navigate = useNavigate();
@@ -117,7 +109,7 @@ export default function ResearcherDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Button onClick={() => navigate("/researcher-form")}>
-              <AddIcon className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2" />
               New
             </Button>
             <div>
