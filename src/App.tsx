@@ -7,6 +7,7 @@ import StartPage from "./pages/StartPage";
 import ProfessorDashboard from "./pages/ProfessorDashboard";
 import ResearcherDashboard from "./pages/ResearcherDashboard";
 import ResearcherForm from "./pages/ResearcherForm";
+import AdminDashboard from "./pages/AdminDashboard";
 import Step1 from "./pages/Step1";
 import Step2 from "./pages/Step2";
 import Step3 from "./pages/Step3";
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/professor-dashboard" element={<ProfessorDashboard />} />
           <Route path="/researcher-dashboard" element={<ResearcherDashboard />} />
           <Route path="/researcher-form" element={<ResearcherForm />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/trl-1" element={<Step1 />} />
           <Route path="/trl-2" element={<Step2 />} />
           <Route path="/trl-3" element={<Step3 />} />
