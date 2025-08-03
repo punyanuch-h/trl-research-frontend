@@ -1,11 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ArrowLeft, Download, Filter, Sparkles, ChartArea, List } from 'lucide-react';
+import { Plus, ArrowLeft, ChartArea, List } from 'lucide-react';
 import Header from './Header';
 
 interface ProfessorNavbarProps {

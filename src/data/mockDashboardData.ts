@@ -6,6 +6,7 @@ export const mockDashboardData: DashboardData = {
     activeResearch: 89,
     completedResearch: 45,
     newResearchThisMonth: 12,
+    averageTrl: 4.5,
   },
   
   researchByType: [
@@ -35,17 +36,17 @@ export const mockDashboardData: DashboardData = {
   
   monthlySubmissions: [
     { month: 'Jan', submissions: 8, completions: 3 },
-    { month: 'Feb', submissions: 12, completions: 5 },
-    { month: 'Mar', submissions: 15, completions: 7 },
-    { month: 'Apr', submissions: 18, completions: 9 },
+    { month: 'Feb', submissions: 12, completions: 9 },
+    { month: 'Mar', submissions: 15, completions: 10 },
+    { month: 'Apr', submissions: 18, completions: 19 },
     { month: 'May', submissions: 22, completions: 12 },
-    { month: 'Jun', submissions: 25, completions: 15 },
-    { month: 'Jul', submissions: 28, completions: 18 },
-    { month: 'Aug', submissions: 30, completions: 20 },
-    { month: 'Sep', submissions: 32, completions: 22 },
-    { month: 'Oct', submissions: 35, completions: 25 },
-    { month: 'Nov', submissions: 38, completions: 28 },
-    { month: 'Dec', submissions: 42, completions: 32 },
+    { month: 'Jun', submissions: 21, completions: 25 },
+    { month: 'Jul', submissions: 12, completions: 18 },
+    { month: 'Aug', submissions: 30, completions: 29 },
+    { month: 'Sep', submissions: 32, completions: 35 },
+    { month: 'Oct', submissions: 25, completions: 30 },
+    { month: 'Nov', submissions: 38, completions: 33 },
+    { month: 'Dec', submissions: 42, completions: 48 },
   ],
   
   institutionStats: [
@@ -60,20 +61,20 @@ export const mockDashboardData: DashboardData = {
   ],
   
   researchProgress: [
-    { date: '2024-01-01', newResearch: 3, inProgress: 45, completed: 12 },
-    { date: '2024-01-02', newResearch: 2, inProgress: 47, completed: 13 },
-    { date: '2024-01-03', newResearch: 4, inProgress: 49, completed: 14 },
-    { date: '2024-01-04', newResearch: 1, inProgress: 50, completed: 15 },
-    { date: '2024-01-05', newResearch: 3, inProgress: 52, completed: 16 },
-    { date: '2024-01-06', newResearch: 2, inProgress: 54, completed: 17 },
-    { date: '2024-01-07', newResearch: 5, inProgress: 56, completed: 18 },
-    { date: '2024-01-08', newResearch: 1, inProgress: 57, completed: 19 },
-    { date: '2024-01-09', newResearch: 3, inProgress: 59, completed: 20 },
-    { date: '2024-01-10', newResearch: 2, inProgress: 61, completed: 21 },
-    { date: '2024-01-11', newResearch: 4, inProgress: 63, completed: 22 },
-    { date: '2024-01-12', newResearch: 1, inProgress: 64, completed: 23 },
-    { date: '2024-01-13', newResearch: 3, inProgress: 66, completed: 24 },
-    { date: '2024-01-14', newResearch: 2, inProgress: 68, completed: 25 },
+    { date: '2024-01-01', Todo: 3, InProgress: 45, Done: 12 },
+    { date: '2024-01-02', Todo: 2, InProgress: 47, Done: 13 },
+    { date: '2024-01-03', Todo: 4, InProgress: 49, Done: 14 },
+    { date: '2024-01-04', Todo: 1, InProgress: 50, Done: 15 },
+    { date: '2024-01-05', Todo: 3, InProgress: 52, Done: 16 },
+    { date: '2024-01-06', Todo: 2, InProgress: 54, Done: 17 },
+    { date: '2024-01-07', Todo: 5, InProgress: 56, Done: 18 },
+    { date: '2024-01-08', Todo: 1, InProgress: 57, Done: 19 },
+    { date: '2024-01-09', Todo: 3, InProgress: 59, Done: 20 },
+    { date: '2024-01-10', Todo: 2, InProgress: 61, Done: 21 },
+    { date: '2024-01-11', Todo: 4, InProgress: 63, Done: 22 },
+    { date: '2024-01-12', Todo: 1, InProgress: 64, Done: 23 },
+    { date: '2024-01-13', Todo: 3, InProgress: 66, Done: 24 },
+    { date: '2024-01-14', Todo: 2, InProgress: 68, Done: 25 },
   ],
   
   innovationMetrics: {
@@ -157,6 +158,7 @@ export const mockDashboardDataAlternative: DashboardData = {
     activeResearch: 156,
     completedResearch: 78,
     newResearchThisMonth: 18,
+    averageTrl: 4.5,
   },
   
   researchByType: [
@@ -200,24 +202,24 @@ export const mockDashboardDataAlternative: DashboardData = {
   ],
   
   institutionStats: [
-    { institution: 'Chulalongkorn University', researchCount: 52, percentage: 22.2 },
-    { institution: 'Mahidol University', researchCount: 45, percentage: 19.2 },
-    { institution: 'Kasetsart University', researchCount: 38, percentage: 16.2 },
-    { institution: 'Thammasat University', researchCount: 32, percentage: 13.7 },
-    { institution: 'King Mongkut\'s University', researchCount: 28, percentage: 12.0 },
-    { institution: 'Prince of Songkla University', researchCount: 22, percentage: 9.4 },
-    { institution: 'Chiang Mai University', researchCount: 18, percentage: 7.7 },
+    { institution: 'Chulalongkorn', researchCount: 52, percentage: 22.2 },
+    { institution: 'Mahidol', researchCount: 45, percentage: 19.2 },
+    { institution: 'Kasetsart', researchCount: 38, percentage: 16.2 },
+    { institution: 'Thammasat', researchCount: 32, percentage: 13.7 },
+    { institution: 'King Mongkut\'s', researchCount: 28, percentage: 12.0 },
+    { institution: 'Prince of Songkla', researchCount: 22, percentage: 9.4 },
+    { institution: 'Chiang Mai', researchCount: 18, percentage: 7.7 },
     { institution: 'Other Institutions', researchCount: 19, percentage: 8.1 },
   ],
   
   researchProgress: [
-    { date: '2024-01-01', newResearch: 5, inProgress: 67, completed: 18 },
-    { date: '2024-01-02', newResearch: 3, inProgress: 70, completed: 20 },
-    { date: '2024-01-03', newResearch: 6, inProgress: 73, completed: 22 },
-    { date: '2024-01-04', newResearch: 2, inProgress: 75, completed: 24 },
-    { date: '2024-01-05', newResearch: 4, inProgress: 78, completed: 26 },
-    { date: '2024-01-06', newResearch: 3, inProgress: 81, completed: 28 },
-    { date: '2024-01-07', newResearch: 7, inProgress: 84, completed: 30 },
+    { date: '2024-01-01', Todo: 5, InProgress: 67, Done: 18 },
+    { date: '2024-01-02', Todo: 3, InProgress: 70, Done: 20 },
+    { date: '2024-01-03', Todo: 6, InProgress: 73, Done: 22 },
+    { date: '2024-01-04', Todo: 2, InProgress: 75, Done: 24 },
+    { date: '2024-01-05', Todo: 4, InProgress: 78, Done: 26 },
+    { date: '2024-01-06', Todo: 3, InProgress: 81, Done: 28 },
+    { date: '2024-01-07', Todo: 7, InProgress: 84, Done: 30 },
   ],
   
   innovationMetrics: {

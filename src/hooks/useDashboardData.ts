@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { mockDashboardData } from '../data/mock-dashboard-data';
+import { mockDashboardData } from '../data/mockDashboardData';
 
 export interface DashboardData {
   // Research Statistics
@@ -8,6 +8,7 @@ export interface DashboardData {
     activeResearch: number;
     completedResearch: number;
     newResearchThisMonth: number;
+    averageTrl: number;
   };
   
   // Research by Type
@@ -48,9 +49,9 @@ export interface DashboardData {
   // Research Progress Timeline
   researchProgress: Array<{
     date: string;
-    newResearch: number;
-    inProgress: number;
-    completed: number;
+    Todo: number;
+    InProgress: number;
+    Done: number;
   }>;
   
   // Innovation Metrics

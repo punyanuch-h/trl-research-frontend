@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
-import { Plus, ArrowLeft, Download, Filter, Sparkles, ChartArea } from "lucide-react";
+import { Download, Filter, Sparkles } from "lucide-react";
 import ProfessorNavbar from "../components/ProfessorNavbar";
 import AdminDashboard from "./AdminDashboard"; 
 
