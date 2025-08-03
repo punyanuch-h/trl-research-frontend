@@ -5,8 +5,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import { Plus, ArrowLeft, Download, Filter, Sparkles } from "lucide-react";
 import Header from "../components/Header"; 
+=======
+import { Plus, ArrowLeft, Download, Filter, Sparkles, BarChart3 } from "lucide-react";
+>>>>>>> main
 
 export default function ProfessorDashboard() {
   const navigate = useNavigate();
@@ -121,10 +125,16 @@ export default function ProfessorDashboard() {
               <p className="text-muted-foreground">Manage your TRL assessment projects</p>
             </div>
           </div>
-          <Button onClick={() => navigate('/researcher-form')}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Research
-          </Button>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => navigate("/admin-dashboard")}>
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Dashboard
+            </Button>
+            <Button onClick={() => navigate('/researcher-form')}>
+              <Plus className="w-4 h-4 mr-2" />
+              New Research
+            </Button>
+          </div>
         </div>
 
         <Card>
