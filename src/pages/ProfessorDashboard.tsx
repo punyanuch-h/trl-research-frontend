@@ -5,12 +5,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-<<<<<<< HEAD
-import { Plus, ArrowLeft, Download, Filter, Sparkles } from "lucide-react";
-import Header from "../components/Header"; 
-=======
+
 import { Plus, ArrowLeft, Download, Filter, Sparkles, BarChart3 } from "lucide-react";
->>>>>>> main
+import Header from "../components/Header"; 
 
 export default function ProfessorDashboard() {
   const navigate = useNavigate();

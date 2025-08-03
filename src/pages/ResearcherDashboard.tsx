@@ -151,62 +151,65 @@ export default function ResearcherDashboard() {
             </Button>
           </div>
         </div>
-
-        {showFilterModal && (
-          <div className="border p-4 rounded-lg shadow mb-6 space-y-4 bg-muted">
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <label className="text-sm font-medium block mb-1">Column</label>
-                <select
-                  value={selectedColumn}
-                  onChange={(e) => {
-                    setSelectedColumn(e.target.value);
-                    setSelectedValue("");
+          {/* Modal Filter */}
+          <Dialog open={showFilterModal} onOpenChange={setShowFilterModal}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Filter Research</DialogTitle>
+              </DialogHeader>
+              <div className="flex gap-4 mb-4">
+                <div className="flex-1">
+                  <label className="text-sm font-medium block mb-1">Column</label>
+                  <select
+                    value={selectedColumn}
+                    onChange={(e) => {
+                      setSelectedColumn(e.target.value);
+                      setSelectedValue("");
+                    }}
+                    className="w-full border rounded px-2 py-1 text-sm"
+                  >
+                    {columns.map((col) => (
+                      <option key={col} value={col}>{col}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="text-sm font-medium block mb-1">Value</label>
+                  <select
+                    value={selectedValue}
+                    onChange={(e) => setSelectedValue(e.target.value)}
+                    className="w-full border rounded px-2 py-1 text-sm"
+                  >
+                    <option value="">Select value</option>
+                    {columnOptions[selectedColumn].map((v) => (
+                      <option key={v} value={v}>{v}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  onClick={() => {
+                    if (selectedColumn && selectedValue) {
+                      setCustomFilters((prev) => [
+                        ...prev.filter((f) => f.column !== selectedColumn),
+                        { column: selectedColumn, value: selectedValue },
+                      ]);
+                      setShowFilterModal(false);
+                    }
                   }}
-                  className="w-full border rounded px-2 py-1 text-sm"
+                  disabled={!selectedValue}
                 >
-                  {columns.map((col) => (
-                    <option key={col} value={col}>{col}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex-1">
-                <label className="text-sm font-medium block mb-1">Value</label>
-                <select
-                  value={selectedValue}
-                  onChange={(e) => setSelectedValue(e.target.value)}
-                  className="w-full border rounded px-2 py-1 text-sm"
-                >
-                  <option value="">Select value</option>
-                  {columnOptions[selectedColumn].map((v) => (
-                    <option key={v} value={v}>{v}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex justify-between">
-              <Button
-                onClick={() => {
-                  if (selectedColumn && selectedValue) {
-                    setCustomFilters((prev) => [
-                      ...prev.filter((f) => f.column !== selectedColumn),
-                      { column: selectedColumn, value: selectedValue },
-                    ]);
-                    setShowFilterModal(false);
-                  }
-                }}
-                disabled={!selectedValue}
-              >
-                Apply Filter
-              </Button>
-              <Button variant="ghost" onClick={() => setShowFilterModal(false)}>
-                Cancel
-              </Button>
-            </div>
-          </div>
-        )}
+                  Apply Filter
+                </Button>
+                <Button variant="ghost" onClick={() => setShowFilterModal(false)}>
+                  Cancel
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        
+        
 
         <Card>
           <CardHeader>
