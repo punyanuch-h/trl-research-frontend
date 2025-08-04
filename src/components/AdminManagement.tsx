@@ -114,7 +114,7 @@ export default function AdminManagement({
                       </TableCell>
                       <TableCell>{project.researchTitle}</TableCell>
                       <TableCell>{project.researchType}</TableCell>
-                      <TableCell className="min-w-[100px] px-2 text-center align-middle">
+                      <TableCell className="min-w-[120px] px-2 text-center align-middle">
                         {project.trlRecommendation.status === "Approve" ? (
                           <Badge variant="outline">TRL {project.trlRecommendation.trlScore}</Badge>
                         ) : (
