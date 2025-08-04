@@ -32,12 +32,12 @@ export default function StartPage() {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/professor-dashboard')}>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/admin-homepage')}>
             <CardHeader className="text-center">
               <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                 <GraduationCap className="w-8 h-8 text-primary" />
               </div>
-              <CardTitle className="text-2xl">Professor</CardTitle>
+              <CardTitle className="text-2xl">Admin</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-muted-foreground mb-6">

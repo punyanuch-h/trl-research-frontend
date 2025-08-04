@@ -1,53 +1,27 @@
 import React from "react";
+import type { TRLItem } from '../types/trl';
+import mockTRL from "../mockData/mockTRL";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TablePagination } from "@/components/TablePagination";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { Download, Filter, Plus } from "lucide-react";
+import { Download, Filter, Plus, View } from "lucide-react";
 import Header from "../components/Header";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export default function ResearcherDashboard() {
   const navigate = useNavigate();
 
-  const myResearch = [
-    {
-      id: 1,
-      name: "AI-Powered Medical Diagnosis System",
-      type: "TRL medical devices",
-      trlScore: "TRL3",
-      status: "In process",
-      result: null,
-      remark: "Awaiting lab test results"
-    },
-    {
-      id: 2,
-      name: "Quantum Computing Algorithm",
-      type: "TRL software",
-      trlScore: "TRL2",
-      status: "In process",
-      result: null,
-      remark: "Need prototype implementation"
-    },
-    {
-      id: 3,
-      name: "Cancer Treatment Protocol",
-      type: "TRL medicines vaccines stem cells",
-      trlScore: "TRL7",
-      status: "Approve",
-      result: "resultReport.pdf",
-      remark: "Ready for publication"
-    }
-  ];
+  const myResearch: TRLItem[] = mockTRL;
 
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
   const [selectedColumn, setSelectedColumn] = React.useState("type");
   const [selectedValue, setSelectedValue] = React.useState("");
 
-  const columns = ["type", "trlScore", "status"];
+  const columns = ["type", "trlScore", "status", "isUrgent"];
 
   const columnOptions: Record<string, string[]> = {
     type: [
@@ -56,22 +30,34 @@ export default function ResearcherDashboard() {
       "TRL medicines vaccines stem cells",
       "TRL plant/animal breeds",
     ],
-    trlScore: ["TRL1", "TRL2", "TRL3", "TRL4", "TRL5", "TRL6", "TRL7", "TRL8", "TRL9"],
+    trlScore: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     status: ["In process", "Approve"],
+    isUrgent: ["true", "false"],
   };
 
   const filteredResearch = myResearch.filter((research) =>
-    customFilters.every(({ column, value }) => research[column as keyof typeof research] === value)
+    customFilters.every(({ column, value }) => {
+      if (column === "type") {
+        return research.researchType === value;
+      }
+      if (column === "trlScore") {
+        return research.trlRecommendation?.trlScore.toString() === value;
+      }
+      if (column === "status") {
+        return research.trlRecommendation?.status === value;
+      }
+      if (column === "isUrgent") {
+        return String(research.isUrgent) === value;
+      }
+      return true;
+    })
   );
 
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [currentPage, setCurrentPage] = React.useState(1);
 
   const totalPages = Math.ceil(filteredResearch.length / rowsPerPage);
-  const paginatedResearch = filteredResearch.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+  
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -83,6 +69,49 @@ export default function ResearcherDashboard() {
         return "bg-gray-100 text-gray-800";
     }
   };
+  // --- Sorting state ---
+  const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: "asc" | "desc" }>({
+    key: "id",
+    direction: "asc",
+  });
+
+  // --- Sorting function ---
+  function sortResearch(researchList: TRLItem[]) {
+    const sorted = [...researchList].sort((a, b) => {
+      const { key, direction } = sortConfig;
+      let aValue: any = a[key as keyof TRLItem];
+      let bValue: any = b[key as keyof TRLItem];
+
+      if (key === "trlScore") {
+        aValue = a.trlRecommendation?.trlScore ?? "";
+        bValue = b.trlRecommendation?.trlScore ?? "";
+      }
+      if (key === "status") {
+        aValue = a.trlRecommendation?.status ?? "";
+        bValue = b.trlRecommendation?.status ?? "";
+      }
+      if (key === "createdAt") {
+        aValue = new Date(a.createdAt).getTime();
+        bValue = new Date(b.createdAt).getTime();
+      }
+      if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    // ให้ urgent ขึ้นก่อน
+    return sorted.sort((a, b) => {
+      if (a.isUrgent === b.isUrgent) return 0;
+      return a.isUrgent ? -1 : 1;
+    });
+  }
+  // --- Apply sort before filter ---
+  const sortedProjects = sortResearch(filteredResearch);
+  const paginatedResearch = sortedProjects.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
 
   const handleViewResearch = (researchId: number) => {
     const research = myResearch.find((r) => r.id === researchId);
@@ -211,12 +240,21 @@ export default function ResearcherDashboard() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-12">No</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>TRL Score</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Result</TableHead>
+                  <TableHead className="w-12 cursor-pointer" onClick={() => setSortConfig({ key: "id", direction: sortConfig.key === "id" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    ID {sortConfig.key === "id" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "researchTitle", direction: sortConfig.key === "researchTitle" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    Name {sortConfig.key === "researchTitle" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "researchType", direction: sortConfig.key === "researchType" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    Type {sortConfig.key === "researchType" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "trlScore", direction: sortConfig.key === "trlScore" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    TRL Score {sortConfig.key === "trlScore" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "status", direction: sortConfig.key === "status" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    Status {sortConfig.key === "status" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
                   <TableHead>Action</TableHead>
                   <TableHead>For Next Step</TableHead>
                 </TableRow>
@@ -231,45 +269,73 @@ export default function ResearcherDashboard() {
                 ) : (
                   paginatedResearch.map((research, index) => (
                     <TableRow key={research.id}>
-                      <TableCell className="font-medium">{(currentPage - 1) * rowsPerPage + index + 1}</TableCell>
-                      <TableCell>{research.name}</TableCell>
-                      <TableCell>{research.type}</TableCell>
+                      <TableCell>{research.id}</TableCell>
                       <TableCell>
-                        {research.status === "Approve" ? (
-                          <Badge variant="outline">{research.trlScore}</Badge>
+                        <span
+                          className={research.isUrgent ? "text-red-600 font-semibold" : ""}
+                          title={research.isUrgent ? research.urgentReason : ""}
+                        >
+                          {research.researchTitle}
+                        </span>
+                      </TableCell>
+                      <TableCell>{research.researchType}</TableCell>
+                      <TableCell>
+                        {research.trlRecommendation.status === "Approve" ? (
+                          <Badge variant="outline">TRL {research.trlRecommendation.trlScore}</Badge>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge className={getStatusColor(research.status)}>
-                          {research.status}
+                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(research.trlRecommendation.status)}`}>
+                          {research.trlRecommendation.status}
                         </Badge>
                       </TableCell>
+
                       <TableCell>
-                        {research.result ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDownloadResult(research.result)}
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </Button>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                        <div className="flex gap-2 min-w-[160px]">
+                          {research.trlRecommendation.result ? (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  handleDownloadResult(
+                                    research.trlRecommendation.result
+                                      ? `result_${research.researchTitle}.pdf`
+                                      : `result_${research.researchTitle}.txt`
+                                  )
+                                }
+                              >
+                                <Download className="w-4 h-4 mr-2" />
+                                Result
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewResearch(research.id)}
+                              >
+                                <View className="w-4 h-4 mr-2" />
+                                View
+                              </Button>
+                            </>
+                          ) : (
+                            <div className="ml-auto">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewResearch(research.id)}
+                              >
+                                <View className="w-4 h-4 mr-2" />
+                                View
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewResearch(research.id)}
-                        >
-                          View
-                        </Button>
-                      </TableCell>
-                      <TableCell>{research.remark || "-"}</TableCell>
+
+
+                      <TableCell>{research.trlRecommendation.suggestion || "-"}</TableCell>
                     </TableRow>
                   ))
                 )}
