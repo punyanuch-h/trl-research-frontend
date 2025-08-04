@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { LogOut, User } from "lucide-react";
-import HomeIcon from '@mui/icons-material/Home';
+import { Home } from "lucide-react";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -21,8 +21,8 @@ export default function Header() {
             className="flex items-center gap-2 text-2xl font-bold text-primary cursor-pointer hover:opacity-80 transition"
             onClick={() => navigate("/startpage")}
         >
-            <HomeIcon className="w-6 h-6" />
-            <span>TRL Assessment Platform</span>
+          <Home className="w-5 h-5" />
+          <span>TRL Assessment Platform</span>
         </h1>
 
 

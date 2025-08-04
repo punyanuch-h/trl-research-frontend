@@ -1,3 +1,5 @@
+import type { TRLItem } from '../types/trl';
+import mockTRL from "../mockData/mockTRL";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,41 +36,47 @@ export default function ResearcherForm() {
   const navigate = useNavigate();
   const [currentFormStep, setCurrentFormStep] = useState(1);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
+  // ดึงข้อมูลตัวอย่างจาก mockTRL ตัวแรก
+  const example: TRLItem = mockTRL[0];
+
+  // ตั้งค่า formData เริ่มต้นด้วยข้อมูลจาก mockTRL
   const [formData, setFormData] = useState({
     // Step 1: TRL Type
-    researchType: "",
-    
+    researchType: example.researchType || "",
+
     // Step 2: Research Details
-    researchTitle: "",
-    description: "",
-    objectives: "",
-    
+    researchTitle: example.researchTitle || "",
+    description: example.description || "",
+    stageOfDevelopment: example.stageOfDevelopment || "",
+    currentChallenges: example.currentChallenges || "",
+    targetUsers: example.targetUsers || "",
+
     // Step 3: Technical Details
-    methodology: "",
-    technologies: "",
-    timeline: "",
-    resources: "",
-    
+    technologiesUsed: example.technologiesUsed || "",
+    marketComparison: example.marketComparison || "",
+    ipStatus: example.ipStatus || "",
+    marketing: example.marketing || "",
+    support: example.support || "",
+
     // Step 4: Commercial Opportunity
-    marketPotential: "",
-    competitiveAdvantage: "",
-    businessModel: "",
-    funding: "",
-    
+    medicalBenefits: example.medicalBenefits || "",
+    commercializationChallenges: example.commercializationChallenges || "",
+    devSupportNeeded: example.devSupportNeeded || "",
+    marketSupportNeeded: example.marketSupportNeeded || "",
+    hasBusinessPartner: example.hasBusinessPartner || "",
+
     // Step 5: Innovation Showcase
-    innovation: "",
-    impact: "",
-    publications: "",
-    patents: ""
+    readyForShowcase: example.readyForShowcase || "",
+    consent: example.consent || "",
   });
 
   const formSteps = [
     { id: 1, title: "TRL Type", fields: ["researchType"] },
-    // { id: 1, title: "Researcher Information", fields: ["name", "email", "institution", "position"] },
-    { id: 2, title: "Research Details", fields: ["researchTitle", "researchType", "description", "objectives"] },
-    { id: 3, title: "Technical Details", fields: ["methodology", "technologies", "timeline", "resources"] },
-    { id: 4, title: "Commercial Opportunity", fields: ["marketPotential", "competitiveAdvantage", "businessModel", "funding"] },
-    { id: 5, title: "Innovation Showcase", fields: ["innovation", "impact", "publications", "patents"] }
+    { id: 2, title: "Research Details", fields: ["researchTitle", "description", "stageOfDevelopment", "currentChallenges", "targetUsers"] },
+    { id: 3, title: "Technical Details", fields: ["technologiesUsed", "marketComparison", "ipStatus", "marketing", "support"] },
+    { id: 4, title: "Commercial Opportunity", fields: ["medicalBenefits", "commercializationChallenges", "devSupportNeeded", "marketSupportNeeded", "hasBusinessPartner"] },
+    { id: 5, title: "Innovation Showcase", fields: ["readyForShowcase", "consent"] }
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -147,12 +155,32 @@ export default function ResearcherForm() {
               />
             </div>
             <div>
-              <Label htmlFor="objectives">Research Objectives</Label>
+              <Label htmlFor="stageOfDevelopment">Research Stage Of Development</Label>
               <Textarea
-                id="objectives"
-                value={formData.objectives}
-                onChange={(e) => handleInputChange("objectives", e.target.value)}
-                placeholder="What are your research objectives?"
+                id="stageOfDevelopment"
+                value={formData.stageOfDevelopment}
+                onChange={(e) => handleInputChange("stageOfDevelopment", e.target.value)}
+                placeholder="What is the current stage of development?"
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="currentChallenges">Current Challenges</Label>
+              <Textarea
+                id="currentChallenges"
+                value={formData.currentChallenges}
+                onChange={(e) => handleInputChange("currentChallenges", e.target.value)}
+                placeholder="What challenges are you currently facing?"
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="targetUsers">Target Users</Label>
+              <Textarea
+                id="targetUsers"
+                value={formData.targetUsers}
+                onChange={(e) => handleInputChange("targetUsers", e.target.value)}
+                placeholder="Who are the target users for your research?"
                 rows={3}
               />
             </div>
@@ -162,41 +190,51 @@ export default function ResearcherForm() {
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="methodology">Methodology</Label>
+              <Label htmlFor="technologiesUsed">Technologies Used</Label>
               <Textarea
-                id="methodology"
-                value={formData.methodology}
-                onChange={(e) => handleInputChange("methodology", e.target.value)}
-                placeholder="Describe your research methodology"
+                id="technologiesUsed"
+                value={formData.technologiesUsed}
+                onChange={(e) => handleInputChange("technologiesUsed", e.target.value)}
+                placeholder="Describe the technologies used in your research"
                 rows={3}
               />
             </div>
             <div>
-              <Label htmlFor="technologies">Technologies Used</Label>
+              <Label htmlFor="marketComparison">Market Comparison</Label>
               <Textarea
-                id="technologies"
-                value={formData.technologies}
-                onChange={(e) => handleInputChange("technologies", e.target.value)}
+                id="marketComparison"
+                value={formData.marketComparison}
+                onChange={(e) => handleInputChange("marketComparison", e.target.value)}
                 placeholder="List technologies and tools"
                 rows={3}
               />
             </div>
             <div>
-              <Label htmlFor="timeline">Project Timeline</Label>
+              <Label htmlFor="ipStatus">IP Status</Label>
               <Input
-                id="timeline"
-                value={formData.timeline}
-                onChange={(e) => handleInputChange("timeline", e.target.value)}
+                id="ipStatus"
+                value={formData.ipStatus}
+                onChange={(e) => handleInputChange("ipStatus", e.target.value)}
                 placeholder="e.g., 12 months"
               />
             </div>
             <div>
-              <Label htmlFor="resources">Required Resources</Label>
+              <Label htmlFor="marketing">Marketing</Label>
               <Textarea
-                id="resources"
-                value={formData.resources}
-                onChange={(e) => handleInputChange("resources", e.target.value)}
-                placeholder="List required resources"
+                id="marketing"
+                value={formData.marketing}
+                onChange={(e) => handleInputChange("marketing", e.target.value)}
+                placeholder="List marketing strategies"
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="support">Support</Label>
+              <Textarea
+                id="support"
+                value={formData.support}
+                onChange={(e) => handleInputChange("support", e.target.value)}
+                placeholder="What support do you need?"
                 rows={3}
               />
             </div>
@@ -206,43 +244,52 @@ export default function ResearcherForm() {
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="marketPotential">Market Potential</Label>
+              <Label htmlFor="medicalBenefits">Medical Benefits</Label>
               <Textarea
-                id="marketPotential"
-                value={formData.marketPotential}
-                onChange={(e) => handleInputChange("marketPotential", e.target.value)}
-                placeholder="Describe the market potential"
+                id="medicalBenefits"
+                value={formData.medicalBenefits}
+                onChange={(e) => handleInputChange("medicalBenefits", e.target.value)}
+                placeholder="Describe the medical benefits"
                 rows={3}
               />
             </div>
             <div>
-              <Label htmlFor="competitiveAdvantage">Competitive Advantage</Label>
+              <Label htmlFor="commercializationChallenges">Commercialization Challenges</Label>
               <Textarea
-                id="competitiveAdvantage"
-                value={formData.competitiveAdvantage}
-                onChange={(e) => handleInputChange("competitiveAdvantage", e.target.value)}
-                placeholder="What makes your research unique?"
+                id="commercializationChallenges"
+                value={formData.commercializationChallenges}
+                onChange={(e) => handleInputChange("commercializationChallenges", e.target.value)}
+                placeholder="What challenges do you anticipate?"
                 rows={3}
               />
             </div>
             <div>
-              <Label htmlFor="businessModel">Business Model</Label>
+              <Label htmlFor="devSupportNeeded">Development Support Needed</Label>
               <Textarea
-                id="businessModel"
-                value={formData.businessModel}
-                onChange={(e) => handleInputChange("businessModel", e.target.value)}
-                placeholder="Describe potential business model"
+                id="devSupportNeeded"
+                value={formData.devSupportNeeded}
+                onChange={(e) => handleInputChange("devSupportNeeded", e.target.value)}
+                placeholder="Describe the development support needed"
                 rows={3}
               />
             </div>
             <div>
-              <Label htmlFor="funding">Funding Requirements</Label>
+              <Label htmlFor="marketSupportNeeded">Market Support Needed</Label>
+              <Textarea
+                id="marketSupportNeeded"
+                value={formData.marketSupportNeeded}
+                onChange={(e) => handleInputChange("marketSupportNeeded", e.target.value)}
+                placeholder="Describe the market support needed"
+              />
+            </div>
+            <div>
+              <Label htmlFor="hasBusinessPartner">Business Partner</Label>
               <Input
-                id="funding"
-                value={formData.funding}
-                onChange={(e) => handleInputChange("funding", e.target.value)}
-                placeholder="Estimated funding needed"
-              />
+                id="hasBusinessPartner"
+                value={formData.hasBusinessPartner}
+                onChange={(e) => handleInputChange("hasBusinessPartner", e.target.value)}
+                placeholder="Do you have a business partner?"
+              />  
             </div>
           </div>
         );
@@ -250,42 +297,22 @@ export default function ResearcherForm() {
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="innovation">Innovation Highlights</Label>
+              <Label htmlFor="readyForShowcase">Ready for Showcase</Label>
               <Textarea
-                id="innovation"
-                value={formData.innovation}
-                onChange={(e) => handleInputChange("innovation", e.target.value)}
+                id="readyForShowcase"
+                value={formData.readyForShowcase}
+                onChange={(e) => handleInputChange("readyForShowcase", e.target.value)}
                 placeholder="Highlight key innovations"
                 rows={3}
               />
             </div>
             <div>
-              <Label htmlFor="impact">Expected Impact</Label>
+              <Label htmlFor="consent">Consent</Label>
               <Textarea
-                id="impact"
-                value={formData.impact}
-                onChange={(e) => handleInputChange("impact", e.target.value)}
-                placeholder="Describe expected societal impact"
-                rows={3}
-              />
-            </div>
-            <div>
-              <Label htmlFor="publications">Publications</Label>
-              <Textarea
-                id="publications"
-                value={formData.publications}
-                onChange={(e) => handleInputChange("publications", e.target.value)}
-                placeholder="List relevant publications"
-                rows={3}
-              />
-            </div>
-            <div>
-              <Label htmlFor="patents">Patents/IP</Label>
-              <Textarea
-                id="patents"
-                value={formData.patents}
-                onChange={(e) => handleInputChange("patents", e.target.value)}
-                placeholder="List patents or intellectual property"
+                id="consent"
+                value={formData.consent}
+                onChange={(e) => handleInputChange("consent", e.target.value)}
+                placeholder="Describe consent considerations"
                 rows={3}
               />
             </div>
@@ -419,7 +446,9 @@ export default function ResearcherForm() {
                 <div className="space-y-1">
                   <p><strong>Title:</strong> {formData.researchTitle}</p>
                   <p><strong>Description:</strong> {formData.description}</p>
-                  <p><strong>Objectives:</strong> {formData.objectives}</p>
+                  <p><strong>Stage of Development:</strong> {formData.stageOfDevelopment}</p>
+                  <p><strong>Current Challenges:</strong> {formData.currentChallenges}</p>
+                  <p><strong>Target Users:</strong> {formData.targetUsers}</p>
                 </div>
               </div>
 
@@ -427,10 +456,11 @@ export default function ResearcherForm() {
               <div>
                 <h3 className="text-base font-semibold text-primary mb-2">Technical Details</h3>
                 <div className="space-y-1">
-                  <p><strong>Methodology:</strong> {formData.methodology}</p>
-                  <p><strong>Technologies:</strong> {formData.technologies}</p>
-                  <p><strong>Timeline:</strong> {formData.timeline}</p>
-                  <p><strong>Resources:</strong> {formData.resources}</p>
+                  <p><strong>technologiesUsed:</strong> {formData.technologiesUsed}</p>
+                  <p><strong>marketComparison:</strong> {formData.marketComparison}</p>
+                  <p><strong>IP Status:</strong> {formData.ipStatus}</p>
+                  <p><strong>marketing:</strong> {formData.marketing}</p>
+                  <p><strong>support:</strong> {formData.support}</p>
                 </div>
               </div>
 
@@ -438,10 +468,11 @@ export default function ResearcherForm() {
               <div>
                 <h3 className="text-base font-semibold text-primary mb-2">Commercial Opportunity</h3>
                 <div className="space-y-1">
-                  <p><strong>Market Potential:</strong> {formData.marketPotential}</p>
-                  <p><strong>Competitive Advantage:</strong> {formData.competitiveAdvantage}</p>
-                  <p><strong>Business Model:</strong> {formData.businessModel}</p>
-                  <p><strong>Funding:</strong> {formData.funding}</p>
+                  <p><strong>Medical Benefits:</strong> {formData.medicalBenefits}</p>
+                  <p><strong>Commercialization Challenges:</strong> {formData.commercializationChallenges}</p>
+                  <p><strong>Dev Support Needed:</strong> {formData.devSupportNeeded}</p>
+                  <p><strong>Market Support Needed:</strong> {formData.marketSupportNeeded}</p>
+                  <p><strong>Business Partner:</strong> {formData.hasBusinessPartner}</p>
                 </div>
               </div>
 
@@ -449,10 +480,8 @@ export default function ResearcherForm() {
               <div>
                 <h3 className="text-base font-semibold text-primary mb-2">Innovation Showcase</h3>
                 <div className="space-y-1">
-                  <p><strong>Innovation:</strong> {formData.innovation}</p>
-                  <p><strong>Impact:</strong> {formData.impact}</p>
-                  <p><strong>Publications:</strong> {formData.publications}</p>
-                  <p><strong>Patents:</strong> {formData.patents}</p>
+                  <p><strong>Ready For Showcase:</strong> {formData.readyForShowcase}</p>
+                  <p><strong>Consent:</strong> {formData.consent}</p>
                 </div>
               </div>
             </div>
