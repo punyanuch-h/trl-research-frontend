@@ -112,7 +112,14 @@ export default function AdminManagement({
                       <TableCell className="min-w-[120px] whitespace-nowrap px-2">
                         {getFullNameByEmail(project.createdBy)}
                       </TableCell>
-                      <TableCell>{project.researchTitle}</TableCell>
+                      <TableCell>
+                        <span
+                          className={project.isUrgent ? "text-red-600 font-semibold" : ""}
+                          title={project.isUrgent ? project.urgentReason : ""}
+                        >
+                          {project.researchTitle}
+                        </span>
+                      </TableCell>
                       <TableCell>{project.researchType}</TableCell>
                       <TableCell className="min-w-[120px] px-2 text-center align-middle">
                         {project.trlRecommendation.status === "Approve" ? (

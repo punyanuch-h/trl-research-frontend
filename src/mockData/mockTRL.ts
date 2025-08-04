@@ -31,6 +31,8 @@ const mockTRL: TRLItem[] = [
       result: "result.pdf",
       aiEstimate: null
     },
+    isUrgent: false,
+    urgentReason: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -66,6 +68,8 @@ const mockTRL: TRLItem[] = [
       // suggestion: "นำระบบไปทดลองใช้ในสถานพยาบาลจริง และรับ feedback จากผู้ใช้",
       // sources: ["IEEE Xplore", "PubMed", "arXiv", "ThaiJO"]
     },
+    isUrgent: true,
+    urgentReason: "ต้องการอนุมัติเร่งด่วนเพื่อขอทุนวิจัยรอบพิเศษ",
     createdBy: 'alice@professor.com',
   },
   {
@@ -98,6 +102,8 @@ const mockTRL: TRLItem[] = [
       result: "result.pdf",
       aiEstimate: null
     },
+    isUrgent: false,
+    urgentReason: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -130,6 +136,8 @@ const mockTRL: TRLItem[] = [
       result: "result.pdf",
       aiEstimate: null
     },
+    isUrgent: false,
+    urgentReason: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -162,6 +170,8 @@ const mockTRL: TRLItem[] = [
       result: "result.pdf",
       aiEstimate: null
     },
+    isUrgent: false,
+    urgentReason: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -197,6 +207,8 @@ const mockTRL: TRLItem[] = [
       // suggestion: "ติดตามผลลัพธ์และปรับแผนตาม safety profile",
       // sources: ["Nature Medicine", "ClinicalTrials.gov"]
     },
+    isUrgent: false,
+    urgentReason: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -229,6 +241,8 @@ const mockTRL: TRLItem[] = [
       result: "result.pdf",
       aiEstimate: null
     },
+    isUrgent: false,
+    urgentReason: null,
     createdBy: 'alice@professor.com',
   }
 ];

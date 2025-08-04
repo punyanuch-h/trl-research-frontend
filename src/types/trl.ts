@@ -43,6 +43,10 @@ export interface TRLItem {
     // TRL level recommendation
     trlRecommendation?: TRLRecommendation;
 
+    // Urgent case
+    isUrgent: boolean;
+    urgentReason: string;
+    
     // Created By
     createdBy: string;
 }

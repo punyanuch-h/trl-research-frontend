@@ -21,7 +21,7 @@ export default function ResearcherDashboard() {
   const [selectedColumn, setSelectedColumn] = React.useState("type");
   const [selectedValue, setSelectedValue] = React.useState("");
 
-  const columns = ["type", "trlScore", "status"];
+  const columns = ["type", "trlScore", "status", "isUrgent"];
 
   const columnOptions: Record<string, string[]> = {
     type: [
@@ -32,6 +32,7 @@ export default function ResearcherDashboard() {
     ],
     trlScore: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     status: ["In process", "Approve"],
+    isUrgent: ["true", "false"],
   };
 
   const filteredResearch = myResearch.filter((research) =>
@@ -45,6 +46,9 @@ export default function ResearcherDashboard() {
       if (column === "status") {
         return research.trlRecommendation?.status === value;
       }
+      if (column === "isUrgent") {
+        return String(research.isUrgent) === value;
+      }
       return true;
     })
   );
@@ -53,10 +57,7 @@ export default function ResearcherDashboard() {
   const [currentPage, setCurrentPage] = React.useState(1);
 
   const totalPages = Math.ceil(filteredResearch.length / rowsPerPage);
-  const paginatedResearch = filteredResearch.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+  
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -68,6 +69,49 @@ export default function ResearcherDashboard() {
         return "bg-gray-100 text-gray-800";
     }
   };
+  // --- Sorting state ---
+  const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: "asc" | "desc" }>({
+    key: "id",
+    direction: "asc",
+  });
+
+  // --- Sorting function ---
+  function sortResearch(researchList: TRLItem[]) {
+    const sorted = [...researchList].sort((a, b) => {
+      const { key, direction } = sortConfig;
+      let aValue: any = a[key as keyof TRLItem];
+      let bValue: any = b[key as keyof TRLItem];
+
+      if (key === "trlScore") {
+        aValue = a.trlRecommendation?.trlScore ?? "";
+        bValue = b.trlRecommendation?.trlScore ?? "";
+      }
+      if (key === "status") {
+        aValue = a.trlRecommendation?.status ?? "";
+        bValue = b.trlRecommendation?.status ?? "";
+      }
+      if (key === "createdAt") {
+        aValue = new Date(a.createdAt).getTime();
+        bValue = new Date(b.createdAt).getTime();
+      }
+      if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    // ให้ urgent ขึ้นก่อน
+    return sorted.sort((a, b) => {
+      if (a.isUrgent === b.isUrgent) return 0;
+      return a.isUrgent ? -1 : 1;
+    });
+  }
+  // --- Apply sort before filter ---
+  const sortedProjects = sortResearch(filteredResearch);
+  const paginatedResearch = sortedProjects.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
 
   const handleViewResearch = (researchId: number) => {
     const research = myResearch.find((r) => r.id === researchId);
@@ -196,11 +240,21 @@ export default function ResearcherDashboard() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-12">ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>TRL Score</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="w-12 cursor-pointer" onClick={() => setSortConfig({ key: "id", direction: sortConfig.key === "id" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    ID {sortConfig.key === "id" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "researchTitle", direction: sortConfig.key === "researchTitle" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    Name {sortConfig.key === "researchTitle" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "researchType", direction: sortConfig.key === "researchType" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    Type {sortConfig.key === "researchType" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "trlScore", direction: sortConfig.key === "trlScore" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    TRL Score {sortConfig.key === "trlScore" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "status", direction: sortConfig.key === "status" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    Status {sortConfig.key === "status" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  </TableHead>
                   <TableHead>Action</TableHead>
                   <TableHead>For Next Step</TableHead>
                 </TableRow>
@@ -216,7 +270,14 @@ export default function ResearcherDashboard() {
                   paginatedResearch.map((research, index) => (
                     <TableRow key={research.id}>
                       <TableCell>{research.id}</TableCell>
-                      <TableCell>{research.researchTitle}</TableCell>
+                      <TableCell>
+                        <span
+                          className={research.isUrgent ? "text-red-600 font-semibold" : ""}
+                          title={research.isUrgent ? research.urgentReason : ""}
+                        >
+                          {research.researchTitle}
+                        </span>
+                      </TableCell>
                       <TableCell>{research.researchType}</TableCell>
                       <TableCell>
                         {research.trlRecommendation.status === "Approve" ? (

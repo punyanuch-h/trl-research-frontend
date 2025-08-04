@@ -40,35 +40,57 @@ export default function ResearcherForm() {
   // ดึงข้อมูลตัวอย่างจาก mockTRL ตัวแรก
   const example: TRLItem = mockTRL[0];
 
-  // ตั้งค่า formData เริ่มต้นด้วยข้อมูลจาก mockTRL
+  // // ตั้งค่า formData เริ่มต้นด้วยข้อมูลจาก mockTRL
+  // const [formData, setFormData] = useState({
+  //   // Step 1: TRL Type
+  //   researchType: example.researchType || "",
+
+  //   // Step 2: Research Details
+  //   researchTitle: example.researchTitle || "",
+  //   description: example.description || "",
+  //   stageOfDevelopment: example.stageOfDevelopment || "",
+  //   currentChallenges: example.currentChallenges || "",
+  //   targetUsers: example.targetUsers || "",
+
+  //   // Step 3: Technical Details
+  //   technologiesUsed: example.technologiesUsed || "",
+  //   marketComparison: example.marketComparison || "",
+  //   ipStatus: example.ipStatus || "",
+  //   marketing: example.marketing || "",
+  //   support: example.support || "",
+
+  //   // Step 4: Commercial Opportunity
+  //   medicalBenefits: example.medicalBenefits || "",
+  //   commercializationChallenges: example.commercializationChallenges || "",
+  //   devSupportNeeded: example.devSupportNeeded || "",
+  //   marketSupportNeeded: example.marketSupportNeeded || "",
+  //   hasBusinessPartner: example.hasBusinessPartner || "",
+
+  //   // Step 5: Innovation Showcase
+  //   readyForShowcase: example.readyForShowcase || "",
+  //   consent: example.consent || "",
+  // });
   const [formData, setFormData] = useState({
-    // Step 1: TRL Type
-    researchType: example.researchType || "",
-
-    // Step 2: Research Details
-    researchTitle: example.researchTitle || "",
-    description: example.description || "",
-    stageOfDevelopment: example.stageOfDevelopment || "",
-    currentChallenges: example.currentChallenges || "",
-    targetUsers: example.targetUsers || "",
-
-    // Step 3: Technical Details
-    technologiesUsed: example.technologiesUsed || "",
-    marketComparison: example.marketComparison || "",
-    ipStatus: example.ipStatus || "",
-    marketing: example.marketing || "",
-    support: example.support || "",
-
-    // Step 4: Commercial Opportunity
-    medicalBenefits: example.medicalBenefits || "",
-    commercializationChallenges: example.commercializationChallenges || "",
-    devSupportNeeded: example.devSupportNeeded || "",
-    marketSupportNeeded: example.marketSupportNeeded || "",
-    hasBusinessPartner: example.hasBusinessPartner || "",
-
-    // Step 5: Innovation Showcase
-    readyForShowcase: example.readyForShowcase || "",
-    consent: example.consent || "",
+    researchType: "",
+    researchTitle: "",
+    description: "",
+    stageOfDevelopment: "",
+    currentChallenges: "",
+    targetUsers: "",
+    technologiesUsed: "",
+    marketComparison: "",
+    ipStatus: "",
+    marketing: "",
+    support: "",
+    medicalBenefits: "",
+    commercializationChallenges: "",
+    devSupportNeeded: "",
+    marketSupportNeeded: "",
+    hasBusinessPartner: "",
+    readyForShowcase: "",
+    consent: "",
+    isUrgent: false,
+    urgentReason: "",
   });
 
   const formSteps = [
@@ -96,6 +118,10 @@ export default function ResearcherForm() {
   };
 
   const handleSubmit = () => {
+    if (formData.isUrgent && !formData.urgentReason.trim()) {
+      alert("กรุณาระบุเหตุผลความเร่งด่วน (Urgent Reason)");
+      return;
+    }
     // Navigate to researcher dashboard after form submission
     navigate('/researcher-dashboard');
   };
@@ -184,6 +210,27 @@ export default function ResearcherForm() {
                 rows={3}
               />
             </div>
+            <div className="flex items-center space-x-2 mt-2">
+              <input
+                type="checkbox"
+                id="isUrgent"
+                checked={formData.isUrgent}
+                onChange={e => setFormData(prev => ({ ...prev, isUrgent: e.target.checked, urgentReason: e.target.checked ? prev.urgentReason : "" }))}
+              />
+              <Label htmlFor="isUrgent">Mark as Urgent</Label>
+            </div>
+            {formData.isUrgent && (
+              <div>
+                <Label htmlFor="urgentReason">Urgent Reason <span className="text-red-500">*</span></Label>
+                <Textarea
+                  id="urgentReason"
+                  value={formData.urgentReason}
+                  onChange={e => setFormData(prev => ({ ...prev, urgentReason: e.target.value }))}
+                  placeholder="Please specify the reason for urgency"
+                  rows={2}
+                />
+              </div>
+            )}
           </div>
         );
       case 3:
@@ -425,7 +472,7 @@ export default function ResearcherForm() {
         </Card>
 
         <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-          <DialogContent>
+          <DialogContent className="max-w-4xl w-full max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Confirm Your Submission</DialogTitle>
               <DialogDescription>
@@ -486,6 +533,13 @@ export default function ResearcherForm() {
               </div>
             </div>
 
+            {/* Urgent case */}
+            {formData.isUrgent && (
+              <div>
+                <h3 className="text-base font-semibold text-red-600 mb-2">Urgent Reason</h3>
+                <p>{formData.urgentReason}</p>
+              </div>
+            )}
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>

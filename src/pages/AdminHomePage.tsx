@@ -26,7 +26,7 @@ export default function AdminHomePage() {
   const [selectedColumn, setSelectedColumn] = React.useState("type");
   const [selectedValue, setSelectedValue] = React.useState("");
 
-  const columns = ["type", "trlScore", "status", "createdBy"];
+  const columns = ["type", "trlScore", "status", "createdBy", "isUrgent"];
   const columnOptions: Record<string, string[]> = {
     type: [
       "TRL software",
@@ -41,6 +41,7 @@ export default function AdminHomePage() {
         mockUser.map((u) => `${u.firstname} ${u.lastname}`)
       )
     ),
+    isUrgent: ["true", "false"],
   };
 
   // --- Sorting state ---
@@ -51,12 +52,11 @@ export default function AdminHomePage() {
 
   // --- Sorting function ---
   function sortProjects(projects: TRLItem[]) {
-    return [...projects].sort((a, b) => {
+    const sorted = [...projects].sort((a, b) => {
       const { key, direction } = sortConfig;
       let aValue: any = a[key as keyof TRLItem];
       let bValue: any = b[key as keyof TRLItem];
 
-      // Custom sort for nested fields
       if (key === "trlScore") {
         aValue = a.trlRecommendation?.trlScore ?? "";
         bValue = b.trlRecommendation?.trlScore ?? "";
@@ -82,6 +82,12 @@ export default function AdminHomePage() {
       if (aValue > bValue) return direction === "asc" ? 1 : -1;
       return 0;
     });
+
+    // --- ให้ urgent มาอยู่ก่อน แล้วค่อยเรียงตามที่ sortConfig ได้จัดไว้
+    return sorted.sort((a, b) => {
+      if (a.isUrgent === b.isUrgent) return 0;
+      return a.isUrgent ? -1 : 1; // urgent ก่อน
+    });
   }
 
   // --- Apply sort before filter ---
@@ -101,9 +107,13 @@ export default function AdminHomePage() {
       if (column === "createdBy") {
         return getFullNameByEmail(project.createdBy) === value;
       }
+      if (column === "isUrgent") {
+        return String(project.isUrgent) === value;
+      }
       return true;
     })
   );
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
