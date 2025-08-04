@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { Download, Filter, Plus, View } from "lucide-react";
 import Header from "../components/Header";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export default function ResearcherDashboard() {
   const navigate = useNavigate();
