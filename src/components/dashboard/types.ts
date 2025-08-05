@@ -18,6 +18,8 @@ export interface ChartData {
   researchByType: Array<{ type: string; count: number; percentage: number }>;
   monthlySubmissions: Array<{ month: string; submissions: number; completions: number }>;
   researchProgress: Array<{ date: string; Todo: number; InProgress: number; Done: number }>;
+  institutionStats: Array<{ institution: string; researchCount: number; percentage: number }>;
+  researchByStatus: Array<{ status: string; count: number; percentage: number }>;
 }
 
 export interface DashboardData {

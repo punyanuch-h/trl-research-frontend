@@ -27,7 +27,7 @@ interface ChartsGridProps {
 
 const ChartsGrid: React.FC<ChartsGridProps> = ({ chartData }) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-2 gap-6 mb-8">
       {/* Research by TRL Level */}
       <Card>
         <CardHeader>
@@ -149,6 +149,60 @@ const ChartsGrid: React.FC<ChartsGridProps> = ({ chartData }) => {
                 fillOpacity={0.6}
               />
             </AreaChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Institution Distribution */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Institution Distribution</CardTitle>
+          <CardDescription>Research count by institution</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart 
+              data={chartData.institutionStats} 
+              layout="horizontal"
+              margin={{ left: 100 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="institution" width={80} />
+              <Tooltip formatter={(value) => [value, 'Research Count']} />
+              <Legend />
+              <Bar dataKey="researchCount" fill="#FFD54F" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Research Status Distribution */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Research Status Distribution</CardTitle>
+          <CardDescription>Breakdown of research by current status</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={chartData.researchByStatus}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ status, percentage }) => `${status} (${percentage}%)`}
+                outerRadius={80}
+                innerRadius={40}
+                fill="#F48FB1"
+                dataKey="count"
+              >
+                {chartData.researchByStatus.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value, name) => [value, 'Research Count']} />
+            </PieChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
