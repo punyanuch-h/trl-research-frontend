@@ -1,19 +1,13 @@
 import React from "react";
 import type { TRLItem } from '../types/trl';
-import mockTRL from "../mockData/mockTRL";
-import mockUser from "../mockData/mockUser";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { TablePagination } from "@/components/TablePagination";
 
-import { Plus, ArrowLeft, Download, Filter, Sparkles, ChartArea } from "lucide-react";
 import AdminNavbar from "../components/AdminNavbar";
 import AdminManagement from "../components/AdminManagement"; 
-import AdminDashboard from "../components/AdminDashboard"; 
+import AdminDashboard from "../components/AdminDashboard";
+
+import mockTRL from "../mockData/mockTRL";
+import mockUser from "../mockData/mockUser";
 
 export default function AdminHomePage() {
   const navigate = useNavigate();
@@ -114,15 +108,6 @@ export default function AdminHomePage() {
     })
   );
 
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Approve": return "bg-green-100 text-green-800";
-      case "In process": return "bg-cyan-100 text-cyan-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const handleResearchClick = (id: number, name: string, type: string) => {
     navigate(`/trl-1?research=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}`);
   };
@@ -167,22 +152,6 @@ export default function AdminHomePage() {
   React.useEffect(() => {
     setCurrentPage(1);
   }, [customFilters, rowsPerPage]);
-
-  const totalPages = Math.ceil(filteredProjects.length / rowsPerPage);
-  const paginatedProjects = filteredProjects.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-
-  // --- Table Headings with sort ---
-  const tableColumns = [
-    { key: "createdAt", label: "Create Date" },
-    { key: "createdBy", label: "Create By" },
-    { key: "researchTitle", label: "Name" },
-    { key: "researchType", label: "Type" },
-    { key: "trlScore", label: "TRL Score" },
-    { key: "status", label: "Status" },
-  ];
 
   function handleSort(key: string) {
     setSortConfig((prev) => {
