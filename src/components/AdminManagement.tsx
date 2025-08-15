@@ -4,9 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TablePagination } from "@/components/TablePagination";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Download, Edit, View } from "lucide-react";
+import { Sparkles, Download, Edit, View, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { TRLItem } from "../types/trl";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 interface Props {
   projects: TRLItem[];
@@ -33,7 +34,8 @@ export default function AdminManagement({
   rowsPerPage,
   setCurrentPage,
   setRowsPerPage,
-  getFullNameByEmail
+  getFullNameByEmail,
+  onEdit
 }: Props) {
   const tableColumns = [
     { key: "createdAt", label: "Create Date" },
@@ -54,10 +56,7 @@ export default function AdminManagement({
   };
 
   const handleDownloadResult = (filename: string) => {
-    const link = document.createElement("a");
-    link.href = "#";
-    link.download = filename;
-    link.click();
+    onDownload(filename);
   };
 
   const handleViewResearch = (researchId: number) => {
@@ -72,6 +71,24 @@ export default function AdminManagement({
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [targetId, setTargetId] = React.useState<number | null>(null);
+
+  const handleAskConfirm = (id: number) => {
+    setTargetId(id);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (targetId !== null) {
+      // 👉 แจ้ง parent ว่า project ไหนโดนยกเลิก urgent
+      // parent (AdminHomePage) ควรมีฟังก์ชัน update state
+      console.log("ยกเลิก urgent:", targetId);
+    }
+    setConfirmOpen(false);
+  };
+
 
   return (
     <>
@@ -112,13 +129,23 @@ export default function AdminManagement({
                       <TableCell className="min-w-[120px] whitespace-nowrap px-2">
                         {getFullNameByEmail(project.createdBy)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="flex items-center gap-2">
                         <span
                           className={project.isUrgent ? "text-red-600 font-semibold" : ""}
                           title={project.isUrgent ? project.urgentReason : ""}
                         >
                           {project.researchTitle}
                         </span>
+
+                        {project.isUrgent && (
+                          <button
+                            onClick={() => handleAskConfirm(project.id)}
+                            className="text-red-500 hover:text-red-700"
+                            title="Mark as not urgent"
+                          >
+                            <AlertTriangle className="w-4 h-4" />
+                          </button>
+                        )}
                       </TableCell>
                       <TableCell>{project.researchType}</TableCell>
                       <TableCell className="min-w-[120px] px-2 text-center align-middle">
@@ -198,6 +225,23 @@ export default function AdminManagement({
                     </TableRow>
                 ))
                 )}
+                {/* Confirm Dialog */}
+                <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>ยืนยันการยกเลิก</DialogTitle>
+                    </DialogHeader>
+                    <p>คุณแน่ใจหรือไม่ว่าจะยกเลิก urgent case?</p>
+                    <DialogFooter>
+                      <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
+                        ยกเลิก
+                      </Button>
+                      <Button onClick={handleConfirm} variant="destructive">
+                        ยืนยัน
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </TableBody>
             </Table>
             <TablePagination
