@@ -112,6 +112,10 @@ export default function AdminHomePage() {
     navigate(`/trl-1?research=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}`);
   };
 
+  const handleAIEstimate = (project: any) => {
+    navigate("/trl-score", { state: { project } });
+  };
+
   const handleDownloadResult = (filename: string) => {
     // Simulate PDF download
     const link = document.createElement('a');
@@ -120,30 +124,10 @@ export default function AdminHomePage() {
     link.click();
   };
 
-  const handleAIEstimate = (project: any) => {
-    // AI estimation logic based on project type and details
-    const aiEstimates = {
-      "TRL software": ["TRL3", "TRL4", "TRL5"],
-      "TRL medical devices": ["TRL2", "TRL3", "TRL4"],
-      "TRL medicines vaccines stem cells": ["TRL6", "TRL7", "TRL8"],
-      "TRL plant/animal breeds": ["TRL3", "TRL4", "TRL5"]
-    };
-    
-    const estimates = aiEstimates[project.type] || ["TRL3", "TRL4"];
-    const randomEstimate = estimates[Math.floor(Math.random() * estimates.length)];
-    
-    // Update the project with AI estimate
-    setResearchProjects(prevProjects =>
-      prevProjects.map(p =>
-        p.id === project.id ? { ...p, aiEstimate: randomEstimate } : p
-      )
-    );
-  };
   function getFullNameByEmail(email: string): string {
     const user = mockUser.find((u) => u.email === email);
     return user ? user.firstname + " " + user.lastname : email;
   }
-
 
   // --- Pagination state ---
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
