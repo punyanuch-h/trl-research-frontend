@@ -2,14 +2,14 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Edit } from "lucide-react";
 import Header from "@/components/Header";
 import { Download } from "lucide-react";
 
 // ---------- Types ----------
 interface TRLRecommendation {
   trlScore: number | null;
-  status: string;
+  status: boolean;
   reason: string | null;
   suggestion: string | null;
   sources: string[] | null;
@@ -86,17 +86,36 @@ export default function ResearcherDetail() {
           </div>
           <div className="flex items-center gap-2">
             {research.trlRecommendation.result ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDownloadResult(research.trlRecommendation.result ? `result_${research.researchTitle}.pdf` : `result_${research.researchTitle}.txt`)}
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </Button>
-                        ) : (
-                          <span className="text-muted-foreground"></span>
-                        )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  handleDownloadResult(
+                    research.trlRecommendation.result
+                      ? `result_${research.researchTitle}.pdf`
+                      : `result_${research.researchTitle}.txt`
+                  )
+                }
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
+            ) : research.trlRecommendation.status === false ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  navigate(
+                    `/trl-1?research=${encodeURIComponent(research.researchTitle)}&type=${encodeURIComponent(research.researchType)}`
+                  )
+                }
+              >
+                <Edit className="w-4 h-4 mr-1" />
+                Assessment
+              </Button>
+            ) : (
+              <span className="text-muted-foreground"></span>
+            )}
           </div>
         </div>
 

@@ -44,7 +44,8 @@ export default function ResearcherDashboard() {
         return research.trlRecommendation?.trlScore.toString() === value;
       }
       if (column === "status") {
-        return research.trlRecommendation?.status === value;
+        const statusString = research.trlRecommendation?.status === true ? "Approve" : "In process";
+        return statusString === value;
       }
       if (column === "isUrgent") {
         return String(research.isUrgent) === value;
@@ -271,24 +272,38 @@ export default function ResearcherDashboard() {
                     <TableRow key={research.id}>
                       <TableCell>{research.id}</TableCell>
                       <TableCell>
-                        <span
-                          className={research.isUrgent ? "text-red-600 font-semibold" : ""}
-                          title={research.isUrgent ? research.urgentReason : ""}
-                        >
-                          {research.researchTitle}
-                        </span>
+                        <div className="flex flex-col">
+                          <span
+                            className={`relative group ${research.isUrgent ? "text-red-600 font-semibold" : ""}`}
+                          >
+                            {research.researchTitle}
+                            {research.isUrgent && (
+                              <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
+                                              border border-red-600 bg-white text-black text-xs font-normal
+                                              px-4 py-2 rounded-lg shadow-lg z-10 w-64 text-center">
+                                {research.urgentReason}
+                              </span>
+                            )}
+                          </span>
+
+                          {research.urgentFeedback && (
+                            <span className="text-xs text-gray-500 mt-1">
+                              {research.urgentFeedback}
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>{research.researchType}</TableCell>
                       <TableCell>
-                        {research.trlRecommendation.status === "Approve" ? (
+                        {research.trlRecommendation.status === true ? (
                           <Badge variant="outline">TRL {research.trlRecommendation.trlScore}</Badge>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(research.trlRecommendation.status)}`}>
-                          {research.trlRecommendation.status}
+                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(research.trlRecommendation.status === true ? "Approve" : "In process")}`}>
+                          {research.trlRecommendation.status === true ? "Approve" : "In process"}
                         </Badge>
                       </TableCell>
 

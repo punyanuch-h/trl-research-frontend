@@ -77,12 +77,17 @@ export default function AdminHomePage() {
       return 0;
     });
 
-    // --- ให้ urgent มาอยู่ก่อน แล้วค่อยเรียงตามที่ sortConfig ได้จัดไว้
     return sorted.sort((a, b) => {
-      if (a.isUrgent === b.isUrgent) return 0;
-      return a.isUrgent ? -1 : 1; // urgent ก่อน
-    });
-  }
+    // urgent case ที่ยัง active มาก่อน
+    if (a.isUrgent && !b.isUrgent) return -1;
+    if (!a.isUrgent && b.isUrgent) return 1;
+
+    // urgent case เสร็จแล้ว (isUrgent === false) จะเรียงตามวันที่
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateA - dateB; // เรียงจากเก่ามาใหม่
+  });
+}
 
   // --- Apply sort before filter ---
   const sortedProjects = sortProjects(researchProjects);
@@ -96,7 +101,8 @@ export default function AdminHomePage() {
         return project.trlRecommendation?.trlScore?.toString() === value;
       }
       if (column === "status") {
-        return project.trlRecommendation?.status === value;
+        const statusString = project.trlRecommendation?.status === true ? "Approve" : "In process";
+        return statusString === value;
       }
       if (column === "createdBy") {
         return getFullNameByEmail(project.createdBy) === value;
@@ -166,6 +172,7 @@ export default function AdminHomePage() {
           <div>
             <AdminManagement
               projects={filteredProjects}
+              setProjects={setResearchProjects}
               sortConfig={sortConfig}
               onSort={handleSort}
               onAIEstimate={handleAIEstimate}
@@ -175,7 +182,7 @@ export default function AdminHomePage() {
               setCurrentPage={setCurrentPage}
               setRowsPerPage={setRowsPerPage}
               getFullNameByEmail={getFullNameByEmail}
-              onEdit={handleResearchClick}
+              onAssessment ={handleResearchClick}
             />
           </div>
         ) : (
