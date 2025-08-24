@@ -1,6 +1,6 @@
 export interface TRLRecommendation {
   trlScore?: number;
-  status?: string;
+  status: boolean;
   reason?: string;
   suggestion?: string;
   sources?: string[];
@@ -45,8 +45,9 @@ export interface TRLItem {
 
     // Urgent case
     isUrgent: boolean;
-    urgentReason: string;
-    
+    urgentReason?: string;
+    urgentFeedback?: string;
+
     // Created By
     createdBy: string;
 }

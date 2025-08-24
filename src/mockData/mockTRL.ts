@@ -24,7 +24,7 @@ const mockTRL: TRLItem[] = [
     consent: 'รวบรวมเป็น innovation portfolio ของคณะ และนำไปทำ innovation catalog',
     trlRecommendation: {
       trlScore: 2,
-      status: "Approve",
+      status: true,
       reason: "เริ่มมีการพัฒนาเป็นต้นแบบ แต่ยังไม่พร้อมใช้งานจริง",
       suggestion: "ทดสอบการใช้งานต้นแบบในสถานการณ์จริง และปรับปรุงระบบ",
       sources: ["PubMed", "Google Scholar", "IEEE Xplore", "ScienceDirect", "ThaiJO"],
@@ -32,7 +32,8 @@ const mockTRL: TRLItem[] = [
       aiEstimate: null
     },
     isUrgent: false,
-    urgentReason: null,
+    urgentReason: "ต้องการอนุมัติเร่งด่วนเพื่อขอทุนวิจัยรอบพิเศษ",
+    urgentFeedback: "ยังไม่เร่งด่วนมาก เนื่องจากปิดรับสมัครทุนแล้ว",
     createdBy: 'alice@professor.com',
   },
   {
@@ -58,7 +59,7 @@ const mockTRL: TRLItem[] = [
     consent: 'ใช้ในรายงาน innovation portfolio ของโครงการ',
     trlRecommendation: {
       trlScore: null,
-      status: "In process",
+      status: false,
       reason: null,
       suggestion: null,
       sources: null,
@@ -69,7 +70,8 @@ const mockTRL: TRLItem[] = [
       // sources: ["IEEE Xplore", "PubMed", "arXiv", "ThaiJO"]
     },
     isUrgent: true,
-    urgentReason: "ต้องการอนุมัติเร่งด่วนเพื่อขอทุนวิจัยรอบพิเศษ",
+    urgentReason: "ต้องการการสนับสนุนเร่งด่วนเพื่อพัฒนาต้นแบบ",
+    urgentFeedback: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -95,7 +97,7 @@ const mockTRL: TRLItem[] = [
     consent: 'เผยแพร่ในรายงานความก้าวหน้าวิจัย',
     trlRecommendation: {
       trlScore: 4,
-      status: "Approve",
+      status: true,
       reason: "มีผลการทดลองในสัตว์อย่างชัดเจน",
       suggestion: "เริ่มขั้นตอนจัดทำแผนการทดลองในมนุษย์",
       sources: ["Scopus", "PubMed"],
@@ -104,6 +106,7 @@ const mockTRL: TRLItem[] = [
     },
     isUrgent: false,
     urgentReason: null,
+    urgentFeedback: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -129,7 +132,7 @@ const mockTRL: TRLItem[] = [
     consent: 'ใช้สำหรับประเมินภายในเท่านั้น',
     trlRecommendation: {
       trlScore: 2,
-      status: "Approve",
+      status: true,
       reason: "อยู่ในขั้นตอนทดสอบระบบ",
       suggestion: "สร้างโมเดลต้นแบบสำหรับโรคที่มีข้อมูลมาก เช่น เบาหวาน",
       sources: ["arXiv", "Google Scholar"],
@@ -138,6 +141,7 @@ const mockTRL: TRLItem[] = [
     },
     isUrgent: false,
     urgentReason: null,
+    urgentFeedback: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -163,7 +167,7 @@ const mockTRL: TRLItem[] = [
     consent: 'เพื่อใช้ในการส่งเสริมงานวิจัยระดับชาติ',
     trlRecommendation: {
       trlScore: 3,
-      status: "Approve",
+      status: true,
       reason: "ผลเบื้องต้นดีในสัตว์",
       suggestion: "เตรียมเอกสารเพื่อยื่นขอ IRB และ trial",
       sources: ["PubMed", "ScienceDirect"],
@@ -172,6 +176,7 @@ const mockTRL: TRLItem[] = [
     },
     isUrgent: false,
     urgentReason: null,
+    urgentFeedback: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -197,7 +202,7 @@ const mockTRL: TRLItem[] = [
     consent: 'ใช้ในฐานข้อมูลเท่านั้น ไม่เปิดเผยเชิงพาณิชย์',
     trlRecommendation: {
       trlScore: null,
-      status: "In process",
+      status: false,
       reason: null,
       suggestion: null,
       sources: null,
@@ -209,6 +214,7 @@ const mockTRL: TRLItem[] = [
     },
     isUrgent: false,
     urgentReason: null,
+    urgentFeedback: null,
     createdBy: 'alice@professor.com',
   },
   {
@@ -234,7 +240,7 @@ const mockTRL: TRLItem[] = [
     consent: 'นำเสนอใน catalog และงาน innovation fair',
     trlRecommendation: {
       trlScore: 3,
-      status: "Approve",
+      status: true,
       reason: "ผ่านการทดสอบในสัตว์แล้ว",
       suggestion: "เตรียมเอกสารเพื่อยื่นขออนุมัติการทดลองในมนุษย์",
       sources: ["Nature", "Cell", "ScienceDirect"],
@@ -243,6 +249,7 @@ const mockTRL: TRLItem[] = [
     },
     isUrgent: false,
     urgentReason: null,
+    urgentFeedback: null,
     createdBy: 'alice@professor.com',
   }
 ];
