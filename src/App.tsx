@@ -11,7 +11,7 @@ import StartPage from "./pages/StartPage";
 import AdminHomePage from "./pages/AdminHomePage";
 import ResearcherDashboard from "./pages/ResearcherDashboard";
 import ResearcherDetail from "./pages/ResearcherDetail";
-import ResearcherForm from "./pages/ResearcherForm";
+import ResearcherForm from "./pages/researchDetails/ResearcherForm";
 import TrlScore from './pages/TrlScore';
 import Step1 from "./pages/steps/Step1";
 import Step2 from "./pages/steps/Step2";
