@@ -1,13 +1,18 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TablePagination } from "@/components/TablePagination";
-import { Button } from "@/components/ui/button";
-import { Sparkles, Download, Eye, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import type { TRLItem } from "../types/trl";
+import { Sparkles, Download, Eye, AlertTriangle } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
+import { TablePagination } from "@/components/TablePagination";
+import type { TRLItem } from "../types/trl";
+
+import { format } from "date-fns";
+import { th } from "date-fns/locale";
 
 interface Props {
   projects: TRLItem[];
@@ -217,24 +222,42 @@ export default function AdminManagement({
                             
                           </>
                         ) : project.trlRecommendation.status === false ? (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleViewResearch(project.id)}
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              View
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => onAIEstimate(project)}
-                            >
-                              <Sparkles className="w-4 h-4 mr-1" />
-                              AI Estimate
-                            </Button>
-                          </>
+                          <div className="flex flex-col items-start gap-1">
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewResearch(project.id)}
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                View
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onAIEstimate(project)}
+                              >
+                                <Sparkles className="w-4 h-4 mr-1" />
+                                AI Estimate
+                              </Button>
+                            </div>
+                            {project.appointments && project.appointments.length > 0 ? (
+                              <Badge variant="outline" className="text-xs">
+                                Appointment:{" "}
+                                {format(
+                                  new Date(
+                                    project.appointments[project.appointments.length - 1].date
+                                  ),
+                                  "dd/MM/yyyy HH:mm",
+                                  { locale: th }
+                                )}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-xs text-gray-400">
+                                Appointment: -
+                              </Badge>
+                            )}
+                          </div>
                         ) : (
                           // กรณี status อื่นๆ ไม่แสดงปุ่มเลย หรือแสดงอะไรตามต้องการ
                           <span className="text-muted-foreground">-</span>
@@ -276,7 +299,7 @@ export default function AdminManagement({
               currentPage={currentPage}
               onPageChange={setCurrentPage}
               rowsPerPage={rowsPerPage}
-              setRowsPerPage={setRowsPerPage}
+              onRowsPerPageChange={setRowsPerPage}
             />
           </CardContent>
         </Card>

@@ -5,14 +5,25 @@ import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../components/AdminNavbar";
 import AdminManagement from "../components/AdminManagement"; 
 import AdminDashboard from "../components/AdminDashboard";
+import AdminAppointment from "../components/AdminAppointment";
 
 import mockTRL from "../mockData/mockTRL";
+import mockAppointments from "../mockData/mockAppointments";
 import mockUser from "../mockData/mockUser";
+
+function mergeProjectsWithAppointments(projects: TRLItem[]) {
+  return projects.map((project) => ({
+    ...project,
+    appointments: mockAppointments.filter(a => a.research_id === project.research_id)
+  }));
+}
 
 export default function AdminHomePage() {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = React.useState<'management' | 'dashboard'>('management');
-  const [researchProjects, setResearchProjects] = React.useState(mockTRL as TRLItem[]);
+  const [activeView, setActiveView] = React.useState<'management' | 'dashboard' | 'appointments'>('management');
+  const [researchProjects, setResearchProjects] = React.useState(
+    mergeProjectsWithAppointments(mockTRL) as TRLItem[]
+  );
 
   // --- เพิ่ม filter state แบบ researcher ---
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
@@ -30,6 +41,21 @@ export default function AdminHomePage() {
     ],
     trlScore: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     status: ["In process", "Approve"],
+    createdBy: Array.from(
+      new Set(
+        mockUser.map((u) => `${u.firstname} ${u.lastname}`)
+      )
+    ),
+    isUrgent: ["true", "false"],
+  };
+
+  const appointmentColumns = ["researchTitle", "createdBy", "isUrgent"];
+  const appointmentColumnOptions: Record<string, string[]> = {
+    researchTitle: Array.from(
+      new Set(
+        mockTRL.map((r) => `${r.researchTitle}`)
+      )
+    ),
     createdBy: Array.from(
       new Set(
         mockUser.map((u) => `${u.firstname} ${u.lastname}`)
@@ -110,6 +136,9 @@ export default function AdminHomePage() {
       if (column === "isUrgent") {
         return String(project.isUrgent) === value;
       }
+      if (column === "researchTitle") {
+        return project.researchTitle === value;
+      }
       return true;
     })
   );
@@ -164,8 +193,12 @@ export default function AdminHomePage() {
         setSelectedColumn={setSelectedColumn}
         selectedValue={selectedValue}
         setSelectedValue={setSelectedValue}
-        columns={columns}
-        columnOptions={columnOptions}
+        columns={
+          activeView === "appointments" ? appointmentColumns : columns
+        }
+        columnOptions={
+          activeView === "appointments" ? appointmentColumnOptions : columnOptions
+        }
       >
       <div className="max-w-6xl mx-auto px-6 py-8">
         {activeView === 'management' ? (
@@ -185,9 +218,26 @@ export default function AdminHomePage() {
               onAssessment ={handleResearchClick}
             />
           </div>
-        ) : (
+        ) : activeView === 'dashboard' ? (
           <div>
             <AdminDashboard />
+          </div>
+        ) : (
+          <div>
+            <AdminAppointment
+              projects={filteredProjects}
+              setProjects={setResearchProjects}
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              onAIEstimate={handleAIEstimate}
+              onDownload={handleDownloadResult}
+              currentPage={currentPage}
+              rowsPerPage={rowsPerPage}
+              setCurrentPage={setCurrentPage}
+              setRowsPerPage={setRowsPerPage}
+              getFullNameByEmail={getFullNameByEmail}
+              onAssessment ={handleResearchClick}
+            />
           </div>
         )}
       </div>
