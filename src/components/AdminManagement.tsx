@@ -1,16 +1,22 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TablePagination } from "@/components/TablePagination";
-import { Button } from "@/components/ui/button";
-import { Sparkles, Download, Edit, View, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import type { TRLItem } from "../types/trl";
+import { Sparkles, Download, Eye, AlertTriangle } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
+import { TablePagination } from "@/components/TablePagination";
+import type { TRLItem } from "../types/trl";
+
+import { format } from "date-fns";
+import { th } from "date-fns/locale";
 
 interface Props {
   projects: TRLItem[];
+  setProjects: React.Dispatch<React.SetStateAction<TRLItem[]>>;
   sortConfig: { key: string; direction: "asc" | "desc" };
   onSort: (key: string) => void;
   onAIEstimate: (project: TRLItem) => void;
@@ -20,7 +26,7 @@ interface Props {
   setCurrentPage: (page: number) => void;
   setRowsPerPage: (rows: number) => void;
   getFullNameByEmail: (email: string) => string;
-  onEdit: (id: number, name: string, type: string) => void;
+  onAssessment : (id: number, name: string, type: string) => void;
 }
 
 
@@ -35,7 +41,7 @@ export default function AdminManagement({
   setCurrentPage,
   setRowsPerPage,
   getFullNameByEmail,
-  onEdit
+  onAssessment 
 }: Props) {
   const tableColumns = [
     { key: "createdAt", label: "Create Date" },
@@ -49,9 +55,12 @@ export default function AdminManagement({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Approve": return "bg-green-100 text-green-800";
-      case "In process": return "bg-cyan-100 text-cyan-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "Approve":
+        return "bg-green-100 text-green-800";
+      case "In process":
+        return "bg-cyan-100 text-cyan-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -74,19 +83,29 @@ export default function AdminManagement({
 
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [targetId, setTargetId] = React.useState<number | null>(null);
+  const [cancelReason, setCancelReason] = React.useState("");
 
   const handleAskConfirm = (id: number) => {
     setTargetId(id);
     setConfirmOpen(true);
   };
 
-  const handleConfirm = () => {
-    if (targetId !== null) {
-      // 👉 แจ้ง parent ว่า project ไหนโดนยกเลิก urgent
-      // parent (AdminHomePage) ควรมีฟังก์ชัน update state
-      console.log("ยกเลิก urgent:", targetId);
-    }
+  const handleConfirm = (id: number, reason: string) => {
+    // if (targetId !== null) {
+    //   setProjects(prevProjects =>
+    //     prevProjects.map(project =>
+    //       project.id === targetId
+    //         ? {
+    //             ...project,
+    //             isUrgent: false,
+    //             urgentReason: reason,
+    //           }
+    //         : project
+    //     )
+    //   );
+    // }
     setConfirmOpen(false);
+    setCancelReason("");
   };
 
 
@@ -131,10 +150,17 @@ export default function AdminManagement({
                       </TableCell>
                       <TableCell className="flex items-center gap-2">
                         <span
-                          className={project.isUrgent ? "text-red-600 font-semibold" : ""}
-                          title={project.isUrgent ? project.urgentReason : ""}
+                          className={`relative group ${project.isUrgent ? "text-red-600 font-semibold" : ""}`}
                         >
                           {project.researchTitle}
+
+                          {project.isUrgent && (
+                            <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
+                                            border border-red-600 bg-white text-black text-xs font-normal
+                                            px-4 py-2 rounded-lg shadow-lg z-10 w-64 text-center">
+                              {project.urgentReason}
+                            </span>
+                          )}
                         </span>
 
                         {project.isUrgent && (
@@ -149,26 +175,26 @@ export default function AdminManagement({
                       </TableCell>
                       <TableCell>{project.researchType}</TableCell>
                       <TableCell className="min-w-[120px] px-2 text-center align-middle">
-                        {project.trlRecommendation.status === "Approve" ? (
+                        {project.trlRecommendation.status === true ? (
                           <Badge variant="outline">TRL {project.trlRecommendation.trlScore}</Badge>
                         ) : (
                           <span className="text-muted-foreground"></span>
                         )}
                       </TableCell>
                       <TableCell className="text-center align-middle">
-                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(project.trlRecommendation.status)}`}>
-                          {project.trlRecommendation.status}
+                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(project.trlRecommendation?.status === true ? "Approve" : "In process")}`}>
+                          {project.trlRecommendation?.status === true ? "Approve" : "In process"}
                         </Badge>
                       </TableCell>
                       <TableCell className="flex gap-2">
-                        {project.trlRecommendation.status === "Approve" ? (
+                        {project.trlRecommendation.status === true ? (
                           <>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleViewResearch(project.id)}
                             >
-                              <View className="w-4 h-4 mr-2" />
+                              <Eye className="w-4 h-4 mr-1" />
                               View
                             </Button>
                             {project.trlRecommendation.result ? (
@@ -195,27 +221,43 @@ export default function AdminManagement({
 
                             
                           </>
-                        ) : project.trlRecommendation.status === "In process" ? (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                onEdit(project.id, project.researchTitle, project.researchType)
-                              }
-                            >
-                              <Edit className="w-4 h-4 mr-1" />
-                              Edit
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => onAIEstimate(project)}
-                            >
-                              <Sparkles className="w-4 h-4 mr-1" />
-                              AI Estimate
-                            </Button>
-                          </>
+                        ) : project.trlRecommendation.status === false ? (
+                          <div className="flex flex-col items-start gap-1">
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewResearch(project.id)}
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                View
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onAIEstimate(project)}
+                              >
+                                <Sparkles className="w-4 h-4 mr-1" />
+                                AI Estimate
+                              </Button>
+                            </div>
+                            {project.appointments && project.appointments.length > 0 ? (
+                              <Badge variant="outline" className="text-xs">
+                                Appointment:{" "}
+                                {format(
+                                  new Date(
+                                    project.appointments[project.appointments.length - 1].date
+                                  ),
+                                  "dd/MM/yyyy HH:mm",
+                                  { locale: th }
+                                )}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-xs text-gray-400">
+                                Appointment: -
+                              </Badge>
+                            )}
+                          </div>
                         ) : (
                           // กรณี status อื่นๆ ไม่แสดงปุ่มเลย หรือแสดงอะไรตามต้องการ
                           <span className="text-muted-foreground">-</span>
@@ -232,11 +274,19 @@ export default function AdminManagement({
                       <DialogTitle>ยืนยันการยกเลิก</DialogTitle>
                     </DialogHeader>
                     <p>คุณแน่ใจหรือไม่ว่าจะยกเลิก urgent case?</p>
+
+                    <textarea
+                      className="w-full border rounded p-2 mt-2"
+                      placeholder="ระบุเหตุผล..."
+                      value={cancelReason}
+                      onChange={(e) => setCancelReason(e.target.value)}
+                    />
+
                     <DialogFooter>
                       <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
                         ยกเลิก
                       </Button>
-                      <Button onClick={handleConfirm} variant="destructive">
+                      <Button onClick={() => handleConfirm(targetId, cancelReason)} variant="destructive">
                         ยืนยัน
                       </Button>
                     </DialogFooter>
@@ -249,7 +299,7 @@ export default function AdminManagement({
               currentPage={currentPage}
               onPageChange={setCurrentPage}
               rowsPerPage={rowsPerPage}
-              setRowsPerPage={setRowsPerPage}
+              onRowsPerPageChange={setRowsPerPage}
             />
           </CardContent>
         </Card>

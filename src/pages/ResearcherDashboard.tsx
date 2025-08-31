@@ -1,20 +1,35 @@
 import React from "react";
-import type { TRLItem } from '../types/trl';
-import mockTRL from "../mockData/mockTRL";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TablePagination } from "@/components/TablePagination";
-import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { Download, Filter, Plus, View } from "lucide-react";
-import Header from "../components/Header";
+
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
+import { TablePagination } from "@/components/TablePagination";
+import Header from "../components/Header";
+
+import { format } from "date-fns";
+import { th } from "date-fns/locale";
+
+import type { TRLItem } from '../types/trl';
+
+import mockTRL from "../mockData/mockTRL";
+import mockAppointments from "../mockData/mockAppointments";
+
+function mergeProjectsWithAppointments(projects: TRLItem[]) {
+  return projects.map((project) => ({
+    ...project,
+    appointments: mockAppointments.filter(a => a.research_id === project.research_id)
+  }));
+}
 
 export default function ResearcherDashboard() {
   const navigate = useNavigate();
 
-  const myResearch: TRLItem[] = mockTRL;
+  const myResearch: TRLItem[] = mergeProjectsWithAppointments(mockTRL) as TRLItem[];
 
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
@@ -44,7 +59,8 @@ export default function ResearcherDashboard() {
         return research.trlRecommendation?.trlScore.toString() === value;
       }
       if (column === "status") {
-        return research.trlRecommendation?.status === value;
+        const statusString = research.trlRecommendation?.status === true ? "Approve" : "In process";
+        return statusString === value;
       }
       if (column === "isUrgent") {
         return String(research.isUrgent) === value;
@@ -271,24 +287,38 @@ export default function ResearcherDashboard() {
                     <TableRow key={research.id}>
                       <TableCell>{research.id}</TableCell>
                       <TableCell>
-                        <span
-                          className={research.isUrgent ? "text-red-600 font-semibold" : ""}
-                          title={research.isUrgent ? research.urgentReason : ""}
-                        >
-                          {research.researchTitle}
-                        </span>
+                        <div className="flex flex-col">
+                          <span
+                            className={`relative group ${research.isUrgent ? "text-red-600 font-semibold" : ""}`}
+                          >
+                            {research.researchTitle}
+                            {research.isUrgent && (
+                              <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
+                                              border border-red-600 bg-white text-black text-xs font-normal
+                                              px-4 py-2 rounded-lg shadow-lg z-10 w-64 text-center">
+                                {research.urgentReason}
+                              </span>
+                            )}
+                          </span>
+
+                          {!research.trlRecommendation.status && research.urgentFeedback && (
+                            <span className="text-xs text-gray-500 mt-1">
+                              {research.urgentFeedback}
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>{research.researchType}</TableCell>
                       <TableCell>
-                        {research.trlRecommendation.status === "Approve" ? (
+                        {research.trlRecommendation.status === true ? (
                           <Badge variant="outline">TRL {research.trlRecommendation.trlScore}</Badge>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(research.trlRecommendation.status)}`}>
-                          {research.trlRecommendation.status}
+                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(research.trlRecommendation.status === true ? "Approve" : "In process")}`}>
+                          {research.trlRecommendation.status === true ? "Approve" : "In process"}
                         </Badge>
                       </TableCell>
 
@@ -320,15 +350,33 @@ export default function ResearcherDashboard() {
                               </Button>
                             </>
                           ) : (
-                            <div className="ml-auto">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleViewResearch(research.id)}
-                              >
-                                <View className="w-4 h-4 mr-2" />
-                                View
-                              </Button>
+                            <div className="flex flex-col items-start gap-1 min-w-[200px]">
+                                <div className="ml-auto">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleViewResearch(research.id)}
+                                  >
+                                    <View className="w-4 h-4 mr-2" />
+                                    View
+                                  </Button>
+                              </div>
+                                {research.appointments && research.appointments.length > 0 ? (
+                                <Badge variant="outline" className="text-xs">
+                                  Appointment:{" "}
+                                  {format(
+                                    new Date(
+                                      research.appointments[research.appointments.length - 1].date
+                                    ),
+                                    "dd/MM/yyyy HH:mm",
+                                    { locale: th }
+                                  )}
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="text-xs text-gray-400">
+                                  Appointment: -
+                                </Badge>
+                              )}
                             </div>
                           )}
                         </div>

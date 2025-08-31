@@ -5,14 +5,25 @@ import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../components/AdminNavbar";
 import AdminManagement from "../components/AdminManagement"; 
 import AdminDashboard from "../components/AdminDashboard";
+import AdminAppointment from "../components/AdminAppointment";
 
 import mockTRL from "../mockData/mockTRL";
+import mockAppointments from "../mockData/mockAppointments";
 import mockUser from "../mockData/mockUser";
+
+function mergeProjectsWithAppointments(projects: TRLItem[]) {
+  return projects.map((project) => ({
+    ...project,
+    appointments: mockAppointments.filter(a => a.research_id === project.research_id)
+  }));
+}
 
 export default function AdminHomePage() {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = React.useState<'management' | 'dashboard'>('management');
-  const [researchProjects, setResearchProjects] = React.useState(mockTRL as TRLItem[]);
+  const [activeView, setActiveView] = React.useState<'management' | 'dashboard' | 'appointments'>('management');
+  const [researchProjects, setResearchProjects] = React.useState(
+    mergeProjectsWithAppointments(mockTRL) as TRLItem[]
+  );
 
   // --- เพิ่ม filter state แบบ researcher ---
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
@@ -30,6 +41,21 @@ export default function AdminHomePage() {
     ],
     trlScore: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     status: ["In process", "Approve"],
+    createdBy: Array.from(
+      new Set(
+        mockUser.map((u) => `${u.firstname} ${u.lastname}`)
+      )
+    ),
+    isUrgent: ["true", "false"],
+  };
+
+  const appointmentColumns = ["researchTitle", "createdBy", "isUrgent"];
+  const appointmentColumnOptions: Record<string, string[]> = {
+    researchTitle: Array.from(
+      new Set(
+        mockTRL.map((r) => `${r.researchTitle}`)
+      )
+    ),
     createdBy: Array.from(
       new Set(
         mockUser.map((u) => `${u.firstname} ${u.lastname}`)
@@ -77,12 +103,17 @@ export default function AdminHomePage() {
       return 0;
     });
 
-    // --- ให้ urgent มาอยู่ก่อน แล้วค่อยเรียงตามที่ sortConfig ได้จัดไว้
     return sorted.sort((a, b) => {
-      if (a.isUrgent === b.isUrgent) return 0;
-      return a.isUrgent ? -1 : 1; // urgent ก่อน
-    });
-  }
+    // urgent case ที่ยัง active มาก่อน
+    if (a.isUrgent && !b.isUrgent) return -1;
+    if (!a.isUrgent && b.isUrgent) return 1;
+
+    // urgent case เสร็จแล้ว (isUrgent === false) จะเรียงตามวันที่
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateA - dateB; // เรียงจากเก่ามาใหม่
+  });
+}
 
   // --- Apply sort before filter ---
   const sortedProjects = sortProjects(researchProjects);
@@ -96,7 +127,8 @@ export default function AdminHomePage() {
         return project.trlRecommendation?.trlScore?.toString() === value;
       }
       if (column === "status") {
-        return project.trlRecommendation?.status === value;
+        const statusString = project.trlRecommendation?.status === true ? "Approve" : "In process";
+        return statusString === value;
       }
       if (column === "createdBy") {
         return getFullNameByEmail(project.createdBy) === value;
@@ -104,12 +136,19 @@ export default function AdminHomePage() {
       if (column === "isUrgent") {
         return String(project.isUrgent) === value;
       }
+      if (column === "researchTitle") {
+        return project.researchTitle === value;
+      }
       return true;
     })
   );
 
   const handleResearchClick = (id: number, name: string, type: string) => {
     navigate(`/trl-1?research=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}`);
+  };
+
+  const handleAIEstimate = (project: any) => {
+    navigate("/trl-score", { state: { project } });
   };
 
   const handleDownloadResult = (filename: string) => {
@@ -120,30 +159,10 @@ export default function AdminHomePage() {
     link.click();
   };
 
-  const handleAIEstimate = (project: any) => {
-    // AI estimation logic based on project type and details
-    const aiEstimates = {
-      "TRL software": ["TRL3", "TRL4", "TRL5"],
-      "TRL medical devices": ["TRL2", "TRL3", "TRL4"],
-      "TRL medicines vaccines stem cells": ["TRL6", "TRL7", "TRL8"],
-      "TRL plant/animal breeds": ["TRL3", "TRL4", "TRL5"]
-    };
-    
-    const estimates = aiEstimates[project.type] || ["TRL3", "TRL4"];
-    const randomEstimate = estimates[Math.floor(Math.random() * estimates.length)];
-    
-    // Update the project with AI estimate
-    setResearchProjects(prevProjects =>
-      prevProjects.map(p =>
-        p.id === project.id ? { ...p, aiEstimate: randomEstimate } : p
-      )
-    );
-  };
   function getFullNameByEmail(email: string): string {
     const user = mockUser.find((u) => u.email === email);
     return user ? user.firstname + " " + user.lastname : email;
   }
-
 
   // --- Pagination state ---
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -174,14 +193,19 @@ export default function AdminHomePage() {
         setSelectedColumn={setSelectedColumn}
         selectedValue={selectedValue}
         setSelectedValue={setSelectedValue}
-        columns={columns}
-        columnOptions={columnOptions}
+        columns={
+          activeView === "appointments" ? appointmentColumns : columns
+        }
+        columnOptions={
+          activeView === "appointments" ? appointmentColumnOptions : columnOptions
+        }
       >
       <div className="max-w-6xl mx-auto px-6 py-8">
         {activeView === 'management' ? (
           <div>
             <AdminManagement
               projects={filteredProjects}
+              setProjects={setResearchProjects}
               sortConfig={sortConfig}
               onSort={handleSort}
               onAIEstimate={handleAIEstimate}
@@ -191,12 +215,29 @@ export default function AdminHomePage() {
               setCurrentPage={setCurrentPage}
               setRowsPerPage={setRowsPerPage}
               getFullNameByEmail={getFullNameByEmail}
-              onEdit={handleResearchClick}
+              onAssessment ={handleResearchClick}
             />
+          </div>
+        ) : activeView === 'dashboard' ? (
+          <div>
+            <AdminDashboard />
           </div>
         ) : (
           <div>
-            <AdminDashboard />
+            <AdminAppointment
+              projects={filteredProjects}
+              setProjects={setResearchProjects}
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              onAIEstimate={handleAIEstimate}
+              onDownload={handleDownloadResult}
+              currentPage={currentPage}
+              rowsPerPage={rowsPerPage}
+              setCurrentPage={setCurrentPage}
+              setRowsPerPage={setRowsPerPage}
+              getFullNameByEmail={getFullNameByEmail}
+              onAssessment ={handleResearchClick}
+            />
           </div>
         )}
       </div>

@@ -1,17 +1,16 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useNavigate } from 'react-router-dom';
-import { Plus, ArrowLeft, Download, Filter, Sparkles, ChartArea, List } from 'lucide-react';
+import { Filter, ChartArea, List, CalendarRange } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
 import Header from './Header';
 
 interface AdminNavbarProps {
-  activeView: 'management' | 'dashboard';
-  onViewChange: (view: 'management' | 'dashboard') => void;
+  activeView: 'management' | 'dashboard' | 'appointments';
+  onViewChange: (view: 'management' | 'dashboard' | 'appointments') => void;
   children: React.ReactNode;
   // props for filter
   customFilters: { column: string; value: string }[];
@@ -48,31 +47,33 @@ export default function AdminNavbar({
               <p className="text-muted-foreground">Manage your TRL assessment projects</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {customFilters.map((filter, index) => (
-              <Badge
-                key={index}
-                variant="secondary"
-                className="flex items-center gap-1 text-xs px-2 py-1"
-              >
-                {filter.column}: {filter.value}
-                <button
-                  onClick={() =>
-                    setCustomFilters((prev) =>
-                      prev.filter((_, i) => i !== index)
-                    )
-                  }
-                  className="ml-1 text-muted-foreground hover:text-destructive"
+          {activeView !== 'dashboard' && (
+            <div className="flex items-center gap-2">
+              {customFilters.map((filter, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="flex items-center gap-1 text-xs px-2 py-1"
                 >
-                  ×
-                </button>
-              </Badge>
-            ))}
-            <Button onClick={() => setShowFilterModal(true)} variant="outline">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
-          </div>
+                  {filter.column}: {filter.value}
+                  <button
+                    onClick={() =>
+                      setCustomFilters((prev) =>
+                        prev.filter((_, i) => i !== index)
+                      )
+                    }
+                    className="ml-1 text-muted-foreground hover:text-destructive"
+                  >
+                    ×
+                  </button>
+                </Badge>
+              ))}
+              <Button onClick={() => setShowFilterModal(true)} variant="outline">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </div>
+          )}
           {/* Modal Filter */}
           <Dialog open={showFilterModal} onOpenChange={setShowFilterModal}>
             <DialogContent className="max-w-md">
@@ -103,7 +104,7 @@ export default function AdminNavbar({
                     className="w-full border rounded px-2 py-1 text-sm"
                   >
                     <option value="">Select value</option>
-                    {columnOptions[selectedColumn].map((v) => (
+                    {(columnOptions[selectedColumn] || []).map((v) => (
                       <option key={v} value={v}>{v}</option>
                     ))}
                   </select>
@@ -149,10 +150,18 @@ export default function AdminNavbar({
             <ChartArea className="w-4 h-4" />
             <span>Dashboard</span>
           </Button>
+          <Button
+            variant={activeView === 'appointments' ? 'default' : 'outline'}
+            onClick={() => onViewChange('appointments')}
+            className="flex items-center space-x-2"
+          >
+            <CalendarRange className="w-4 h-4" />
+            <span>Appointments</span>
+          </Button>
         </div>
+        {/* Content */}
+        {children}
       </div>
-      {/* Content */}
-      {children}
     </div>
   );
 }

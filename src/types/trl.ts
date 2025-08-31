@@ -1,6 +1,6 @@
 export interface TRLRecommendation {
   trlScore?: number;
-  status?: string;
+  status: boolean;
   reason?: string;
   suggestion?: string;
   sources?: string[];
@@ -10,6 +10,7 @@ export interface TRLRecommendation {
 
 export interface TRLItem {
     id: number;
+    research_id: string;
     createdAt: string;
 
     // Step 1: TRL Type
@@ -45,8 +46,26 @@ export interface TRLItem {
 
     // Urgent case
     isUrgent: boolean;
-    urgentReason: string;
-    
+    urgentReason?: string;
+    urgentFeedback?: string;
+
     // Created By
     createdBy: string;
+
+    // Appointment
+    appointments?: Appointment[];
+}
+
+export interface Appointment {
+  id: number;
+  research_id: string;
+  date: string;
+  location: string;
+  attendees: {
+    email: string;
+    name: string;
+  }[];
+  status: "attended" | "absent" | "pending";
+  summary?: string;
+  notes?: string;
 }
