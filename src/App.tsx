@@ -25,6 +25,7 @@ import Step8 from "./pages/steps/Step8";
 import Step9 from "./pages/steps/Step9";
 import CompletePage from "./pages/CompletePage";
 import NotFound from "./pages/NotFound";
+import DifyChatIframe from '@/components/DifyChatIFrame';
 
 // MOCK
 import type { UserItem } from './types/user';
@@ -40,6 +41,7 @@ const App: React.FC = () => {
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <DifyChatIframe />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
