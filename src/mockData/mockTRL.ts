@@ -4,6 +4,7 @@ const mockTRL: TRLItem[] = [
   {
     id: 1,
     createdAt: "2025-08-03T14:45:00.000Z",
+    research_id: "M0001",
     researchTitle: 'Smart Health Monitor',
     researchType: "TRL medicines vaccines stem cells",
     description: 'อุปกรณ์ติดตามสุขภาพที่สามารถวัดค่าทางชีวภาพแบบเรียลไทม์ เพื่อป้องกันโรคล่วงหน้า',
@@ -23,13 +24,19 @@ const mockTRL: TRLItem[] = [
     readyForShowcase: 'ยินดี',
     consent: 'รวบรวมเป็น innovation portfolio ของคณะ และนำไปทำ innovation catalog',
     trlRecommendation: {
-      trlScore: 2,
-      status: true,
-      reason: "เริ่มมีการพัฒนาเป็นต้นแบบ แต่ยังไม่พร้อมใช้งานจริง",
-      suggestion: "ทดสอบการใช้งานต้นแบบในสถานการณ์จริง และปรับปรุงระบบ",
-      sources: ["PubMed", "Google Scholar", "IEEE Xplore", "ScienceDirect", "ThaiJO"],
-      result: "result.pdf",
+      trlScore: null,
+      status: false,
+      reason: null,
+      suggestion: null,
+      sources: null,
       aiEstimate: null
+      // trlScore: 2,
+      // status: true,
+      // reason: "เริ่มมีการพัฒนาเป็นต้นแบบ แต่ยังไม่พร้อมใช้งานจริง",
+      // suggestion: "ทดสอบการใช้งานต้นแบบในสถานการณ์จริง และปรับปรุงระบบ",
+      // sources: ["PubMed", "Google Scholar", "IEEE Xplore", "ScienceDirect", "ThaiJO"],
+      // result: "result.pdf",
+      // aiEstimate: null
     },
     isUrgent: false,
     urgentReason: "ต้องการอนุมัติเร่งด่วนเพื่อขอทุนวิจัยรอบพิเศษ",
@@ -39,6 +46,7 @@ const mockTRL: TRLItem[] = [
   {
     id: 2,
     createdAt: "2025-08-04T14:45:00.000Z",
+    research_id: "S0001",
     researchTitle: 'Clinical Decision Support AI',
     researchType: "TRL software",
     description: 'ระบบ AI วิเคราะห์ข้อมูลเวชระเบียนอิเล็กทรอนิกส์ เพื่อช่วยแพทย์วินิจฉัยและเลือกแนวทางการรักษา',
@@ -77,6 +85,7 @@ const mockTRL: TRLItem[] = [
   {
     id: 3,
     createdAt: "2025-08-05T14:45:00.000Z",
+    research_id: "M0002",
     researchTitle: 'Stem Cell Wound Healing Gel',
     researchType: "TRL medicines vaccines stem cells",
     description: 'เจลบำบัดแผลเรื้อรังจากเซลล์ต้นกำเนิดที่กระตุ้นการสร้างเนื้อเยื่อใหม่',
@@ -112,6 +121,7 @@ const mockTRL: TRLItem[] = [
   {
     id: 4,
     createdAt: "2025-08-06T14:45:00.000Z",
+    research_id: "M0003",
     researchTitle: 'AI Drug Repurposing System',
     researchType: "TRL medicines vaccines stem cells",
     description: 'ระบบ AI สำหรับค้นหาการใช้ยาเดิมกับโรคใหม่',
@@ -147,6 +157,7 @@ const mockTRL: TRLItem[] = [
   {
     id: 5,
     createdAt: "2025-08-07T14:45:00.000Z",
+    research_id: "M0004",
     researchTitle: 'Oral Insulin Nanoformulation',
     researchType: "TRL medicines vaccines stem cells",
     description: 'นวัตกรรมอินซูลินชนิดรับประทานด้วยเทคโนโลยีนาโนเพื่อการดูดซึมสูงสุด',
@@ -182,6 +193,7 @@ const mockTRL: TRLItem[] = [
   {
     id: 6,
     createdAt: "2025-08-08T14:45:00.000Z",
+    research_id: "M0005",
     researchTitle: 'Cancer Immunotherapy by CAR-T',
     researchType: "TRL medicines vaccines stem cells",
     description: 'การรักษามะเร็งโดยการใช้เซลล์ภูมิคุ้มกันที่ดัดแปลงพันธุกรรม',
@@ -220,6 +232,7 @@ const mockTRL: TRLItem[] = [
   {
     id: 7,
     createdAt: "2025-08-09T14:45:00.000Z",
+    research_id: "M0006",
     researchTitle: 'mRNA Vaccine Platform',
     researchType: "TRL medicines vaccines stem cells",
     description: 'แพลตฟอร์มสำหรับผลิตวัคซีน mRNA ที่สามารถดัดแปลงได้ตามเชื้อไวรัสที่กลายพันธุ์',

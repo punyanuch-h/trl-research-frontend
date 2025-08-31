@@ -9,6 +9,7 @@ import SignupPage from "./pages/SignupPage";
 import Profile from "./pages/Profile";
 import StartPage from "./pages/StartPage";
 import AdminHomePage from "./pages/AdminHomePage";
+import AppointmentDetail from "./pages/AppointmentDetail";
 import ResearcherDashboard from "./pages/ResearcherDashboard";
 import ResearcherDetail from "./pages/ResearcherDetail";
 import ResearcherForm from "./pages/researchDetails/ResearcherForm";
@@ -23,7 +24,6 @@ import Step7 from "./pages/steps/Step7";
 import Step8 from "./pages/steps/Step8";
 import Step9 from "./pages/steps/Step9";
 import CompletePage from "./pages/CompletePage";
-import AdminDashboard from "./components/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 // MOCK
@@ -51,7 +51,6 @@ const App: React.FC = () => {
           <Route path="/researcher-dashboard" element={<ResearcherDashboard />} />
           <Route path="/researcher-detail" element={<ResearcherDetail />} />
           <Route path="/researcher-form" element={<ResearcherForm />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/trl-score" element={<TrlScore />} />
           <Route path="/trl-1" element={<Step1 />} />
           <Route path="/trl-2" element={<Step2 />} />
@@ -63,7 +62,6 @@ const App: React.FC = () => {
           <Route path="/trl-8" element={<Step8 />} />
           <Route path="/trl-9" element={<Step9 />} />
           <Route path="/complete" element={<CompletePage />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

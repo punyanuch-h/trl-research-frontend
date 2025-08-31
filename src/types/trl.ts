@@ -10,6 +10,7 @@ export interface TRLRecommendation {
 
 export interface TRLItem {
     id: number;
+    research_id: string;
     createdAt: string;
 
     // Step 1: TRL Type
@@ -50,4 +51,21 @@ export interface TRLItem {
 
     // Created By
     createdBy: string;
+
+    // Appointment
+    appointments?: Appointment[];
+}
+
+export interface Appointment {
+  id: number;
+  research_id: string;
+  date: string;
+  location: string;
+  attendees: {
+    email: string;
+    name: string;
+  }[];
+  status: "attended" | "absent" | "pending";
+  summary?: string;
+  notes?: string;
 }
