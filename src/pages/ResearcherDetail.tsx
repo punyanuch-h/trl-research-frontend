@@ -280,14 +280,6 @@ export default function ResearcherDetail() {
                         <Edit2 className="w-4 h-4 mr-1" />
                         Edit
                       </Button>
-                      {/* Modal สำหรับแก้ไข appointment */}
-                      <EditAppointmentModal
-                        open={editModalOpen}
-                        onClose={() => setEditModalOpen(false)}
-                        appointment={editingAppointment}
-                        projects={[research]}
-                        onSave={handleSaveEdit}
-                      />
                     </div>                    
                     
                   </li>
@@ -350,6 +342,14 @@ export default function ResearcherDetail() {
                 <li><strong>Suggestion:</strong> {display(research.trlRecommendation.suggestion)}</li>
                 <li><strong>Sources:</strong> {display(research.trlRecommendation.sources)}</li>
               </ul>
+              {/* Modal สำหรับแก้ไข appointment */}
+                <EditAppointmentModal
+                  open={editModalOpen}
+                  onClose={() => setEditModalOpen(false)}
+                  appointment={editingAppointment}
+                  projects={[research]}
+                  onSave={handleSaveEdit}
+                />
             </Section>
           </CardContent>
         </Card>

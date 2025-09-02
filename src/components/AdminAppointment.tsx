@@ -180,55 +180,62 @@ export default function AdminAppointment({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        {filteredAppointments.length === 0 ? (
-          <p className="text-muted-foreground">ไม่มีนัดหมายในช่วงเวลาที่เลือก</p>
-        ) : (
-          <ul className="space-y-3">
-            {paginatedAppointments.map((a) => (
-              <li
-                key={a.id + a.researchTitle}
-                onClick={() => handleViewResearch(a.id)}
-                className="p-3 border rounded-lg flex justify-between items-center"
-              >
-                <div className="flex flex-col">
-                  <span className="font-medium">{a.researchTitle}</span>
-                  <span className="text-sm text-gray-500">👨‍🔬 {a.researcherName}</span>
-                  <span className="text-xs text-gray-400">📍 {a.location}</span>
-                  <span className="text-xs">
-                    {a.status === "attended" && "✅ เข้าร่วมแล้ว"}
-                    {a.status === "absent" && "❌ ขาดนัด"}
-                    {a.status === "pending" && "⏳ รอดำเนินการ"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">
-                    {format(new Date(a.date), "dd/MM/yyyy HH:mm", { locale: th })}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={e => {
-                      e.stopPropagation();
-                      handleEditAppointment(a);
-                    }}
+        <CardContent>
+          {filteredAppointments.length === 0 ? (
+            <p className="text-muted-foreground">ไม่มีนัดหมายในช่วงเวลาที่เลือก</p>
+          ) : (
+            <>
+              <ul className="space-y-3">
+                {paginatedAppointments.map((a) => (
+                  <li
+                    key={a.id + a.researchTitle}
+                    onClick={() => handleViewResearch(a.id)}
+                    className="p-3 border rounded-lg flex justify-between items-center"
                   >
-                    <Edit2 className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                  {/* Modal สำหรับแก้ไข appointment */}
-                  <EditAppointmentModal
-                    open={editModalOpen}
-                    onClose={() => setEditModalOpen(false)}
-                    appointment={editingAppointment}
-                    projects={projects}
-                    onSave={handleSaveEdit}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                    <div className="flex flex-col">
+                      <span className="font-medium">{a.researchTitle}</span>
+                      <span className="text-sm text-gray-500">👨‍🔬 {a.researcherName}</span>
+                      <span className="text-xs text-gray-400">📍 {a.location}</span>
+                      <span className="text-xs">
+                        {a.status === "attended" && "✅ เข้าร่วมแล้ว"}
+                        {a.status === "absent" && "❌ ขาดนัด"}
+                        {a.status === "pending" && "⏳ รอดำเนินการ"}
+                      </span>
+                      {a.summary && (
+                        <span className="text-xs text-gray-600 mt-1">
+                          <strong>Summary:</strong> {a.summary}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">
+                        {format(new Date(a.date), "dd/MM/yyyy HH:mm", { locale: th })}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleEditAppointment(a);
+                        }}
+                      >
+                        <Edit2 className="w-4 h-4 mr-1" />
+                        Edit
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {/* Modal สำหรับแก้ไข appointment (อยู่นอก map) */}
+              <EditAppointmentModal
+                open={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                appointment={editingAppointment}
+                projects={projects}
+                onSave={handleSaveEdit}
+              />
+            </>
+          )}
         <TablePagination
           totalPages={totalPages}
           currentPage={currentPage}
