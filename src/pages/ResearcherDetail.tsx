@@ -300,7 +300,7 @@ export default function ResearcherDetail() {
         </Card>
         <br />
         <Card>
-          <CardContent className="space-y-6 mt-">
+          <CardContent className="space-y-6 mt-4">
             {/* Research Details */}
             <Section title="Research Details">
               <ul className="space-y-1 text-muted-foreground">
