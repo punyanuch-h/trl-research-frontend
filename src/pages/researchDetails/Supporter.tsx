@@ -39,7 +39,7 @@ const Supporter: React.FC<SupporterProps> = ({
     { value: 'หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม', label: 'หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม' },
     { value: 'หาแหล่งทุน', label: 'หาแหล่งทุน' },
     { value: 'หาคู่ค้าทางธุรกิจ', label: 'หาคู่ค้าทางธุรกิจ' },
-    { value: 'แนะน าแนวทางการเริ่มธุรกิจ', label: 'แนะน าแนวทางการเริ่มธุรกิจ' },
+    { value: 'แนะนำแนวทางการเริ่มธุรกิจ', label: 'แนะนำแนวทางการเริ่มธุรกิจ' },
     { value: 'การขอรับรองมาตรฐานหรือคุณภาพ', label: 'การขอรับรองมาตรฐานหรือคุณภาพ' },
     { value: 'บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม', label: 'บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม' },
     { value: 'อื่น ๆ', label: 'อื่น ๆ โปรดระบุ' },
@@ -65,6 +65,7 @@ const Supporter: React.FC<SupporterProps> = ({
                 value={option.value}
                 onChange={(e) => handleCheckboxChange('supportDevNeeded', e.target.value, e.target.checked)}
                 checked={formData.supportDevNeeded.includes(option.value)}
+                className="mr-2"
               />
               {option.label}
             </label>
@@ -86,6 +87,7 @@ const Supporter: React.FC<SupporterProps> = ({
                   value={option.value}
                   onChange={(e) => handleCheckboxChange('supportMarketNeeded', e.target.value, e.target.checked)}
                   checked={formData.supportMarketNeeded.includes(option.value)}
+                  className="mr-2"
                 />
                 {option.label}
               </label>

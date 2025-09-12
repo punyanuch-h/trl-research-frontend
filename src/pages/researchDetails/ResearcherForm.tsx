@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,6 +81,13 @@ export default function ResearcherForm() {
     additionalDocuments: null as File | null, // Add this
   });
 
+  useEffect(() => {
+    const savedStep = localStorage.getItem("currentFormStep");
+    if (savedStep) {
+      setCurrentFormStep(Number(savedStep));
+    }
+  }, []);
+
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -88,12 +95,14 @@ export default function ResearcherForm() {
   const handleNext = () => {
     if (currentFormStep < 5) {
       setCurrentFormStep(currentFormStep + 1);
+      localStorage.setItem("currentFormStep", (currentFormStep + 1).toString());
     }
   };
 
   const handlePrev = () => {
     if (currentFormStep > 1) {
       setCurrentFormStep(currentFormStep - 1);
+      localStorage.setItem("currentFormStep", (currentFormStep - 1).toString());
     }
   };
 
@@ -105,6 +114,7 @@ export default function ResearcherForm() {
     // Logic for form submission
     console.log("Form Data Submitted:", formData);
     navigate('/researcher-dashboard');
+    localStorage.removeItem("currentFormStep");
   };
 
   const handleCheckboxChange = (field: string, value: string, checked: boolean) => {
