@@ -1,0 +1,17 @@
+@startuml
+title Sequence Diagram: User Logs In
+
+actor User
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database" as DB
+
+User -> UI: Open 'Login' page
+User -> UI: Fill login form\nand submit
+UI -> API: POST /login (credentials)
+API -> DB: Verify user credentials
+DB --> API: Success/Failure response
+API --> UI: Return result (success/failure)
+UI --> User: Show confirmation or error
+
+@enduml

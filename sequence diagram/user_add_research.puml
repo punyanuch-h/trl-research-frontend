@@ -1,0 +1,17 @@
+@startuml
+title Sequence Diagram: User Adds Research
+
+actor User
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database" as DB
+
+User -> UI: Open 'Add Research' page
+User -> UI: Fill research details\nand submit
+UI -> API: POST /research (details)
+API -> DB: Save research data
+DB --> API: Success/Failure response
+API --> UI: Return result (success/failure)
+UI --> User: Show confirmation or error
+
+@enduml

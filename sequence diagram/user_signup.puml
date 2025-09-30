@@ -1,0 +1,17 @@
+@startuml
+title Sequence Diagram: User Signs Up
+
+actor User
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database" as DB
+
+User -> UI: Open 'Sign Up' page
+User -> UI: Fill registration form\nand submit
+UI -> API: POST /signup (user data)
+API -> DB: Create new user record
+DB --> API: Success/Failure response
+API --> UI: Return result (success/failure)
+UI --> User: Show confirmation or error
+
+@enduml
