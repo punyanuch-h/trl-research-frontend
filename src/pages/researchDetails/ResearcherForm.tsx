@@ -147,7 +147,7 @@ export default function ResearcherForm() {
   const formSteps = [
     { id: 1, title: "Researcher Details" },
     { id: 2, title: "Research Details" },
-    { id: 3, title: "Research Technology" },
+    { id: 3, title: "Research Assessment TRL" },
     { id: 4, title: "Intellectual Property" },
     { id: 5, title: "Supportment" }
   ];
