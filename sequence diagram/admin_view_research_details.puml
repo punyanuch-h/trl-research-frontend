@@ -1,0 +1,16 @@
+@startuml
+title Sequence Diagram: Admin Views Research Details
+
+actor Admin
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database" as DB
+
+Admin -> UI: Navigate to 'Research Details' page
+UI -> API: GET /research/{id}
+API -> DB: Fetch research details
+DB --> API: Return research details
+API --> UI: Return research details
+UI --> Admin: Display research details
+
+@enduml

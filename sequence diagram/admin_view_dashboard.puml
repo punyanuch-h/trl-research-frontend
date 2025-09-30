@@ -1,0 +1,16 @@
+@startuml
+title Sequence Diagram: Admin Views Dashboard
+
+actor Admin
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database" as DB
+
+Admin -> UI: Open 'Dashboard' page
+UI -> API: GET /dashboard-data
+API -> DB: Fetch dashboard data
+DB --> API: Return dashboard data
+API --> UI: Return dashboard data
+UI --> Admin: Display dashboard
+
+@enduml
