@@ -2,13 +2,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import React from "react";
 
 interface ResearcherDetailsProps {
     formData: any;
     handleInputChange: (field: string, value: any) => void;
+    refs?: any;
 }
 
-export default function ResearcherDetails({ formData, handleInputChange }: ResearcherDetailsProps) {
+export default function ResearcherDetails({ formData, handleInputChange, refs }: ResearcherDetailsProps) {
     return (
         <div className="space-y-6 text-gray-600">
             <div className="space-y-4">
@@ -19,6 +21,7 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                         <Select
                             onValueChange={(value) => handleInputChange("headPrefix", value)}
                             value={formData.headPrefix}
+                            required
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="เลือก" />
@@ -39,6 +42,7 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                         <Select
                             onValueChange={(value) => handleInputChange("headAcademicPosition", value)}
                             value={formData.headAcademicPosition}
+                            required
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="เลือก" />
@@ -58,6 +62,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                             value={formData.headFirstName}
                             onChange={(e) => handleInputChange("headFirstName", e.target.value)}
                             placeholder="ชื่อ"
+                            required
+                            ref={refs?.headFirstName}
                         />
                     </div>
                     <div className="col-span-1">
@@ -67,6 +73,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                             value={formData.headLastName}
                             onChange={(e) => handleInputChange("headLastName", e.target.value)}
                             placeholder="นามสกุล"
+                            required
+                            ref={refs?.headLastName}
                         />
                     </div>
                 </div>
@@ -78,6 +86,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                         value={formData.headDepartment}
                         onChange={(e) => handleInputChange("headDepartment", e.target.value)}
                         placeholder="เช่น ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์"
+                        required
+                        ref={refs?.headDepartment}
                     />
                 </div>
                 <div>
@@ -87,6 +97,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                         value={formData.headPhoneNumber}
                         onChange={(e) => handleInputChange("headPhoneNumber", e.target.value)}
                         placeholder="0XXXXXXXXX"
+                        required
+                        ref={refs?.headPhoneNumber}
                     />
                 </div>
                 <div>
@@ -96,6 +108,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                         value={formData.headEmail}
                         onChange={(e) => handleInputChange("headEmail", e.target.value)}
                         placeholder="example@email.com"
+                        required
+                        ref={refs?.headEmail}
                     />
                 </div>
             </div>
@@ -112,6 +126,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                             value={formData.coordinatorFirstName}
                             onChange={(e) => handleInputChange("coordinatorFirstName", e.target.value)}
                             placeholder="ชื่อ"
+                            required
+                            ref={refs?.coordinatorFirstName}
                         />
                     </div>
                     <div>
@@ -121,6 +137,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                             value={formData.coordinatorLastName}
                             onChange={(e) => handleInputChange("coordinatorLastName", e.target.value)}
                             placeholder="นามสกุล"
+                            required
+                            ref={refs?.coordinatorLastName}
                         />
                     </div>
                 </div>
@@ -131,6 +149,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                         value={formData.coordinatorPhoneNumber}
                         onChange={(e) => handleInputChange("coordinatorPhoneNumber", e.target.value)}
                         placeholder="0XX-XXX-XXXX"
+                        required
+                        ref={refs?.coordinatorPhoneNumber}
                     />
                 </div>
                 <div>
@@ -140,6 +160,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                         value={formData.coordinatorEmail}
                         onChange={(e) => handleInputChange("coordinatorEmail", e.target.value)}
                         placeholder="example@email.com"
+                        required
+                        ref={refs?.coordinatorEmail}
                     />
                 </div>
                 <div className="flex items-center space-x-2 mt-4">
@@ -160,6 +182,8 @@ export default function ResearcherDetails({ formData, handleInputChange }: Resea
                             onChange={e => handleInputChange("urgentReason", e.target.value)}
                             placeholder="โปรดระบุเหตุผลความเร่งด่วน"
                             rows={2}
+                            required={formData.isUrgent}
+                            ref={refs?.urgentReason}
                         />
                     </div>
                 )}

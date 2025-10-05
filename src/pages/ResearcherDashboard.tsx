@@ -16,20 +16,36 @@ import { th } from "date-fns/locale";
 
 import type { TRLItem } from '../types/trl';
 
-import mockTRL from "../mockData/mockTRL";
-import mockAppointments from "../mockData/mockAppointments";
+const TRL_API_URL = "/api/cases";
+const APPOINTMENTS_API_URL = "/api/appointments";
 
-function mergeProjectsWithAppointments(projects: TRLItem[]) {
+function mergeProjectsWithAppointments(projects: TRLItem[], appointments: any[]) {
   return projects.map((project) => ({
     ...project,
-    appointments: mockAppointments.filter(a => a.research_id === project.research_id)
+    appointments: appointments.filter(a => a.research_id === project.research_id)
   }));
 }
 
 export default function ResearcherDashboard() {
   const navigate = useNavigate();
 
-  const myResearch: TRLItem[] = mergeProjectsWithAppointments(mockTRL) as TRLItem[];
+  // --- State สำหรับข้อมูลจาก API ---
+  const [myResearch, setMyResearch] = React.useState<TRLItem[]>([]);
+  const [appointments, setAppointments] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  // --- ดึงข้อมูลจาก API ---
+  React.useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetch(TRL_API_URL).then(res => res.json()),
+      fetch(APPOINTMENTS_API_URL).then(res => res.json())
+    ]).then(([researchData, appointmentsData]) => {
+      setMyResearch(mergeProjectsWithAppointments(researchData, appointmentsData));
+      setAppointments(appointmentsData);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
 
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
@@ -50,6 +66,7 @@ export default function ResearcherDashboard() {
     isUrgent: ["true", "false"],
   };
 
+  // --- ใช้ myResearch จาก state แทน mockTRL ---
   const filteredResearch = myResearch.filter((research) =>
     customFilters.every(({ column, value }) => {
       if (column === "type") {
@@ -146,6 +163,15 @@ export default function ResearcherDashboard() {
   React.useEffect(() => {
     setCurrentPage(1);
   }, [customFilters, rowsPerPage]);
+
+  // --- Loading state ---
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <span>Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
