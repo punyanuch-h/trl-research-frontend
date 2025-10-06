@@ -1,3 +1,4 @@
+// ResearcherForm.tsx - Complete Frontend Implementation
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -23,22 +24,29 @@ import {
 } from "@/components/ui/dialog";
 import { BACKEND_HOST } from "@/constant/constants";
 
-// Import components with new names
+// Import components
 import ResearcherDetails from '@/pages/researchDetails/researcherDetails';
 import ResearchDetails from '@/pages/researchDetails/researchDetails';
 import EvaluateTRL from '@/pages/researchDetails/evaluateTRL';
 import IntellectualProperty from '@/pages/researchDetails/intellectualProperty';
 import Supporter from '@/pages/researchDetails/Supporter';
 
+interface IpForm {
+  noIp?: boolean;
+  ipTypes: string[];
+  ipStatus: string;
+  requestNumbers: Record<string, string>;
+}
 
 export default function ResearcherForm() {
   const navigate = useNavigate();
   const [currentFormStep, setCurrentFormStep] = useState(1);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [trlLevel, setTrlLevel] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    // researcherDetails
+    // researcher_info
     headPrefix: "",
     headAcademicPosition: "",
     headFirstName: "",
@@ -46,19 +54,23 @@ export default function ResearcherForm() {
     headDepartment: "",
     headPhoneNumber: "",
     headEmail: "",
+    // coordinator_info
+    sameAsHead: false,
     coordinatorFirstName: "",
     coordinatorLastName: "",
     coordinatorPhoneNumber: "",
     coordinatorEmail: "",
+    // caseDetails
+    researcherId: "",
+    trlScore: "",
+    status: false,
     isUrgent: false,
     urgentReason: "",
-
-    // researchDetails
+    urgentFeedback: "",
     researchTitle: "",
     researchType: "",
     description: "",
     keywords: "",
-    
     // evaluateTRL
     trlSoftware: "",
     trlMedicalDevices: "",
@@ -68,12 +80,32 @@ export default function ResearcherForm() {
     currentChallenges: "",
     targetUsers: "",
     
+    // Assessment_trl
+    trlLevelResult: "",
+    // Research Questions (RQ)
+    rq1Answer: false,
+    rq2Answer: false,
+    rq3Answer: false,
+    rq4Answer: false,
+    rq5Answer: false,
+    rq6Answer: false,
+    rq7Answer: false,
+    // Commercialization Questions (CQ)
+    cq1Answer: "",
+    cq2Answer: "",
+    cq3Answer: "",
+    cq4Answer: "",
+    cq5Answer: "",
+    cq6Answer: "",
+    cq7Answer: "",
+    cq8Answer: "",
+    cq9Answer: "",
     // intellectualProperty
-    ipHas: true, // เปลี่ยนเป็น false (ค่าเริ่มต้นควรเป็น false)
+    ipHas: true,
     ipProtectionStatus: "",
     ipRequestNumber: "",
     ipTypes: [] as string[],
-    
+    ipForms: [] as IpForm[],
     // Supporter
     supportDevNeeded: [] as string[],
     supportMarketNeeded: [] as string[],
@@ -84,10 +116,8 @@ export default function ResearcherForm() {
     additionalDocuments: null as File | null,
   });
 
-  // --- Error state for each step ---
   const [stepError, setStepError] = useState<string>("");
 
-  // --- Refs for required fields ---
   const refs = {
     headPrefix: useRef<HTMLInputElement>(null),
     headAcademicPosition: useRef<HTMLInputElement>(null),
@@ -101,14 +131,14 @@ export default function ResearcherForm() {
     coordinatorPhoneNumber: useRef<HTMLInputElement>(null),
     coordinatorEmail: useRef<HTMLInputElement>(null),
     urgentReason: useRef<HTMLTextAreaElement>(null),
+    urgentFeedback: useRef<HTMLTextAreaElement>(null),
     researchTitle: useRef<HTMLInputElement>(null),
     researchType: useRef<HTMLInputElement>(null),
     description: useRef<HTMLTextAreaElement>(null),
     keywords: useRef<HTMLInputElement>(null),
-    // ...add more if needed...
   };
 
-  // --- Load formData from localStorage on mount ---
+  // Load from localStorage
   useEffect(() => {
     const savedStep = localStorage.getItem("currentFormStep");
     if (savedStep) {
@@ -118,16 +148,17 @@ export default function ResearcherForm() {
     if (savedFormData) {
       try {
         setFormData(JSON.parse(savedFormData));
-      } catch {}
+      } catch (error) {
+        console.error("Error parsing saved form data:", error);
+      }
     }
   }, []);
 
-  // --- Save formData to localStorage on change ---
+  // Save to localStorage
   useEffect(() => {
     localStorage.setItem("researcherFormData", JSON.stringify(formData));
   }, [formData]);
 
-  // --- Save currentFormStep to localStorage on change ---
   useEffect(() => {
     localStorage.setItem("currentFormStep", currentFormStep.toString());
   }, [currentFormStep]);
@@ -136,7 +167,7 @@ export default function ResearcherForm() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // --- Validation for each step, return {valid, firstMissingField} ---
+  // Validation
   function validateStepWithField(step: number): { valid: boolean; firstField?: string } {
     if (step === 1) {
       const required = [
@@ -145,7 +176,7 @@ export default function ResearcherForm() {
         "coordinatorFirstName", "coordinatorLastName", "coordinatorPhoneNumber", "coordinatorEmail"
       ];
       for (const field of required) {
-        if (!formData[field]) return { valid: false, firstField: field };
+        if (!formData[field as keyof typeof formData]) return { valid: false, firstField: field };
       }
       if (formData.isUrgent && !formData.urgentReason.trim()) {
         return { valid: false, firstField: "urgentReason" };
@@ -155,23 +186,18 @@ export default function ResearcherForm() {
     if (step === 2) {
       const required = ["researchTitle", "researchType", "description"];
       for (const field of required) {
-        if (!formData[field]) return { valid: false, firstField: field };
+        if (!formData[field as keyof typeof formData]) return { valid: false, firstField: field };
       }
       return { valid: true };
     }
     if (step === 3) {
-      // เงื่อนไข: ต้องมีข้อความ "Research ของคุณอยู่ในระดับ ..." (trlLevel !== null)
       return { valid: trlLevel !== null };
     }
     if (step === 4) {
-      // ตรวจสอบทุกใบ (form) ที่เพิ่มเข้ามา
       if (!formData.ipHas) {
         setStepError("");
         return { valid: true };
       }
-      // สมมติว่า IntellectualProperty sync ข้อมูลใบล่าสุดไว้ใน formData, แต่เราต้อง validate ทุกใบ
-      // ดังนั้นควรให้ IntellectualProperty sync forms ทั้งหมดไว้ใน formData เช่น formData.ipForms
-      // ถ้าไม่มี formData.ipForms ให้ fallback เป็น 1 ใบเดิม
       const ipForms = formData.ipForms || [
         {
           ipStatus: formData.ipProtectionStatus,
@@ -198,8 +224,6 @@ export default function ResearcherForm() {
       return { valid: true };
     }
     if (step === 5) {
-      // Supporter
-      // ตรวจสอบว่า supportDevNeeded และ supportMarketNeeded เป็น array จริงและมีอย่างน้อย 1 ค่า (ไม่ใช่ string)
       if (
         Array.isArray(formData.supportDevNeeded) && formData.supportDevNeeded.length > 0 &&
         Array.isArray(formData.supportMarketNeeded) && formData.supportMarketNeeded.length > 0
@@ -209,18 +233,16 @@ export default function ResearcherForm() {
       setStepError("กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน");
       return { valid: false, firstField: !Array.isArray(formData.supportDevNeeded) || formData.supportDevNeeded.length === 0 ? "supportDevNeeded" : "supportMarketNeeded" };
     }
-    return true;
+    return { valid: true };
   }
 
-  // --- Scroll to field if missing ---
   function scrollToField(field?: string) {
-    if (field && refs[field] && refs[field].current) {
-      refs[field].current.scrollIntoView({ behavior: "smooth", block: "center" });
-      refs[field].current.focus();
+    if (field && refs[field as keyof typeof refs] && refs[field as keyof typeof refs].current) {
+      refs[field as keyof typeof refs].current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      refs[field as keyof typeof refs].current?.focus();
     }
   }
 
-  // --- Next handler with validation ---
   const handleNext = () => {
     const { valid, firstField } = validateStepWithField(currentFormStep);
     if (!valid) {
@@ -235,11 +257,9 @@ export default function ResearcherForm() {
     setStepError("");
     if (currentFormStep < 5) {
       setCurrentFormStep(currentFormStep + 1);
-      localStorage.setItem("currentFormStep", (currentFormStep + 1).toString());
     }
   };
 
-  // --- Submit handler with validation ---
   const handleSubmit = async () => {
     const { valid, firstField } = validateStepWithField(currentFormStep);
     if (!valid) {
@@ -251,90 +271,169 @@ export default function ResearcherForm() {
     setShowConfirmDialog(true);
   };
 
-  // --- Confirm dialog: ส่งข้อมูลจริงและลบ localStorage ---
   const handleConfirmSubmit = async () => {
-    // --- Prepare payload ---
-    const payload: any = {
-      // researcherDetails
-      headPrefix: formData.headPrefix,
-      headAcademicPosition: formData.headAcademicPosition,
-      headFirstName: formData.headFirstName,
-      headLastName: formData.headLastName,
-      headDepartment: formData.headDepartment,
-      headPhoneNumber: formData.headPhoneNumber,
-      headEmail: formData.headEmail,
-      coordinatorFirstName: formData.coordinatorFirstName,
-      coordinatorLastName: formData.coordinatorLastName,
-      coordinatorPhoneNumber: formData.coordinatorPhoneNumber,
-      coordinatorEmail: formData.coordinatorEmail,
-      isUrgent: formData.isUrgent,
-      urgentReason: formData.urgentReason,
-
-      // researchDetails
-      researchTitle: formData.researchTitle,
-      researchType: formData.researchType,
-      description: formData.description,
-      keywords: formData.keywords,
-
-      // evaluateTRL
-      trlSoftware: formData.trlSoftware,
-      trlMedicalDevices: formData.trlMedicalDevices,
-      trlMedicinesVaccines: formData.trlMedicinesVaccines,
-      trlPlantAnimalBreeds: formData.trlPlantAnimalBreeds,
-      stageOfDevelopment: formData.stageOfDevelopment,
-      currentChallenges: formData.currentChallenges,
-      targetUsers: formData.targetUsers,
-
-      // intellectualProperty
-      ipProtectionStatus: formData.ipProtectionStatus,
-      ipRequestNumber: formData.ipRequestNumber,
-      ipTypes: formData.ipTypes,
-
-      // Supporter
-      supportDevNeeded: formData.supportDevNeeded,
-      supportMarketNeeded: formData.supportMarketNeeded,
-      businessPartner: formData.businessPartner,
-      readyForShowcase: formData.readyForShowcase,
-      consent: formData.consent,
-      otherSupportMarket: formData.otherSupportMarket,
-    };
+    setIsSubmitting(true);
+    setShowConfirmDialog(false);
 
     try {
-      let response;
-      if (formData.additionalDocuments) {
-        const form = new FormData();
-        Object.entries(payload).forEach(([key, value]) => {
-          if (value instanceof Blob) {
-            form.append(key, value);
-          } else if (typeof value === "object" && value !== null) {
-            form.append(key, JSON.stringify(value));
-          } else if (value !== undefined && value !== null) {
-            form.append(key, String(value));
+      // 1. Create Case
+      console.log("📤 Creating case...");
+      const casePayload = {
+        researcher_id: formData.researcherId,
+        coordinator_email: formData.coordinatorEmail,
+        trl_score: formData.trlScore,
+        is_urgent: formData.isUrgent,
+        urgent_reason: formData.urgentReason || "",
+        urgent_feedback: formData.urgentFeedback || "",
+        case_title: formData.researchTitle,
+        case_type: formData.researchType,
+        case_description: formData.description,
+        case_keywords: formData.keywords,
+        status: formData.status,
+      };
+
+      const caseResponse = await fetch(`${BACKEND_HOST}/cases`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(casePayload),
+      });
+
+      if (!caseResponse.ok) {
+        const errText = await caseResponse.text();
+        throw new Error(`Failed to create case: ${errText}`);
+      }
+
+      const caseData = await caseResponse.json();
+      const caseId = caseData.case_id;
+      console.log("✅ Case created:", caseId);
+
+      // 2. Create Coordinator
+      console.log("📤 Creating coordinator...");
+      const coordinatorPayload = {
+        coordinator_email: formData.coordinatorEmail,
+        coordinator_name: `${formData.coordinatorFirstName} ${formData.coordinatorLastName}`,
+        coordinator_phone: formData.coordinatorPhoneNumber,
+        coordinator_id: formData.sameAsHead ? formData.researcherId : undefined,
+      };
+
+      const coordinatorRes = await fetch(`${BACKEND_HOST}/coordinator`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(coordinatorPayload),
+      });
+
+      if (!coordinatorRes.ok) {
+        const errText = await coordinatorRes.text();
+        throw new Error(`Failed to create coordinator: ${errText}`);
+      }
+
+      const coordinatorData = await coordinatorRes.json();
+      console.log("✅ Coordinator created:", coordinatorData.coordinator_id);
+
+      // 3. Create Assessment
+      console.log("📤 Creating assessment...");
+      const assessmentPayload = {
+        case_id: caseId,
+        trl_level_result: formData.trlLevelResult,
+        rq1_answer: formData.rq1Answer,
+        rq2_answer: formData.rq2Answer,
+        rq3_answer: formData.rq3Answer,
+        rq4_answer: formData.rq4Answer,
+        rq5_answer: formData.rq5Answer,
+        rq6_answer: formData.rq6Answer,
+        rq7_answer: formData.rq7Answer,
+        cq1_answer: formData.cq1Answer,
+        cq2_answer: formData.cq2Answer,
+        cq3_answer: formData.cq3Answer,
+        cq4_answer: formData.cq4Answer,
+        cq5_answer: formData.cq5Answer,
+        cq6_answer: formData.cq6Answer,
+        cq7_answer: formData.cq7Answer,
+        cq8_answer: formData.cq8Answer,
+        cq9_answer: formData.cq9Answer,
+      };
+
+      const assessmentRes = await fetch(`${BACKEND_HOST}/assessment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(assessmentPayload),
+      });
+
+      if (!assessmentRes.ok) {
+        const errText = await assessmentRes.text();
+        throw new Error(`Failed to create assessment: ${errText}`);
+      }
+
+      const assessmentData = await assessmentRes.json();
+      console.log("✅ Assessment created:", assessmentData.assessment_id);
+
+      // 4. Create IP records (if applicable)
+      if (formData.ipHas && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
+        console.log("📤 Creating IP records...");
+        for (const ipForm of formData.ipForms) {
+          if (ipForm.noIp) continue;
+
+          const ipPayload = {
+            case_id: caseId,
+            ip_types: ipForm.ipTypes[0] || "",
+            ip_protection_status: ipForm.ipStatus,
+            ip_request_number: ipForm.requestNumbers[ipForm.ipTypes[0]] || "",
+          };
+
+          const ipRes = await fetch(`${BACKEND_HOST}/ip`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(ipPayload),
+          });
+
+          if (!ipRes.ok){
+            const errText = await ipRes.text();
+            alert("เกิดข้อผิดพลาดในการส่งข้อมูล IP: " + errText);
+            return;
           }
-        });
-        form.append("additionalDocuments", formData.additionalDocuments);
-
-        response = await fetch(`${BACKEND_HOST}/api/cases`, {
-          method: "POST",
-          body: form,
-        });
-      } else {
-        response = await fetch(`${BACKEND_HOST}/api/cases`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+        }
       }
 
-      if (!response.ok) {
-        throw new Error("Submission failed");
+      // 6. POST supporter
+      const supporterPayload = {
+        case_id: caseId,
+        support_research: formData.supportDevNeeded.includes("ฝ่ายวิจัย"),
+        support_vdc: formData.supportDevNeeded.includes("ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)"),
+        support_sieic: formData.supportDevNeeded.includes("ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (Siriraj Excellent Innovation Center: SiEIC)"),
+        need_protect_intellectual_property: formData.supportMarketNeeded.includes("การคุ้มครองทรัพย์สินทางปัญญา"),
+        need_co_developers: formData.supportMarketNeeded.includes("หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม"),
+        need_activities: formData.supportMarketNeeded.includes("การจัดกิจกรรมร่วมกับผู้ร่วมพัฒนานวัตกรรม"),
+        need_test: formData.supportMarketNeeded.includes("หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม"),
+        need_capital: formData.supportMarketNeeded.includes("หาแหล่งทุน"),
+        need_partners: formData.supportMarketNeeded.includes("หาคู่ค้าทางธุรกิจ"),
+        need_guidelines: formData.supportMarketNeeded.includes("แนะนำแนวทางการเริ่มธุรกิจ"),
+        need_certification: formData.supportMarketNeeded.includes("การขอรับรองมาตรฐานหรือคุณภาพ"),
+        need_account: formData.supportMarketNeeded.includes("บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม"),
+        need: formData.otherSupportMarket || "",
+        additional_documents: "",
+      };
+
+      const supporterRes = await fetch(`${BACKEND_HOST}/api/supporter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(supporterPayload),
+      });
+
+      if (!supporterRes.ok) {
+        const errText = await supporterRes.text();
+        alert("เกิดข้อผิดพลาดในการส่งข้อมูล Supporter: " + errText);
+        return;
       }
 
-      navigate('/researcher-dashboard');
+      // 7. Success - clear and navigate
+      alert("บันทึกข้อมูลสำเร็จ!");
       localStorage.removeItem("currentFormStep");
-      localStorage.removeItem("researcherFormData"); // ลบข้อมูลที่เก็บไว้หลังส่งสำเร็จ
+      localStorage.removeItem("researcherFormData");
+      navigate('/researcher-dashboard');
+
     } catch (err) {
-      alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
+      console.error("Error submitting form:", err);
+      alert("เกิดข้อผิดพลาดในการส่งข้อมูล: " + (err as any)?.message);
     }
   };
 
@@ -353,7 +452,6 @@ export default function ResearcherForm() {
     setFormData(prev => ({ ...prev, additionalDocuments: file }));
   };
 
-  // --- ส่ง setTrlLevel ไปยัง EvaluateTRL ---
   const renderFormStep = () => {
     switch (currentFormStep) {
       case 1:
@@ -456,39 +554,13 @@ export default function ResearcherForm() {
                 Previous
               </Button>
               <div className="flex gap-3">
-                <AlertDialog>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Confirm Edit</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to save the changes and return to the dashboard?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Edit</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => {
-                          navigate('/researcher-dashboard');
-                        }}
-                      >
-                        Confirm and Return to Dashboard
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-
-                {/* ปรับปุ่ม Submit ที่ step 5 */}
                 {currentFormStep === 5 ? (
-                  <Button
-                    onClick={handleSubmit}
-                  >
+                  <Button onClick={handleSubmit}>
                     Submit
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
-                  <Button
-                    onClick={handleNext}
-                  >
+                  <Button onClick={handleNext}>
                     Next
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
