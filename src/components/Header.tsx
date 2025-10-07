@@ -12,7 +12,8 @@ export default function Header() {
   const handleLogout = () => {
     // TODO: handle actual logout logic
     console.log("Logged out");
-    navigate("/login");
+    localStorage.removeItem("auth_token");
+    navigate("/");
   };
 
   return (
