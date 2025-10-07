@@ -40,11 +40,14 @@ interface ResearchItem {
   createdAt: string;
 
   // Step 1: TRL Type
-  researchType: string;
+  
   
   // Step 2: Research Details
   researchTitle: string;
+  researchType: string;
   description: string;
+  keyword?: string;
+
   stageOfDevelopment: string;
   currentChallenges: string;
   targetUsers: string;
@@ -56,16 +59,28 @@ interface ResearchItem {
   marketing: string;
   support: string;
 
-  // Step 4: Commercial Opportunity
+  // Step 4: Intellectual Property
+  IPTypes?: string;
+  IPProtectionStatus?: string;
+  IPRequestNumber?: string;
+
+  // Step 5: Supportment
+  supportDevNeeded: string[];
+  supportMarketNeeded: string[];
+  
+  // Not used in form
   medicalBenefits: string;
   commercializationChallenges: string;
   devSupportNeeded: string;
   marketSupportNeeded: string;
   hasBusinessPartner: string;
+  additionalDocuments: File | null;
 
-  // Step 5: Innovation Showcase
+  businessPartner: string;
   readyForShowcase: string;
   consent: string;
+  otherSupportMarket: string; // Add a field for the "other" text input
+ 
 
   // TRL level recommendation
   trlRecommendation: TRLRecommendation;
@@ -164,8 +179,8 @@ export default function ResearcherDetail() {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
+        <div className="flex justify-between items-start mb-8">
+          <div className="flex items-start space-x-4">
             <Button variant="outline" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -173,10 +188,17 @@ export default function ResearcherDetail() {
             <div>
               <p className="text-muted-foreground">Submission ID: {research.id}</p>
               <h1 className="text-3xl font-bold text-foreground">{research.researchTitle}</h1>
-              <p className="text-muted-foreground">Description: {research.description}</p>
+              <p className="text-muted-foreground">
+                <strong>{research.researchType}</strong> : {research.description}
+              </p>
+              {research.keyword?.length > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  <strong>Keywords:</strong> {research.keyword}
+                </p>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2">
             {research.trlRecommendation.result ? (
               <Button
                 variant="outline"
@@ -209,9 +231,7 @@ export default function ResearcherDetail() {
                   Assessment
                 </Button>
               )
-            ) : (
-              <span className="text-muted-foreground"></span>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -325,7 +345,6 @@ export default function ResearcherDetail() {
             {/* Research Details */}
             <Section title="Research Details">
               <ul className="space-y-1 text-muted-foreground">
-                <li><strong>Type:</strong> {research.researchType}</li>
                 <li><strong>Stage of Development:</strong> {research.stageOfDevelopment}</li>
                 <li><strong>Current Challenges:</strong> {research.currentChallenges}</li>
                 <li><strong>Target Users:</strong> {research.targetUsers}</li>
@@ -354,11 +373,34 @@ export default function ResearcherDetail() {
               </ul>
             </Section>
 
-            {/* Innovation Showcase */}
-            <Section title="Innovation Showcase">
-              <ul className="space-y-1 text-muted-foreground">
-                <li><strong>Ready For Showcase:</strong> {research.readyForShowcase}</li>
-                <li><strong>Consent:</strong> {research.consent}</li>
+            {/* Supportment */}
+            <Section title="Supportment">
+              <ul className="space-y-2 text-muted-foreground">
+                <li>
+                  <strong>หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม:</strong>
+                  <ul className="list-disc list-inside ml-4">
+                    {research.supportDevNeeded?.length > 0 ? (
+                      research.supportDevNeeded.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))
+                    ) : (
+                      <li>-</li>
+                    )}
+                  </ul>
+                </li>
+
+                <li>
+                  <strong>ความช่วยเหลือที่ต้องการ:</strong>
+                  <ul className="list-disc list-inside ml-4">
+                    {research.supportMarketNeeded?.length > 0 ? (
+                      research.supportMarketNeeded.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))
+                    ) : (
+                      <li>-</li>
+                    )}
+                  </ul>
+                </li>
               </ul>
             </Section>
 
