@@ -1,13 +1,11 @@
 export interface UserItem {
-    ResearcherID: string;
-    AdminID: string;
-    ResearcherPrefix: string;
-    ResearcherAcademicPosition: string;
-    ResearcherFirstName: string;
-    ResearcherLastName: string;
-    ResearcherDepartment: string;
-    ResearcherPhoneNumber: string;
-    ResearcherEmail: string;
-    CreatedAt: Date;
-    UpdatedAt: Date | null;
+    username: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+    password: string;
+    phone: string;
+    role: string;
+    organization: string;
+    joinedDate: string;
 }

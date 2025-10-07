@@ -1,69 +1,69 @@
 // STEP 1+2:  Case Info
 export interface CaseInfo {
-  CaseID: string;
-  ResearcherID: string;
-  CoordinatorEmail
-  TrlScore: string;
-  Status: boolean;
-  IsUrgent: boolean;
-  UrgentReason?: string;
-  UrgentFeedback?: string;
-  CaseTitle: string;
-  CaseType: string;
-  CaseDescription: string;
-  CaseKeywords: string;
-  CreatedAt: string;
-  UpdatedAt?: string;
+  case_id: string;
+  researcher_id: string;
+  coordinator_email : string;
+  trl_score: string;
+  status: boolean;
+  is_urgent: boolean;
+  urgent_reason?: string;
+  urgent_feedback?: string;
+  case_title: string;
+  case_type: string;
+  case_description: string;
+  case_keywords: string;
+  created_at: string;
+  updated_at?: string;
 }
 // STEP 3: Research Assessment TRL
 export interface AssessmentTrl {
   id: string;
-  CaseID: string;
-  TrlLevelResult: number;
-  Rq1Answer: boolean;
-  Rq2Answer: boolean;
-  Rq3Answer: boolean;
-  Rq4Answer: boolean;
-  Rq5Answer: boolean;
-  Rq6Answer: boolean;
-  Rq7Answer: boolean;
-  Cq1Answer?: string;
-  Cq2Answer?: string;
-  Cq3Answer?: string;
-  Cq4Answer?: string;
-  Cq5Answer?: string;
-  Cq6Answer?: string;
-  Cq7Answer?: string;
-  Cq8Answer?: string;
-  Cq9Answer?: string;
+  case_id: string;
+  trl_level_result: number;
+  rq1_answer: boolean;
+  rq2_answer: boolean;
+  rq3_answer: boolean;
+  rq4_answer: boolean;
+  rq5_answer: boolean;
+  rq6_answer: boolean;
+  rq7_answer: boolean;
+  cq1_answer?: string;
+  cq2_answer?: string;
+  cq3_answer?: string;
+  cq4_answer?: string;
+  cq5_answer?: string;
+  cq6_answer?: string;
+  cq7_answer?: string;
+  cq8_answer?: string;
+  cq9_answer?: string;
 }
 // STEP 4: Intellectual Property
 export interface IntellectualProperty {
   id: string;
-  CaseID: string;
-  HasIP: boolean;
-  IPTypes?: 'สิทธิบัตร' | 'อนุสิทธิบัตร' | 'สิทธิบัตรออกแบบผลิตภัณฑ์' | 'ลิขสิทธิ์' | 'เครื่องหมายการค้า' | 'ความลับทางการค้า';
-  IPProtectionStatus?: 'ได้เลขที่คำขอแล้ว' | 'กำลังดำเนินการ';
-  IPRequestNumber?: string;
+  case_id: string;
+  hasIP: boolean;
+  ip_types?: 'สิทธิบัตร' | 'อนุสิทธิบัตร' | 'สิทธิบัตรออกแบบผลิตภัณฑ์' | 'ลิขสิทธิ์' | 'เครื่องหมายการค้า' | 'ความลับทางการค้า';
+  ip_protection_status?: 'ได้เลขที่คำขอแล้ว' | 'กำลังดำเนินการ';
+  ip_request_number?: string;
 }
 // STEP 5: Supporter
 export interface Supporter {
   SupporterID: string;
-  CaseID: string;
-  SupportResearch: boolean;
-  SupportVDC: boolean;
-  SupportSiEIC: boolean;
-  NeedProtectIntellectualProperty: boolean;
-  NeedCoDevelopers: boolean;
-  NeedActivities: boolean;
-  NeedTest: boolean;
-  NeedCapital: boolean;
-  NeedPartners: boolean;
-  NeedGuidelines: boolean;
-  NeedCertification: boolean;
-  NeedAccount: boolean;
-  Need: string;
-  AdditionalDocuments: string;
+  case_id: string;
+  support_research: boolean;
+  support_vdc: boolean;
+  support_sieic: boolean;
+  need_protect_intellectual_property: boolean;
+  need_co_developers: boolean;
+  need_activities: boolean;
+  need_test: boolean;
+  need_capital: boolean;
+  need_partners: boolean;
+  need_guidelines: boolean;
+  need_certification: boolean;
+  need_account: boolean;
+  need: string;
+  additional_documents: string;
 }
 
 export interface TRLRecommendation {
@@ -78,7 +78,7 @@ export interface TRLRecommendation {
 
 export interface Appointment {
   id: number;
-  CaseID: string;
+  case_id: string;
   date: string;
   location: string;
   status: "attended" | "absent" | "pending";
