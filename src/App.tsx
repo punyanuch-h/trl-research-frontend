@@ -10,7 +10,7 @@ import Profile from "./pages/Profile";
 import StartPage from "./pages/StartPage";
 import AdminHomePage from "./pages/AdminHomePage";
 import AppointmentDetail from "./pages/AppointmentDetail";
-import ResearcherDashboard from "./pages/ResearcherDashboard";
+import Dashboard from "./pages/Dashboard";
 import ResearcherDetail from "./pages/ResearcherDetail";
 import ResearcherForm from "./pages/researchDetails/ResearcherForm";
 import TrlScore from './pages/TrlScore';
@@ -44,13 +44,12 @@ const App: React.FC = () => {
       <DifyChatIframe />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/startPage" element={<StartPage />} />
+          <Route path="/" element={<StartPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin-homepage" element={<AdminHomePage />} />
-          <Route path="/researcher-dashboard" element={<ResearcherDashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/researcher-detail" element={<ResearcherDetail />} />
           <Route path="/researcher-form" element={<ResearcherForm />} />
           <Route path="/trl-score" element={<TrlScore />} />
