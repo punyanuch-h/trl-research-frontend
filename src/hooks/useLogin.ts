@@ -1,14 +1,22 @@
 import { useMutation } from "@tanstack/react-query";
-import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
 export const useLogin = () => {
-  const apiQueryClient = new ApiQueryClient(
-    import.meta.env.VITE_PUBLIC_API_URL
-  );
+  const baseURL = import.meta.env.VITE_PUBLIC_API_URL ?? "http://localhost:3000";
 
   return useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      return apiQueryClient.useLogin(email, password);
+      const res = await fetch(`${baseURL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
+      // expected shape: { token, expires_in }
+      return res.json();
     },
   });
 };

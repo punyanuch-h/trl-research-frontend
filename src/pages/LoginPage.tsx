@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
 import { useLogin } from "@/hooks/useLogin";
+import { getUserRole } from "@/lib/auth";
 
 interface LoginFormData {
   email: string;
@@ -29,34 +30,32 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      // Step 1: Try login API
-      const response = await mutateAsync({
-        email: data.email,
-        password: data.password,
-      });
+      const response = await mutateAsync(data);
 
-      // Step 2: Save token
       const token = response?.token;
-      if (token) {
-        localStorage.setItem("auth_token", token);
+      if (token) localStorage.setItem("auth_token", token);
+
+      const storedToken = localStorage.getItem("auth_token");
+      if (!storedToken) {
+        console.log("fail: token not found");
+        return;
       }
 
-      // Step 3: Check token before navigating
-      const storedToken = localStorage.getItem("auth_token");
-      if (storedToken) {
-        console.log("success");
-        navigate("/startpage");
-      } else {
-        console.log("fail: token not found");
+      // ✅ decode role from JWT
+      const role = getUserRole();
+      if (role === "admin") navigate("/dashboard");
+      else if (role === "researcher") navigate("/dashboard");
+      else {
+        localStorage.removeItem("auth_token");
+        navigate("/login");
       }
-    } catch {
-      // Step 4: Handle invalid credentials
+    } catch (err: any) {
       setError("email", { type: "manual" });
       setError("password", {
         type: "manual",
         message: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
       });
-      console.log("fail: invalid credentials");
+      console.error("login error", err);
     }
   };
 
@@ -66,55 +65,30 @@ export default function LoginPage() {
         <CardHeader>
           <CardTitle className="text-center text-2xl">เข้าสู่ระบบ</CardTitle>
         </CardHeader>
-
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Email */}
             <div className="space-y-2">
-              <Label
-                htmlFor="username"
-                className="text-sm text-foreground"
-                data-testid="username-label"
-              >
-                อีเมล
-              </Label>
+              <Label htmlFor="email">อีเมล</Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                 <Input
-                  id="username"
+                  id="email"
                   type="text"
                   placeholder="example@email.com"
                   {...register("email", { required: "กรุณากรอกอีเมล" })}
-                  onClick={() => {
-                    if (errors.email || errors.password) {
-                      clearErrors(["email", "password"]);
-                    }
-                  }}
-                  className={`pl-10 ${
-                    errors.email ? "border-destructive" : ""
-                  }`}
-                  data-testid="username-input"
+                  onClick={() => clearErrors(["email", "password"])}
+                  className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
                 />
               </div>
               {errors.email && (
-                <p
-                  className="text-sm text-destructive"
-                  data-testid="username-error"
-                >
-                  {errors.email.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.email.message}</p>
               )}
             </div>
 
             {/* Password */}
             <div className="space-y-2">
-              <Label
-                htmlFor="password"
-                className="text-sm text-foreground"
-                data-testid="password-label"
-              >
-                รหัสผ่าน
-              </Label>
+              <Label htmlFor="password">รหัสผ่าน</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -131,50 +105,23 @@ export default function LoginPage() {
                   className={`pl-10 pr-10 ${
                     errors.password ? "border-destructive" : ""
                   }`}
-                  data-testid="password-input"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                  data-testid="toggle-password-visibility"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p
-                  className="text-sm text-destructive"
-                  data-testid="password-error"
-                >
-                  {errors.password.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.password.message}</p>
               )}
             </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={!isValid || isPending}
-            >
+            <Button type="submit" className="w-full" disabled={!isValid || isPending}>
               {isPending ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
             </Button>
-
-            {/* Signup link */}
-            <p className="text-sm text-center text-muted-foreground">
-              ยังไม่มีบัญชีใช่หรือไม่?{" "}
-              <span
-                onClick={() => navigate("/signup")}
-                className="text-primary cursor-pointer hover:underline"
-              >
-                สมัครสมาชิก
-              </span>
-            </p>
           </form>
         </CardContent>
       </Card>
