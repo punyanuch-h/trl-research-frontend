@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Edit2 } from "lucide-react";
+import { getUserRole } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, CalendarPlus, Edit } from "lucide-react";
@@ -88,6 +89,15 @@ export default function ResearcherDetail() {
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<any>(null);
+  const [role, setRole] = useState<string | null>(null);
+  
+  useEffect(() => {
+    async function fetchRole() {
+      const userRole = await getUserRole();
+      setRole(userRole);
+    }
+    fetchRole();
+  }, []);
 
   const display = (value: any) => {
     if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '-';
@@ -183,18 +193,22 @@ export default function ResearcherDetail() {
                 Download
               </Button>
             ) : research.trlRecommendation.status === false ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  navigate(
-                    `/trl-1?research=${encodeURIComponent(research.researchTitle)}&type=${encodeURIComponent(research.researchType)}`
-                  )
-                }
-              >
-                <Edit className="w-4 h-4 mr-1" />
-                Assessment
-              </Button>
+              role === "admin" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    navigate(
+                      `/trl-1?research=${encodeURIComponent(research.researchTitle)}&type=${encodeURIComponent(
+                        research.researchType
+                      )}`
+                    )
+                  }
+                >
+                  <Edit className="w-4 h-4 mr-1" />
+                  Assessment
+                </Button>
+              )
             ) : (
               <span className="text-muted-foreground"></span>
             )}
@@ -207,14 +221,16 @@ export default function ResearcherDetail() {
             {/* Appointment Details */}
             <div className="flex items-center justify-between mb-2 mt-4">
               <h3 className="text-lg font-semibold">Appointment</h3>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setShowModal(true)}
-              >
-                <CalendarPlus className="w-4 h-4 mr-1" />
-                Add Appointment
-              </Button>
+              {role === "admin" && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => setShowModal(true)}
+                >
+                  <CalendarPlus className="w-4 h-4 mr-1" />
+                  Add Appointment
+                </Button>
+              )}
             </div>
             <AddAppointmentModal
               projects={[research]}
@@ -265,29 +281,34 @@ export default function ResearcherDetail() {
                             })
                           : "-"}
                       </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleEditAppointment({
-                            ...a,
-                            researchTitle: research.researchTitle,
-                            researcherName: getFullNameByEmail(research.createdBy),
-                          });
-                        }}
-                      >
-                        <Edit2 className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                      {/* Modal สำหรับแก้ไข appointment */}
-                      <EditAppointmentModal
-                        open={editModalOpen}
-                        onClose={() => setEditModalOpen(false)}
-                        appointment={editingAppointment}
-                        projects={[research]}
-                        onSave={handleSaveEdit}
-                      />
+                        {role === "admin" && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleEditAppointment({
+                                  ...a,
+                                  researchTitle: research.researchTitle,
+                                  researcherName: getFullNameByEmail(research.createdBy),
+                                });
+                              }}
+                            >
+                              <Edit2 className="w-4 h-4 mr-1" />
+                              Edit
+                            </Button>
+
+                            {/* Modal สำหรับแก้ไข appointment */}
+                            <EditAppointmentModal
+                              open={editModalOpen}
+                              onClose={() => setEditModalOpen(false)}
+                              appointment={editingAppointment}
+                              projects={[research]}
+                              onSave={handleSaveEdit}
+                            />
+                          </>
+                        )}
                     </div>                    
                     
                   </li>

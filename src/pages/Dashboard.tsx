@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Filter, Plus, View } from "lucide-react";
+import { Download, Eye, Filter, Plus, View } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -329,6 +329,14 @@ export default function ResearcherDashboard() {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={() => handleViewResearch(research.id)}
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                View
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() =>
                                   handleDownloadResult(
                                     research.trlRecommendation.result
@@ -340,24 +348,16 @@ export default function ResearcherDashboard() {
                                 <Download className="w-4 h-4 mr-2" />
                                 Result
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleViewResearch(research.id)}
-                              >
-                                <View className="w-4 h-4 mr-2" />
-                                View
-                              </Button>
                             </>
                           ) : (
                             <div className="flex flex-col items-start gap-1 min-w-[200px]">
-                                <div className="ml-auto">
+                                <div>
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleViewResearch(research.id)}
                                   >
-                                    <View className="w-4 h-4 mr-2" />
+                                    <Eye className="w-4 h-4 mr-2" />
                                     View
                                   </Button>
                               </div>
@@ -381,8 +381,6 @@ export default function ResearcherDashboard() {
                           )}
                         </div>
                       </TableCell>
-
-
                       <TableCell>{research.trlRecommendation.suggestion || "-"}</TableCell>
                     </TableRow>
                   ))
