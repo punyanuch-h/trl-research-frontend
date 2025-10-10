@@ -1,7 +1,6 @@
 import { useState } from "react";
 import RadioQuestion from "@/components/evaluate/RadioQuestion";
 import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
-import { getUserRole } from "@/lib/auth";
 
 interface EvaluateTRLProps {
   formData: any;
@@ -141,9 +140,6 @@ export default function EvaluateTRL({ formData, handleInputChange }: EvaluateTRL
     setShowNextCheckboxButton(false);
   };
 
-  // Get user role
-  const userRole = getUserRole();
-
   return (
     <div>
       <h3 className="font-semibold text-primary text-lg">Part 1</h3>
@@ -179,14 +175,12 @@ export default function EvaluateTRL({ formData, handleInputChange }: EvaluateTRL
               onChange={(value, itemId, selectedLabels) => handleCheckboxChange(value, itemId, selectedLabels)}
             />
             <div className="mt-4">
-              {userRole === "admin" && (
               <button
                 onClick={handleNextToCheckTRL}
                 className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded"
               >
                 Submit and Check TRL Level
               </button>
-              )}
             </div>
           </div>
         )}
@@ -202,8 +196,7 @@ export default function EvaluateTRL({ formData, handleInputChange }: EvaluateTRL
         )}
       </div>
 
-      {/* Only show levelMessage for admin users */}
-      {levelMessage && userRole === "admin" && (
+      {levelMessage && (
         <div className="mt-4">
           <h3 className="text-lg font-semibold">{levelMessage}</h3>
         </div>
