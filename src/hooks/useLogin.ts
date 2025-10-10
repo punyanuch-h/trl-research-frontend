@@ -1,22 +1,25 @@
 import { useMutation } from "@tanstack/react-query";
 
 export const useLogin = () => {
-  const baseURL = import.meta.env.VITE_PUBLIC_API_URL ?? "http://localhost:3000";
-
   return useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const res = await fetch(`${baseURL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! Status: ${res.status}`);
+      // Simple role-based login without API call or tokens
+      // Just return a mock response with role information
+      
+      if (email === "admin@example.com" && password === "admin123") {
+        return { role: "admin", email: email };
       }
-
-      // expected shape: { token, expires_in }
-      return res.json();
+      
+      if (email === "researcher@example.com" && password === "researcher123") {
+        return { role: "researcher", email: email };
+      }
+      
+      // Default case - treat as researcher
+      if (email && password) {
+        return { role: "researcher", email: email };
+      }
+      
+      throw new Error("Invalid credentials");
     },
   });
 };

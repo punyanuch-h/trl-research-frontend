@@ -32,21 +32,14 @@ export default function LoginPage() {
     try {
       const response = await mutateAsync(data);
 
-      const token = response?.token;
-      if (token) localStorage.setItem("auth_token", token);
-
-      const storedToken = localStorage.getItem("auth_token");
-      if (!storedToken) {
-        console.log("fail: token not found");
-        return;
-      }
-
-      // ✅ decode role from JWT
-      const role = getUserRole();
-      if (role === "admin") navigate("/dashboard");
-      else if (role === "researcher") navigate("/dashboard");
-      else {
-        localStorage.removeItem("auth_token");
+      // Get role directly from response (no token needed)
+      const role = response?.role;
+      
+      if (role === "admin") {
+        navigate("/admin-homepage");
+      } else if (role === "researcher") {
+        navigate("/researcher-homepage");
+      } else {
         navigate("/login");
       }
     } catch (err: any) {

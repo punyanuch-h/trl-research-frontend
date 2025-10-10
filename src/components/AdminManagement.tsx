@@ -26,7 +26,8 @@ interface Props {
   setCurrentPage: (page: number) => void;
   setRowsPerPage: (rows: number) => void;
   getFullNameByEmail: (email: string) => string;
-  onAssessment : (id: number, name: string, type: string) => void;
+  onAssessment?: (id: number, name: string, type: string) => void;
+  detailRoute?: string; // Add this prop
 }
 
 
@@ -41,7 +42,8 @@ export default function AdminManagement({
   setCurrentPage,
   setRowsPerPage,
   getFullNameByEmail,
-  onAssessment 
+  onAssessment,
+  detailRoute = "/researcher-detail" // Default to admin route
 }: Props) {
   const tableColumns = [
     { key: "createdAt", label: "Create Date" },
@@ -71,7 +73,7 @@ export default function AdminManagement({
   const handleViewResearch = (researchId: number) => {
     const research = projects.find((r) => r.id === researchId);
     if (research) {
-      navigate("/researcher-detail", { state: { research } });
+      navigate(detailRoute, { state: { research } });
     }
   };
 

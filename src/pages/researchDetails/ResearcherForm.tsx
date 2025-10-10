@@ -113,7 +113,7 @@ export default function ResearcherForm() {
     }
     // Logic for form submission
     console.log("Form Data Submitted:", formData);
-    navigate('/researcher-dashboard');
+    navigate('/researcher-homepage');
     localStorage.removeItem("currentFormStep");
   };
 
@@ -238,7 +238,7 @@ export default function ResearcherForm() {
                       <AlertDialogCancel>Edit</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => {
-                          navigate('/researcher-dashboard');
+                          navigate('/researcher-homepage');
                         }}
                       >
                         Confirm and Return to Dashboard
