@@ -91,15 +91,15 @@ export default function ResearcherForm() {
     rq6Answer: false,
     rq7Answer: false,
     // Commercialization Questions (CQ)
-    cq1Answer: "",
-    cq2Answer: "",
-    cq3Answer: "",
-    cq4Answer: "",
-    cq5Answer: "",
-    cq6Answer: "",
-    cq7Answer: "",
-    cq8Answer: "",
-    cq9Answer: "",
+    cq1Answer: [] as string[],
+    cq2Answer: [] as string[],
+    cq3Answer: [] as string[],
+    cq4Answer: [] as string[],
+    cq5Answer: [] as string[],
+    cq6Answer: [] as string[],
+    cq7Answer: [] as string[],
+    cq8Answer: [] as string[],
+    cq9Answer: [] as string[],
     // intellectualProperty
     ipHas: true,
     ipProtectionStatus: "",
@@ -191,7 +191,7 @@ export default function ResearcherForm() {
       return { valid: true };
     }
     if (step === 3) {
-      return { valid: trlLevel !== null };
+      return { valid: formData.trlLevelResult !== null };
     }
     if (step === 4) {
       if (!formData.ipHas) {
@@ -279,20 +279,20 @@ export default function ResearcherForm() {
       // 1. Create Case
       console.log("📤 Creating case...");
       const casePayload = {
-        researcher_id: formData.researcherId,
+        // researcher_id: formData.researcherId,
         coordinator_email: formData.coordinatorEmail,
-        trl_score: formData.trlScore,
-        is_urgent: formData.isUrgent,
-        urgent_reason: formData.urgentReason || "",
-        urgent_feedback: formData.urgentFeedback || "",
+        trl_score: formData.trlScore ?? "",
+        is_urgent: formData.isUrgent ?? false,
+        urgent_reason: formData.urgentReason ?? "",
+        urgent_feedback: formData.urgentFeedback ?? "",
         case_title: formData.researchTitle,
         case_type: formData.researchType,
         case_description: formData.description,
         case_keywords: formData.keywords,
-        status: formData.status,
+        status: formData.status ?? false,
       };
 
-      const caseResponse = await fetch(`${BACKEND_HOST}/cases`, {
+      const caseResponse = await fetch(`${BACKEND_HOST}/trl/case`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(casePayload),
@@ -313,10 +313,10 @@ export default function ResearcherForm() {
         coordinator_email: formData.coordinatorEmail,
         coordinator_name: `${formData.coordinatorFirstName} ${formData.coordinatorLastName}`,
         coordinator_phone: formData.coordinatorPhoneNumber,
-        coordinator_id: formData.sameAsHead ? formData.researcherId : undefined,
+        // coordinator_id: formData.sameAsHead ? formData.researcherId : undefined,
       };
 
-      const coordinatorRes = await fetch(`${BACKEND_HOST}/coordinator`, {
+      const coordinatorRes = await fetch(`${BACKEND_HOST}/trl/coordinator`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(coordinatorPayload),
@@ -333,7 +333,7 @@ export default function ResearcherForm() {
       // 3. Create Assessment
       console.log("📤 Creating assessment...");
       const assessmentPayload = {
-        case_id: caseId,
+        // case_id: caseId,
         trl_level_result: formData.trlLevelResult,
         rq1_answer: formData.rq1Answer,
         rq2_answer: formData.rq2Answer,
@@ -342,18 +342,19 @@ export default function ResearcherForm() {
         rq5_answer: formData.rq5Answer,
         rq6_answer: formData.rq6Answer,
         rq7_answer: formData.rq7Answer,
-        cq1_answer: formData.cq1Answer,
-        cq2_answer: formData.cq2Answer,
-        cq3_answer: formData.cq3Answer,
-        cq4_answer: formData.cq4Answer,
-        cq5_answer: formData.cq5Answer,
-        cq6_answer: formData.cq6Answer,
-        cq7_answer: formData.cq7Answer,
-        cq8_answer: formData.cq8Answer,
-        cq9_answer: formData.cq9Answer,
+        cq1_answer: (formData.cq9Answer || []).join(", "),
+        cq2_answer: (formData.cq9Answer || []).join(", "),
+        cq3_answer: (formData.cq9Answer || []).join(", "),
+        cq4_answer: (formData.cq9Answer || []).join(", "),
+        cq5_answer: (formData.cq9Answer || []).join(", "),
+        cq6_answer: (formData.cq9Answer || []).join(", "),
+        cq7_answer: (formData.cq9Answer || []).join(", "),
+        cq8_answer: (formData.cq9Answer || []).join(", "),
+        cq9_answer: (formData.cq9Answer || []).join(", "),
       };
+      console.log("Assessment Payload:", assessmentPayload);
 
-      const assessmentRes = await fetch(`${BACKEND_HOST}/assessment`, {
+      const assessmentRes = await fetch(`${BACKEND_HOST}/trl/assessment_trl`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(assessmentPayload),
@@ -374,13 +375,13 @@ export default function ResearcherForm() {
           if (ipForm.noIp) continue;
 
           const ipPayload = {
-            case_id: caseId,
+            // case_id: caseId,
             ip_types: ipForm.ipTypes[0] || "",
-            ip_protection_status: ipForm.ipStatus,
+            ip_protection_status: ipForm.ipStatus || "",
             ip_request_number: ipForm.requestNumbers[ipForm.ipTypes[0]] || "",
           };
 
-          const ipRes = await fetch(`${BACKEND_HOST}/ip`, {
+          const ipRes = await fetch(`${BACKEND_HOST}/trl/ip`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(ipPayload),
@@ -396,7 +397,7 @@ export default function ResearcherForm() {
 
       // 6. POST supporter
       const supporterPayload = {
-        case_id: caseId,
+        // case_id: caseId,
         support_research: formData.supportDevNeeded.includes("ฝ่ายวิจัย"),
         support_vdc: formData.supportDevNeeded.includes("ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)"),
         support_sieic: formData.supportDevNeeded.includes("ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (Siriraj Excellent Innovation Center: SiEIC)"),
@@ -413,7 +414,7 @@ export default function ResearcherForm() {
         additional_documents: "",
       };
 
-      const supporterRes = await fetch(`${BACKEND_HOST}/api/supporter`, {
+      const supporterRes = await fetch(`${BACKEND_HOST}/trl/supporter`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(supporterPayload),
@@ -429,7 +430,7 @@ export default function ResearcherForm() {
       alert("บันทึกข้อมูลสำเร็จ!");
       localStorage.removeItem("currentFormStep");
       localStorage.removeItem("researcherFormData");
-      navigate('/researcher-dashboard');
+      navigate('/dashboard');
 
     } catch (err) {
       console.error("Error submitting form:", err);
@@ -459,7 +460,16 @@ export default function ResearcherForm() {
       case 2:
         return <ResearchDetails formData={formData} handleInputChange={handleInputChange} refs={refs} />;
       case 3:
-        return <EvaluateTRL formData={formData} handleInputChange={handleInputChange} setTrlLevel={setTrlLevel} />;
+        return <EvaluateTRL
+                  formData={formData}
+                  handleInputChange={(field, value) =>
+                    setFormData((prev) => ({ ...prev, [field]: value }))
+                  }
+                  setTrlLevel={(level) => {
+                    setFormData((prev) => ({ ...prev, trlLevelResult: level }));
+                    setTrlLevel(level); // ✅ update state ที่ validate ใช้
+                  }}
+                />
       case 4:
         return <IntellectualProperty formData={formData} handleInputChange={handleInputChange} />;
       case 5:

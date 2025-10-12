@@ -42,7 +42,7 @@ export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }
     cq8: [],
     cq9: []
   });
-  console.log(answersCheckboxx)
+  // console.log(answersCheckboxx)
 
   // ปรับ setAnswerTRL ให้ sync ไปยัง parent
   const [answerTRL, setAnswerTRL] = useState<number | null>(null);
@@ -52,23 +52,46 @@ export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }
   const [showNextCheckboxButton, setShowNextCheckboxButton] = useState<boolean>(false);
 
   const handleRadioChange = (value: number, questionId: string) => {
-    setAnswersRadio((prevAnswers) => ({
-      ...prevAnswers,
-      [questionId]: value,
-    }));
+    setAnswersRadio((prevAnswers) => {
+      const newAnswers = {
+        ...prevAnswers,
+        [questionId]: value,
+      };
+
+      // ✅ Sync ไป parent
+      if (handleInputChange) {
+        handleInputChange(questionId + "Answer", value === 1); // แปลงเป็น boolean
+      }
+
+      return newAnswers;
+    });
   };
 
-  const handleCheckboxChange = (value: number[], itemId: string, selectedLabels: string[]) => {
+
+
+  const handleCheckboxChange = (
+    value: number[],
+    itemId: string,
+    selectedLabels: string[]
+  ) => {
     setAnswersCheckbox((prevAnswers) => ({
       ...prevAnswers,
       [itemId]: value,
     }));
 
-    setAnswersCheckboxx((prevLabels) => ({
-      ...prevLabels,
-      [itemId]: selectedLabels,
-    }));
-  }
+    setAnswersCheckboxx((prevLabels) => {
+      const newLabels = {
+        ...prevLabels,
+        [itemId]: selectedLabels,
+      };
+      // ✅ Sync ไป parent
+      if (handleInputChange) {
+        handleInputChange(itemId + "Answer", selectedLabels);
+      }
+      return newLabels;
+    });
+  };
+
 
   const handleNextToCheckbox = () => {
     const allAnswered = Object.values(answersRadio).every((answer) => answer !== null);

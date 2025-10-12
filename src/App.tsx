@@ -11,7 +11,7 @@ import StartPage from "./pages/StartPage";
 import AdminHomePage from "./pages/AdminHomePage";
 import AppointmentDetail from "./pages/AppointmentDetail";
 import Dashboard from "./pages/Dashboard";
-import ResearcherDetail from "./pages/ResearcherDetail";
+import CaseDetial from "./pages/caseDetial";
 import ResearcherForm from "./pages/researchDetails/ResearcherForm";
 import TrlScore from './pages/TrlScore';
 import Step1 from "./pages/steps/Step1";
@@ -50,7 +50,7 @@ const App: React.FC = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin-homepage" element={<AdminHomePage />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/researcher-detail" element={<ResearcherDetail />} />
+          <Route path="/case-detail/:id" element={<CaseDetial />} />
           <Route path="/researcher-form" element={<ResearcherForm />} />
           <Route path="/trl-score" element={<TrlScore />} />
           <Route path="/trl-1" element={<Step1 />} />

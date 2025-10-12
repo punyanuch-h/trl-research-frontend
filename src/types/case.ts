@@ -66,16 +66,6 @@ export interface Supporter {
   additional_documents: string;
 }
 
-export interface TRLRecommendation {
-  trlScore?: number;
-  status: boolean;
-  reason?: string;
-  suggestion?: string;
-  sources?: string[];
-  result?: string;
-  aiEstimate?: string;
-}
-
 export interface Appointment {
   id: number;
   case_id: string;
