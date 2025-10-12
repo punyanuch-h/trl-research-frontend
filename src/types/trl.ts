@@ -14,11 +14,12 @@ export interface TRLItem {
     createdAt: string;
 
     // Step 1: TRL Type
-    researchType: string;
     
     // Step 2: Research Details
     researchTitle: string;
+    researchType: string;
     description: string;
+    keyword?: string;
     stageOfDevelopment: string;
     currentChallenges: string;
     targetUsers: string;
@@ -38,6 +39,10 @@ export interface TRLItem {
     hasBusinessPartner: string;
 
     // Step 5: Innovation Showcase
+    supportDevNeeded: string[];
+    supportMarketNeeded: string[];
+
+    // Not used in form
     readyForShowcase: string;
     consent: string;
 
