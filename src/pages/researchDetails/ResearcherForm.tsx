@@ -257,9 +257,14 @@ export default function ResearcherForm() {
     setStepError("");
     if (currentFormStep < 5) {
       setCurrentFormStep(currentFormStep + 1);
+      localStorage.setItem("currentFormStep", (currentFormStep + 1).toString());
     }
   };
 
+  const handlePrev = () => {
+    if (currentFormStep > 1) {
+      setCurrentFormStep(currentFormStep - 1);
+      localStorage.setItem("currentFormStep", (currentFormStep - 1).toString());
   const handleSubmit = async () => {
     const { valid, firstField } = validateStepWithField(currentFormStep);
     if (!valid) {
@@ -271,6 +276,10 @@ export default function ResearcherForm() {
     setShowConfirmDialog(true);
   };
 
+  const handleSubmit = () => {
+    if (formData.isUrgent && !formData.urgentReason.trim()) {
+      alert("กรุณาระบุเหตุผลความเร่งด่วน (Urgent Reason)");
+      return;
   const handleConfirmSubmit = async () => {
     setIsSubmitting(true);
     setShowConfirmDialog(false);
@@ -436,6 +445,10 @@ export default function ResearcherForm() {
       console.error("Error submitting form:", err);
       alert("เกิดข้อผิดพลาดในการส่งข้อมูล: " + (err as any)?.message);
     }
+    // Logic for form submission
+    console.log("Form Data Submitted:", formData);
+    navigate('/researcher-homepage');
+    localStorage.removeItem("currentFormStep");
   };
 
   const handleCheckboxChange = (field: string, value: string, checked: boolean) => {
@@ -564,6 +577,27 @@ export default function ResearcherForm() {
                 Previous
               </Button>
               <div className="flex gap-3">
+                <AlertDialog>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirm Edit</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to save the changes and return to the dashboard?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Edit</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => {
+                          navigate('/researcher-homepage');
+                        }}
+                      >
+                        Confirm and Return to Dashboard
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
                 {currentFormStep === 5 ? (
                   <Button onClick={handleSubmit}>
                     Submit

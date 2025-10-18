@@ -21,7 +21,7 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <h1
             className="flex items-center gap-2 text-2xl font-bold text-primary cursor-pointer hover:opacity-80 transition"
-            onClick={() => navigate("/startpage")}
+            onClick={() => navigate("/")}
         >
           <Home className="w-5 h-5" />
           <span>TRL Assessment Platform</span>

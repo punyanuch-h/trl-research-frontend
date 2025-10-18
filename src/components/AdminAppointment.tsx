@@ -27,6 +27,7 @@ interface Props {
   setRowsPerPage: (rows: number) => void;
   getFullNameByEmail: (email: string) => string;
   onAssessment : (id: number, name: string, type: string) => void;
+  userRole?: 'admin' | 'researcher'; // Add this prop
 }
 export default function AdminAppointment({
   projects,
@@ -39,7 +40,8 @@ export default function AdminAppointment({
   setCurrentPage,
   setRowsPerPage,
   getFullNameByEmail,
-  onAssessment 
+  onAssessment,
+  userRole = 'admin' // Default to admin for backward compatibility
 }: Props) {
   const navigate = useNavigate();
 
@@ -162,14 +164,16 @@ export default function AdminAppointment({
               </SelectContent>
             </Select>
             {/* Add Appointment Button */}
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setShowModal(true)}
-            >
-              <CalendarPlus className="w-4 h-4 mr-1" />
-              Add Appointment
-            </Button>
+            {userRole === 'admin' && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setShowModal(true)}
+              >
+                <CalendarPlus className="w-4 h-4 mr-1" />
+                Add Appointment
+              </Button>
+            )}
             <AddAppointmentModal
               projects={projects}
               getFullNameByEmail={getFullNameByEmail}
@@ -205,17 +209,20 @@ export default function AdminAppointment({
                   <span className="text-sm text-gray-600">
                     {format(new Date(a.date), "dd/MM/yyyy HH:mm", { locale: th })}
                   </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={e => {
-                      e.stopPropagation();
-                      handleEditAppointment(a);
-                    }}
-                  >
-                    <Edit2 className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
+                  {/* Only show Edit button for admin */}
+                  {userRole === 'admin' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleEditAppointment(a);
+                      }}
+                    >
+                      <Edit2 className="w-4 h-4 mr-1" />
+                      Edit
+                    </Button>
+                  )}
                   {/* Modal สำหรับแก้ไข appointment */}
                   <EditAppointmentModal
                     open={editModalOpen}

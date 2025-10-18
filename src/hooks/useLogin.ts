@@ -1,22 +1,40 @@
+// import { useMutation } from "@tanstack/react-query";
+
+// export const useLogin = () => {
+//   return useMutation({
+//     mutationFn: async ({ email, password }: { email: string; password: string }) => {
+//       // Simple role-based login without API call or tokens
+//       // Just return a mock response with role information
+      
+//       if (email === "admin@example.com" && password === "admin123") {
+//         return { role: "admin", email: email };
+//       }
+      
+//       if (email === "researcher@example.com" && password === "researcher123") {
+//         return { role: "researcher", email: email };
+//       }
+      
+//       // Default case - treat as researcher
+//       if (email && password) {
+//         return { role: "researcher", email: email };
+//       }
+      
+//       throw new Error("Invalid credentials");
+//     },
+//   });
+// };
+
 import { useMutation } from "@tanstack/react-query";
+import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
 export const useLogin = () => {
-  const baseURL = import.meta.env.VITE_PUBLIC_API_URL ?? "http://localhost:3000";
+  const apiQueryClient = new ApiQueryClient(
+    import.meta.env.VITE_PUBLIC_API_URL
+  );
 
   return useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const res = await fetch(`${baseURL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! Status: ${res.status}`);
-      }
-
-      // expected shape: { token, expires_in }
-      return res.json();
+      return apiQueryClient.useLogin(email, password);
     },
   });
 };
