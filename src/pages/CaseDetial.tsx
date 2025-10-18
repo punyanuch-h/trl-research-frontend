@@ -9,43 +9,68 @@ import EditAppointmentModal from "../components/modal/appointment/EditAppointmen
 import type { 
   CaseInfo, AssessmentTrl, IntellectualProperty, Supporter, Appointment 
 } from "../types/case";
+import { BACKEND_HOST } from "@/constant/constants";
 
 export default function CaseDetail() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
+  // --- State สำหรับข้อมูลจาก API ---
   const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [coordinator, setCoordinator] = useState<AssessmentTrl | null>(null);
   const [assessmentTrl, setAssessmentTrl] = useState<AssessmentTrl | null>(null);
   const [intellectualProperty, setIP] = useState<IntellectualProperty | null>(null);
   const [supporter, setSupporter] = useState<Supporter | null>(null);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
 
-  useEffect(() => {
-    async function fetchCaseData() {
-      try {
-        setLoading(true);
-        console.log("case_id", id);
-        const res = await fetch(`/case/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch case data");
-        const data = await res.json();
-
-        // ตัวอย่าง structure response จาก backend
-        setCaseInfo(data.caseInfo);
-        setAssessmentTrl(data.assessmentTrl);
-        setIP(data.intellectualProperty);
-        setSupporter(data.supporter);
-        setAppointments(data.appointments || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
+  // --- ดึงข้อมูลจาก API ---
+  React.useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetch(`${BACKEND_HOST}/trl/case/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }).then(res => res.json()),
+      fetch(`${BACKEND_HOST}/trl/coordinator/case/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }).then(res => res.json()),
+      fetch(`${BACKEND_HOST}/trl/appointment/case/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }).then(res => res.json()),
+      fetch(`${BACKEND_HOST}/trl/assessment_trl/case/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }).then(res => res.json()),
+      fetch(`${BACKEND_HOST}/trl/ip/case/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }).then(res => res.json()),
+      fetch(`${BACKEND_HOST}/trl/supporter/case/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }).then(res => res.json()),
+    ])
+      .then(([casesData, coordinatorData, appointmentsData, assessmentData, ipData, supporterData]) => {
+        
+        setCaseInfo(casesData);
+        setAppointments(appointmentsData);
+        setCoordinator(coordinatorData);
+        setAssessmentTrl(assessmentData);
+        setIP(ipData);
+        setSupporter(supporterData);
         setLoading(false);
-      }
-    }
-    fetchCaseData();
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setLoading(false);
+      });
   }, [id]);
 
   if (loading) {
@@ -70,6 +95,11 @@ export default function CaseDetail() {
     setEditingAppointment(a);
     setEditModalOpen(true);
   };
+  console.log("Case Info:", caseInfo);
+  console.log("Appointments:", appointments);
+  console.log("Assessment TRL:", assessmentTrl);
+  console.log("Intellectual Property:", intellectualProperty);
+  console.log("Supporter:", supporter);
 
   return (
     <div className="min-h-screen bg-background">

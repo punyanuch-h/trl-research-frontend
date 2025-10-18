@@ -345,8 +345,7 @@ export default function ResearcherDashboard() {
 
                       <TableCell>
                         <div className="flex gap-2 min-w-[160px]">
-                          {c.case_title ? (
-                          // {c.trl_result ? (
+                          {c.trl_score ? (
                             <>
                               <Button
                                 variant="outline"
@@ -404,8 +403,7 @@ export default function ResearcherDashboard() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{c.case_keywords || "-"}</TableCell>
-                      {/* <TableCell>{c.suggestion || "-"}</TableCell> */}
+                      <TableCell>{c.trl_suggestion || "-"}</TableCell>
                     </TableRow>
                   ))
                 )}

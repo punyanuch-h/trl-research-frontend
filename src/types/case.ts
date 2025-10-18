@@ -5,6 +5,7 @@ export interface CaseInfo {
   coordinator_email : string;
   trl_score: string;
   status: boolean;
+  trl_suggestion?: string;
   is_urgent: boolean;
   urgent_reason?: string;
   urgent_feedback?: string;
