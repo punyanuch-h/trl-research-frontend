@@ -4,7 +4,7 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/trl-research-frontend", // 👈 ชื่อ repo ของคุณ
+  base: "/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
