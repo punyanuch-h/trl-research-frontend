@@ -22,7 +22,9 @@ export function getUserRole(): string | null {
 /** Check if token exists and not expired */
 export function isAuthenticated(): boolean {
   const token = localStorage.getItem("auth_token");
+  console.log("token", token);
   if (!token) return false;
+  console.log("token exists");
 
   try {
     const decoded = jwtDecode<JWTPayload>(token);
