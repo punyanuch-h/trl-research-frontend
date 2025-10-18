@@ -34,9 +34,6 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      console.log("email", email);
-      console.log("password", password);
-      console.log("apiQueryClient", apiQueryClient);
       return apiQueryClient.useLogin(email, password);
     },
   });
