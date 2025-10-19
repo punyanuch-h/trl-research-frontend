@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { GraduationCap, Search, Loader2 } from "lucide-react";
 import { useLogin } from "@/hooks/useLogin";
+import { getUserRole } from "@/lib/auth";
 
 interface LoginFormData {
   email: string;
