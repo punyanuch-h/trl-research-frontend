@@ -3,38 +3,50 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 
-interface Appointment {
-  id: number;
-  researchTitle: string;
-  researcherName: string;
-  date: string;
-  location: string;
-  status: "attended" | "absent" | "pending";
-  summary?: string;
-  notes?: string;
+import type { CaseInfo, Appointment } from "../../../types/case";
+import type { ResearcherInfo } from "../../../types/researcher";
+import { BACKEND_HOST } from "@/constant/constants";
+
+interface Project extends CaseInfo {
+  appointments?: Appointment[];
+  researcherInfo?: ResearcherInfo;
 }
 
-interface EditAppointmentModalProps {
+interface Props {
   open: boolean;
   onClose: () => void;
+  projects: Project[];
   appointment: Appointment | null;
-  projects: { id: number; researchTitle: string; createdBy: string }[];
+  getFullNameByResearcherID: (researcher_id: string) => string;
   onSave: (updated: Appointment) => void;
 }
 
-const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({
+export default function EditAppointmentModal({
   open,
   onClose,
-  appointment,
   projects,
+  appointment,
+  getFullNameByResearcherID,
   onSave,
-}) => {
+}: Props) {
   const [form, setForm] = useState<Appointment | null>(appointment);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setForm(appointment);
@@ -46,10 +58,37 @@ const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({
     setForm({ ...form, [field]: value });
   };
 
-  const handleSubmit = () => {
-    if (form) {
-      onSave(form);
+  const handleSubmit = async () => {
+    if (!form) return;
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${BACKEND_HOST}/trl/appointment/${form.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          case_id: form.case_id,
+          date: form.date,
+          status: form.status,
+          location: form.location,
+          summary: form.summary,
+          notes: form.notes,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update appointment: ${errorText}`);
+      }
+
+      const updated = await response.json();
+      onSave(updated);
       onClose();
+    } catch (err) {
+      console.error("Error updating appointment:", err);
+      alert("❌ Failed to update appointment. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,11 +103,7 @@ const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({
           {/* Project Title */}
           <div>
             <Label>Project</Label>
-            <Input
-              type="text"
-              value={form.researchTitle}
-              readOnly
-            />
+            <Input type="text" value={projects.find(p => p.case_id === form.case_id)?.case_title || ""} readOnly />
           </div>
 
           {/* Researcher Name */}
@@ -76,12 +111,13 @@ const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({
             <Label>Researcher</Label>
             <Input
               type="text"
-              value={form.researcherName}
+              value={getFullNameByResearcherID(projects.find(p => p.case_id === form.case_id)?.researcher_id || "") || ""
+              }
               readOnly
             />
           </div>
 
-          {/* Date & Status on the same row */}
+          {/* Date & Status */}
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Date & Time</Label>
@@ -116,7 +152,7 @@ const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({
             <Label>Location</Label>
             <Input
               type="text"
-              value={form.location}
+              value={form.location || ""}
               onChange={(e) => handleChange("location", e.target.value)}
             />
           </div>
@@ -126,7 +162,7 @@ const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({
             <Label>Summary</Label>
             <Textarea
               value={form.summary || ""}
-              onChange={e => handleChange("summary", e.target.value)}
+              onChange={(e) => handleChange("summary", e.target.value)}
               placeholder="Enter summary"
               rows={3}
             />
@@ -137,7 +173,7 @@ const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({
             <Label>Notes</Label>
             <Textarea
               value={form.notes || ""}
-              onChange={e => handleChange("notes", e.target.value)}
+              onChange={(e) => handleChange("notes", e.target.value)}
               placeholder="Enter notes"
               rows={3}
             />
@@ -148,11 +184,11 @@ const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>Save</Button>
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? "Saving..." : "Save"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-};
-
-export default EditAppointmentModal;
+}

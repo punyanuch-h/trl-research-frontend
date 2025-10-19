@@ -10,7 +10,6 @@ import AdminAppointment from "../components/AdminAppointment";
 
 import { BACKEND_HOST } from "@/constant/constants";
 
-// ✅ รวม CaseInfo กับ Appointment
 // รวม Case + Appointment + Researcher
 function mergeCasesData(
   cases: CaseInfo[],
@@ -31,8 +30,6 @@ export default function AdminHomePage() {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState<"management" | "dashboard" | "appointments">("management");
   const [researchers, setResearchers] = useState<any[]>([]);
-
-  // ✅ ใช้ cases (แทน researchProjects)
   const [cases, setCases] = useState<(CaseInfo & { appointments: Appointment[] })[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -122,9 +119,9 @@ export default function AdminHomePage() {
     })
   );
 
-  function getFullNameByResearcherID(researcherId: string): string {
-    const researcher = researchers.find((r) => r.researcher_id === researcherId);
-    return researcher ? `${researcher.researcher_first_name} ${researcher.researcher_last_name}` : String(researcherId);
+  function getFullNameByResearcherID(id: string): string {
+    const researcher = researchers.find(r => r.researcher_id === id);
+    return researcher ? `${researcher.researcher_first_name} ${researcher.researcher_last_name}` : "";
   }
 
 

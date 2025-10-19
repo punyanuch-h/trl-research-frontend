@@ -11,9 +11,7 @@ import Profile from "./pages/Profile";
 import StartPage from "./pages/StartPage";
 import AdminHomePage from "./pages/AdminHomePage";
 import AppointmentDetail from "./pages/AppointmentDetail";
-import Dashboard from "./pages/Dashboard";
-import ResearcherDetail from "./pages/ResearcherDetailAdmin";
-import CaseDetial from "./pages/caseDetial";
+import CaseDetial from "./pages/CaseDetial";
 import ResearcherForm from "./pages/researchDetails/ResearcherForm";
 import TrlScore from "./pages/TrlScore";
 import Step1 from "./pages/steps/Step1";
@@ -29,7 +27,7 @@ import CompletePage from "./pages/CompletePage";
 import NotFound from "./pages/NotFound";
 import DifyChatIframe from "@/components/DifyChatIFrame";
 import ResearcherHomePage from "./pages/ResearcherHomePage";
-import ResearcherDetailResearcher from "./pages/ResearcherDetailResearcher";
+import ResearcherDetailResearcher from "./pages/ResearcherHomePage";
 
 const queryClient = new QueryClient();
 
@@ -48,10 +46,9 @@ const App: React.FC = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin-homepage" element={<AdminHomePage />} />
           <Route path="/researcher-homepage" element={<ResearcherHomePage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/case-detail/:id" element={<CaseDetial />} />
+          
           {/* <Route path="/appointment-detail" element={<AppointmentDetail />} /> */}
-          <Route path="/researcher-detail" element={<ResearcherDetail />} />
           <Route path="/researcher-detail-researcher" element={<ResearcherDetailResearcher />} />
           <Route path="/researcher-form" element={<ResearcherForm />} />
           <Route path="/trl-score" element={<TrlScore />} />

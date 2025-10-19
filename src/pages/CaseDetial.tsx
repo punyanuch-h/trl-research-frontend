@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, CalendarPlus, Edit2, Download } from "lucide-react";
+import { format } from "date-fns";
+import { th } from "date-fns/locale";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +15,8 @@ import { BACKEND_HOST } from "@/constant/constants";
 
 export default function CaseDetail() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const userRole = searchParams.get('role') || 'researcher';
   const { id } = useParams<{ id: string }>();
 
   // --- State สำหรับข้อมูลจาก API ---
@@ -60,7 +64,13 @@ export default function CaseDetail() {
       .then(([casesData, coordinatorData, appointmentsData, assessmentData, ipData, supporterData]) => {
         
         setCaseInfo(casesData);
-        setAppointments(appointmentsData);
+        setAppointments(
+          Array.isArray(appointmentsData)
+            ? appointmentsData
+            : appointmentsData
+            ? [appointmentsData]
+            : []
+        );
         setCoordinator(coordinatorData);
         setAssessmentTrl(assessmentData);
         setIP(ipData);
@@ -95,12 +105,7 @@ export default function CaseDetail() {
     setEditingAppointment(a);
     setEditModalOpen(true);
   };
-  console.log("Case Info:", caseInfo);
-  console.log("Appointments:", appointments);
-  console.log("Assessment TRL:", assessmentTrl);
-  console.log("Intellectual Property:", intellectualProperty);
-  console.log("Supporter:", supporter);
-
+  console.log("userRole:", userRole);
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -125,18 +130,21 @@ export default function CaseDetail() {
         {/* Appointments */}
         <Card className="mb-6">
           <CardContent>
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center mt-2 mb-2">
               <h3 className="text-lg font-semibold">Appointments</h3>
-              <Button variant="default" size="sm" onClick={() => setShowAddModal(true)}>
-                <CalendarPlus className="w-4 h-4 mr-1" /> Add Appointment
-              </Button>
+              {userRole === "admin" && (
+                <Button variant="default" size="sm" className="mt-2" onClick={() => setShowAddModal(true)}>
+                  <CalendarPlus className="w-4 h-4 mr-1" />
+                  Add Appointment
+                </Button>
+              )}
             </div>
             <AddAppointmentModal
               projects={[caseInfo]}
               isOpen={showAddModal}
               onClose={() => setShowAddModal(false)}
               onAdd={() => setShowAddModal(false)}
-              getFullNameByEmail={(e) => e}
+              getFullNameByResearcherID={(e) => e}
             />
 
             {appointments.length > 0 ? (
@@ -144,14 +152,23 @@ export default function CaseDetail() {
                 {appointments.map((a) => (
                   <li key={a.id} className="p-2 border rounded-md flex justify-between items-center">
                     <div className="flex flex-col">
+                      <span>
+                        <strong>Date:</strong>{" "}
+                        {a.date
+                          ? format(new Date(a.date), "dd/MM/yyyy HH:mm", { locale: th })
+                          : "-"}
+                      </span>
                       <span><strong>Location:</strong> {a.location || "-"}</span>
                       <span><strong>Status:</strong> {display(a.status)}</span>
                       {a.summary && <span><strong>Summary:</strong> {a.summary}</span>}
                       {a.notes && <span><strong>Notes:</strong> {a.notes}</span>}
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => handleEditAppointment(a)}>
-                      <Edit2 className="w-4 h-4 mr-1" /> Edit
-                    </Button>
+                    {userRole === "admin" && (
+                      <Button variant="default" size="sm"onClick={() => handleEditAppointment(a)}>
+                       <Edit2 className="w-4 h-4 mr-1" />
+                        Edit
+                      </Button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -163,8 +180,9 @@ export default function CaseDetail() {
               <EditAppointmentModal
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
-                appointment={editingAppointment}
                 projects={[caseInfo]}
+                appointment={editingAppointment}
+                getFullNameByResearcherID={(e) => e}
                 onSave={() => setEditModalOpen(false)}
               />
             )}
