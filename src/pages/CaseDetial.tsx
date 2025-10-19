@@ -12,11 +12,11 @@ import type {
   CaseInfo, AssessmentTrl, IntellectualProperty, Supporter, Appointment 
 } from "../types/case";
 import { BACKEND_HOST } from "@/constant/constants";
+import { getUserRole, isAuthenticated } from "@/lib/auth"; // ✅ import helper
 
 export default function CaseDetail() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const userRole = searchParams.get('role') || 'researcher';
+  const role = getUserRole();
   const { id } = useParams<{ id: string }>();
 
   // --- State สำหรับข้อมูลจาก API ---
@@ -105,7 +105,7 @@ export default function CaseDetail() {
     setEditingAppointment(a);
     setEditModalOpen(true);
   };
-  console.log("userRole:", userRole);
+  console.log("userRole:", role);
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -132,7 +132,7 @@ export default function CaseDetail() {
           <CardContent>
             <div className="flex justify-between items-center mt-2 mb-2">
               <h3 className="text-lg font-semibold">Appointments</h3>
-              {userRole === "admin" && (
+              {role === "admin" && (
                 <Button variant="default" size="sm" className="mt-2" onClick={() => setShowAddModal(true)}>
                   <CalendarPlus className="w-4 h-4 mr-1" />
                   Add Appointment
@@ -163,7 +163,7 @@ export default function CaseDetail() {
                       {a.summary && <span><strong>Summary:</strong> {a.summary}</span>}
                       {a.notes && <span><strong>Notes:</strong> {a.notes}</span>}
                     </div>
-                    {userRole === "admin" && (
+                    {role === "admin" && (
                       <Button variant="default" size="sm"onClick={() => handleEditAppointment(a)}>
                        <Edit2 className="w-4 h-4 mr-1" />
                         Edit
