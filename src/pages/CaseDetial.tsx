@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, CalendarPlus, Edit2, Download } from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, CalendarPlus, Edit2, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import Header from "@/components/Header";
@@ -133,10 +133,16 @@ export default function CaseDetail() {
             <div className="flex justify-between items-center mt-2 mb-2">
               <h3 className="text-lg font-semibold">Appointments</h3>
               {role === "admin" && (
-                <Button variant="default" size="sm" className="mt-2" onClick={() => setShowAddModal(true)}>
-                  <CalendarPlus className="w-4 h-4 mr-1" />
-                  Add Appointment
-                </Button>
+                <div>
+                  <Button variant="default" size="sm" className="mt-2 mr-2" onClick={() => setShowAddModal(true)}>
+                    <CalendarPlus className="w-4 h-4 mr-2" />
+                    Add Appointment
+                  </Button>
+                  <Button size="sm" className="mt-2" onClick={() => navigate(`/assessment/${id}`)}>
+                    <Sparkles className="w-4 h-4 mr-1" />
+                    Assessment
+                  </Button>
+                </div>
               )}
             </div>
             <AddAppointmentModal
