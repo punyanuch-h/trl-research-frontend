@@ -1,3 +1,4 @@
+// src/components/modal/appointment/EditAppointmentModal.tsx
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ import { format } from "date-fns";
 
 import type { CaseInfo, Appointment } from "../../../types/case";
 import type { ResearcherInfo } from "../../../types/researcher";
-import { BACKEND_HOST } from "@/constant/constants";
+import { useEditAppointment } from "@/hooks/case/useEditAppointment";
 
 interface Project extends CaseInfo {
   appointments?: Appointment[];
@@ -46,7 +47,8 @@ export default function EditAppointmentModal({
   onSave,
 }: Props) {
   const [form, setForm] = useState<Appointment | null>(appointment);
-  const [loading, setLoading] = useState(false);
+
+  const { editAppointment, loading } = useEditAppointment(onSave, onClose);
 
   useEffect(() => {
     setForm(appointment);
@@ -58,38 +60,8 @@ export default function EditAppointmentModal({
     setForm({ ...form, [field]: value });
   };
 
-  const handleSubmit = async () => {
-    if (!form) return;
-    setLoading(true);
-
-    try {
-      const response = await fetch(`${BACKEND_HOST}/trl/appointment/${form.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          case_id: form.case_id,
-          date: form.date,
-          status: form.status,
-          location: form.location,
-          summary: form.summary,
-          notes: form.notes,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to update appointment: ${errorText}`);
-      }
-
-      const updated = await response.json();
-      onSave(updated);
-      onClose();
-    } catch (err) {
-      console.error("Error updating appointment:", err);
-      alert("❌ Failed to update appointment. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = () => {
+    if (form) editAppointment(form);
   };
 
   return (
@@ -100,24 +72,28 @@ export default function EditAppointmentModal({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          {/* Project Title */}
           <div>
             <Label>Project</Label>
-            <Input type="text" value={projects.find(p => p.case_id === form.case_id)?.case_title || ""} readOnly />
+            <Input
+              type="text"
+              value={projects.find(p => p.case_id === form.case_id)?.case_title || ""}
+              readOnly
+            />
           </div>
 
-          {/* Researcher Name */}
           <div>
             <Label>Researcher</Label>
             <Input
               type="text"
-              value={getFullNameByResearcherID(projects.find(p => p.case_id === form.case_id)?.researcher_id || "") || ""
+              value={
+                getFullNameByResearcherID(
+                  projects.find(p => p.case_id === form.case_id)?.researcher_id || ""
+                ) || ""
               }
               readOnly
             />
           </div>
 
-          {/* Date & Status */}
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Date & Time</Label>
@@ -131,9 +107,7 @@ export default function EditAppointmentModal({
               <Label>Status</Label>
               <Select
                 value={form.status}
-                onValueChange={(v: "attended" | "absent" | "pending") =>
-                  handleChange("status", v)
-                }
+                onValueChange={(v: "attended" | "absent" | "pending") => handleChange("status", v)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
@@ -147,7 +121,6 @@ export default function EditAppointmentModal({
             </div>
           </div>
 
-          {/* Location */}
           <div>
             <Label>Location</Label>
             <Input
@@ -157,7 +130,6 @@ export default function EditAppointmentModal({
             />
           </div>
 
-          {/* Summary */}
           <div>
             <Label>Summary</Label>
             <Textarea
@@ -168,7 +140,6 @@ export default function EditAppointmentModal({
             />
           </div>
 
-          {/* Notes */}
           <div>
             <Label>Notes</Label>
             <Textarea
