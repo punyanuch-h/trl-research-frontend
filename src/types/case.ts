@@ -68,7 +68,7 @@ export interface Supporter {
 }
 
 export interface Appointment {
-  id: number;
+  appointment_id: string;
   case_id: string;
   date: string;
   location: string;

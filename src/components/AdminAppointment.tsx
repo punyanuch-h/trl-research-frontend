@@ -97,7 +97,6 @@ export default function AdminAppointment({
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  // ✅ เพิ่มนัดหมายใหม่ (mock integration)
   const handleAddAppointment = (projectId: string, date: string, time: string) => {
     setProjects((prev) =>
       prev.map((p) =>
@@ -107,7 +106,6 @@ export default function AdminAppointment({
               appointments: [
                 ...(p.appointments || []),
                 {
-                  id: Date.now(),
                   date: new Date(`${date}T${time}`).toISOString(),
                   status: "pending",
                   location: "Meeting Room A",
@@ -120,15 +118,20 @@ export default function AdminAppointment({
     setShowModal(false);
   };
 
-  // ✅ แก้ไขนัดหมาย (mock integration)
   const handleSaveEdit = (updated: Appointment) => {
-    setProjects((prev) =>
-      prev.map((p) => ({
-        ...p,
-        appointments: (p.appointments || []).map((a) =>
-          a.id === updated.id ? { ...a, ...updated } : a
-        ),
-      }))
+    setProjects(prev =>
+      prev.map(project => {
+        // ตรวจสอบว่า appointment นี้อยู่ใน project ไหน
+        if (project.case_id !== updated.case_id) return project;
+
+        const updatedAppointments = (project.appointments || []).map(a =>
+          a.appointment_id === updated.appointment_id
+            ? { ...a, ...updated } // merge ค่าใหม่ทั้งหมด
+            : a
+        );
+
+        return { ...project, appointments: updatedAppointments };
+      })
     );
     setEditModalOpen(false);
     setEditingAppointment(null);
@@ -139,9 +142,9 @@ export default function AdminAppointment({
     setEditModalOpen(true);
   };
 
-  const handleViewResearch = (researchId: string) => {
-    const research = projects.find((r) => r.case_id === researchId);
-    if (research) navigate("/case-detail", { state: { research } });
+  const handleViewResearch = (id: string) => {
+    const c = projects.find(c => c.case_id === id);
+    navigate(`/case-detail/${id}`, { state: { research: c } });
   };
 
   const totalPages = Math.ceil(filteredAppointments.length / rowsPerPage);
@@ -203,7 +206,7 @@ export default function AdminAppointment({
           <ul className="space-y-3">
             {paginatedAppointments.map((a) => (
               <li
-                key={a.id}
+                key={a.appointment_id}
                 onClick={() => handleViewResearch(a.case_id)}
                 className="p-3 border rounded-lg flex justify-between items-center hover:bg-gray-50"
               >
@@ -258,9 +261,9 @@ export default function AdminAppointment({
       <EditAppointmentModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
-        appointment={editingAppointment}
-        getFullNameByResearcherID={getFullNameByResearcherID}
         projects={projects}
+        appointment={editingAppointment}
+        getFullNameByResearcherID={(e) => e}
         onSave={handleSaveEdit}
       />
     </Card>
