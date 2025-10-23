@@ -1,5 +1,7 @@
 import { ApiBaseClient } from "@/hooks/client/ApiBaseClient";
 import type {
+  AssessmentResponse,
+  CaseResponse,
   LoginResponse,
 } from "@/hooks/client/type";
 
@@ -14,4 +16,13 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
   
+  async useGetCaseById(caseId: string): Promise<CaseResponse> {
+    const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/${caseId}`);
+    return response.data;
+  }
+
+  async useGetAssessmentById(caseId: string): Promise<AssessmentResponse> {
+    const response = await this.axiosInstance.get<AssessmentResponse>(`/trl/assessment_trl/case/${caseId}`);
+    return response.data;
+  }
 }

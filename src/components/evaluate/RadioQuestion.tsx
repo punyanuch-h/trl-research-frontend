@@ -1,5 +1,6 @@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { radioQuestionList } from "@/data/radioQuestionList";
 
 interface RadioQuestionProps {
   index: number;
@@ -8,17 +9,7 @@ interface RadioQuestionProps {
 }
 
 const RadioQuestion = ({ index, value, onChange }: RadioQuestionProps) => {
-  const questionList = [
-    "มีการทำ prototype/pilot model เสร็จแล้วหรือไม่?",
-    "Prototype ของคุณได้รับการทดสอบแล้วหรือยัง?",
-    "Prototype ถูกทดสอบในสภาวะใช้งานจริงหรือยัง?",
-    "Prototype มีการตรวจสอบคุณภาพตามมาตราฐานมั้ย?",
-    "ระบบถูกใช้งานจริงต่อเนื่อง/ได้รับการยอมรับในวงกว้างแล้วหรือยัง?",
-    "Prototype ทำงานในสภาวะจริงได้มั้ย?",
-    "สมมุติฐานของคุณมีการทดลองในห้อง lab แล้วหรือยัง?",
-  ];
-
-  const selectedQuestion = questionList[index - 1];
+  const selectedQuestion = radioQuestionList[index - 1];
 
   return (
     <div>

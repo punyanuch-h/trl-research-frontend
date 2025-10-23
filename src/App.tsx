@@ -14,20 +14,12 @@ import AppointmentDetail from "./pages/AppointmentDetail";
 import CaseDetial from "./pages/CaseDetial";
 import ResearcherForm from "./pages/researchDetails/ResearcherForm";
 import TrlScore from "./pages/TrlScore";
-import Step1 from "./pages/steps/Step1";
-import Step2 from "./pages/steps/Step2";
-import Step3 from "./pages/steps/Step3";
-import Step4 from "./pages/steps/Step4";
-import Step5 from "./pages/steps/Step5";
-import Step6 from "./pages/steps/Step6";
-import Step7 from "./pages/steps/Step7";
-import Step8 from "./pages/steps/Step8";
-import Step9 from "./pages/steps/Step9";
 import CompletePage from "./pages/CompletePage";
 import NotFound from "./pages/NotFound";
 import DifyChatIframe from "@/components/DifyChatIFrame";
 import ResearcherHomePage from "./pages/ResearcherHomePage";
 import ResearcherDetailResearcher from "./pages/ResearcherHomePage";
+import AssessmentResult from "./pages/evaluate/assessmentResult.tsx";
 
 const queryClient = new QueryClient();
 
@@ -52,15 +44,7 @@ const App: React.FC = () => {
           <Route path="/researcher-detail-researcher" element={<ResearcherDetailResearcher />} />
           <Route path="/researcher-form" element={<ResearcherForm />} />
           <Route path="/trl-score" element={<TrlScore />} />
-          <Route path="/trl-1" element={<Step1 />} />
-          <Route path="/trl-2" element={<Step2 />} />
-          <Route path="/trl-3" element={<Step3 />} />
-          <Route path="/trl-4" element={<Step4 />} />
-          <Route path="/trl-5" element={<Step5 />} />
-          <Route path="/trl-6" element={<Step6 />} />
-          <Route path="/trl-7" element={<Step7 />} />
-          <Route path="/trl-8" element={<Step8 />} />
-          <Route path="/trl-9" element={<Step9 />} />
+          <Route path="/show-case-detail/:id" element={<AssessmentResult />} />
           <Route path="/complete" element={<CompletePage />} />
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
