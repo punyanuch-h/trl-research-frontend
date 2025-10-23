@@ -47,7 +47,8 @@ export default function EditAppointmentModal({
   onSave,
 }: Props) {
   const [form, setForm] = useState<Appointment | null>(appointment);
-  const [loading, setLoading] = useState(false);
+
+  const { editAppointment, loading } = useEditAppointment(onSave, onClose);
 
   const { editAppointment, loading } = useEditAppointment(onSave, onClose);
 
