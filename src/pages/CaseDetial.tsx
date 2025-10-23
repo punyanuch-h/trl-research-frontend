@@ -12,7 +12,7 @@ import type {
   CaseInfo, AssessmentTrl, IntellectualProperty, Supporter, Appointment 
 } from "../types/case";
 import { BACKEND_HOST } from "@/constant/constants";
-import { getUserRole, isAuthenticated } from "@/lib/auth"; // ✅ import helper
+import { getUserRole } from "@/lib/auth";
 
 export default function CaseDetail() {
   const navigate = useNavigate();
@@ -150,7 +150,7 @@ export default function CaseDetail() {
             {appointments.length > 0 ? (
               <ul className="space-y-2 text-muted-foreground">
                 {appointments.map((a) => (
-                  <li key={a.id} className="p-2 border rounded-md flex justify-between items-center">
+                  <li key={a.appointment_id} className="p-2 border rounded-md flex justify-between items-center">
                     <div className="flex flex-col">
                       <span>
                         <strong>Date:</strong>{" "}
