@@ -5,9 +5,10 @@ import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
 interface EvaluateTRLProps {
   formData: any;
   handleInputChange: (field: string, value: any) => void;
+  setTrlLevel?: (level: number | null) => void; // เพิ่ม prop นี้
 }
 
-export default function EvaluateTRL({ formData, handleInputChange }: EvaluateTRLProps) {
+export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }: EvaluateTRLProps) {
   const [currentCheckboxIndex, setCurrentCheckboxIndex] = useState<number | null>(null);
   const [answersRadio, setAnswersRadio] = useState<{ [key: string]: number }>({
     rq1: null,
@@ -41,8 +42,9 @@ export default function EvaluateTRL({ formData, handleInputChange }: EvaluateTRL
     cq8: [],
     cq9: []
   });
-  console.log(answersCheckboxx)
+  // console.log(answersCheckboxx)
 
+  // ปรับ setAnswerTRL ให้ sync ไปยัง parent
   const [answerTRL, setAnswerTRL] = useState<number | null>(null);
 
   const [levelMessage, setLevelMessage] = useState<string>("");
@@ -50,23 +52,46 @@ export default function EvaluateTRL({ formData, handleInputChange }: EvaluateTRL
   const [showNextCheckboxButton, setShowNextCheckboxButton] = useState<boolean>(false);
 
   const handleRadioChange = (value: number, questionId: string) => {
-    setAnswersRadio((prevAnswers) => ({
-      ...prevAnswers,
-      [questionId]: value,
-    }));
+    setAnswersRadio((prevAnswers) => {
+      const newAnswers = {
+        ...prevAnswers,
+        [questionId]: value,
+      };
+
+      // ✅ Sync ไป parent
+      if (handleInputChange) {
+        handleInputChange(questionId + "Answer", value === 1); // แปลงเป็น boolean
+      }
+
+      return newAnswers;
+    });
   };
 
-  const handleCheckboxChange = (value: number[], itemId: string, selectedLabels: string[]) => {
+
+
+  const handleCheckboxChange = (
+    value: number[],
+    itemId: string,
+    selectedLabels: string[]
+  ) => {
     setAnswersCheckbox((prevAnswers) => ({
       ...prevAnswers,
       [itemId]: value,
     }));
 
-    setAnswersCheckboxx((prevLabels) => ({
-      ...prevLabels,
-      [itemId]: selectedLabels,
-    }));
-  }
+    setAnswersCheckboxx((prevLabels) => {
+      const newLabels = {
+        ...prevLabels,
+        [itemId]: selectedLabels,
+      };
+      // ✅ Sync ไป parent
+      if (handleInputChange) {
+        handleInputChange(itemId + "Answer", selectedLabels);
+      }
+      return newLabels;
+    });
+  };
+
 
   const handleNextToCheckbox = () => {
     const allAnswered = Object.values(answersRadio).every((answer) => answer !== null);
@@ -113,16 +138,15 @@ export default function EvaluateTRL({ formData, handleInputChange }: EvaluateTRL
   const handleNextToCheckTRL = () => {
     const currentAnswers = answersCheckbox[`cq${currentCheckboxIndex}`] || [];
     const allTicked = currentAnswers.every(value => value === 1);
-    
-    // Reset messages and button visibility
+
     setLevelMessage("");
     setShowNextCheckboxButton(false);
 
     if (!allTicked) {
-      // If not all ticked, just show the "continue" button without an error message
       if (currentCheckboxIndex === 1) {
         setLevelMessage("Research ของคุณไม่อยู่ในระดับ TRL");
         setAnswerTRL(null);
+        if (setTrlLevel) setTrlLevel(null);
         setShowNextCheckboxButton(false);
         return;
       }
@@ -130,9 +154,9 @@ export default function EvaluateTRL({ formData, handleInputChange }: EvaluateTRL
       return;
     }
 
-    // If all ticked, check the TRL level
     setLevelMessage(`Research ของคุณอยู่ในระดับ TRL ${currentCheckboxIndex}`);
     setAnswerTRL(currentCheckboxIndex);
+    if (setTrlLevel) setTrlLevel(currentCheckboxIndex); // sync ไป parent
   };
 
   const handleProceedToNextCheckbox = () => {

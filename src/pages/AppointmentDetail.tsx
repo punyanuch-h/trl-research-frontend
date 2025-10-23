@@ -4,14 +4,20 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import type { TRLItem } from "../types/trl";
+import type { CaseInfo, Appointment } from "../types/case";
+import type { ResearcherInfo } from "../types/researcher";
 
-interface Props {
-  projects: TRLItem[];
-  getFullNameByEmail: (email: string) => string;
+interface Project extends CaseInfo {
+  appointments?: Appointment[];
+  researcherInfo?: ResearcherInfo;
 }
 
-export default function AppointmentDetail({ projects, getFullNameByEmail }: Props) {
+interface Props {
+  projects: Project[];
+  getFullNameByResearcherID: (researcher_id: string) => string;
+}
+
+export default function AppointmentDetail({ projects, getFullNameByResearcherID }: Props) {
   const { id } = useParams(); // appointment id
   const navigate = useNavigate();
 
@@ -20,8 +26,8 @@ export default function AppointmentDetail({ projects, getFullNameByEmail }: Prop
     .flatMap((p) =>
       (p.appointments || []).map((a) => ({
         ...a,
-        researchTitle: p.researchTitle,
-        researcherName: getFullNameByEmail(p.createdBy),
+        researchTitle: p.case_title,
+        researcherName: getFullNameByResearcherID(p.researcher_id),
       }))
     )
     .find((a) => a.id.toString() === id);
@@ -72,7 +78,7 @@ export default function AppointmentDetail({ projects, getFullNameByEmail }: Prop
           {/* <ul className="list-disc ml-6 mt-1">
             {appointment.attendees?.length > 0 ? (
               appointment.attendees.map((att: string, idx: number) => (
-                <li key={idx}>{getFullNameByEmail(att)}</li>
+                <li key={idx}>{getFullNameByResearcherID(att)}</li>
               ))
             ) : (
               <li>-</li>

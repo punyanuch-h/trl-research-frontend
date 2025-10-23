@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -9,7 +9,12 @@ interface IpFormState {
   ipStatus: string;
   ipTypes: string[];
   requestNumbers: { [key: string]: string };
-  noIp: boolean; // new: toggle "ไม่มี"
+  noIp: boolean;
+}
+
+interface IntellectualPropertyProps {
+  formData: any;
+  handleInputChange: (field: string, value: any) => void;
 }
 
 const ipTypesList = [
@@ -21,11 +26,32 @@ const ipTypesList = [
   { id: "tradeSecret", label: "ความลับทางการค้า" },
 ];
 
-export default function IntellectualProperty() {
-  const [forms, setForms] = useState<IpFormState[]>([
-    { ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false },
-  ]);
+export default function IntellectualProperty({
+  formData,
+  handleInputChange,
+}: IntellectualPropertyProps) {
+  // ใช้ค่าเริ่มต้นจาก formData.ipForms ถ้ามี (สำหรับกรณี user กลับมาจาก step 5)
+  const [forms, setForms] = useState<IpFormState[]>(
+    formData.ipForms && Array.isArray(formData.ipForms) && formData.ipForms.length > 0
+      ? formData.ipForms
+      : [{ ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false }]
+  );
 
+  // เมื่อ formData.ipForms เปลี่ยน (เช่น กรณี user กลับมาจาก step 5) ให้ sync state forms ด้วย
+  useEffect(() => {
+    if (formData.ipForms && Array.isArray(formData.ipForms)) {
+      setForms(formData.ipForms);
+    }
+    // eslint-disable-next-line
+  }, [formData.ipForms]);
+
+  // Sync forms to parent (formData) on every change
+  useEffect(() => {
+    handleInputChange("ipForms", forms);
+    // eslint-disable-next-line
+  }, [forms]);
+
+  // เมื่อเลือก "มี"/"ไม่มี"
   const handleNoIpToggle = (formIndex: number, checked: boolean) => {
     setForms((currentForms) => {
       const updated = [...currentForms];
@@ -35,10 +61,16 @@ export default function IntellectualProperty() {
         updated[formIndex].ipTypes = [];
         updated[formIndex].requestNumbers = {};
       }
+      // sync กลับไป parent
+      handleInputChange("ipHas", !checked);
+      handleInputChange("ipProtectionStatus", "");
+      handleInputChange("ipTypes", []);
+      handleInputChange("ipRequestNumber", "");
       return updated;
     });
   };
 
+  // เมื่อเลือกสถานะ
   const handleFormStatusChange = (formIndex: number, value: string) => {
     setForms((currentForms) => {
       const updatedForms = [...currentForms];
@@ -46,19 +78,29 @@ export default function IntellectualProperty() {
       if (value !== "ได้เลขที่คำขอแล้ว") {
         updatedForms[formIndex].requestNumbers = {};
       }
+      // sync กลับไป parent
+      handleInputChange("ipProtectionStatus", value);
+      if (value !== "ได้เลขที่คำขอแล้ว") {
+        handleInputChange("ipRequestNumber", "");
+      }
       return updatedForms;
     });
   };
 
+  // เมื่อเลือกประเภท
   const handleFormTypeChange = (formIndex: number, newIpType: string) => {
     setForms((currentForms) => {
       const updatedForms = [...currentForms];
       updatedForms[formIndex].ipTypes = [newIpType];
       updatedForms[formIndex].requestNumbers = {};
+      // sync กลับไป parent
+      handleInputChange("ipTypes", [newIpType]);
+      handleInputChange("ipRequestNumber", "");
       return updatedForms;
     });
   };
 
+  // เมื่อกรอกเลขที่คำขอ
   const handleFormRequestNumberChange = (
     formIndex: number,
     ipType: string,
@@ -67,6 +109,8 @@ export default function IntellectualProperty() {
     setForms((currentForms) => {
       const updatedForms = [...currentForms];
       updatedForms[formIndex].requestNumbers[ipType] = value;
+      // sync กลับไป parent
+      handleInputChange("ipRequestNumber", value);
       return updatedForms;
     });
   };
@@ -88,24 +132,24 @@ export default function IntellectualProperty() {
 
   return (
     <div className="space-y-6">
-        {forms.map((form, formIndex) => (
+      {forms.map((form, formIndex) => (
         <div
-            key={formIndex}
-            className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm space-y-4"
+          key={formIndex}
+          className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm space-y-4"
         >
-            <div className="flex justify-between items-center">
-                <h4 className="font-bold text-lg text-primary-80">
-                ใบที่ {formIndex + 1}
-                </h4>
-                {forms.length > 1 && (
-                <button
-                    onClick={() => handleRemoveForm(formIndex)}
-                    className="text-red-500 hover:text-red-700 font-bold text-lg"
-                >
-                    <Trash2 className="w-4 h-4" />
-                </button>
-                )}
-            </div>
+          <div className="flex justify-between items-center">
+            <h4 className="font-bold text-lg text-primary-80">
+              ใบที่ {formIndex + 1}
+            </h4>
+            {forms.length > 1 && (
+              <button
+                onClick={() => handleRemoveForm(formIndex)}
+                className="text-red-500 hover:text-red-700 font-bold text-lg"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
 
           {/* <div className="flex items-center space-x-2">
             <RadioGroupItem
@@ -118,23 +162,26 @@ export default function IntellectualProperty() {
             <Label htmlFor={`noIp-${formIndex}`}>ไม่มี</Label>
           </div> */}
 
-            <RadioGroup
-                value={form.noIp ? "ไม่มี" : "มี"}
-                onValueChange={(value) => handleNoIpToggle(formIndex, value === "ไม่มี")}
-                className="flex items-center space-x-2"
-                >
-                <div className="flex items-center space-x-2">
-                    <RadioGroupItem id={`noIp-no-${formIndex}`} value="ไม่มี" />
-                    <Label htmlFor={`noIp-no-${formIndex}`}>ไม่มี</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <RadioGroupItem id={`noIp-yes-${formIndex}`} value="มี" />
-                    <Label htmlFor={`noIp-yes-${formIndex}`}>มี</Label>
-                </div>
-            </RadioGroup>
+          <RadioGroup
+            value={form.noIp ? "ไม่มี" : "มี"}
+            onValueChange={(value) =>
+              handleNoIpToggle(formIndex, value === "ไม่มี")
+            }
+            className="flex items-center space-x-2"
+            required
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem id={`noIp-no-${formIndex}`} value="ไม่มี" />
+              <Label htmlFor={`noIp-no-${formIndex}`}>ไม่มี</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem id={`noIp-yes-${formIndex}`} value="มี" />
+              <Label htmlFor={`noIp-yes-${formIndex}`}>มี</Label>
+            </div>
+          </RadioGroup>
 
-            {/* If "ไม่มี" checked → hide everything */}
-            {!form.noIp && (
+          {/* If "ไม่มี" checked → hide everything */}
+          {!form.noIp && (
             <>
               {/* Radio inside each card */}
               <div>

@@ -7,6 +7,7 @@ const mockTRL: TRLItem[] = [
     research_id: "M0001",
     researchTitle: 'Smart Health Monitor',
     researchType: "TRL medicines vaccines stem cells",
+    keyword: "AI, IoT, Health Tech",
     description: 'อุปกรณ์ติดตามสุขภาพที่สามารถวัดค่าทางชีวภาพแบบเรียลไทม์ เพื่อป้องกันโรคล่วงหน้า',
     stageOfDevelopment: 'ทดลอง ทดสอบ ความเป็นไปได้ทางตลาด หรือ พร้อมออกสู่ตลาด',
     currentChallenges: 'โรคเรื้อรังที่ตรวจพบช้า เช่น ความดัน เบาหวาน',
@@ -21,6 +22,8 @@ const mockTRL: TRLItem[] = [
     devSupportNeeded: 'ต้องการทุนสนับสนุน R&D และห้องแล็บสำหรับทดสอบต้นแบบ',
     marketSupportNeeded: 'ต้องการพาร์ทเนอร์สำหรับ pre-clinical trial และการตลาด',
     hasBusinessPartner: 'อยู่ระหว่างเจรจากับบริษัทผู้ผลิตอุปกรณ์การแพทย์',
+    supportDevNeeded: ['ฝ่ายวิจัย', 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)'],
+    supportMarketNeeded: ['การคุ้มครองทรัพย์สินทางปัญญา', 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม', 'อื่น ๆ'],
     readyForShowcase: 'ยินดี',
     consent: 'รวบรวมเป็น innovation portfolio ของคณะ และนำไปทำ innovation catalog',
     trlRecommendation: {
@@ -63,6 +66,8 @@ const mockTRL: TRLItem[] = [
     devSupportNeeded: 'ต้องการ data set ที่มีคุณภาพสูงจากโรงพยาบาลพันธมิตร',
     marketSupportNeeded: 'ต้องการหน่วยงานภาครัฐช่วยผลักดันการใช้งานจริง',
     hasBusinessPartner: 'มีความร่วมมือกับโรงพยาบาลเอกชน 2 แห่งในกรุงเทพฯ',
+    supportDevNeeded: ['ฝ่ายวิจัย', 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)'],
+    supportMarketNeeded: ['การคุ้มครองทรัพย์สินทางปัญญา', 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม'],
     readyForShowcase: 'ยินดี',
     consent: 'ใช้ในรายงาน innovation portfolio ของโครงการ',
     trlRecommendation: {
@@ -102,6 +107,8 @@ const mockTRL: TRLItem[] = [
     devSupportNeeded: 'ต้องการโรงงาน GMP และทีม QC',
     marketSupportNeeded: 'ต้องการที่ปรึกษาการนำผลิตภัณฑ์เข้าสู่ตลาดสากล',
     hasBusinessPartner: 'มีความร่วมมือกับบริษัทเครื่องมือแพทย์',
+    supportDevNeeded: ['ฝ่ายวิจัย', 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)'],
+    supportMarketNeeded: ['การคุ้มครองทรัพย์สินทางปัญญา', 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม', 'อื่น ๆ'],
     readyForShowcase: 'ยินดี',
     consent: 'เผยแพร่ในรายงานความก้าวหน้าวิจัย',
     trlRecommendation: {
@@ -138,6 +145,8 @@ const mockTRL: TRLItem[] = [
     devSupportNeeded: 'ต้องการพาร์ทเนอร์ด้าน big pharma',
     marketSupportNeeded: 'การยอมรับในวงการแพทย์',
     hasBusinessPartner: 'ยังไม่มี',
+    supportDevNeeded: ['ฝ่ายวิจัย', 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)'],
+    supportMarketNeeded: ['การคุ้มครองทรัพย์สินทางปัญญา', 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม', 'อื่น ๆ'],
     readyForShowcase: 'ไม่แน่ใจ',
     consent: 'ใช้สำหรับประเมินภายในเท่านั้น',
     trlRecommendation: {
@@ -174,6 +183,8 @@ const mockTRL: TRLItem[] = [
     devSupportNeeded: 'ต้องการ CMO สำหรับผลิต GMP',
     marketSupportNeeded: 'ต้องการบริษัทจัดจำหน่ายที่มีช่องทางทั่วประเทศ',
     hasBusinessPartner: 'มีข้อตกลงเบื้องต้นกับบริษัทยาในอินเดีย',
+    supportDevNeeded: ['ฝ่ายวิจัย', 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)'],
+    supportMarketNeeded: ['การคุ้มครองทรัพย์สินทางปัญญา', 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม', 'อื่น ๆ'],
     readyForShowcase: 'ยินดี',
     consent: 'เพื่อใช้ในการส่งเสริมงานวิจัยระดับชาติ',
     trlRecommendation: {
@@ -210,6 +221,8 @@ const mockTRL: TRLItem[] = [
     devSupportNeeded: 'ต้องการ GMP facility และบุคลากรเฉพาะทาง',
     marketSupportNeeded: 'ต้องการพันธมิตรธุรกิจในการขยายตลาดภูมิภาค',
     hasBusinessPartner: 'ร่วมมือกับศูนย์วิจัยมะเร็งในญี่ปุ่น',
+    supportDevNeeded: ['ฝ่ายวิจัย', 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)'],
+    supportMarketNeeded: ['การคุ้มครองทรัพย์สินทางปัญญา', 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม', 'อื่น ๆ'],
     readyForShowcase: 'ยินดี',
     consent: 'ใช้ในฐานข้อมูลเท่านั้น ไม่เปิดเผยเชิงพาณิชย์',
     trlRecommendation: {
@@ -249,6 +262,8 @@ const mockTRL: TRLItem[] = [
     devSupportNeeded: 'ต้องการความร่วมมือกับบริษัทผลิตยา',
     marketSupportNeeded: 'สนับสนุนจากรัฐเพื่อกระจายวัคซีนในภาวะฉุกเฉิน',
     hasBusinessPartner: 'มีความร่วมมือกับสถาบันชีวเวชแห่งชาติ',
+    supportDevNeeded: ['ฝ่ายวิจัย', 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)'],
+    supportMarketNeeded: ['การคุ้มครองทรัพย์สินทางปัญญา', 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม', 'อื่น ๆ'],
     readyForShowcase: 'ยินดี',
     consent: 'นำเสนอใน catalog และงาน innovation fair',
     trlRecommendation: {

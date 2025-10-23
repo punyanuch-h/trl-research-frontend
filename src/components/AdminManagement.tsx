@@ -1,38 +1,40 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Sparkles, Download, Eye, AlertTriangle } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-
 import { TablePagination } from "@/components/TablePagination";
-import type { TRLItem } from "../types/trl";
-
+import type { CaseInfo, Appointment } from "../types/case";
+import type { ResearcherInfo } from "../types/researcher";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 
+interface Project extends CaseInfo {
+  appointments?: Appointment[];
+  researcherInfo?: ResearcherInfo;
+}
+
 interface Props {
-  projects: TRLItem[];
-  setProjects: React.Dispatch<React.SetStateAction<TRLItem[]>>;
+  projects: Project[];
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   sortConfig: { key: string; direction: "asc" | "desc" };
   onSort: (key: string) => void;
-  onAIEstimate: (project: TRLItem) => void;
+  onAIEstimate: (project: Project) => void;
   onDownload: (filename: string) => void;
   currentPage: number;
   rowsPerPage: number;
   setCurrentPage: (page: number) => void;
   setRowsPerPage: (rows: number) => void;
-  getFullNameByEmail: (email: string) => string;
+  getFullNameByResearcherID: (researcherId: string) => string;
   onAssessment?: (id: number, name: string, type: string) => void;
-  detailRoute?: string; // Add this prop
 }
-
 
 export default function AdminManagement({
   projects,
+  setProjects,
   sortConfig,
   onSort,
   onAIEstimate,
@@ -41,9 +43,8 @@ export default function AdminManagement({
   rowsPerPage,
   setCurrentPage,
   setRowsPerPage,
-  getFullNameByEmail,
+  getFullNameByResearcherID,
   onAssessment,
-  detailRoute = "/researcher-detail" // Default to admin route
 }: Props) {
   const tableColumns = [
     { key: "createdAt", label: "Create Date" },
@@ -66,15 +67,9 @@ export default function AdminManagement({
     }
   };
 
-  const handleDownloadResult = (filename: string) => {
-    onDownload(filename);
-  };
-
-  const handleViewResearch = (researchId: number) => {
-    const research = projects.find((r) => r.id === researchId);
-    if (research) {
-      navigate(detailRoute, { state: { research } });
-    }
+  const handleViewResearch = (caseId: string) => {
+    const c = projects.find(c => c.case_id === caseId);
+    navigate(`/case-detail/${caseId}`, { state: { caseInfo: c } });
   };
 
   const totalPages = Math.ceil(projects.length / rowsPerPage);
@@ -84,32 +79,29 @@ export default function AdminManagement({
   );
 
   const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [targetId, setTargetId] = React.useState<number | null>(null);
+  const [targetId, setTargetId] = React.useState<string | null>(null);
   const [cancelReason, setCancelReason] = React.useState("");
 
-  const handleAskConfirm = (id: number) => {
+  const handleAskConfirm = (id: string) => {
     setTargetId(id);
     setConfirmOpen(true);
   };
 
-  const handleConfirm = (id: number, reason: string) => {
-    // if (targetId !== null) {
-    //   setProjects(prevProjects =>
-    //     prevProjects.map(project =>
-    //       project.id === targetId
-    //         ? {
-    //             ...project,
-    //             isUrgent: false,
-    //             urgentReason: reason,
-    //           }
-    //         : project
-    //     )
-    //   );
-    // }
+  const handleConfirm = (id: string | null, reason: string) => {
+    if (id !== null) {
+      setProjects(prev =>
+        prev.map(p =>
+          p.case_id === id ? { ...p, isUrgent: false, urgentReason: reason } : p
+        )
+      );
+    }
     setConfirmOpen(false);
     setCancelReason("");
   };
 
+  const handleDownloadResult = (filename: string) => {
+    onDownload(filename);
+  };
 
   return (
     <>
@@ -143,31 +135,31 @@ export default function AdminManagement({
                   </TableRow>
                 ) : (
                   paginatedProjects.map(project => (
-                    <TableRow key={project.id}>
+                    <TableRow key={project.case_id}>
                       <TableCell className="min-w-[120px] px-2 text-center align-middle">
-                        {new Date(project.createdAt).toLocaleDateString()}
+                        {new Date(project.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="min-w-[120px] whitespace-nowrap px-2">
-                        {getFullNameByEmail(project.createdBy)}
+                        {getFullNameByResearcherID(project.researcher_id)}
                       </TableCell>
                       <TableCell className="flex items-center gap-2">
                         <span
-                          className={`relative group ${project.isUrgent ? "text-red-600 font-semibold" : ""}`}
+                          className={`relative group ${project.is_urgent ? "text-red-600 font-semibold" : ""}`}
                         >
-                          {project.researchTitle}
+                          {project.case_title}
 
-                          {project.isUrgent && (
+                          {project.is_urgent && (
                             <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
                                             border border-red-600 bg-white text-black text-xs font-normal
                                             px-4 py-2 rounded-lg shadow-lg z-10 w-64 text-center">
-                              {project.urgentReason}
+                              {project.urgent_reason}
                             </span>
                           )}
                         </span>
 
-                        {project.isUrgent && (
+                        {project.is_urgent && (
                           <button
-                            onClick={() => handleAskConfirm(project.id)}
+                            onClick={() => handleAskConfirm(project.case_id)}
                             className="text-red-500 hover:text-red-700"
                             title="Mark as not urgent"
                           >
@@ -175,37 +167,37 @@ export default function AdminManagement({
                           </button>
                         )}
                       </TableCell>
-                      <TableCell>{project.researchType}</TableCell>
+                      <TableCell>{project.case_type}</TableCell>
                       <TableCell className="min-w-[120px] px-2 text-center align-middle">
-                        {project.trlRecommendation.status === true ? (
-                          <Badge variant="outline">TRL {project.trlRecommendation.trlScore}</Badge>
+                        {project.status === true ? (
+                          <Badge variant="outline">TRL {project.trl_score}</Badge>
                         ) : (
                           <span className="text-muted-foreground"></span>
                         )}
                       </TableCell>
                       <TableCell className="text-center align-middle">
-                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(project.trlRecommendation?.status === true ? "Approve" : "In process")}`}>
-                          {project.trlRecommendation?.status === true ? "Approve" : "In process"}
+                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(project.status === true ? "Approve" : "In process")}`}>
+                          {project.status === true ? "Approve" : "In process"}
                         </Badge>
                       </TableCell>
                       <TableCell className="flex gap-2">
-                        {project.trlRecommendation.status === true ? (
+                        {project.status === true ? (
                           <>
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleViewResearch(project.id)}
+                              onClick={() => handleViewResearch(project.case_id)}
                             >
                               <Eye className="w-4 h-4 mr-1" />
                               View
                             </Button>
-                            {project.trlRecommendation.result ? (
+                            {project.trl_score ? (
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() =>
                                   handleDownloadResult(
-                                    `result_${project.researchTitle}.pdf`
+                                    `result_${project.case_title}.pdf`
                                   )
                                 }
                               >
@@ -223,13 +215,13 @@ export default function AdminManagement({
 
                             
                           </>
-                        ) : project.trlRecommendation.status === false ? (
+                        ) : project.status === false ? (
                           <div className="flex flex-col items-start gap-1">
                             <div className="flex gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleViewResearch(project.id)}
+                                onClick={() => handleViewResearch(project.case_id)}
                               >
                                 <Eye className="w-4 h-4 mr-1" />
                                 View

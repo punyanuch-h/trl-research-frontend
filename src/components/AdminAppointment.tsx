@@ -1,4 +1,4 @@
-import React, { useState  } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarPlus, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,25 +12,33 @@ import EditAppointmentModal from "./modal/appointment/EditAppointmentModal";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 
-import type { TRLItem } from "../types/trl";
+import type { CaseInfo, Appointment } from "../types/case";
+import type { ResearcherInfo } from "../types/researcher";
+
+interface Project extends CaseInfo {
+  appointments?: Appointment[];
+  researcherInfo?: ResearcherInfo;
+}
 
 interface Props {
-  projects: TRLItem[];
-  setProjects: React.Dispatch<React.SetStateAction<TRLItem[]>>;
+  projects: Project[];
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   sortConfig: { key: string; direction: "asc" | "desc" };
   onSort: (key: string) => void;
-  onAIEstimate: (project: TRLItem) => void;
+  onAIEstimate: (project: Project) => void;
   onDownload: (filename: string) => void;
   currentPage: number;
   rowsPerPage: number;
   setCurrentPage: (page: number) => void;
   setRowsPerPage: (rows: number) => void;
-  getFullNameByEmail: (email: string) => string;
-  onAssessment : (id: number, name: string, type: string) => void;
-  userRole?: 'admin' | 'researcher'; // Add this prop
+  getFullNameByResearcherID: (researcher_id: string) => string;
+  onAssessment: (id: number, name: string, type: string) => void;
+  userRole?: "admin" | "researcher";
 }
+
 export default function AdminAppointment({
   projects,
+  setProjects,
   sortConfig,
   onSort,
   onAIEstimate,
@@ -39,9 +47,9 @@ export default function AdminAppointment({
   rowsPerPage,
   setCurrentPage,
   setRowsPerPage,
-  getFullNameByEmail,
+  getFullNameByResearcherID,
   onAssessment,
-  userRole = 'admin' // Default to admin for backward compatibility
+  userRole = "admin",
 }: Props) {
   const navigate = useNavigate();
 
@@ -50,87 +58,97 @@ export default function AdminAppointment({
   const today = new Date();
 
   const [showModal, setShowModal] = useState(false);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
 
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState<any>(null);
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
 
-
-  // รวม appointments ทั้งหมดจากทุก project
+  // 🧩 รวม appointments ทั้งหมด
   const allAppointments = projects.flatMap((project) =>
     (project.appointments || []).map((a) => ({
       ...a,
-      researchTitle: project.researchTitle,
-      researcherName: getFullNameByEmail(project.createdBy),
+      researchTitle: project.case_title,
+      researcherName: getFullNameByResearcherID(project.researcher_id),
+      case_id: project.case_id,
     }))
   );
 
-  // คำนวณ endDate ตามช่วงที่เลือก
+  // 🧮 คำนวณ endDate
   const getEndDate = () => {
     const base = new Date();
-    if (range === "all") return new Date("9999-12-31");
-    if (range === "1w") return new Date(base.setDate(base.getDate() + 7));
-    if (range === "1m") return new Date(base.setMonth(base.getMonth() + 1));
-    if (range === "3m") return new Date(base.setMonth(base.getMonth() + 3));
-    if (range === "1y") return new Date(base.setFullYear(base.getFullYear() + 1));
-    return new Date();
+    switch (range) {
+      case "1w": return new Date(base.setDate(base.getDate() + 7));
+      case "1m": return new Date(base.setMonth(base.getMonth() + 1));
+      case "3m": return new Date(base.setMonth(base.getMonth() + 3));
+      case "1y": return new Date(base.setFullYear(base.getFullYear() + 1));
+      default: return new Date("9999-12-31");
+    }
   };
   const endDate = getEndDate();
 
   const filteredAppointments = allAppointments
-    .filter(a => {
-      if (range !== "all") {
-        const date = new Date(a.date);
-        if (!(date >= today && date <= endDate)) return false;
-      }
-      if (statusFilter === "all") return true;
-      return a.status === statusFilter;
+    .filter((a) => {
+      const date = new Date(a.date);
+      if (range !== "all" && !(date >= today && date <= endDate)) return false;
+      if (statusFilter !== "all" && a.status !== statusFilter) return false;
+      return true;
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const handleAddAppointment = (projectId: number, date: string, time: string) => {
-    const project = projects.find(p => p.id === projectId);
-    if (!project) return;
-
-    // const newAppointment = {
-    //   id: Date.now(),
-    //   date,
-    //   location: "",
-    //   attendees: [],
-    //   status: "pending" as const
-    // };
-    // project.appointments = [...(project.appointments || []), newAppointment];
-
+  // ✅ เพิ่มนัดหมายใหม่ (mock integration)
+  const handleAddAppointment = (projectId: string, date: string, time: string) => {
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.case_id === projectId
+          ? {
+              ...p,
+              appointments: [
+                ...(p.appointments || []),
+                {
+                  id: Date.now(),
+                  date: new Date(`${date}T${time}`).toISOString(),
+                  status: "pending",
+                  location: "Meeting Room A",
+                } as Appointment,
+              ],
+            }
+          : p
+      )
+    );
     setShowModal(false);
   };
 
-  const handleEditAppointment = (appointment: any) => {
+  // ✅ แก้ไขนัดหมาย (mock integration)
+  const handleSaveEdit = (updated: Appointment) => {
+    setProjects((prev) =>
+      prev.map((p) => ({
+        ...p,
+        appointments: (p.appointments || []).map((a) =>
+          a.id === updated.id ? { ...a, ...updated } : a
+        ),
+      }))
+    );
+    setEditModalOpen(false);
+    setEditingAppointment(null);
+  };
+
+  const handleEditAppointment = (appointment: Appointment) => {
     setEditingAppointment(appointment);
     setEditModalOpen(true);
   };
 
-  const handleSaveEdit = (updated: any) => {
-    // ตัวอย่าง: อัปเดตใน projects หรือ allAppointments ตามโครงสร้างจริง
-    setEditModalOpen(false);
+  const handleViewResearch = (researchId: string) => {
+    const research = projects.find((r) => r.case_id === researchId);
+    if (research) navigate("/case-detail", { state: { research } });
   };
 
-  const selectedProject = projects.find(p => p.id === selectedProjectId);
-
-  const handleViewResearch = (researchId: number) => {
-    const research = projects.find((r) => r.id === researchId);
-    if (research) {
-      navigate("/researcher-detail", { state: { research } });
-    }
-  };
-  
   const totalPages = Math.ceil(filteredAppointments.length / rowsPerPage);
   const paginatedAppointments = filteredAppointments.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-
 
   return (
     <Card>
@@ -139,9 +157,12 @@ export default function AdminAppointment({
           <CardTitle>📅 Appointment</CardTitle>
           <div className="flex gap-3">
             {/* Filter by status */}
-            <Select value={statusFilter} onValueChange={(v: "all" | "attended" | "absent" | "pending") => setStatusFilter(v)}>
+            <Select
+              value={statusFilter}
+              onValueChange={(v: "all" | "attended" | "absent" | "pending") => setStatusFilter(v)}
+            >
               <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="สถานะ" />
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
@@ -150,40 +171,31 @@ export default function AdminAppointment({
                 <SelectItem value="absent">❌ Absent</SelectItem>
               </SelectContent>
             </Select>
+
             {/* Filter by range */}
-            <Select value={range} onValueChange={(v: "all" | "1w" | "1m" | "3m" | "1y") => setRange(v)}>
+            <Select value={range} onValueChange={(v) => setRange(v as any)}>
               <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="เลือกช่วงเวลา" />
+                <SelectValue placeholder="Range" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="1w">1 Week</SelectItem>
                 <SelectItem value="1m">1 Month</SelectItem>
-                <SelectItem value="3m">3 Month</SelectItem>
+                <SelectItem value="3m">3 Months</SelectItem>
                 <SelectItem value="1y">1 Year</SelectItem>
               </SelectContent>
             </Select>
-            {/* Add Appointment Button */}
-            {userRole === 'admin' && (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setShowModal(true)}
-              >
+
+            {userRole === "admin" && (
+              <Button variant="default" size="sm" onClick={() => setShowModal(true)}>
                 <CalendarPlus className="w-4 h-4 mr-1" />
                 Add Appointment
               </Button>
             )}
-            <AddAppointmentModal
-              projects={projects}
-              getFullNameByEmail={getFullNameByEmail}
-              isOpen={showModal}
-              onClose={() => setShowModal(false)}
-              onAdd={handleAddAppointment}
-            />
           </div>
         </div>
       </CardHeader>
+
       <CardContent>
         {filteredAppointments.length === 0 ? (
           <p className="text-muted-foreground">ไม่มีนัดหมายในช่วงเวลาที่เลือก</p>
@@ -191,46 +203,36 @@ export default function AdminAppointment({
           <ul className="space-y-3">
             {paginatedAppointments.map((a) => (
               <li
-                key={a.id + a.researchTitle}
-                onClick={() => handleViewResearch(a.id)}
-                className="p-3 border rounded-lg flex justify-between items-center"
+                key={a.id}
+                onClick={() => handleViewResearch(a.case_id)}
+                className="p-3 border rounded-lg flex justify-between items-center hover:bg-gray-50"
               >
-                <div className="flex flex-col">
-                  <span className="font-medium">{a.researchTitle}</span>
-                  <span className="text-sm text-gray-500">👨‍🔬 {a.researcherName}</span>
-                  <span className="text-xs text-gray-400">📍 {a.location}</span>
-                  <span className="text-xs">
+                <div>
+                  <p className="font-medium">{a.researchTitle}</p>
+                  <p className="text-sm text-gray-500">👨‍🔬 {a.researcherName}</p>
+                  <p className="text-xs text-gray-400">📍 {a.location}</p>
+                  <p className="text-xs">
                     {a.status === "attended" && "✅ เข้าร่วมแล้ว"}
                     {a.status === "absent" && "❌ ขาดนัด"}
                     {a.status === "pending" && "⏳ รอดำเนินการ"}
-                  </span>
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600">
                     {format(new Date(a.date), "dd/MM/yyyy HH:mm", { locale: th })}
                   </span>
-                  {/* Only show Edit button for admin */}
-                  {userRole === 'admin' && (
+                  {userRole === "admin" && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         handleEditAppointment(a);
                       }}
                     >
-                      <Edit2 className="w-4 h-4 mr-1" />
-                      Edit
+                      <Edit2 className="w-4 h-4 mr-1" /> Edit
                     </Button>
                   )}
-                  {/* Modal สำหรับแก้ไข appointment */}
-                  <EditAppointmentModal
-                    open={editModalOpen}
-                    onClose={() => setEditModalOpen(false)}
-                    appointment={editingAppointment}
-                    projects={projects}
-                    onSave={handleSaveEdit}
-                  />
                 </div>
               </li>
             ))}
@@ -244,6 +246,23 @@ export default function AdminAppointment({
           onRowsPerPageChange={setRowsPerPage}
         />
       </CardContent>
+
+      {/* Modals */}
+      <AddAppointmentModal
+        projects={projects}
+        getFullNameByResearcherID={getFullNameByResearcherID}
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onAdd={handleAddAppointment}
+      />
+      <EditAppointmentModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        appointment={editingAppointment}
+        getFullNameByResearcherID={getFullNameByResearcherID}
+        projects={projects}
+        onSave={handleSaveEdit}
+      />
     </Card>
   );
 }
