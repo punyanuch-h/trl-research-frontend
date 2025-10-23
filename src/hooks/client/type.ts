@@ -45,4 +45,58 @@ export type AssessmentResponse = {
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
 };
+
+export type AppointmentResponse = {
+    appointment_id: string;
+    case_id: string;
+    date: string;
+    status: string;
+    location: string;
+    note: string;
+    summary: string;
+    created_at: string;
+    updated_at: string;
+};
+  
+export type IntellectualPropertyResponse = {
+    id: string;
+    case_id: string;
+    ip_types: string;
+    ip_protection_status: string;
+    ip_request_number: string;
+    created_at: string;
+    updated_at: string;
+};
+
+export type CoordinatorResponse = {
+    coordinator_id: string;
+    case_id: string;
+    coordinator_email: string;
+    coordinator_name: string;
+    coordinator_phone: string;
+    department: string;
+    created_at: string;
+    updated_at: string;
+};
+  
+export type SupporterResponse = {
+    supporter_id: string;
+    case_id: string;
+    support_research: boolean;
+    support_vdc: boolean;
+    support_sieic: boolean;
+    need_protect_intellectual_property: boolean;
+    need_co_developers: boolean;
+    need_activities: boolean;
+    need_test: boolean;
+    need_capital: boolean;
+    need_partners: boolean;
+    need_guidelines: boolean;
+    need_certification: boolean;
+    need_account: boolean;
+    need: string;
+    additional_documents: string;
+    created_at: string;
+    updated_at: string;
+};
   

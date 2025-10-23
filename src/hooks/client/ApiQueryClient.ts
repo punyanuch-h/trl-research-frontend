@@ -1,8 +1,12 @@
 import { ApiBaseClient } from "@/hooks/client/ApiBaseClient";
 import type {
+  AppointmentResponse,
   AssessmentResponse,
   CaseResponse,
+  CoordinatorResponse,
+  IntellectualPropertyResponse,
   LoginResponse,
+  SupporterResponse,
 } from "@/hooks/client/type";
 
 export class ApiQueryClient extends ApiBaseClient {
@@ -28,6 +32,51 @@ export class ApiQueryClient extends ApiBaseClient {
 
   async useUpdateAssessment(caseId: string, statusData: { status: boolean }){
     const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, statusData);
+    return response.data;
+  }
+
+  async useGetAllCases(): Promise<CaseResponse[]> {
+    const response = await this.axiosInstance.get<CaseResponse[]>(`/trl/cases`);
+    return response.data;
+  }
+
+  async useGetAllAppointments(): Promise<AppointmentResponse[]> {
+    const response = await this.axiosInstance.get<AppointmentResponse[]>(`/trl/appointments`);
+    return response.data;
+  }
+
+  async useGetAppointmentById(appointmentId: string): Promise<AppointmentResponse> {
+    const response = await this.axiosInstance.get<AppointmentResponse>(`/trl/appointment/${appointmentId}`);
+    return response.data;
+  }
+
+  async useGetIPAll(): Promise<IntellectualPropertyResponse[]> {
+    const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ips`);
+    return response.data;
+  }
+
+  async useGetIPById(ipId: string): Promise<IntellectualPropertyResponse> {
+    const response = await this.axiosInstance.get<IntellectualPropertyResponse>(`/trl/ip/${ipId}`);
+    return response.data;
+  }
+
+  async useGetAllSupporters(): Promise<SupporterResponse[]> {
+    const response = await this.axiosInstance.get<SupporterResponse[]>(`/trl/supporters`);
+    return response.data;
+  }
+
+  async useGetSupporterById(supporterId: string): Promise<SupporterResponse> {
+    const response = await this.axiosInstance.get<SupporterResponse>(`/trl/supporter/${supporterId}`);
+    return response.data;
+  }
+
+  async useGetAllCoordinators(): Promise<CoordinatorResponse[]> {
+    const response = await this.axiosInstance.get<CoordinatorResponse[]>(`/trl/coordinators`);
+    return response.data;
+  }
+
+  async useGetCoordinatorById(coordinatorId: string): Promise<CoordinatorResponse> {
+    const response = await this.axiosInstance.get<CoordinatorResponse>(`/trl/coordinator/${coordinatorId}`);
     return response.data;
   }
 }
