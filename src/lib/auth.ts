@@ -8,9 +8,6 @@ interface JWTPayload {
 /** Decode role directly from stored token */
 export function getUserRole(): string | null {
   const token = localStorage.getItem("token");
-  const auth_token = localStorage.getItem("auth_token");
-  console.log("token in getUserRole", token);
-  console.log("auth_token in getUserRole", auth_token);
   if (!token) return null;
 
   try {
