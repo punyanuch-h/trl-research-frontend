@@ -1,4 +1,5 @@
 import { useState } from "react";
+import chatIcon from "/assets/chat_icon.svg";
 
 export default function DifyChatIframe() {
   const [open, setOpen] = useState(false);
@@ -20,7 +21,7 @@ export default function DifyChatIframe() {
           zIndex: 2147483647,
         }}
       >
-        <img src="/assets/chat_icon.svg" alt="icon" width={20} height={20} />
+        <img src={chatIcon} alt="icon" width={20} height={20} />
       </button>
 
       {open && (

@@ -577,7 +577,7 @@ export default function ResearcherForm() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/researcher-homepage')}
             className="mr-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />

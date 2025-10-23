@@ -226,14 +226,14 @@ export default function AdminManagement({
                                 <Eye className="w-4 h-4 mr-1" />
                                 View
                               </Button>
-                              <Button
+                              {/* <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => onAIEstimate(project)}
                               >
                                 <Sparkles className="w-4 h-4 mr-1" />
                                 AI Estimate
-                              </Button>
+                              </Button> */}
                             </div>
                             {project.appointments && project.appointments.length > 0 ? (
                               <Badge variant="outline" className="text-xs">
