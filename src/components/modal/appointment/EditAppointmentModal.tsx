@@ -50,8 +50,6 @@ export default function EditAppointmentModal({
 
   const { editAppointment, loading } = useEditAppointment(onSave, onClose);
 
-  const { editAppointment, loading } = useEditAppointment(onSave, onClose);
-
   useEffect(() => {
     setForm(appointment);
   }, [appointment]);
