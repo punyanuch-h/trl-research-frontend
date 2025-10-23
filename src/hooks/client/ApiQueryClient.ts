@@ -25,4 +25,9 @@ export class ApiQueryClient extends ApiBaseClient {
     const response = await this.axiosInstance.get<AssessmentResponse>(`/trl/assessment_trl/case/${caseId}`);
     return response.data;
   }
+
+  async useUpdateAssessment(caseId: string, statusData: { status: boolean }){
+    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, statusData);
+    return response.data;
+  }
 }

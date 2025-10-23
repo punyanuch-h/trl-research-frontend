@@ -1,65 +1,94 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { ChevronDown, ChevronUp, ArrowLeft, CheckCircle } from 'lucide-react';
 import { radioQuestionList } from '@/data/radioQuestionList';
 import { checkboxQuestionList } from '@/data/checkboxQuestionList';
 import { useGetCaseById } from '@/hooks/useGetCaseById';
 import { useGetAssessmentById } from '@/hooks/useGetAssessmentById';
+import { useUpdateAssessment } from '@/hooks/useUpdateAssessment';
+import { toast } from 'sonner';
+import { AssessmentResponse } from '@/hooks/client/type';
 
 const AssessmentResult = () => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const { data: caseData, isPending: isCasePending, isError: isCaseError } = useGetCaseById(id || '');
-    const { data: assessmentData, isPending: isAssessmentPending, isError: isAssessmentError } = useGetAssessmentById(id || '');
+    const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentById(id || '');
+    const updateAssessmentMutation = useUpdateAssessment(caseData?.case_id || '');
     
     // State for editable suggestions
     const [suggestions, setSuggestions] = useState<{[key: string]: string}>({});
     const [editingSuggestion, setEditingSuggestion] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     
+    // State for collapsible TRL levels
+    const [collapsedLevels, setCollapsedLevels] = useState<{[key: number]: boolean}>({});
+    
+    // Handle navigation
+    const handleBackToCaseDetail = () => {
+      navigate(`/case-detail/${id}`);
+    };
+    
+    const handleApproveAssessment = () => {
+      updateAssessmentMutation.mutate(undefined, {
+        onSuccess: () => {
+          toast.success('Approved research ID: ' + caseData?.case_id + ' successfully');
+          navigate('/admin-homepage');
+        },
+        onError: () => {
+          toast.error('Failed to approve research ID: ' + caseData?.case_id);
+        }
+      });
+    };
+    
+    // Toggle TRL level collapse
+    const toggleLevelCollapse = (levelIndex: number) => {
+      setCollapsedLevels(prev => ({
+          ...prev,
+          [levelIndex]: !prev[levelIndex]
+      }));
+    };
+    
     const getRQAnswer = (questionIndex: number) => {
-        if (!assessmentData) return null;
-        
-        const rqKeys = ['rq1_answer', 'rq2_answer', 'rq3_answer', 'rq4_answer', 'rq5_answer', 'rq6_answer', 'rq7_answer'];
-        return assessmentData[rqKeys[questionIndex] as keyof typeof assessmentData] as boolean;
+      if (!assessmentData) return null;
+      
+      const rqKeys = ['rq1_answer', 'rq2_answer', 'rq3_answer', 'rq4_answer', 'rq5_answer', 'rq6_answer', 'rq7_answer'];
+      return assessmentData[rqKeys[questionIndex] as keyof typeof assessmentData] as boolean;
     };
 
     const getCQAnswer = (questionIndex: number) => {
-        if (!assessmentData) return null;
-        
-        const cqKeys = ['cq1_answer', 'cq2_answer', 'cq3_answer', 'cq4_answer', 'cq5_answer', 'cq6_answer', 'cq7_answer', 'cq8_answer', 'cq9_answer'];
-        return assessmentData[cqKeys[questionIndex] as keyof typeof assessmentData] as string[];
+      if (!assessmentData) return null;
+      
+      const cqKeys = ['cq1_answer', 'cq2_answer', 'cq3_answer', 'cq4_answer', 'cq5_answer', 'cq6_answer', 'cq7_answer', 'cq8_answer', 'cq9_answer'];
+      return assessmentData[cqKeys[questionIndex] as keyof typeof assessmentData] as string[];
     };
 
     // Get all unselected criteria across all TRL levels
     const getUnselectedCriteria = () => {
-        if (!assessmentData) return [];
-        
-        const unselectedCriteria: Array<{level: number, question: string, id: string}> = [];
-        
-        checkboxQuestionList.forEach((questions, levelIndex) => {
-            const cqAnswers = getCQAnswer(levelIndex);
-            const selectedLabels = cqAnswers || [];
-            
-            questions.forEach((question) => {
-                if (!selectedLabels.includes(question.label)) {
-                    unselectedCriteria.push({
-                        level: levelIndex + 1,
-                        question: question.label,
-                        id: `trl${levelIndex + 1}-${question.id}`
-                    });
-                }
-            });
-        });
-        
+      if (!assessmentData) return [];
+      
+      const unselectedCriteria: Array<{level: number, question: string, id: string}> = [];
+      
+      checkboxQuestionList.forEach((questions, levelIndex) => {
+          const cqAnswers = getCQAnswer(levelIndex);
+          const selectedLabels = cqAnswers || [];
+          
+          questions.forEach((question) => {
+              if (!selectedLabels.includes(question.label)) {
+                  unselectedCriteria.push({
+                      level: levelIndex + 1,
+                      question: question.label,
+                      id: `trl${levelIndex + 1}-${question.id}`
+                  });
+              }
+          });
+      });
+      
         return unselectedCriteria;
-    };
-
-    // Handle suggestion editing
-    const handleEditSuggestion = (criteriaId: string) => {
-        setEditingSuggestion(criteriaId);
     };
 
     const handleSaveSuggestion = (criteriaId: string, text: string) => {
@@ -69,13 +98,47 @@ const AssessmentResult = () => {
         }));
         setEditingSuggestion(null);
     };
-
-    const handleCancelEdit = () => {
-        setEditingSuggestion(null);
-    };
   
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="min-h-screen bg-gray-50">
+        {/* Navigation Bar */}
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBackToCaseDetail}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Case Detail
+                </Button>
+                <div className="h-6 w-px bg-gray-300"></div>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Assessment Result
+                </h1>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className="text-sm">
+                  Case ID: {caseData?.case_id || 'Loading...'}
+                </Badge>
+                <Button
+                  onClick={handleApproveAssessment}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Approve Assessment
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="container mx-auto p-6 space-y-6">
         {/* Case Details */}
         <Card className="w-full">
           <CardHeader>
@@ -199,15 +262,44 @@ const AssessmentResult = () => {
         <div className="grid gap-6">
           {checkboxQuestionList.map((questions, index) => {
             const cqAnswers = getCQAnswer(index);
+            const isCollapsed = collapsedLevels[index];
             
             return (
               <Card key={index} className="w-full">
-                <CardHeader>
-                  <CardTitle className="text-xl font-semibold text-primary">
-                    TRL Level {index + 1}
-                  </CardTitle>
+                <CardHeader 
+                  className="cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() => toggleLevelCollapse(index)}
+                >
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-xl font-semibold text-primary">
+                      TRL Level {index + 1}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      {cqAnswers && cqAnswers.length > 0 && (
+                        <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+                          {cqAnswers.length} selected
+                        </Badge>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-1 h-8 w-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLevelCollapse(index);
+                        }}
+                      >
+                        {isCollapsed ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronUp className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent>
+                {!isCollapsed && (
+                  <CardContent>
                 <div className="space-y-3">
                   {questions.map((question) => {
                     // Check if this question is selected in the assessment
@@ -261,221 +353,110 @@ const AssessmentResult = () => {
                     </div>
                   )}
                 </div>
-                </CardContent>
+                  </CardContent>
+                )}
               </Card>
             );
           })}
         </div>
 
         {/* Suggestions Section (Div turns into Textarea with default text) */}
-<Card className="w-full">
-  <CardHeader>
-    <CardTitle className="text-2xl font-bold text-primary mb-2">
-      Improvement Suggestions
-    </CardTitle>
-    <p className="text-muted-foreground text-sm">
-      Unselected TRL criteria that could help improve your research readiness level
-    </p>
-  </CardHeader>
-
-  <CardContent>
-    {isAssessmentPending ? (
-      <div className="flex items-center gap-2">
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-        <span className="text-muted-foreground">Loading suggestions...</span>
-      </div>
-    ) : getUnselectedCriteria().length > 0 ? (
-      <div className="space-y-4">
-        {/* Header with Edit button */}
-        <div className="flex justify-end">
-          {isEditing ? (
-            <>
-              <Button
-                size="sm"
-                className="bg-orange-500 hover:bg-orange-600 mr-2"
-                onClick={() => {
-                  handleSaveSuggestion("all", suggestions["all"] || '');
-                  setIsEditing(false);
-                }}
-              >
-                Save
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
-            </>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                // Fill textarea with either saved suggestion or bullet points
-                const defaultText =
-                  suggestions["all"] ||
-                  getUnselectedCriteria()
-                    .map(
-                      (criteria) =>
-                        `• TRL ${criteria.level}: ${criteria.question}`
-                    )
-                    .join("\n");
-                handleSaveSuggestion("all", defaultText);
-                setIsEditing(true);
-              }}
-              className="text-orange-600 border-orange-300 hover:bg-orange-100"
-            >
-              Edit Suggestions
-            </Button>
-          )}
-        </div>
-
-        {/* Editable Area */}
-        {isEditing ? (
-          <Textarea
-            value={suggestions["all"] || ''}
-            onChange={(e) => handleSaveSuggestion("all", e.target.value)}
-            className="min-h-[200px] bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm leading-relaxed text-orange-800 font-medium"
-          />
-        ) : (
-          <div
-            className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm leading-relaxed text-orange-800 whitespace-pre-line"
-          >
-            {suggestions["all"] ? (
-              suggestions["all"]
-            ) : (
-              <ul className="list-disc list-inside space-y-1">
-                {getUnselectedCriteria().map((criteria) => (
-                  <li key={criteria.id}>
-                    <span className="font-medium">TRL {criteria.level}:</span> {criteria.question}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-      </div>
-    ) : (
-      <div className="text-center py-8">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-2xl text-green-600">✓</span>
-        </div>
-        <h3 className="text-lg font-semibold text-green-800 mb-2">Excellent Progress!</h3>
-        <p className="text-muted-foreground">
-          All TRL criteria have been addressed. Your research appears to be well-developed.
-        </p>
-      </div>
-    )}
-  </CardContent>
-</Card>
-
-        {/* <Card className="w-full">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
               Improvement Suggestions
             </CardTitle>
-            <p className="text-muted-foreground text-sm">
-              Unselected TRL criteria that could help improve your research readiness level
-            </p>
           </CardHeader>
+
           <CardContent>
             {isAssessmentPending ? (
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                 <span className="text-muted-foreground">Loading suggestions...</span>
               </div>
-            ) : (
+            ) : getUnselectedCriteria().length > 0 ? (
               <div className="space-y-4">
-                {getUnselectedCriteria().length > 0 ? (
-                  getUnselectedCriteria().map((criteria) => (
-                    <div key={criteria.id} className="p-4 border rounded-lg bg-orange-50 border-orange-200">
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <div className="flex items-start gap-3 flex-1">
-                          <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
-                            TRL {criteria.level}
-                          </Badge>
-                          <p className="text-sm leading-relaxed font-medium text-orange-800">
-                            {criteria.question}
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditSuggestion(criteria.id)}
-                          className="text-orange-600 border-orange-300 hover:bg-orange-100"
-                        >
-                          {editingSuggestion === criteria.id ? 'Cancel' : 'Add Suggestion'}
-                        </Button>
-                      </div>
-                      
-                      {editingSuggestion === criteria.id ? (
-                        <div className="space-y-2">
-                          <Textarea
-                            placeholder="Add your suggestion or improvement plan for this criteria..."
-                            defaultValue={suggestions[criteria.id] || ''}
-                            className="min-h-[80px]"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && e.ctrlKey) {
-                                const textarea = e.target as HTMLTextAreaElement;
-                                handleSaveSuggestion(criteria.id, textarea.value);
-                              }
-                            }}
-                          />
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                const textarea = document.querySelector(`textarea`) as HTMLTextAreaElement;
-                                handleSaveSuggestion(criteria.id, textarea.value);
-                              }}
-                              className="bg-orange-500 hover:bg-orange-600"
-                            >
-                              Save Suggestion
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={handleCancelEdit}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            Press Ctrl+Enter to save quickly
-                          </p>
-                        </div>
-                      ) : suggestions[criteria.id] ? (
-                        <div className="p-3 bg-white rounded border border-orange-200">
-                          <p className="text-sm text-gray-700">{suggestions[criteria.id]}</p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditSuggestion(criteria.id)}
-                            className="mt-2 text-orange-600 hover:bg-orange-100"
-                          >
-                            Edit Suggestion
-                          </Button>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-orange-600 italic">
-                          Click "Add Suggestion" to add improvement notes for this criteria
-                        </p>
-                      )}
-                    </div>
-                  ))
+                {/* Editable Area */}
+                {isEditing ? (
+                  <Textarea
+                    value={suggestions["all"] || ''}
+                    onChange={(e) => handleSaveSuggestion("all", e.target.value)}
+                    className="min-h-[200px] bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm leading-relaxed text-yellow-800 font-medium"
+                  />
                 ) : (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-2xl text-green-600">✓</span>
-                    </div>
-                    <h3 className="text-lg font-semibold text-green-800 mb-2">Excellent Progress!</h3>
-                    <p className="text-muted-foreground">
-                      All TRL criteria have been addressed. Your research appears to be well-developed.
-                    </p>
+                  <div
+                    className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm leading-relaxed text-yellow-800 whitespace-pre-line"
+                  >
+                    {suggestions["all"] ? (
+                      suggestions["all"]
+                    ) : (
+                      <ul className="list-disc list-inside space-y-1">
+                        {getUnselectedCriteria().map((criteria) => (
+                          <li key={criteria.id}>
+                            <span className="font-medium">TRL {criteria.level}:</span> {criteria.question}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 )}
               </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl text-green-600">✓</span>
+                </div>
+                <h3 className="text-lg font-semibold text-green-800 mb-2">Excellent Progress!</h3>
+                <p className="text-muted-foreground">
+                  All TRL criteria have been addressed. Your research appears to be well-developed.
+                </p>
+              </div>
             )}
           </CardContent>
-        </Card> */}
+          <CardFooter>
+            <div className="flex justify-end">
+              {isEditing ? (
+                <>
+                  <Button
+                    size="sm"
+                    className="bg-primary hover:bg-primary/80 mr-2"
+                    onClick={() => {
+                      handleSaveSuggestion("all", suggestions["all"] || '');
+                      setIsEditing(false);
+                    }}
+                  >
+                    Save
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // Fill textarea with either saved suggestion or bullet points
+                    const defaultText =
+                      suggestions["all"] ||
+                      getUnselectedCriteria()
+                        .map(
+                          (criteria) =>
+                            `• TRL ${criteria.level}: ${criteria.question}`
+                        )
+                        .join("\n");
+                    handleSaveSuggestion("all", defaultText);
+                    setIsEditing(true);
+                  }}
+                  className="text-primary border-primary hover:bg-primary/10"
+                >
+                  Edit Suggestions
+                </Button>
+              )}
+            </div>
+          </CardFooter>
+        </Card>
+        </div>
       </div>
     );
   };

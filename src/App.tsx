@@ -44,7 +44,7 @@ const App: React.FC = () => {
           <Route path="/researcher-detail-researcher" element={<ResearcherDetailResearcher />} />
           <Route path="/researcher-form" element={<ResearcherForm />} />
           <Route path="/trl-score" element={<TrlScore />} />
-          <Route path="/show-case-detail/:id" element={<AssessmentResult />} />
+          <Route path="/assessment/:id" element={<AssessmentResult />} />
           <Route path="/complete" element={<CompletePage />} />
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />

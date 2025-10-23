@@ -44,5 +44,5 @@ export type AssessmentResponse = {
     cq9_answer: string[];
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
-};  
+};
   
