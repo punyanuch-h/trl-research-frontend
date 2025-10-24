@@ -390,7 +390,7 @@ export default function CaseDetail() {
 
         {/* Appointment Modal */}
         <AddAppointmentModal
-          projects={[caseData]}
+          projects={caseData ? [caseData] : []}
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
           onAdd={() => setShowAddModal(false)}
