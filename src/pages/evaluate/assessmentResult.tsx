@@ -7,8 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { ChevronDown, ChevronUp, ArrowLeft, CheckCircle } from 'lucide-react';
 import { radioQuestionList } from '@/data/radioQuestionList';
 import { checkboxQuestionList } from '@/data/checkboxQuestionList';
-import { useGetCaseById } from '@/hooks/useGetCaseById';
-import { useGetAssessmentById } from '@/hooks/useGetAssessmentById';
+import { useGetCaseById } from '@/hooks/case/get/useGetCaseById';
+import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByCaseId";
+import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
 import { useUpdateAssessment } from '@/hooks/useUpdateAssessment';
 import { toast } from 'sonner';
 import { AssessmentResponse } from '@/hooks/client/type';
@@ -17,6 +18,7 @@ const AssessmentResult = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { data: caseData, isPending: isCasePending, isError: isCaseError } = useGetCaseById(id || '');
+    const { data: coordinatorData } = useGetCoordinatorByCaseId(id || '');
     const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentById(id || '');
     const updateAssessmentMutation = useUpdateAssessment(caseData?.case_id || '');
     
@@ -191,6 +193,17 @@ const AssessmentResult = () => {
                   <p className="text-sm text-muted-foreground">{caseData.case_keywords}</p>
                 </div>
   
+                {coordinatorData && (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-semibold mb-2">Coordinator</h3>
+                      <p className="text-sm text-muted-foreground">{coordinatorData.coordinator_name}</p>
+                      <p className="text-sm text-muted-foreground">{coordinatorData.coordinator_email}</p>
+                      <p className="text-sm text-muted-foreground">{coordinatorData.coordinator_phone}</p>
+                    </div>
+
+                  </div>
+                )}
                 {caseData.trl_score && (
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold">Estimated TRL Level</h3>

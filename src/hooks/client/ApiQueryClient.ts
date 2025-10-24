@@ -50,6 +50,11 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async useGetAppointmentByCaseId(caseId: string): Promise<AppointmentResponse> {
+    const response = await this.axiosInstance.get<AppointmentResponse>(`/trl/appointment/case/${caseId}`);
+    return response.data;
+  }
+
   async useGetIPAll(): Promise<IntellectualPropertyResponse[]> {
     const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ips`);
     return response.data;
@@ -57,6 +62,11 @@ export class ApiQueryClient extends ApiBaseClient {
 
   async useGetIPById(ipId: string): Promise<IntellectualPropertyResponse> {
     const response = await this.axiosInstance.get<IntellectualPropertyResponse>(`/trl/ip/${ipId}`);
+    return response.data;
+  }
+
+  async useGetIPByCaseId(caseId: string): Promise<IntellectualPropertyResponse> {
+    const response = await this.axiosInstance.get<IntellectualPropertyResponse>(`/trl/ip/case/${caseId}`);
     return response.data;
   }
 
@@ -70,6 +80,11 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async useGetSupporterByCaseId(caseId: string): Promise<SupporterResponse> {
+    const response = await this.axiosInstance.get<SupporterResponse>(`/trl/supporter/case/${caseId}`);
+    return response.data;
+  }
+
   async useGetAllCoordinators(): Promise<CoordinatorResponse[]> {
     const response = await this.axiosInstance.get<CoordinatorResponse[]>(`/trl/coordinators`);
     return response.data;
@@ -77,6 +92,11 @@ export class ApiQueryClient extends ApiBaseClient {
 
   async useGetCoordinatorById(coordinatorId: string): Promise<CoordinatorResponse> {
     const response = await this.axiosInstance.get<CoordinatorResponse>(`/trl/coordinator/${coordinatorId}`);
+    return response.data;
+  }
+
+  async useGetCoordinatorByCaseId(caseId: string): Promise<CoordinatorResponse> {
+    const response = await this.axiosInstance.get<CoordinatorResponse>(`/trl/coordinator/case/${caseId}`);
     return response.data;
   }
 }
