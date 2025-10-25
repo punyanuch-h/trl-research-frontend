@@ -1,10 +1,12 @@
 // src/hooks/case/useEditAppointment.ts
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { BACKEND_HOST } from "@/constant/constants";
 import type { Appointment } from "@/types/case";
 
 export function useEditAppointment(onSave: (updated: Appointment) => void, onClose: () => void) {
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const editAppointment = async (form: Appointment) => {
     setLoading(true);
@@ -19,7 +21,7 @@ export function useEditAppointment(onSave: (updated: Appointment) => void, onClo
           status: form.status,
           location: form.location,
           summary: form.summary,
-          notes: form.notes,
+          note: form.note,
         }),
       });
 
@@ -29,8 +31,13 @@ export function useEditAppointment(onSave: (updated: Appointment) => void, onClo
       }
 
       const updated = await response.json();
-    onSave(updated.data || form);
-
+      
+      // 🔄 Invalidate related queries เพื่อให้ข้อมูล sync กัน
+      await queryClient.invalidateQueries({ queryKey: ["useGetAppointmentByCaseId"] });
+      await queryClient.invalidateQueries({ queryKey: ["getAllAppointments"] });
+      await queryClient.invalidateQueries({ queryKey: ["getAllCases"] });
+      
+      onSave(updated.data || form);
       onClose();
     } catch (err) {
       console.error("❌ Failed to update appointment:", err);

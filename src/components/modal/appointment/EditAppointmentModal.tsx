@@ -143,8 +143,8 @@ export default function EditAppointmentModal({
           <div>
             <Label>Notes</Label>
             <Textarea
-              value={form.notes || ""}
-              onChange={(e) => handleChange("notes", e.target.value)}
+              value={form.note || ""}
+              onChange={(e) => handleChange("note", e.target.value)}
               placeholder="Enter notes"
               rows={3}
             />

@@ -74,5 +74,5 @@ export interface Appointment {
   location: string;
   status: "attended" | "absent" | "pending";
   summary?: string;
-  notes?: string;
+  note?: string;
 }

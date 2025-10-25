@@ -7,6 +7,7 @@ import type {
   IntellectualPropertyResponse,
   LoginResponse,
   SupporterResponse,
+  ResearcherResponse,
 } from "@/hooks/client/type";
 
 export class ApiQueryClient extends ApiBaseClient {
@@ -20,6 +21,16 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
   
+  async useGetAllResearcher(): Promise<ResearcherResponse[]> {
+    const response = await this.axiosInstance.get<ResearcherResponse[]>(`/trl/researchers`);
+    return response.data;
+  }
+  
+  async useGetResearcherById(researcherId: string): Promise<ResearcherResponse> {
+    const response = await this.axiosInstance.get<ResearcherResponse>(`/trl/researcher/${researcherId}`);
+    return response.data;
+  }
+
   async useGetCaseById(caseId: string): Promise<CaseResponse> {
     const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/${caseId}`);
     return response.data;
@@ -32,6 +43,11 @@ export class ApiQueryClient extends ApiBaseClient {
 
   async useUpdateAssessment(caseId: string, statusData: { status: boolean }){
     const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, statusData);
+    return response.data;
+  }
+
+  async useUpdateUrgentStatus(caseId: string, urgentData: { is_urgent: boolean; urgent_feedback: string }){
+    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, urgentData);
     return response.data;
   }
 

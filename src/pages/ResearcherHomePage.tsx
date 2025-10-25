@@ -1,58 +1,50 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Eye, Filter, Plus, View } from "lucide-react";
+import { Download, Eye, Filter, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-
 import { TablePagination } from "@/components/TablePagination";
 import Header from "../components/Header";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
+import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
 
-import type { CaseInfo, Appointment } from "../types/case";
-
-import { BACKEND_HOST } from "@/constant/constants";
-
-// Merge CaseInfo กับ Appointment
-function mergeCasesWithAppointments(cases: CaseInfo[], appointments: Appointment[]) {
-  return cases.map(c => ({
-    ...c,
-    appointments: appointments.filter(a => a.case_id === c.case_id)
-  }));
+// --- Types ---
+interface CaseInfo {
+  case_id: string;
+  case_title: string;
+  case_type: string;
+  trl_score?: string;
+  status: boolean;
+  is_urgent: boolean;
+  urgent_reason?: string;
+  urgent_feedback?: string;
+  trl_suggestion?: string;
+  created_at: string;
 }
 
+interface appointmentData {
+  appointment_id: string;
+  case_id: string;
+  date: string;
+  status: "attended" | "absent" | "pending";
+  location: string;
+  note?: string;
+  summary?: string;
+}
 export default function ResearcherHomePage() {
   const navigate = useNavigate();
+  const { data: caseData = [], isPending: isCasePending, isError: isCaseError } = useGetAllCases();
+  const { data: appointmentData = [], isPending: isAppointmentPending, isError: isAppointmentError } =
+    useGetAllAppointments();
 
-  // --- State สำหรับข้อมูลจาก API ---
-  const [cases, setCases] = React.useState<(CaseInfo & { appointments: Appointment[] })[]>([]);
-  const [loading, setLoading] = React.useState(true);
-
-  // --- ดึงข้อมูลจาก API ---
-  React.useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      fetch(`${BACKEND_HOST}/trl/cases`, {
-              method: "GET",
-              headers: { "Content-Type": "application/json" },
-            }).then(res => res.json()),
-      fetch(`${BACKEND_HOST}/trl/appointments`, {
-              method: "GET",
-              headers: { "Content-Type": "application/json" },
-            }).then(res => res.json()),
-    ])
-      .then(([casesData, appointmentsData]) => {
-        setCases(mergeCasesWithAppointments(casesData, appointmentsData));
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
+  // --- State ---
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
   const [selectedColumn, setSelectedColumn] = React.useState("type");
@@ -72,41 +64,53 @@ export default function ResearcherHomePage() {
     isUrgent: ["true", "false"],
   };
 
-  const filteredCases = cases.filter(c =>
+  // --- Merge cases with their appointments ---
+  // const researcherId = localStorage.getItem("researcher_id");
+  // if (!researcherId) {
+  //   navigate("/login");
+  //   return null;
+  // }
+
+  // const mergedCases = caseData
+  // .filter((c) => c.researcher_id === researcherId)
+  // .map((c) => ({
+  //   ...c,
+  //   appointments: appointmentData.filter((a) => a.case_id === c.case_id),
+  // }));
+  const mergedCases: CaseInfo[] = caseData.map((c) => ({ 
+    ...c, 
+    appointments: appointmentData.filter((a) => a.case_id === c.case_id), 
+  }));
+
+  // --- Filter ---
+  const filteredCases = mergedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
       switch (column) {
-        case "case_type": return c.case_type === value;
-        case "trl_score": return c.trl_score === value;
-        case "status": return (c.status ? "Approve" : "In process") === value;
-        case "is_urgent": return String(c.is_urgent) === value;
-        default: return true;
+        case "type":
+          return c.case_type === value;
+        case "trlScore":
+          return String(c.trl_score) === value;
+        case "status":
+          return (c.status ? "Approve" : "In process") === value;
+        case "isUrgent":
+          return String(c.is_urgent) === value;
+        default:
+          return true;
       }
     })
   );
 
+  // --- Pagination ---
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [currentPage, setCurrentPage] = React.useState(1);
-
   const totalPages = Math.ceil(filteredCases.length / rowsPerPage);
-  
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Approve":
-        return "bg-green-100 text-green-800";
-      case "In process":
-        return "bg-cyan-100 text-cyan-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-  // --- Sorting state ---
+  // --- Sorting ---
   const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: "asc" | "desc" }>({
     key: "id",
     direction: "asc",
   });
 
-  // --- Sorting function ---
   function sortResearch(researchList: CaseInfo[]) {
     const sorted = [...researchList].sort((a, b) => {
       const { key, direction } = sortConfig;
@@ -130,22 +134,27 @@ export default function ResearcherHomePage() {
       return 0;
     });
 
-    // ให้ urgent ขึ้นก่อน
-    return sorted.sort((a, b) => {
-      if (a.is_urgent === b.is_urgent) return 0;
-      return a.is_urgent ? -1 : 1;
-    });
+    // urgent ขึ้นก่อน
+    return sorted.sort((a, b) => (a.is_urgent === b.is_urgent ? 0 : a.is_urgent ? -1 : 1));
   }
-  // --- Apply sort before filter ---
-  const sortedProjects = sortResearch(filteredCases);
-  const paginatedResearch = sortedProjects.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
 
+  const sortedProjects = sortResearch(filteredCases);
+  const paginatedResearch = sortedProjects.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  // --- Utils ---
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Approve":
+        return "bg-green-100 text-green-800";
+      case "In process":
+        return "bg-cyan-100 text-cyan-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   const handleViewCase = (caseId: string) => {
-    const c = cases.find(c => c.case_id === caseId);
+    const c = caseData.find((c) => c.case_id === caseId);
     navigate(`/case-detail/${caseId}`, { state: { caseInfo: c } });
   };
 
@@ -155,16 +164,7 @@ export default function ResearcherHomePage() {
     link.download = filename;
     link.click();
   };
-
-  // --- Loading state ---
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <span>Loading...</span>
-      </div>
-    );
-  }
-
+  
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -271,26 +271,26 @@ export default function ResearcherHomePage() {
             <CardTitle>Research Submissions</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
+            <Table className="table-fixed w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-12 cursor-pointer" onClick={() => setSortConfig({ key: "id", direction: sortConfig.key === "id" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    ID {sortConfig.key === "id" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  <TableHead className="cursor-pointer w-[120px]" onClick={() => setSortConfig({ key: "id", direction: sortConfig.key === "id" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    ID {sortConfig.key === "id" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
                   </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "researchTitle", direction: sortConfig.key === "researchTitle" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    Name {sortConfig.key === "researchTitle" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  <TableHead className="cursor-pointer w-[180px]" onClick={() => setSortConfig({ key: "researchTitle", direction: sortConfig.key === "researchTitle" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    Name {sortConfig.key === "researchTitle" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
                   </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "researchType", direction: sortConfig.key === "researchType" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    Type {sortConfig.key === "researchType" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  <TableHead className="cursor-pointer text-center w-[80px]" onClick={() => setSortConfig({ key: "researchType", direction: sortConfig.key === "researchType" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    Type {sortConfig.key === "researchType" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
                   </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "trlScore", direction: sortConfig.key === "trlScore" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    TRL Score {sortConfig.key === "trlScore" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  <TableHead className="cursor-pointer text-center w-[100px]" onClick={() => setSortConfig({ key: "trlScore", direction: sortConfig.key === "trlScore" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    TRL Score {sortConfig.key === "trlScore" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
                   </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => setSortConfig({ key: "status", direction: sortConfig.key === "status" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    Status {sortConfig.key === "status" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+                  <TableHead className="cursor-pointer text-center w-[90px]" onClick={() => setSortConfig({ key: "status", direction: sortConfig.key === "status" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
+                    Status {sortConfig.key === "status" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
                   </TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>For Next Step</TableHead>
+                  <TableHead className="w-[250px]">Action</TableHead>
+                  <TableHead className="w-[250px]">For Next Step</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -380,22 +380,26 @@ export default function ResearcherHomePage() {
                                     View
                                   </Button>
                               </div>
-                                {c.appointments && c.appointments.length > 0 ? (
-                                <Badge variant="outline" className="text-xs">
-                                  Appointment:{" "}
-                                  {format(
-                                    new Date(
-                                      c.appointments[c.appointments.length - 1].date
-                                    ),
-                                    "dd/MM/yyyy HH:mm",
-                                    { locale: th }
-                                  )}
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="text-xs text-gray-400">
-                                  Appointment: -
-                                </Badge>
-                              )}
+                              {(() => {
+                                const caseAppointments = appointmentData
+                                  .filter((a) => a.case_id === c.case_id)
+                                  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+                                const latestAppointment = caseAppointments[caseAppointments.length - 1];
+
+                                return latestAppointment ? (
+                                  <Badge variant="outline" className="text-xs">
+                                    Appointment:{" "}
+                                    {format(new Date(latestAppointment.date), "dd/MM/yyyy HH:mm", {
+                                      locale: th,
+                                    })}
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-xs text-gray-400">
+                                    Appointment: -
+                                  </Badge>
+                                );
+                              })()}
                             </div>
                           )}
                         </div>
