@@ -186,7 +186,7 @@ export default function ResearcherDetails({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <Label htmlFor="coordinatorFirstName">Name</Label>
+                        <Label htmlFor="coordinatorFirstName">Name*</Label>
                         <Input
                             id="coordinatorFirstName"
                             value={formData.coordinatorFirstName}
@@ -200,7 +200,7 @@ export default function ResearcherDetails({
                         />
                     </div>
                     <div>
-                        <Label htmlFor="coordinatorLastName">Last Name</Label>
+                        <Label htmlFor="coordinatorLastName">Last Name*</Label>
                         <Input
                             id="coordinatorLastName"
                             value={formData.coordinatorLastName}
@@ -216,7 +216,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="coordinatorPhoneNumber">Phone Number</Label>
+                    <Label htmlFor="coordinatorPhoneNumber">Phone Number*</Label>
                     <Input
                         id="coordinatorPhoneNumber"
                         value={formData.coordinatorPhoneNumber}
@@ -231,7 +231,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="coordinatorEmail">Email</Label>
+                    <Label htmlFor="coordinatorEmail">Email*</Label>
                     <Input
                         id="coordinatorEmail"
                         value={formData.coordinatorEmail}

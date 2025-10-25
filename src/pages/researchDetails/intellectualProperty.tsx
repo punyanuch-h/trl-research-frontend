@@ -31,23 +31,29 @@ export default function IntellectualProperty({
   handleInputChange,
 }: IntellectualPropertyProps) {
   // ใช้ค่าเริ่มต้นจาก formData.ipForms ถ้ามี (สำหรับกรณี user กลับมาจาก step 5)
-  const [forms, setForms] = useState<IpFormState[]>(
-    formData.ipForms && Array.isArray(formData.ipForms) && formData.ipForms.length > 0
-      ? formData.ipForms
-      : [{ ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false }]
-  );
+  const [forms, setForms] = useState<IpFormState[]>(() => {
+    if (formData.ipForms && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
+      return formData.ipForms;
+    }
+    return [{ ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false }];
+  });
 
   // เมื่อ formData.ipForms เปลี่ยน (เช่น กรณี user กลับมาจาก step 5) ให้ sync state forms ด้วย
   useEffect(() => {
-    if (formData.ipForms && Array.isArray(formData.ipForms)) {
+    if (formData.ipForms && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
       setForms(formData.ipForms);
     }
     // eslint-disable-next-line
   }, [formData.ipForms]);
 
-  // Sync forms to parent (formData) on every change
+  // Sync forms to parent (formData) on every change - แต่ไม่ sync เมื่อ component เพิ่ง mount
+  const [isInitialized, setIsInitialized] = useState(false);
   useEffect(() => {
-    handleInputChange("ipForms", forms);
+    if (isInitialized) {
+      handleInputChange("ipForms", forms);
+    } else {
+      setIsInitialized(true);
+    }
     // eslint-disable-next-line
   }, [forms]);
 
@@ -61,13 +67,16 @@ export default function IntellectualProperty({
         updated[formIndex].ipTypes = [];
         updated[formIndex].requestNumbers = {};
       }
-      // sync กลับไป parent
-      handleInputChange("ipHas", !checked);
+      return updated;
+    });
+    
+    // sync กลับไป parent
+    handleInputChange("ipHas", !checked);
+    if (checked) {
       handleInputChange("ipProtectionStatus", "");
       handleInputChange("ipTypes", []);
       handleInputChange("ipRequestNumber", "");
-      return updated;
-    });
+    }
   };
 
   // เมื่อเลือกสถานะ
@@ -78,13 +87,14 @@ export default function IntellectualProperty({
       if (value !== "ได้เลขที่คำขอแล้ว") {
         updatedForms[formIndex].requestNumbers = {};
       }
-      // sync กลับไป parent
-      handleInputChange("ipProtectionStatus", value);
-      if (value !== "ได้เลขที่คำขอแล้ว") {
-        handleInputChange("ipRequestNumber", "");
-      }
       return updatedForms;
     });
+    
+    // sync กลับไป parent
+    handleInputChange("ipProtectionStatus", value);
+    if (value !== "ได้เลขที่คำขอแล้ว") {
+      handleInputChange("ipRequestNumber", "");
+    }
   };
 
   // เมื่อเลือกประเภท
@@ -93,11 +103,12 @@ export default function IntellectualProperty({
       const updatedForms = [...currentForms];
       updatedForms[formIndex].ipTypes = [newIpType];
       updatedForms[formIndex].requestNumbers = {};
-      // sync กลับไป parent
-      handleInputChange("ipTypes", [newIpType]);
-      handleInputChange("ipRequestNumber", "");
       return updatedForms;
     });
+    
+    // sync กลับไป parent
+    handleInputChange("ipTypes", [newIpType]);
+    handleInputChange("ipRequestNumber", "");
   };
 
   // เมื่อกรอกเลขที่คำขอ
@@ -109,10 +120,11 @@ export default function IntellectualProperty({
     setForms((currentForms) => {
       const updatedForms = [...currentForms];
       updatedForms[formIndex].requestNumbers[ipType] = value;
-      // sync กลับไป parent
-      handleInputChange("ipRequestNumber", value);
       return updatedForms;
     });
+    
+    // sync กลับไป parent
+    handleInputChange("ipRequestNumber", value);
   };
 
   const handleAddForm = () => {
