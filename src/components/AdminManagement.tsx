@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Download, Eye, AlertTriangle } from "lucide-react";
+import { Download, Eye, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { TablePagination } from "@/components/TablePagination";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { useUpdateUrgentStatus } from "@/hooks/case/patch/useUpdateUrgentStatus";
 
 import type { CaseInfo, Appointment } from "../types/case";
 import type { ResearcherInfo } from "../types/researcher";
@@ -55,6 +56,7 @@ export default function AdminManagement({
     { key: "status", label: "Status" },
   ];
   const navigate = useNavigate();
+  const updateUrgentStatus = useUpdateUrgentStatus();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -87,16 +89,23 @@ export default function AdminManagement({
     setConfirmOpen(true);
   };
 
-  const handleConfirm = (id: string | null, reason: string) => {
+  const handleConfirm = async (id: string | null, reason: string) => {
     if (id !== null) {
-      setProjects(prev =>
-        prev.map(p =>
-          p.case_id === id ? { ...p, isUrgent: false, urgentReason: reason } : p
-        )
-      );
+      try {
+        await updateUrgentStatus.mutateAsync({
+          caseId: id,
+          urgentData: {
+            is_urgent: false,
+            urgent_feedback: reason
+          }
+        });
+        setConfirmOpen(false);
+        setCancelReason("");
+      } catch (error) {
+        console.error("Failed to update urgent status:", error);
+        alert("Failed to update urgent status. Please try again.");
+      }
     }
-    setConfirmOpen(false);
-    setCancelReason("");
   };
 
   const handleDownloadResult = (filename: string) => {
@@ -139,23 +148,31 @@ export default function AdminManagement({
                       <TableCell className="min-w-[140px] px-2 text-center align-middle">
                         {new Date(project.created_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="min-w-[120px] whitespace-nowrap px-2">
+                      <TableCell className="min-w-[120px] px-2 items-center">
                         {getFullNameByResearcherID(project.researcher_id)}
                       </TableCell>
-                      <TableCell className="w-[180px] flex items-center gap-2">
-                        <span
-                          className={`relative group ${project.is_urgent ? "text-red-600 font-semibold" : ""}`}
-                        >
-                          {project.case_title}
+                      <TableCell className="min-w-[180px] px-2 items-center">
+                        <div className="flex flex-col">
+                          <span
+                            className={`relative group ${project.is_urgent ? "text-red-600 font-semibold" : ""}`}
+                          >
+                            {project.case_title}
 
-                          {project.is_urgent && (
-                            <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
-                                            border border-red-600 bg-white text-black text-xs font-normal
-                                            px-4 py-2 rounded-lg shadow-lg z-10 w-64 text-center">
-                              {project.urgent_reason}
+                            {project.is_urgent && (
+                              <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
+                                              border border-red-600 bg-white text-black text-xs font-normal
+                                              px-4 py-2 rounded-lg shadow-lg z-10 w-64 text-center">
+                                {project.urgent_reason}
+                              </span>
+                            )}
+                          </span>
+
+                          {project.urgent_feedback && (
+                            <span className="text-xs text-gray-500 mt-1">
+                              {project.urgent_feedback}
                             </span>
                           )}
-                        </span>
+                        </div>
 
                         {project.is_urgent && (
                           <button
@@ -277,11 +294,19 @@ export default function AdminManagement({
                     />
 
                     <DialogFooter>
-                      <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => setConfirmOpen(false)}
+                        disabled={updateUrgentStatus.isPending}
+                      >
                         ยกเลิก
                       </Button>
-                      <Button onClick={() => handleConfirm(targetId, cancelReason)} variant="destructive">
-                        ยืนยัน
+                      <Button 
+                        onClick={() => handleConfirm(targetId, cancelReason)} 
+                        variant="destructive"
+                        disabled={updateUrgentStatus.isPending}
+                      >
+                        {updateUrgentStatus.isPending ? "กำลังประมวลผล..." : "ยืนยัน"}
                       </Button>
                     </DialogFooter>
                   </DialogContent>

@@ -10,7 +10,7 @@ import { checkboxQuestionList } from '@/data/checkboxQuestionList';
 import { useGetCaseById } from '@/hooks/case/get/useGetCaseById';
 import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByCaseId";
 import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
-import { useUpdateAssessment } from '@/hooks/useUpdateAssessment';
+import { useUpdateAssessment } from '@/hooks/case/patch/useUpdateAssessment';
 import { toast } from 'sonner';
 import { AssessmentResponse } from '@/hooks/client/type';
 

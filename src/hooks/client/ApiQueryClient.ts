@@ -46,6 +46,11 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async useUpdateUrgentStatus(caseId: string, urgentData: { is_urgent: boolean; urgent_feedback: string }){
+    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, urgentData);
+    return response.data;
+  }
+
   async useGetAllCases(): Promise<CaseResponse[]> {
     const response = await this.axiosInstance.get<CaseResponse[]>(`/trl/cases`);
     return response.data;

@@ -1,14 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronDown, ChevronUp, ArrowLeft, CheckCircle, CalendarPlus, Edit2, Sparkles } from 'lucide-react';
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
-import Header from "@/components/Header";
+import { ArrowLeft, CalendarPlus, Edit2, Sparkles } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import 
-{ AddAppointmentModal } from "../components/modal/appointment/AddAppointmentModal";
+import { AddAppointmentModal } from "../components/modal/appointment/AddAppointmentModal";
 import EditAppointmentModal from "../components/modal/appointment/EditAppointmentModal";
 
 import { getUserRole } from "@/lib/auth";
@@ -43,9 +39,7 @@ export default function CaseDetail() {
     setEditModalOpen(true);
   };
 
-  // ฟังก์ชันเมื่อบันทึกการแก้ไขเสร็จ
   const handleSaveEdit = (updatedAppointment: any) => {
-    // 🔄 ข้อมูลจะถูก refetch อัตโนมัติผ่าน query invalidation ใน useEditAppointment
     setEditModalOpen(false);
     setEditingAppointment(null);
   };
@@ -422,145 +416,6 @@ export default function CaseDetail() {
       </div>
     );
   };
-
-//   return (
-//     <div className="min-h-screen bg-background">
-//       <Header />
-//       <div className="max-w-6xl mx-auto px-6 py-10">
-//         {/* Header */}
-//         <div className="flex justify-between items-start mb-8">
-//           <div className="flex items-start space-x-4">
-//             <Button variant="outline" onClick={() => navigate(-1)}>
-//               <ArrowLeft className="w-4 h-4 mr-2" /> Back
-//             </Button>
-//             <div>
-//               <p className="text-muted-foreground">Submission ID: {caseInfo.case_id}</p>
-//               <h1 className="text-3xl font-bold text-foreground">{caseInfo.case_title}</h1>
-//               <p className="text-muted-foreground">
-//                 <strong>{caseInfo.case_type}</strong> : {caseInfo.case_description}
-//               </p>
-//               {caseInfo.case_keywords && <p><strong>Keywords:</strong> {caseInfo.case_keywords}</p>}
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Appointments */}
-//         <Card className="mb-6">
-//           <CardContent>
-//             <div className="flex justify-between items-center mt-2 mb-2">
-//               <h3 className="text-lg font-semibold">Appointments</h3>
-//               {role === "admin" && (
-//                 <div>
-//                   <Button variant="default" size="sm" className="mt-2 mr-2" onClick={() => setShowAddModal(true)}>
-//                     <CalendarPlus className="w-4 h-4 mr-2" />
-//                     Add Appointment
-//                   </Button>
-//                   <Button size="sm" className="mt-2" onClick={() => navigate(`/assessment/${id}`)}>
-//                     <Sparkles className="w-4 h-4 mr-1" />
-//                     Assessment
-//                   </Button>
-//                 </div>
-//               )}
-//             </div>
-//             <AddAppointmentModal
-//               projects={[caseInfo]}
-//               isOpen={showAddModal}
-//               onClose={() => setShowAddModal(false)}
-//               onAdd={() => setShowAddModal(false)}
-//               getFullNameByResearcherID={(e) => e}
-//             />
-
-//             {appointments.length > 0 ? (
-//               <ul className="space-y-2 text-muted-foreground">
-//                 {appointments.map((a) => (
-//                   <li key={a.appointment_id} className="p-2 border rounded-md flex justify-between items-center">
-//                     <div className="flex flex-col">
-//                       <span>
-//                         <strong>Date:</strong>{" "}
-//                         {a.date
-//                           ? format(new Date(a.date), "dd/MM/yyyy HH:mm", { locale: th })
-//                           : "-"}
-//                       </span>
-//                       <span><strong>Location:</strong> {a.location || "-"}</span>
-//                       <span><strong>Status:</strong> {display(a.status)}</span>
-//                       {a.summary && <span><strong>Summary:</strong> {a.summary}</span>}
-//                       {a.notes && <span><strong>Notes:</strong> {a.notes}</span>}
-//                     </div>
-//                     {role === "admin" && (
-//                       <Button variant="default" size="sm"onClick={() => handleEditAppointment(a)}>
-//                        <Edit2 className="w-4 h-4 mr-1" />
-//                         Edit
-//                       </Button>
-//                     )}
-//                   </li>
-//                 ))}
-//               </ul>
-//             ) : (
-//               <p className="text-muted-foreground">No appointments available</p>
-//             )}
-
-//             {editingAppointment && (
-//               <EditAppointmentModal
-//                 open={editModalOpen}
-//                 onClose={() => setEditModalOpen(false)}
-//                 projects={[caseInfo]}
-//                 appointment={editingAppointment}
-//                 getFullNameByResearcherID={(e) => e}
-//                 onSave={() => setEditModalOpen(false)}
-//               />
-//             )}
-//           </CardContent>
-//         </Card>
-
-//         {/* Case Details */}
-//         <Card>
-//           <CardContent className="space-y-4">
-//             <Section title="Case Info">
-//               <ul className="space-y-1">
-//                 <li><strong>TRL Score:</strong> {caseInfo.trl_score}</li>
-//                 <li><strong>Status:</strong> {display(caseInfo.status)}</li>
-//                 <li><strong>Urgent:</strong> {display(caseInfo.is_urgent)}</li>
-//                 <li><strong>Urgent Reason:</strong> {caseInfo.urgent_reason}</li>
-//                 <li><strong>Urgent Feedback:</strong> {caseInfo.urgent_feedback}</li>
-//                 <li><strong>Created At:</strong> {caseInfo.created_at}</li>
-//               </ul>
-//             </Section>
-
-//             <Section title="Assessment TRL">
-//               <ul className="space-y-1">
-//                 <li><strong>TRL Level Result:</strong> {assessmentTrl?.trl_level_result}</li>
-//                 <li><strong>RQ1 Answer:</strong> {display(assessmentTrl?.rq1_answer)}</li>
-//                 <li><strong>RQ2 Answer:</strong> {display(assessmentTrl?.rq2_answer)}</li>
-//                 <li><strong>RQ3 Answer:</strong> {display(assessmentTrl?.rq3_answer)}</li>
-//                 {/* ... แสดง RQ4-RQ7, CQ1-CQ9 ตามต้องการ */}
-//               </ul>
-//             </Section>
-
-//             <Section title="Intellectual Property">
-//               <ul className="space-y-1">
-//                 <li><strong>Has IP:</strong> {display(ip?.hasIP)}</li>
-//                 <li><strong>IP Type:</strong> {ip?.ip_types}</li>
-//                 <li><strong>IP Status:</strong> {ip?.ip_protection_status}</li>
-//                 <li><strong>IP Request Number:</strong> {ip?.ip_request_number}</li>
-//               </ul>
-//             </Section>
-
-//             <Section title="Supporter">
-//               <ul className="space-y-1">
-//                 <li><strong>Support Research:</strong> {display(supporter?.support_research)}</li>
-//                 <li><strong>Support VDC:</strong> {display(supporter?.support_vdc)}</li>
-//                 <li><strong>Support SIEIC:</strong> {display(supporter?.support_sieic)}</li>
-//                 <li><strong>Need Co-Developers:</strong> {display(supporter?.need_co_developers)}</li>
-//                 <li><strong>Need Activities:</strong> {display(supporter?.need_activities)}</li>
-//                 <li><strong>Additional Documents:</strong> {supporter?.additional_documents}</li>
-//               </ul>
-//             </Section>
-//           </CardContent>
-//         </Card>
-//       </div>
-//     </div>
-//   );
-// }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
