@@ -18,6 +18,7 @@ import { useGetAppointmentByCaseId } from "@/hooks/case/get/useGetAppointmentByC
 import { useGetAssessmentById } from "@/hooks/case/get/useGetAssessmentById";
 import { useGetIPByCaseId } from "@/hooks/case/get/useGetIPByCaseId";
 import { useGetSupporterByCaseId } from "@/hooks/case/get/useGetSupporterByCaseId";
+import { useGetResearcherById } from "@/hooks/researcher/get/useGetResearcherById";
 
 export default function CaseDetail() {
   const navigate = useNavigate();
@@ -29,6 +30,9 @@ export default function CaseDetail() {
   const { data: assessmentData, isPending: isAssessmentPending, isError: isAssessmentError  } = useGetAssessmentById(id || '');
   const { data: ipData, isPending: isIPPending, isError: isIPError  } = useGetIPByCaseId(id || '');
   const { data: supporterData, isPending: isSupporterPending, isError: isSupporterError } = useGetSupporterByCaseId(id || '');
+  
+  // Get researcher data for the case
+  const { data: researcherData } = useGetResearcherById(caseData?.researcher_id || '');
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -41,8 +45,15 @@ export default function CaseDetail() {
 
   // ฟังก์ชันเมื่อบันทึกการแก้ไขเสร็จ
   const handleSaveEdit = (updatedAppointment: any) => {
-    // TODO: เรียก refetch หรือ update state ถ้าต้องการ refresh หน้าทันที
+    // 🔄 ข้อมูลจะถูก refetch อัตโนมัติผ่าน query invalidation ใน useEditAppointment
     setEditModalOpen(false);
+    setEditingAppointment(null);
+  };
+
+  // Function to get researcher full name
+  const getFullNameByResearcherID = (researcher_id: string) => {
+    if (!researcherData) return researcher_id;
+    return `${researcherData.researcher_first_name} ${researcherData.researcher_last_name}`;
   };
 
   return (
@@ -399,9 +410,12 @@ export default function CaseDetail() {
         <EditAppointmentModal
           open={editModalOpen}
           onClose={() => setEditModalOpen(false)}
-          projects={[]}
+          projects={caseData ? [{
+            ...caseData,
+            researcherInfo: researcherData as any
+          }] : []}
           appointment={editingAppointment}
-          getFullNameByResearcherID={(e) => e}
+          getFullNameByResearcherID={getFullNameByResearcherID}
           onSave={handleSaveEdit}
         />
         </div>

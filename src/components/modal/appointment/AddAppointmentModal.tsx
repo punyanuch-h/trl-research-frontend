@@ -8,7 +8,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import type { CaseInfo, Appointment } from "../../../types/case";
 import type { ResearcherInfo } from "../../../types/researcher";
 
-import { BACKEND_HOST } from "@/constant/constants";
+import { useAddAppointment } from "@/hooks/case/post/useAddAppointment";
 
 interface Project extends CaseInfo {
   appointments?: Appointment[];
@@ -20,7 +20,7 @@ interface Props {
   getFullNameByResearcherID: (researcher_id: string) => string;
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (projectId: string, date: string, time: string) => void;
+  onAdd?: (projectId: string, date: string, time: string) => void; // Optional สำหรับ backward compatibility
 }
 
 export function AddAppointmentModal({
@@ -34,10 +34,24 @@ export function AddAppointmentModal({
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [location, setLocation] = useState<string>("");
-  const [notes, setNotes] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  const [note, setNote] = useState<string>("");
 
   const selectedProject = projects.find((p) => p.case_id === selectedProjectId);
+  
+  // 🔄 ใช้ hook ใหม่ที่มี query invalidation
+  const { addAppointment, loading } = useAddAppointment(
+    () => {
+      // Success callback
+      alert("✅ เพิ่มนัดหมายสำเร็จ");
+      // ล้างค่าฟอร์ม
+      setSelectedProjectId(null);
+      setSelectedDate("");
+      setSelectedTime("");
+      setLocation("");
+      setNote("");
+    },
+    onClose
+  );
 
   if (!isOpen) return null;
 
@@ -51,44 +65,20 @@ export function AddAppointmentModal({
       case_id: selectedProjectId,
       date: `${selectedDate}T${selectedTime}:00Z`,
       location,
-      note: notes,
+      note: note,
     };
 
     try {
-      setLoading(true);
-
-      const res = await fetch(`${BACKEND_HOST}/trl/appointment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(appointmentData),
-      });
-
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(`Server error: ${error}`);
+      // 🔄 ใช้ hook ใหม่ที่มี query invalidation
+      await addAppointment({ ...appointmentData, status: "pending" });
+      
+      // 📝 เรียก onAdd callback ถ้ามี (สำหรับ backward compatibility)
+      if (onAdd) {
+        onAdd(selectedProjectId, selectedDate, selectedTime);
       }
-
-      const newAppointment = await res.json();
-
-      // ✅ แจ้งให้ parent อัปเดต state
-      onAdd(selectedProjectId, selectedDate, selectedTime);
-
-      alert("✅ เพิ่มนัดหมายสำเร็จ");
-      onClose();
-
-      // ล้างค่าฟอร์ม
-      setSelectedProjectId(null);
-      setSelectedDate("");
-      setSelectedTime("");
-      setLocation("");
-      setNotes("");
     } catch (error) {
       console.error("Error creating appointment:", error);
       alert("❌ ไม่สามารถบันทึกนัดหมายได้");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -164,8 +154,8 @@ export function AddAppointmentModal({
           <Textarea
             placeholder="Enter notes"
             rows={3}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
           />
         </div>
 
