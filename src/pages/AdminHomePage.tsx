@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import type { CaseInfo, Appointment } from "../types/case";
-import type { ResearcherInfo } from "../types/researcher";
 import { useNavigate } from "react-router-dom";
 
 import AdminNavbar from "../components/AdminNavbar";
@@ -8,20 +6,62 @@ import AdminManagement from "../components/AdminManagement";
 import AdminDashboard from "../components/AdminDashboard";
 import AdminAppointment from "../components/AdminAppointment";
 
-import { BACKEND_HOST } from "@/constant/constants";
+import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
+import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
+import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
 
-// รวม Case + Appointment + Researcher
+
+
+// --- Types ---
+interface CaseResponse {
+  case_id: string;
+  researcher_id: string;
+  coordinator_email: string;
+  trl_score: string; // or number if always numeric
+  trl_suggestion: string;
+  status: boolean;
+  is_urgent: boolean;
+  urgent_reason: string;
+  urgent_feedback: string;
+  case_title: string;
+  case_type: string;
+  case_description: string;
+  case_keywords: string;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+};
+
+interface Appointment {
+  appointment_id: string;
+  case_id: string;
+  date: string;
+  status: string;
+  location: string;
+  note?: string;
+}
+
+interface ResearcherInfo {
+  researcher_id: string;
+  researcher_first_name: string;
+  researcher_last_name: string;
+}
+
+// Merge Case + Appointment + Researcher
 function mergeCasesData(
-  cases: CaseInfo[],
+  cases: CaseResponse[],
   appointments: Appointment[],
   researchers: ResearcherInfo[]
 ) {
   return cases.map((c) => {
     const researcher = researchers.find((r) => r.researcher_id === c.researcher_id);
+    const caseAppointments = appointments
+      .filter((a) => a.case_id === c.case_id)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // ล่าสุดก่อน
     return {
       ...c,
       researcherInfo: researcher || null,
-      appointments: appointments.filter((a) => a.case_id === c.case_id),
+      appointments: caseAppointments,
+      latestAppointment: caseAppointments[0] || null,
     };
   });
 }
@@ -29,8 +69,11 @@ function mergeCasesData(
 export default function AdminHomePage() {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState<"management" | "dashboard" | "appointments">("management");
-  const [researchers, setResearchers] = useState<any[]>([]);
-  const [cases, setCases] = useState<(CaseInfo & { appointments: Appointment[] })[]>([]);
+  const { data: researcherData = [] } = useGetAllResearcher();
+  const { data: caseData = [] } = useGetAllCases();
+  const { data: appointmentData = [] } = useGetAllAppointments();
+
+  const [cases, setCases] = useState<(CaseResponse & { appointments: Appointment[], researcherInfo: ResearcherInfo | null, latestAppointment: Appointment | null })[]>([]);
   const [loading, setLoading] = useState(true);
 
   // --- Filter state ---
@@ -49,42 +92,33 @@ export default function AdminHomePage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ✅ ดึงข้อมูลจาก API จริง
+  // Merge data when loaded
   useEffect(() => {
-  setLoading(true);
-  Promise.all([
-    fetch(`${BACKEND_HOST}/trl/cases`).then((res) => res.json()),
-    fetch(`${BACKEND_HOST}/trl/appointments`).then((res) => res.json()),
-    fetch(`${BACKEND_HOST}/trl/researchers`).then((res) => res.json()),
-  ])
-    .then(([casesData, appointmentsData, researchersData]) => {
-      // ✅ merge cases + appointments + researcher
-      const merged = mergeCasesData(casesData, appointmentsData, researchersData);
+    if (caseData.length && researcherData.length && appointmentData.length >= 0) {
+      const merged = mergeCasesData(caseData, appointmentData, researcherData);
       setCases(merged);
-      setResearchers(researchersData);
-    })
-    .catch((err) => console.error("Error fetching admin data:", err))
-    .finally(() => setLoading(false));
-}, []);
+      setLoading(false);
+    }
+  }, [caseData, researcherData, appointmentData]);
 
-  // ✅ Sorting function (ใช้ type ของ CaseInfo)
-  function sortCases(projects: (CaseInfo & { appointments: Appointment[] })[]) {
+  // --- Sorting ---
+  function sortCases(projects: typeof cases) {
     const sorted = [...projects].sort((a, b) => {
       const { key, direction } = sortConfig;
       let aValue: any = (a as any)[key];
       let bValue: any = (b as any)[key];
 
       if (key === "trlScore") {
-        aValue = (a as any).trlRecommendation?.trlScore ?? "";
-        bValue = (b as any).trlRecommendation?.trlScore ?? "";
+        aValue = a.trl_score ?? "";
+        bValue = b.trl_score ?? "";
       }
       if (key === "status") {
-        aValue = (a as any).trlRecommendation?.status ?? "";
-        bValue = (b as any).trlRecommendation?.status ?? "";
+        aValue = a.status ?? "";
+        bValue = b.status ?? "";
       }
       if (key === "createdAt") {
-        aValue = new Date((a as any).createdAt).getTime();
-        bValue = new Date((b as any).createdAt).getTime();
+        aValue = new Date(a.created_at).getTime();
+        bValue = new Date(b.created_at).getTime();
       }
 
       if (aValue < bValue) return direction === "asc" ? -1 : 1;
@@ -92,38 +126,28 @@ export default function AdminHomePage() {
       return 0;
     });
 
-    // ให้ urgent มาก่อน
-    return sorted.sort((a, b) => {
-      if (a.is_urgent && !b.is_urgent) return -1;
-      if (!a.is_urgent && b.is_urgent) return 1;
-      return new Date((a as any).createdAt).getTime() - new Date((b as any).createdAt).getTime();
-    });
+    return sorted.sort((a, b) => (a.is_urgent === b.is_urgent ? 0 : a.is_urgent ? -1 : 1));
   }
 
   const sortedCases = sortCases(cases);
 
-  // ✅ Filtering
+  // --- Filtering ---
+  function getFullNameByResearcherID(id: string): string {
+    const researcher = researcherData.find((r) => r.researcher_id === id);
+    return researcher ? `${researcher.researcher_first_name} ${researcher.researcher_last_name}` : "";
+  }
+
   const filteredCases = sortedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
       if (column === "type") return c.case_type === value;
-      if (column === "trlScore")
-        return c.trl_score?.toString() === value;
-      if (column === "status") {
-        const statusString = c.status ? "Approve" : "In process";
-        return statusString === value;
-      }
+      if (column === "trlScore") return c.trl_score?.toString() === value;
+      if (column === "status") return (c.status ? "Approve" : "In process") === value;
       if (column === "createdBy") return getFullNameByResearcherID(c.researcher_id) === value;
       if (column === "isUrgent") return String(c.is_urgent) === value;
       if (column === "researchTitle") return c.case_title === value;
       return true;
     })
   );
-
-  function getFullNameByResearcherID(id: string): string {
-    const researcher = researchers.find(r => r.researcher_id === id);
-    return researcher ? `${researcher.researcher_first_name} ${researcher.researcher_last_name}` : "";
-  }
-
 
   function handleResearchClick(id: number, name: string, type: string) {
     navigate(`/trl-1?research=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}`);
@@ -135,44 +159,23 @@ export default function AdminHomePage() {
 
   function handleDownloadResult(filename: string) {
     const link = document.createElement("a");
-    link.href = `${BACKEND_HOST}/files/${filename}`;
+    link.href = "#";
     link.download = filename;
     link.click();
   }
 
   function handleSort(key: string) {
     setSortConfig((prev) => {
-      if (prev.key === key) {
-        return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
-      }
+      if (prev.key === key) return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
       return { key, direction: "asc" };
     });
   }
-
-  // ✅ Column filters
-  const columns = ["type", "trlScore", "status", "createdBy", "isUrgent"];
-  const columnOptions: Record<string, string[]> = {
-    type: Array.from(new Set(cases.map((p) => p.case_type))),
-    trlScore: Array.from(new Set(cases.map((p) => p.trl_score?.toString()))),
-    status: ["In process", "Approve"],
-    createdBy: Array.from(new Set(researchers.map((u) => `${u.firstname} ${u.lastname}`))),
-    isUrgent: ["true", "false"],
-  };
-
-  const appointmentColumns = ["researchTitle", "createdBy", "isUrgent"];
-  const appointmentColumnOptions: Record<string, string[]> = {
-    researchTitle: Array.from(new Set(cases.map((r) => r.case_title))),
-    createdBy: Array.from(new Set(researchers.map((u) => `${u.firstname} ${u.lastname}`))),
-    isUrgent: ["true", "false"],
-  };
 
   useEffect(() => {
     setCurrentPage(1);
   }, [customFilters, rowsPerPage]);
 
-  if (loading) {
-    return <div className="p-10 text-center text-lg text-gray-500">Loading data...</div>;
-  }
+  if (loading) return <div className="p-10 text-center text-lg text-gray-500">Loading data...</div>;
 
   return (
     <AdminNavbar
@@ -186,8 +189,8 @@ export default function AdminHomePage() {
       setSelectedColumn={setSelectedColumn}
       selectedValue={selectedValue}
       setSelectedValue={setSelectedValue}
-      columns={activeView === "appointments" ? appointmentColumns : columns}
-      columnOptions={activeView === "appointments" ? appointmentColumnOptions : columnOptions}
+      columns={activeView === "appointments" ? ["researchTitle", "createdBy", "isUrgent"] : ["type", "trlScore", "status", "createdBy", "isUrgent"]}
+      columnOptions={activeView === "appointments" ? {} : {}}
     >
       <div className="max-w-6xl mx-auto px-6 py-8">
         {activeView === "management" ? (

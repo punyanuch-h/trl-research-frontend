@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { TablePagination } from "@/components/TablePagination";
-import type { CaseInfo, Appointment } from "../types/case";
-import type { ResearcherInfo } from "../types/researcher";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 
+import type { CaseInfo, Appointment } from "../types/case";
+import type { ResearcherInfo } from "../types/researcher";
 interface Project extends CaseInfo {
   appointments?: Appointment[];
   researcherInfo?: ResearcherInfo;
@@ -136,13 +136,13 @@ export default function AdminManagement({
                 ) : (
                   paginatedProjects.map(project => (
                     <TableRow key={project.case_id}>
-                      <TableCell className="min-w-[120px] px-2 text-center align-middle">
+                      <TableCell className="min-w-[140px] px-2 text-center align-middle">
                         {new Date(project.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="min-w-[120px] whitespace-nowrap px-2">
                         {getFullNameByResearcherID(project.researcher_id)}
                       </TableCell>
-                      <TableCell className="flex items-center gap-2">
+                      <TableCell className="w-[180px] flex items-center gap-2">
                         <span
                           className={`relative group ${project.is_urgent ? "text-red-600 font-semibold" : ""}`}
                         >
@@ -180,7 +180,7 @@ export default function AdminManagement({
                           {project.status === true ? "Approve" : "In process"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="flex gap-2">
+                      <TableCell className="w-[250px] flex gap-2">
                         {project.status === true ? (
                           <>
                             <Button

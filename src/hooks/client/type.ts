@@ -100,3 +100,16 @@ export type SupporterResponse = {
     updated_at: string;
 };
   
+export type ResearcherResponse = {
+    researcher_id: string;
+    admin_id: string;
+    researcher_prefix: string;
+    researcher_academic_position: string;
+    researcher_first_name: string;
+    researcher_last_name: string;
+    researcher_department: string;
+    researcher_phone_number: string;
+    researcher_email: string;
+    created_at: string;
+    updated_at: string;
+};

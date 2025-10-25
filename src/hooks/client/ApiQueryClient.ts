@@ -7,6 +7,7 @@ import type {
   IntellectualPropertyResponse,
   LoginResponse,
   SupporterResponse,
+  ResearcherResponse,
 } from "@/hooks/client/type";
 
 export class ApiQueryClient extends ApiBaseClient {
@@ -20,6 +21,16 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
   
+  async useGetAllResearcher(): Promise<ResearcherResponse[]> {
+    const response = await this.axiosInstance.get<ResearcherResponse[]>(`/trl/researchers`);
+    return response.data;
+  }
+  
+  async useGetResearcherById(researcherId: string): Promise<ResearcherResponse> {
+    const response = await this.axiosInstance.get<ResearcherResponse>(`/trl/researcher/${researcherId}`);
+    return response.data;
+  }
+
   async useGetCaseById(caseId: string): Promise<CaseResponse> {
     const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/${caseId}`);
     return response.data;
