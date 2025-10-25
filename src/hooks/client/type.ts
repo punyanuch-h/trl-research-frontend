@@ -113,3 +113,13 @@ export type ResearcherResponse = {
     created_at: string;
     updated_at: string;
 };
+
+export type UserProfileResponse = {
+	prefix:           string;
+	academic_position: string;
+	first_name: string;
+	last_name: string;
+	department: string;
+	phone_number: string;
+	email: string;
+};

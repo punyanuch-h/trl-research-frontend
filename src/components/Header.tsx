@@ -5,15 +5,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { Home } from "lucide-react";
+import { toast } from "sonner";
+import { useGetUserProfile } from "@/hooks/useGetUserProfile";
 
 export default function Header() {
   const navigate = useNavigate();
+  const { data: userProfile } = useGetUserProfile();
 
   const handleLogout = () => {
-    // TODO: handle actual logout logic
-    console.log("Logged out");
-    localStorage.removeItem("auth_token");
-    navigate("/");
+    // if success logout then show toast success else toast error
+    try {
+      localStorage.removeItem("auth_token");
+      toast.success("Logged out successfully");
+      navigate("/");
+    } catch {
+      toast.error("Failed to logout. Please try again.");
+    }
   };
 
   return (
@@ -30,19 +37,20 @@ export default function Header() {
 
         <Popover>
           <PopoverTrigger asChild>
+            {/* TODO: Add user profile image */}
             <div className="flex items-center gap-2 cursor-pointer">
               <Avatar className="w-8 h-8">
                 <AvatarImage src="" alt="User" />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium">Profile</span>
+              <span className="text-sm font-medium">{userProfile?.first_name} {userProfile?.last_name.slice(0, 3)}</span>
             </div>
           </PopoverTrigger>
           <PopoverContent className="w-40 p-2">
             <div className="flex flex-col space-y-2">
               <Button
                 variant="ghost"
-                className="justify-start text-sm w-full"
+                className="justify-start text-sm w-full focus-visible:ring-0 focus-visible:ring-offset-0"
                 onClick={() => navigate("/profile")}
               >
                 <User className="w-4 h-4 mr-2" />

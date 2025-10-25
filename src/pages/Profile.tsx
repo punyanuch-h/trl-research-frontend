@@ -1,97 +1,44 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import Header from "../components/Header"; 
+import { useGetUserProfile } from "@/hooks/useGetUserProfile";
+import formatPhoneNumber from "@/utils/phone";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [userData, setUserData] = useState({
-    firstname: "Sitthida",
-    lastname: "Suwan",
-    email: "sitthida@example.com",
-    phone: "0801234567",
-    role: "Researcher",
-    organization: "My University",
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserData({ ...userData, [e.target.name]: e.target.value });
-  };
-
-  const handleSave = () => {
-    // TODO: Add API call to save profile
-    console.log("Saved user data:", userData);
-    setIsEditing(false);
-  };
-
+  const { data: userProfile } = useGetUserProfile();
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <div className="flex items-center justify-center py-10 px-4">
         <Card className="w-full max-w-xl">
           <CardHeader>
+            <ArrowLeft className="w-6 h-6 mr-2 cursor-pointer" onClick={() => navigate(-1)} />
             <CardTitle className="text-center text-2xl">User Profile</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <Input
-                name="firstname"
-                placeholder="First Name"
-                value={userData.firstname}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-              <Input
-                name="lastname"
-                placeholder="Last Name"
-                value={userData.lastname}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-              <Input
-                name="email"
-                type="email"
-                placeholder="Email"
-                value={userData.email}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-              <Input
-                name="phone"
-                type="tel"
-                placeholder="Phone"
-                value={userData.phone}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-              <Input
-                name="role"
-                placeholder="Role"
-                value={userData.role}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-              <Input
-                name="organization"
-                placeholder="Organization"
-                value={userData.organization}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-
-              <div className="flex justify-end gap-4 mt-4">
-                {isEditing ? (
-                  <>
-                    <Button variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSave}>Save</Button>
-                  </>
-                ) : (
-                  <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
-                )}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="first_name" className="text-sm font-medium text-primary">Name</label>
+                <span className="text-base font-medium border border-gray-300 rounded-md p-2">{userProfile?.first_name} {userProfile?.last_name}</span>
               </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="academic_position" className="text-sm font-medium text-primary">Academic Position</label>
+                <span className="text-base font-medium border border-gray-300 rounded-md p-2">{userProfile?.academic_position}</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="department" className="text-sm font-medium text-primary">Department</label>
+                <span className="text-base font-medium border border-gray-300 rounded-md p-2">{userProfile?.department}</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="email" className="text-sm font-medium text-primary">Email</label>
+                <span className="text-base font-medium border border-gray-300 rounded-md p-2">{userProfile?.email}</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="phone_number" className="text-sm font-medium text-primary">Phone Number</label>
+                <span className="text-base font-medium border border-gray-300 rounded-md p-2">{formatPhoneNumber(userProfile?.phone_number)}</span>
+              </div>
+
+              {/* TODO: implement real API edit profile */}
             </div>
           </CardContent>
         </Card>
