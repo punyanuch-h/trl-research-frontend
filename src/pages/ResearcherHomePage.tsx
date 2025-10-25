@@ -113,6 +113,17 @@ export default function ResearcherHomePage() {
 
   function sortResearch(researchList: CaseInfo[]) {
     const sorted = [...researchList].sort((a, b) => {
+      // First priority: urgent cases first (ALWAYS)
+      if (a.is_urgent !== b.is_urgent) {
+        return a.is_urgent ? -1 : 1;
+      }
+      
+      // Second priority: case_id from high to low (descending)
+      if (a.case_id !== b.case_id) {
+        return b.case_id.localeCompare(a.case_id); // descending order (high to low)
+      }
+      
+      // Third priority: use the original sort config only within same urgent status and case_id
       const { key, direction } = sortConfig;
       let aValue: any = a[key as keyof CaseInfo];
       let bValue: any = b[key as keyof CaseInfo];
@@ -134,8 +145,7 @@ export default function ResearcherHomePage() {
       return 0;
     });
 
-    // urgent ขึ้นก่อน
-    return sorted.sort((a, b) => (a.is_urgent === b.is_urgent ? 0 : a.is_urgent ? -1 : 1));
+    return sorted;
   }
 
   const sortedProjects = sortResearch(filteredCases);

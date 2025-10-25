@@ -50,6 +50,42 @@ const Supporter: React.FC<SupporterProps> = ({
     document.getElementById('additionalDocuments')?.click();
   };
 
+  const handleSupportDevChange = (value: string, checked: boolean) => {
+    if (value === 'ไม่มี' && checked) {
+      // ถ้าเลือก "ไม่มี" ให้ล้างตัวเลือกอื่นทั้งหมด
+      handleInputChange('supportDevNeeded', ['ไม่มี']);
+    } else if (value === 'ไม่มี' && !checked) {
+      // ถ้าไม่เลือก "ไม่มี" ให้ล้างตัวเลือกทั้งหมด
+      handleInputChange('supportDevNeeded', []);
+    } else if (checked) {
+      // ถ้าเลือกตัวเลือกอื่น ให้ลบ "ไม่มี" ออก
+      const newValues = formData.supportDevNeeded.filter(v => v !== 'ไม่มี');
+      handleInputChange('supportDevNeeded', [...newValues, value]);
+    } else {
+      // ถ้าไม่เลือกตัวเลือกอื่น
+      const newValues = formData.supportDevNeeded.filter(v => v !== value);
+      handleInputChange('supportDevNeeded', newValues);
+    }
+  };
+
+  const handleSupportMarketChange = (value: string, checked: boolean) => {
+    if (value === 'ไม่มี' && checked) {
+      // ถ้าเลือก "ไม่มี" ให้ล้างตัวเลือกอื่นทั้งหมด
+      handleInputChange('supportMarketNeeded', ['ไม่มี']);
+    } else if (value === 'ไม่มี' && !checked) {
+      // ถ้าไม่เลือก "ไม่มี" ให้ล้างตัวเลือกทั้งหมด
+      handleInputChange('supportMarketNeeded', []);
+    } else if (checked) {
+      // ถ้าเลือกตัวเลือกอื่น ให้ลบ "ไม่มี" ออก
+      const newValues = formData.supportMarketNeeded.filter(v => v !== 'ไม่มี');
+      handleInputChange('supportMarketNeeded', [...newValues, value]);
+    } else {
+      // ถ้าไม่เลือกตัวเลือกอื่น
+      const newValues = formData.supportMarketNeeded.filter(v => v !== value);
+      handleInputChange('supportMarketNeeded', newValues);
+    }
+  };
+
   return (
     <div className="supporter-form-container flex flex-col gap-4">
       <div className="form-group">
@@ -63,7 +99,7 @@ const Supporter: React.FC<SupporterProps> = ({
                 type="checkbox"
                 name="supportDevNeeded"
                 value={option.value}
-                onChange={(e) => handleCheckboxChange('supportDevNeeded', e.target.value, e.target.checked)}
+                onChange={(e) => handleSupportDevChange(e.target.value, e.target.checked)}
                 checked={formData.supportDevNeeded.includes(option.value)}
                 className="mr-2"
               />
@@ -85,7 +121,7 @@ const Supporter: React.FC<SupporterProps> = ({
                   type="checkbox"
                   name="supportMarketNeeded"
                   value={option.value}
-                  onChange={(e) => handleCheckboxChange('supportMarketNeeded', e.target.value, e.target.checked)}
+                  onChange={(e) => handleSupportMarketChange(e.target.value, e.target.checked)}
                   checked={formData.supportMarketNeeded.includes(option.value)}
                   className="mr-2"
                 />

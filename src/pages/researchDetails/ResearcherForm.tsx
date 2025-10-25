@@ -11,7 +11,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { BACKEND_HOST } from "@/constant/constants";
+import { useSubmitResearcherForm } from "@/hooks/case/post/useSubmitResearcherForm";
 
 // Import components
 import ResearcherDetails from '@/pages/researchDetails/researcherDetails';
@@ -103,7 +103,7 @@ export default function ResearcherForm() {
   const [currentFormStep, setCurrentFormStep] = useState<number>(1);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [trlLevel, setTrlLevel] = useState<number | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitFormMutation = useSubmitResearcherForm();
 
   const [formData, setFormData] = useState<FormState>({
     // researcher_info
@@ -164,7 +164,7 @@ export default function ResearcherForm() {
     ipProtectionStatus: "",
     ipRequestNumber: "",
     ipTypes: [] as string[],
-    ipForms: [] as IpForm[],
+    ipForms: [{ ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false }] as IpForm[],
     // Supporter
     supportDevNeeded: [] as string[],
     supportMarketNeeded: [] as string[],
@@ -340,171 +340,8 @@ export default function ResearcherForm() {
   };
 
   const handleConfirmSubmit = async () => {
-    setIsSubmitting(true);
     setShowConfirmDialog(false);
-
-    try {
-      // 1. Create Case
-      console.log("📤 Creating case...");
-      const casePayload = {
-        // researcher_id: formData.researcherId,
-        coordinator_email: formData.coordinatorEmail,
-        trl_score: formData.trlScore ?? "",
-        is_urgent: formData.isUrgent ?? false,
-        urgent_reason: formData.urgentReason ?? "",
-        urgent_feedback: formData.urgentFeedback ?? "",
-        case_title: formData.researchTitle,
-        case_type: formData.researchType,
-        case_description: formData.description,
-        case_keywords: formData.keywords,
-        status: formData.status ?? false,
-      };
-
-      const caseResponse = await fetch(`${BACKEND_HOST}/trl/case`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(casePayload),
-      });
-
-      if (!caseResponse.ok) {
-        const errText = await caseResponse.text();
-        throw new Error(`Failed to create case: ${errText}`);
-      }
-
-      const caseData = await caseResponse.json();
-      const caseId = caseData.case_id;
-      console.log("✅ Case created:", caseId);
-
-      // 2. Create Coordinator
-      console.log("📤 Creating coordinator...");
-      const coordinatorPayload = {
-        coordinator_email: formData.coordinatorEmail,
-        coordinator_name: `${formData.coordinatorFirstName} ${formData.coordinatorLastName}`,
-        coordinator_phone: formData.coordinatorPhoneNumber,
-        // coordinator_id: formData.sameAsHead ? formData.researcherId : undefined,
-      };
-
-      const coordinatorRes = await fetch(`${BACKEND_HOST}/trl/coordinator`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(coordinatorPayload),
-      });
-
-      if (!coordinatorRes.ok) {
-        const errText = await coordinatorRes.text();
-        throw new Error(`Failed to create coordinator: ${errText}`);
-      }
-
-      const coordinatorData = await coordinatorRes.json();
-      console.log("✅ Coordinator created:", coordinatorData.coordinator_id);
-
-      // 3. Create Assessment
-      console.log("📤 Creating assessment...");
-      const assessmentPayload = {
-        // case_id: caseId,
-        trl_level_result: formData.trlLevelResult,
-        rq1_answer: formData.rq1_answer,
-        rq2_answer: formData.rq2_answer,
-        rq3_answer: formData.rq3_answer,
-        rq4_answer: formData.rq4_answer,
-        rq5_answer: formData.rq5_answer,
-        rq6_answer: formData.rq6_answer,
-        rq7_answer: formData.rq7_answer,
-        cq1_answer: formData.cq1_answer || [],
-        cq2_answer: formData.cq2_answer || [],
-        cq3_answer: formData.cq3_answer || [],
-        cq4_answer: formData.cq4_answer || [],
-        cq5_answer: formData.cq5_answer || [],
-        cq6_answer: formData.cq6_answer || [],
-        cq7_answer: formData.cq7_answer || [],
-        cq8_answer: formData.cq8_answer || [],
-        cq9_answer: formData.cq9_answer || [],
-      };
-
-      const assessmentRes = await fetch(`${BACKEND_HOST}/trl/assessment_trl`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(assessmentPayload),
-      });
-
-      if (!assessmentRes.ok) {
-        const errText = await assessmentRes.text();
-        throw new Error(`Failed to create assessment: ${errText}`);
-      }
-
-      const assessmentData = await assessmentRes.json();
-      console.log("✅ Assessment created:", assessmentData.assessment_id);
-
-      // 4. Create IP records (if applicable)
-      if (formData.ipHas && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
-        console.log("📤 Creating IP records...");
-        for (const ipForm of formData.ipForms) {
-          if (ipForm.noIp) continue;
-
-          const ipPayload = {
-            // case_id: caseId,
-            ip_types: ipForm.ipTypes[0] || "",
-            ip_protection_status: ipForm.ipStatus || "",
-            ip_request_number: ipForm.requestNumbers?.[ipForm.ipTypes[0]] || "",
-          };
-
-          const ipRes = await fetch(`${BACKEND_HOST}/trl/ip`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(ipPayload),
-          });
-
-          if (!ipRes.ok){
-            const errText = await ipRes.text();
-            alert("เกิดข้อผิดพลาดในการส่งข้อมูล IP: " + errText);
-            return;
-          }
-        }
-      }
-
-      // 5. POST supporter
-      const supporterPayload = {
-        // case_id: caseId,
-        support_research: (formData.supportDevNeeded || []).includes("ฝ่ายวิจัย"),
-        support_vdc: (formData.supportDevNeeded || []).includes("ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)"),
-        support_sieic: (formData.supportDevNeeded || []).includes("ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (Siriraj Excellent Innovation Center: SiEIC)"),
-        need_protect_intellectual_property: (formData.supportMarketNeeded || []).includes("การคุ้มครองทรัพย์สินทางปัญญา"),
-        need_co_developers: (formData.supportMarketNeeded || []).includes("หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม"),
-        need_activities: (formData.supportMarketNeeded || []).includes("การจัดกิจกรรมร่วมกับผู้ร่วมพัฒนานวัตกรรม"),
-        need_test: (formData.supportMarketNeeded || []).includes("หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม"),
-        need_capital: (formData.supportMarketNeeded || []).includes("หาแหล่งทุน"),
-        need_partners: (formData.supportMarketNeeded || []).includes("หาคู่ค้าทางธุรกิจ"),
-        need_guidelines: (formData.supportMarketNeeded || []).includes("แนะนำแนวทางการเริ่มธุรกิจ"),
-        need_certification: (formData.supportMarketNeeded || []).includes("การขอรับรองมาตรฐานหรือคุณภาพ"),
-        need_account: (formData.supportMarketNeeded || []).includes("บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม"),
-        need: formData.otherSupportMarket || "",
-        additional_documents: "", // if you want to upload file, use multipart/form-data
-      };
-
-      const supporterRes = await fetch(`${BACKEND_HOST}/trl/supporter`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(supporterPayload),
-      });
-
-      if (!supporterRes.ok) {
-        const errText = await supporterRes.text();
-        alert("เกิดข้อผิดพลาดในการส่งข้อมูล Supporter: " + errText);
-        return;
-      }
-
-      // 6. Success - clear and navigate
-      alert("บันทึกข้อมูลสำเร็จ!");
-      localStorage.removeItem("currentFormStep");
-      localStorage.removeItem("researcherFormData");
-      navigate('/dashboard');
-
-    } catch (err) {
-      console.error("Error submitting form:", err);
-      alert("เกิดข้อผิดพลาดในการส่งข้อมูล: " + (err as any)?.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+    submitFormMutation.mutate(formData);
   };
 
   const handleCheckboxChange = (field: string, value: string, checked: boolean) => {
@@ -636,7 +473,7 @@ export default function ResearcherForm() {
               </Button>
               <div className="flex gap-3">
                 {currentFormStep === 5 ? (
-                  <Button onClick={handleSubmit} disabled={isSubmitting}>
+                  <Button onClick={handleSubmit} disabled={submitFormMutation.isPending}>
                     Submit
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
@@ -664,7 +501,7 @@ export default function ResearcherForm() {
               <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleConfirmSubmit} disabled={isSubmitting}>
+              <Button onClick={handleConfirmSubmit} disabled={submitFormMutation.isPending}>
                 Confirm and Submit
               </Button>
             </DialogFooter>

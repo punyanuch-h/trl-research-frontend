@@ -60,7 +60,7 @@ export default function CaseDetail() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate(-1)}
+                  onClick={() => navigate(role === "admin" ? "/admin-homepage" : "/researcher-homepage")}
                   className="flex items-center gap-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -69,7 +69,7 @@ export default function CaseDetail() {
                 <div className="h-6 w-px bg-gray-300"></div>
                 <h1 className="text-xl font-semibold text-gray-900">
                   Research Details
-                </h1>
+                </h1> 
               </div>
               
               <div className="flex items-center gap-3">
@@ -168,104 +168,115 @@ export default function CaseDetail() {
         </Card>
 
         {/* Appointment Data */}
-        {!isAppointmentPending && !isAppointmentError && Array.isArray(appointmentData) && appointmentData.length > 0 && (
+        {!isAppointmentPending && !isAppointmentError && (
           <Card className="w-full">
             <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <div>
-              <CardTitle className="text-2xl font-bold text-primary mb-1">
-                Appointments
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                รายการนัดหมายทั้งหมดที่เกี่ยวข้องกับเคสนี้
-              </p>
-            </div>
+              <div>
+                <CardTitle className="text-2xl font-bold text-primary mb-1">
+                  Appointments
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  รายการนัดหมายทั้งหมดที่เกี่ยวข้องกับเคสนี้
+                </p>
+              </div>
 
-            {/* Add appointment*/}
-            {role === "admin" && (
-              <Button variant="default" size="sm" className="mt-2 mr-2" onClick={() => setShowAddModal(true)}>
-                <CalendarPlus className="w-4 h-4 mr-2" />
-                Add Appointment
-              </Button>
+              {/* Add appointment */}
+              {role === "admin" && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="mt-2 mr-2"
+                  onClick={() => setShowAddModal(true)}
+                >
+                  <CalendarPlus className="w-4 h-4 mr-2" />
+                  Add Appointment
+                </Button>
               )}
             </CardHeader>
 
             <CardContent>
-              <div className="space-y-4">
-                {appointmentData.map((a) => {
-                  let badgeClass = "";
-                  let badgeLabel = "";
-                  switch (a.status) {
-                    case "attended":
-                      badgeClass = "bg-green-500 text-white";
-                      badgeLabel = "เข้าร่วมแล้ว";
-                      break;
-                    case "absent":
-                      badgeClass = "bg-red-500 text-white";
-                      badgeLabel = "ไม่เข้าร่วม";
-                      break;
-                    case "pending":
-                    default:
-                      badgeClass = "bg-yellow-400 text-black";
-                      badgeLabel = "รอดำเนินการ";
-                      break;
-                  }
+              {Array.isArray(appointmentData) && appointmentData.length > 0 ? (
+                <div className="space-y-4">
+                  {appointmentData.map((a) => {
+                    let badgeClass = "";
+                    let badgeLabel = "";
 
-                  return (
-                    <div
-                      key={a.appointment_id}
-                      className="border rounded-xl p-4 bg-gray-50 shadow-sm hover:shadow-md transition"
-                    >
-                      {/* Header + Status + Edit */}
-                      <div className="flex justify-between items-center mb-3">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-lg">{a.appointment_id}</h3>
-                          <Badge className={badgeClass}>{badgeLabel}</Badge>
+                    switch (a.status) {
+                      case "attended":
+                        badgeClass = "bg-green-500 text-white";
+                        badgeLabel = "เข้าร่วมแล้ว";
+                        break;
+                      case "absent":
+                        badgeClass = "bg-red-500 text-white";
+                        badgeLabel = "ไม่เข้าร่วม";
+                        break;
+                      case "pending":
+                      default:
+                        badgeClass = "bg-yellow-400 text-black";
+                        badgeLabel = "รอดำเนินการ";
+                        break;
+                    }
+
+                    return (
+                      <div
+                        key={a.appointment_id}
+                        className="border rounded-xl p-4 bg-gray-50 shadow-sm hover:shadow-md transition"
+                      >
+                        {/* Header + Status + Edit */}
+                        <div className="flex justify-between items-center mb-3">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-lg">{a.appointment_id}</h3>
+                            <Badge className={badgeClass}>{badgeLabel}</Badge>
+                          </div>
+
+                          {role === "admin" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditAppointment(a)}
+                              className="flex items-center"
+                            >
+                              <Edit2 className="w-4 h-4 mr-1" />
+                              Edit
+                            </Button>
+                          )}
                         </div>
 
-                        {role === "admin" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditAppointment(a)}
-                            className="flex items-center"
-                          >
-                            <Edit2 className="w-4 h-4 mr-1" />
-                            Edit
-                          </Button>
-                        )}
-                      </div>
-
-                      {/* รายละเอียดการนัดหมาย */}
-                      <div className="text-sm text-muted-foreground space-y-2">
-                        <p>
-                          <strong>วันที่นัดหมาย:</strong>{" "}
-                          {new Date(a.date).toLocaleDateString("th-TH", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                        <p>
-                          <strong>สถานที่:</strong> {a.location || "-"}
-                        </p>
-                        {a.summary && (
+                        {/* รายละเอียดการนัดหมาย */}
+                        <div className="text-sm text-muted-foreground space-y-2">
                           <p>
-                            <strong>สรุปการประชุม:</strong> {a.summary}
+                            <strong>วันที่นัดหมาย:</strong>{" "}
+                            {new Date(a.date).toLocaleDateString("th-TH", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </p>
-                        )}
-                        {a.note && (
                           <p>
-                            <strong>หมายเหตุ:</strong> {a.note}
+                            <strong>สถานที่:</strong> {a.location || "-"}
                           </p>
-                        )}
+                          {a.summary && (
+                            <p>
+                              <strong>สรุปการประชุม:</strong> {a.summary}
+                            </p>
+                          )}
+                          {a.note && (
+                            <p>
+                              <strong>หมายเหตุ:</strong> {a.note}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center text-sm text-muted-foreground py-6">
+                  ยังไม่มีการนัดหมาย โปรดติดตามการนัดหมายจากเจ้าหน้าที่
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -331,23 +342,28 @@ export default function CaseDetail() {
             </CardHeader>
 
             <CardContent>
-              <div className="space-y-6">
-                {/* หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม */}
+            <div className="space-y-6">
+              {/* หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม */}
+              <div>
+                <h3 className="font-semibold mb-2">หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม</h3>
                 {(
                   supporterData.support_research ||
                   supporterData.support_vdc ||
                   supporterData.support_sieic
-                ) && (
-                  <div>
-                    <h3 className="font-semibold mb-2">หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม</h3>
-                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                      {supporterData.support_research && <li>ฝ่ายวิจัย (Research Division)</li>}
-                      {supporterData.support_vdc && <li>ศูนย์ขับเคลื่อนคุณค่าการบริการ (VDC)</li>}
-                      {supporterData.support_sieic && <li>ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (SiEIC)</li>}
-                    </ul>
-                  </div>
+                ) ? (
+                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    {supporterData.support_research && <li>ฝ่ายวิจัย (Research Division)</li>}
+                    {supporterData.support_vdc && <li>ศูนย์ขับเคลื่อนคุณค่าการบริการ (VDC)</li>}
+                    {supporterData.support_sieic && <li>ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (SiEIC)</li>}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">ไม่มีหน่วยงานสนับสนุนนวัตกรรม</p>
                 )}
-                {/* ความช่วยเหลือที่ต้องการ */}
+              </div>
+
+              {/* ความช่วยเหลือที่ต้องการ */}
+              <div>
+                <h3 className="font-semibold mb-2">ความช่วยเหลือที่ต้องการ</h3>
                 {(
                   supporterData.need_protect_intellectual_property ||
                   supporterData.need_co_developers ||
@@ -358,37 +374,38 @@ export default function CaseDetail() {
                   supporterData.need_guidelines ||
                   supporterData.need_certification ||
                   supporterData.need_account
-                ) && (
-                  <div>
-                    <h3 className="font-semibold mb-2">ความช่วยเหลือที่ต้องการ</h3>
-                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                      {supporterData.need_protect_intellectual_property && <li>การคุ้มครองทรัพย์สินทางปัญญา</li>}
-                      {supporterData.need_co_developers && <li>หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม</li>}
-                      {supporterData.need_activities && <li>จัดกิจกรรมร่วม เช่น Design Thinking, Prototype Testing</li>}
-                      {supporterData.need_test && <li>หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม</li>}
-                      {supporterData.need_capital && <li>หาแหล่งทุน</li>}
-                      {supporterData.need_partners && <li>หาคู่ค้าทางธุรกิจ</li>}
-                      {supporterData.need_guidelines && <li>แนะนำแนวทางการเริ่มธุรกิจ</li>}
-                      {supporterData.need_certification && <li>การขอรับรองมาตรฐานหรือคุณภาพ</li>}
-                      {supporterData.need_account && <li>บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม</li>}
-                    </ul>
-                  </div>
-                )}
-                {/* ฟิลด์เพิ่มเติม */}
-                {supporterData.need && (
-                  <div>
-                    <h3 className="font-semibold mb-2">รายละเอียดเพิ่มเติม</h3>
-                    <p className="text-sm text-muted-foreground">{supporterData.need}</p>
-                  </div>
-                )}
-
-                {supporterData.additional_documents && (
-                  <div>
-                    <h3 className="font-semibold mb-2">เอกสารเพิ่มเติม</h3>
-                    <p className="text-sm text-muted-foreground">{supporterData.additional_documents}</p>
-                  </div>
+                ) ? (
+                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    {supporterData.need_protect_intellectual_property && <li>การคุ้มครองทรัพย์สินทางปัญญา</li>}
+                    {supporterData.need_co_developers && <li>หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม</li>}
+                    {supporterData.need_activities && <li>จัดกิจกรรมร่วม เช่น Design Thinking, Prototype Testing</li>}
+                    {supporterData.need_test && <li>หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม</li>}
+                    {supporterData.need_capital && <li>หาแหล่งทุน</li>}
+                    {supporterData.need_partners && <li>หาคู่ค้าทางธุรกิจ</li>}
+                    {supporterData.need_guidelines && <li>แนะนำแนวทางการเริ่มธุรกิจ</li>}
+                    {supporterData.need_certification && <li>การขอรับรองมาตรฐานหรือคุณภาพ</li>}
+                    {supporterData.need_account && <li>บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม</li>}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">ไม่ต้องการความช่วยเหลือ</p>
                 )}
               </div>
+
+              {/* ฟิลด์เพิ่มเติม */}
+              {supporterData.need && (
+                <div>
+                  <h3 className="font-semibold mb-2">รายละเอียดเพิ่มเติม</h3>
+                  <p className="text-sm text-muted-foreground">{supporterData.need}</p>
+                </div>
+              )}
+
+              {supporterData.additional_documents && (
+                <div>
+                  <h3 className="font-semibold mb-2">เอกสารเพิ่มเติม</h3>
+                  <p className="text-sm text-muted-foreground">{supporterData.additional_documents}</p>
+                </div>
+              )}
+            </div>
             </CardContent>
           </Card>
         )}
