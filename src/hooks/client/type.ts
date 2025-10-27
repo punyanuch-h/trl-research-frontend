@@ -115,7 +115,8 @@ export type ResearcherResponse = {
 };
 
 export type UserProfileResponse = {
-	prefix:           string;
+	id: string;
+	prefix: string;
 	academic_position: string;
 	first_name: string;
 	last_name: string;

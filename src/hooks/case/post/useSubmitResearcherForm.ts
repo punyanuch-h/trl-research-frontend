@@ -11,6 +11,7 @@ interface IpForm {
 }
 
 interface FormState {
+  id: string;
   // researcher_info
   headPrefix: string;
   headAcademicPosition: string;

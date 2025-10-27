@@ -12,6 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useSubmitResearcherForm } from "@/hooks/case/post/useSubmitResearcherForm";
+import { useGetUserProfile } from "@/hooks/useGetUserProfile";
 
 // Import components
 import ResearcherDetails from '@/pages/researchDetails/researcherDetails';
@@ -29,6 +30,7 @@ interface IpForm {
 
 type FormState = {
   // researcher_info
+  id: string;
   headPrefix: string;
   headAcademicPosition: string;
   headFirstName: string;
@@ -104,9 +106,11 @@ export default function ResearcherForm() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [trlLevel, setTrlLevel] = useState<number | null>(null);
   const submitFormMutation = useSubmitResearcherForm();
+  const { data: userProfile } = useGetUserProfile();
 
   const [formData, setFormData] = useState<FormState>({
     // researcher_info
+    id: userProfile?.id ?? "",
     headPrefix: "",
     headAcademicPosition: "",
     headFirstName: "",

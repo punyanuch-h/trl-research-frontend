@@ -91,7 +91,7 @@ export default function ResearcherDetails({
                     </div>
 
                     <div className="col-span-1">
-                        <Label htmlFor="headFirstName">Name*</Label>
+                        <Label htmlFor="headFirstName">ชื่อ*</Label>
                         <Input
                             id="headFirstName"
                             value={formData.headFirstName}
@@ -105,7 +105,7 @@ export default function ResearcherDetails({
                     </div>
 
                     <div className="col-span-1">
-                        <Label htmlFor="headLastName">Last Name*</Label>
+                        <Label htmlFor="headLastName">นามสกุล*</Label>
                         <Input
                             id="headLastName"
                             value={formData.headLastName}
@@ -139,7 +139,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="headPhoneNumber">Phone Number*</Label>
+                    <Label htmlFor="headPhoneNumber">เบอร์โทรศัพท์*</Label>
                     <Input
                         id="headPhoneNumber"
                         value={formData.headPhoneNumber}
@@ -153,7 +153,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="headEmail">Email*</Label>
+                    <Label htmlFor="headEmail">อีเมล์*</Label>
                     <Input
                         id="headEmail"
                         value={formData.headEmail}
@@ -186,7 +186,7 @@ export default function ResearcherDetails({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <Label htmlFor="coordinatorFirstName">Name*</Label>
+                        <Label htmlFor="coordinatorFirstName">ชื่อ*</Label>
                         <Input
                             id="coordinatorFirstName"
                             value={formData.coordinatorFirstName}
@@ -200,7 +200,7 @@ export default function ResearcherDetails({
                         />
                     </div>
                     <div>
-                        <Label htmlFor="coordinatorLastName">Last Name*</Label>
+                        <Label htmlFor="coordinatorLastName">นามสกุล*</Label>
                         <Input
                             id="coordinatorLastName"
                             value={formData.coordinatorLastName}
@@ -216,7 +216,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="coordinatorPhoneNumber">Phone Number*</Label>
+                    <Label htmlFor="coordinatorPhoneNumber">เบอร์โทรศัพท์*</Label>
                     <Input
                         id="coordinatorPhoneNumber"
                         value={formData.coordinatorPhoneNumber}
@@ -231,7 +231,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="coordinatorEmail">Email*</Label>
+                    <Label htmlFor="coordinatorEmail">อีเมล์*</Label>
                     <Input
                         id="coordinatorEmail"
                         value={formData.coordinatorEmail}
