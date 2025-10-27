@@ -122,6 +122,7 @@ export class ApiQueryClient extends ApiBaseClient {
   async useSubmitResearcherForm(formData: any): Promise<any> {    
     // 1. Create Case
     const casePayload = {
+      researcher_id: formData.id ?? "",
       coordinator_email: formData.coordinatorEmail,
       trl_score: formData.trlScore ?? "",
       is_urgent: formData.isUrgent ?? false,
