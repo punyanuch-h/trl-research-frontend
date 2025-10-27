@@ -8,7 +8,9 @@ import type {
   LoginResponse,
   SupporterResponse,
   ResearcherResponse,
+  UserProfileResponse,
 } from "@/hooks/client/type";
+import { getUserRole } from "@/lib/auth";
 
 export class ApiQueryClient extends ApiBaseClient {
   // Authentication
@@ -213,5 +215,15 @@ export class ApiQueryClient extends ApiBaseClient {
       assessmentId: assessmentResponse.data.assessment_id,
       supporterId: supporterResponse.data.supporter_id,
     };
+  }
+
+  async useGetUserProfile(): Promise<UserProfileResponse> {
+    if (getUserRole() === "admin") {
+      const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/admin/profile`);
+      return response.data;
+    } else {
+      const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/researcher/profile`);
+      return response.data;
+    }
   }
 }
