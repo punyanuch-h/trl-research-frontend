@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { ApiQueryClient } from "../../client/ApiQueryClient";
+import { da } from "date-fns/locale";
 
 interface IpForm {
   noIp?: boolean;
@@ -89,6 +90,7 @@ export function useSubmitResearcherForm() {
 
   return useMutation({
     mutationFn: async (formData: FormState) => {
+      console.log("✅ Form submitted successfully",formData);
       return apiClient.useSubmitResearcherForm(formData);
     },
     onSuccess: () => {

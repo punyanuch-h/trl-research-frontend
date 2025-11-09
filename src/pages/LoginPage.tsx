@@ -33,6 +33,13 @@ export default function LoginPage() {
     try {
       const response = await mutateAsync(data);
 
+      if (response?.token) {
+        localStorage.setItem("token", response.token);
+      }
+      if (response?.role) {
+        localStorage.setItem("role", response.role);
+      }
+
       // Get role directly from response (no token needed)
       const role = response?.role;
       
