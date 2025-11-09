@@ -1,10 +1,10 @@
 import React from 'react';
-import { useDashboardData } from '../hooks/admin/dashboard/useDashboardData';
-import DashboardHeader from '../components/dashboard/DashboardHeader';
-import MetricsCards from '../components/dashboard/MetricsCards';
-import ChartsGrid from '../components/dashboard/ChartsGrid';
-import RecentActivity from '../components/dashboard/RecentActivity';
-import LoadingState from '../components/dashboard/LoadingState';
+import { useDashboardData } from '../../hooks/admin/dashboard/useDashboardData';
+import DashboardHeader from '../dashboard/DashboardHeader';
+import MetricsCards from '../dashboard/MetricsCards';
+import ChartsGrid from '../dashboard/ChartsGrid';
+import RecentActivity from '../dashboard/RecentActivity';
+import LoadingState from '../dashboard/LoadingState';
 
 const AdminDashboard: React.FC = () => {
   const { data, loading, error, refreshData } = useDashboardData();

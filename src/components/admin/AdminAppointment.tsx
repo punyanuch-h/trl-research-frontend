@@ -6,12 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 import { TablePagination } from "@/components/TablePagination";
-import { AddAppointmentModal } from "./modal/appointment/AddAppointmentModal";
-import EditAppointmentModal from "./modal/appointment/EditAppointmentModal";
+import { AddAppointmentModal } from "../modal/appointment/AddAppointmentModal";
+import EditAppointmentModal from "../modal/appointment/EditAppointmentModal";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../hooks/client/type";
+import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../hooks/client/type";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];

@@ -11,7 +11,7 @@ import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useUpdateUrgentStatus } from "@/hooks/case/patch/useUpdateUrgentStatus";
 
-import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../hooks/client/type";
+import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../hooks/client/type";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
