@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetUserProfile } from "@/hooks/useGetUserProfile";
+import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import formatPhoneNumber from "@/utils/phone";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";

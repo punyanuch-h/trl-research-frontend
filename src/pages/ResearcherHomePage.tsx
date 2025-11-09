@@ -12,7 +12,9 @@ import Header from "../components/Header";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
+import { useGetAllCasesByID } from "@/hooks/case/get/useGetAllCasesByID";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
 
 // --- Types ---
@@ -40,10 +42,10 @@ interface appointmentData {
 }
 export default function ResearcherHomePage() {
   const navigate = useNavigate();
-  const { data: caseData = [], isPending: isCasePending, isError: isCaseError } = useGetAllCases();
-  const { data: appointmentData = [], isPending: isAppointmentPending, isError: isAppointmentError } =
-    useGetAllAppointments();
-
+  const { data: userProfile } = useGetUserProfile();
+  const { data: caseData = [] } = useGetAllCasesByID(userProfile?.id);
+  const { data: appointmentData = []} = useGetAllAppointments();
+  
   // --- State ---
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
@@ -64,19 +66,6 @@ export default function ResearcherHomePage() {
     isUrgent: ["true", "false"],
   };
 
-  // --- Merge cases with their appointments ---
-  // const researcherId = localStorage.getItem("researcher_id");
-  // if (!researcherId) {
-  //   navigate("/login");
-  //   return null;
-  // }
-
-  // const mergedCases = caseData
-  // .filter((c) => c.researcher_id === researcherId)
-  // .map((c) => ({
-  //   ...c,
-  //   appointments: appointmentData.filter((a) => a.case_id === c.case_id),
-  // }));
   const mergedCases: CaseInfo[] = caseData.map((c) => ({ 
     ...c, 
     appointments: appointmentData.filter((a) => a.case_id === c.case_id), 
@@ -117,32 +106,42 @@ export default function ResearcherHomePage() {
       if (a.is_urgent !== b.is_urgent) {
         return a.is_urgent ? -1 : 1;
       }
+
+      // Second priority: status from low to high (ascending)
+      const aStatus = a.status ? "Approve" : "In process";
+      const bStatus = b.status ? "Approve" : "In process";
+
+      if (aStatus !== bStatus) {
+        if (aStatus === "In process") return -1;
+        if (bStatus === "In process") return 1;
+      }
       
-      // Second priority: case_id from high to low (descending)
+      // Third priority: case_id from high to low (descending)
       if (a.case_id !== b.case_id) {
         return b.case_id.localeCompare(a.case_id); // descending order (high to low)
       }
       
-      // Third priority: use the original sort config only within same urgent status and case_id
-      const { key, direction } = sortConfig;
-      let aValue: any = a[key as keyof CaseInfo];
-      let bValue: any = b[key as keyof CaseInfo];
+      // // Fourth priority: use the original sort config only within same urgent status and case_id
+      // const { key, direction } = sortConfig;
+      // let aValue: any = a[key as keyof CaseInfo];
+      // let bValue: any = b[key as keyof CaseInfo];
 
-      if (key === "trlScore") {
-        aValue = a.trl_score ?? "";
-        bValue = b.trl_score ?? "";
-      }
-      if (key === "status") {
-        aValue = a.status ?? "";
-        bValue = b.status ?? "";
-      }
-      if (key === "createdAt") {
-        aValue = new Date(a.created_at).getTime();
-        bValue = new Date(b.created_at).getTime();
-      }
-      if (aValue < bValue) return direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return direction === "asc" ? 1 : -1;
-      return 0;
+      // if (key === "trlScore") {
+      //   aValue = a.trl_score ?? "";
+      //   bValue = b.trl_score ?? "";
+      // }
+      // if (key === "status") {
+      //   aValue = a.status ?? "";
+      //   bValue = b.status ?? "";
+      // }
+      // if (key === "createdAt") {
+      //   aValue = new Date(a.created_at).getTime();
+      //   bValue = new Date(b.created_at).getTime();
+      // }
+      // if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      // if (aValue > bValue) return direction === "asc" ? 1 : -1;
+      // return 0;
+      return b.case_id.localeCompare(a.case_id);
     });
 
     return sorted;

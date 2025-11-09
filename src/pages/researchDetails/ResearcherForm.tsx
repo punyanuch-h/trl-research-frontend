@@ -12,7 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useSubmitResearcherForm } from "@/hooks/case/post/useSubmitResearcherForm";
-import { useGetUserProfile } from "@/hooks/useGetUserProfile";
+import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 
 // Import components
 import ResearcherDetails from '@/pages/researchDetails/researcherDetails';
@@ -125,7 +125,7 @@ export default function ResearcherForm() {
     coordinatorPhoneNumber: "",
     coordinatorEmail: "",
     // caseDetails
-    researcherId: "",
+    researcherId: userProfile?.id ?? "",
     trlScore: "",
     status: false,
     isUrgent: false,
