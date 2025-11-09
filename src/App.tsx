@@ -7,17 +7,16 @@ import { Routes, Route } from "react-router-dom";
 
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import Profile from "./pages/Profile";
-import AdminHomePage from "./pages/AdminHomePage";
+import Profile from "./pages/profile/Profile.tsx";
+import AdminHomePage from "./pages/homepage/AdminHomePage.tsx";
 import AppointmentDetail from "./pages/deposit-May-be-used/AppointmentDetail.tsx";
-import CaseDetial from "./pages/CaseDetial";
-import ResearcherForm from "./pages/researchDetails/ResearcherForm";
-import TrlScore from "./pages/TrlScore";
-import CompletePage from "./pages/CompletePage";
+import CaseDetial from "./pages/caseDetial/CaseDetial";
+import ResearcherForm from "./pages/researchForm/ResearcherForm";
+import TrlScore from "./pages/deposit-May-be-used/TrlScore.tsx";
 import NotFound from "./pages/NotFound";
 import DifyChatIframe from "@/components/chat/DifyChatIFrame.tsx";
-import ResearcherHomePage from "./pages/ResearcherHomePage";
-import ResearcherDetailResearcher from "./pages/ResearcherHomePage";
+import ResearcherHomePage from "./pages/homepage/ResearcherHomePage.tsx";
+import ResearcherDetailResearcher from "./pages/homepage/ResearcherHomePage.tsx";
 import AssessmentResult from "./pages/evaluate/assessmentResult.tsx";
 
 const queryClient = new QueryClient();
@@ -44,7 +43,6 @@ const App: React.FC = () => {
           <Route path="/researcher-form" element={<ResearcherForm />} />
           <Route path="/trl-score" element={<TrlScore />} />
           <Route path="/assessment/:id" element={<AssessmentResult />} />
-          <Route path="/complete" element={<CompletePage />} />
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
