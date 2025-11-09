@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDashboardData } from '../hooks/useDashboardData';
+import { useDashboardData } from '../hooks/admin/dashboard/useDashboardData';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import MetricsCards from '../components/dashboard/MetricsCards';
 import ChartsGrid from '../components/dashboard/ChartsGrid';

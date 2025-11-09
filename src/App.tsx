@@ -10,7 +10,7 @@ import SignupPage from "./pages/SignupPage";
 import Profile from "./pages/Profile";
 import StartPage from "./pages/StartPage";
 import AdminHomePage from "./pages/AdminHomePage";
-import AppointmentDetail from "./pages/AppointmentDetail";
+import AppointmentDetail from "./pages/deposit-May-be-used/AppointmentDetail.tsx";
 import CaseDetial from "./pages/CaseDetial";
 import ResearcherForm from "./pages/researchDetails/ResearcherForm";
 import TrlScore from "./pages/TrlScore";
