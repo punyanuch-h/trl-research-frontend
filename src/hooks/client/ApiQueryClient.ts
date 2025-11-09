@@ -227,4 +227,18 @@ export class ApiQueryClient extends ApiBaseClient {
       return response.data;
     }
   }
+
+
+  async useUpdateUserProfile(userProfile: UserProfileResponse) {
+    const endpoint =
+      getUserRole() === "admin"
+        ? `/trl/admin/${userProfile.id}`
+        : `/trl/researcher/${userProfile.id}`;
+
+    const response = await this.axiosInstance.patch(
+      endpoint,
+      userProfile
+    );
+    return response.data;
+  }
 }

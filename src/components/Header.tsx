@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 import { Home } from "lucide-react";
 import { toast } from "sonner";
-import { useGetUserProfile } from "@/hooks/useGetUserProfile";
+import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 
 export default function Header() {
   const navigate = useNavigate();
