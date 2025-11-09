@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Download, Eye, Filter, Plus } from "lucide-react";
 
@@ -13,142 +13,167 @@ import Header from "../components/Header";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
-import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllCasesByID } from "@/hooks/case/get/useGetAllCasesByID";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
 
 // --- Types ---
-interface CaseInfo {
+interface CaseResponse {
   case_id: string;
-  case_title: string;
-  case_type: string;
-  trl_score?: string;
+  researcher_id: string;
+  coordinator_email: string;
+  trl_score: string;
+  trl_suggestion: string;
   status: boolean;
   is_urgent: boolean;
-  urgent_reason?: string;
-  urgent_feedback?: string;
-  trl_suggestion?: string;
-  created_at: string;
-}
+  urgent_reason: string;
+  urgent_feedback: string;
+  case_title: string;
+  case_type: string;
+  case_description: string;
+  case_keywords: string;
+};
 
-interface appointmentData {
+interface Appointment {
   appointment_id: string;
   case_id: string;
   date: string;
-  status: "attended" | "absent" | "pending";
+  status: string;
   location: string;
   note?: string;
-  summary?: string;
 }
+
+// Merge Case + Appointment
+function mergeCasesData(
+  cases: CaseResponse[],
+  appointments: Appointment[],
+) {
+  return cases.map((c) => {
+    const caseAppointments = appointments
+      .filter((a) => a.case_id === c.case_id)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return {
+      ...c,
+      appointments: caseAppointments,
+      latestAppointment: caseAppointments[0] || null,
+    };
+  });
+}
+
 export default function ResearcherHomePage() {
   const navigate = useNavigate();
   const { data: userProfile } = useGetUserProfile();
   const { data: caseData = [] } = useGetAllCasesByID(userProfile?.id);
-  const { data: appointmentData = []} = useGetAllAppointments();
+  const { data: appointmentData = [] } = useGetAllAppointments();
   
+  // --- State ---
+  const [cases, setCases] = useState<(CaseResponse & { appointments: Appointment[]; latestAppointment: Appointment | null })[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // --- State ---
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
   const [selectedColumn, setSelectedColumn] = React.useState("type");
   const [selectedValue, setSelectedValue] = React.useState("");
 
-  const columns = ["type", "trlScore", "status", "isUrgent"];
+  // --- Sorting state ---
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({
+    key: "createdAt",
+    direction: "desc",
+  });
 
+  // --- Pagination ---
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [currentPage, setCurrentPage] = React.useState(1);
+
+  // --- Merge data ---
+  useEffect(() => {
+    if (caseData && appointmentData) {
+      const merged = mergeCasesData(caseData, appointmentData);
+      setCases(merged);
+      setLoading(false);
+    }
+  }, [caseData, appointmentData]);
+
+  // --- Sorting ---
+  function sortResearch(researchList: typeof caseData) {
+    const sorted = [...researchList].sort((a, b) => {
+      const { key, direction } = sortConfig;
+      let aValue: any = (a as any)[key];
+      let bValue: any = (b as any)[key];
+
+      if (key === "trl_score") {
+        aValue = a.trl_score ?? "";
+        bValue = b.trl_score ?? "";
+      }
+      if (key === "status") {
+        aValue = a.status ?? "";
+        bValue = b.status ?? "";
+      }
+      
+      if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return sorted.sort((a, b) => (a.is_urgent === b.is_urgent ? 0 : a.is_urgent ? -1 : 1));
+  }
+
+  const sortedCases = sortResearch(cases);
+  
+  // --- Filtering ---
+  const filteredCases = sortedCases.filter((c) =>
+    customFilters.every(({ column, value }) => {
+      if (column === "case_type") return c.case_type === value;
+      if (column === "trl_score") return c.trl_score?.toString() === value;
+      if (column === "status") return (c.status ? "Approve" : "In process") === value;
+      if (column === "is_urgent") return String(c.is_urgent) === value;
+      if (column === "case_title") return c.case_title === value;
+      return true;
+    })
+  );
+
+  // --- Columns ---
+  const columns = [
+    { key: "case_id", label: "ID" },
+    { key: "case_title", label: "Name" },
+    { key: "case_type", label: "Type" },
+    { key: "trl_score", label: "TRL Score" },
+    { key: "status", label: "Status" },
+  ];
+
+  // --- Filter options ---
   const columnOptions: Record<string, string[]> = {
-    type: [
+    case_type: [
       "TRL software",
       "TRL medical devices",
       "TRL medicines vaccines stem cells",
       "TRL plant/animal breeds",
     ],
-    trlScore: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    status: ["In process", "Approve"],
-    isUrgent: ["true", "false"],
+    trl_score: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    status: ["Approve", "In process"],
+    is_urgent: ["true", "false"],
+    case_title: [...new Set(cases.map((c) => c.case_title))],
   };
 
-  const mergedCases: CaseInfo[] = caseData.map((c) => ({ 
-    ...c, 
-    appointments: appointmentData.filter((a) => a.case_id === c.case_id), 
-  }));
+  const handleSort = (key: string) => {
+    setSortConfig((prev) =>
+      prev.key === key
+        ? { key, direction: prev.direction === "asc" ? "desc" : "asc" }
+        : { key, direction: "asc" }
+    );
+  };
+  
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [customFilters, rowsPerPage]);
 
-  // --- Filter ---
-  const filteredCases = mergedCases.filter((c) =>
-    customFilters.every(({ column, value }) => {
-      switch (column) {
-        case "type":
-          return c.case_type === value;
-        case "trlScore":
-          return String(c.trl_score) === value;
-        case "status":
-          return (c.status ? "Approve" : "In process") === value;
-        case "isUrgent":
-          return String(c.is_urgent) === value;
-        default:
-          return true;
-      }
-    })
-  );
+  if (loading) return <div className="p-10 text-center text-lg text-gray-500">Loading data...</div>;
 
-  // --- Pagination ---
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [currentPage, setCurrentPage] = React.useState(1);
   const totalPages = Math.ceil(filteredCases.length / rowsPerPage);
-
-  // --- Sorting ---
-  const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: "asc" | "desc" }>({
-    key: "id",
-    direction: "asc",
-  });
-
-  function sortResearch(researchList: CaseInfo[]) {
-    const sorted = [...researchList].sort((a, b) => {
-      // First priority: urgent cases first (ALWAYS)
-      if (a.is_urgent !== b.is_urgent) {
-        return a.is_urgent ? -1 : 1;
-      }
-
-      // Second priority: status from low to high (ascending)
-      const aStatus = a.status ? "Approve" : "In process";
-      const bStatus = b.status ? "Approve" : "In process";
-
-      if (aStatus !== bStatus) {
-        if (aStatus === "In process") return -1;
-        if (bStatus === "In process") return 1;
-      }
-      
-      // Third priority: case_id from high to low (descending)
-      if (a.case_id !== b.case_id) {
-        return b.case_id.localeCompare(a.case_id); // descending order (high to low)
-      }
-      
-      // // Fourth priority: use the original sort config only within same urgent status and case_id
-      // const { key, direction } = sortConfig;
-      // let aValue: any = a[key as keyof CaseInfo];
-      // let bValue: any = b[key as keyof CaseInfo];
-
-      // if (key === "trlScore") {
-      //   aValue = a.trl_score ?? "";
-      //   bValue = b.trl_score ?? "";
-      // }
-      // if (key === "status") {
-      //   aValue = a.status ?? "";
-      //   bValue = b.status ?? "";
-      // }
-      // if (key === "createdAt") {
-      //   aValue = new Date(a.created_at).getTime();
-      //   bValue = new Date(b.created_at).getTime();
-      // }
-      // if (aValue < bValue) return direction === "asc" ? -1 : 1;
-      // if (aValue > bValue) return direction === "asc" ? 1 : -1;
-      // return 0;
-      return b.case_id.localeCompare(a.case_id);
-    });
-
-    return sorted;
-  }
-
-  const sortedProjects = sortResearch(filteredCases);
-  const paginatedResearch = sortedProjects.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+  const paginatedProjects = filteredCases.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
   // --- Utils ---
   const getStatusColor = (status: string) => {
@@ -163,7 +188,7 @@ export default function ResearcherHomePage() {
   };
 
   const handleViewCase = (caseId: string) => {
-    const c = caseData.find((c) => c.case_id === caseId);
+    const c = cases.find((c) => c.case_id === caseId);
     navigate(`/case-detail/${caseId}`, { state: { caseInfo: c } });
   };
 
@@ -215,7 +240,7 @@ export default function ResearcherHomePage() {
             </Button>
           </div>
         </div>
-          {/* Modal Filter */}
+          {/* --- Modal Filter --- */}
           <Dialog open={showFilterModal} onOpenChange={setShowFilterModal}>
             <DialogContent className="max-w-md">
               <DialogHeader>
@@ -232,8 +257,10 @@ export default function ResearcherHomePage() {
                     }}
                     className="w-full border rounded px-2 py-1 text-sm"
                   >
-                    {columns.map((col) => (
-                      <option key={col} value={col}>{col}</option>
+                    {Object.keys(columnOptions).map((col) => (
+                      <option key={col} value={col}>
+                        {col}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -245,8 +272,10 @@ export default function ResearcherHomePage() {
                     className="w-full border rounded px-2 py-1 text-sm"
                   >
                     <option value="">Select value</option>
-                    {columnOptions[selectedColumn].map((v) => (
-                      <option key={v} value={v}>{v}</option>
+                    {columnOptions[selectedColumn]?.map((v) => (
+                      <option key={v} value={v}>
+                        {v}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -274,46 +303,45 @@ export default function ResearcherHomePage() {
           </Dialog>
         
         
-
+        {/* --- Table --- */}
         <Card>
           <CardHeader>
             <CardTitle>Research Submissions</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table className="table-fixed w-full">
+            <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="cursor-pointer w-[120px]" onClick={() => setSortConfig({ key: "id", direction: sortConfig.key === "id" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    ID {sortConfig.key === "id" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
-                  </TableHead>
-                  <TableHead className="cursor-pointer w-[180px]" onClick={() => setSortConfig({ key: "researchTitle", direction: sortConfig.key === "researchTitle" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    Name {sortConfig.key === "researchTitle" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
-                  </TableHead>
-                  <TableHead className="cursor-pointer text-center w-[80px]" onClick={() => setSortConfig({ key: "researchType", direction: sortConfig.key === "researchType" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    Type {sortConfig.key === "researchType" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
-                  </TableHead>
-                  <TableHead className="cursor-pointer text-center w-[100px]" onClick={() => setSortConfig({ key: "trlScore", direction: sortConfig.key === "trlScore" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    TRL Score {sortConfig.key === "trlScore" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
-                  </TableHead>
-                  <TableHead className="cursor-pointer text-center w-[90px]" onClick={() => setSortConfig({ key: "status", direction: sortConfig.key === "status" && sortConfig.direction === "asc" ? "desc" : "asc" })}>
-                    Status {sortConfig.key === "status" ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
-                  </TableHead>
-                  <TableHead className="w-[250px]">Action</TableHead>
-                  <TableHead className="w-[250px]">For Next Step</TableHead>
+                  {columns.map((col) => (
+                    <TableHead
+                      key={col.key}
+                      className="cursor-pointer select-none"
+                      onClick={() => handleSort(col.key)}
+                    >
+                      {col.label}
+                      {sortConfig.key === col.key
+                        ? sortConfig.direction === "asc"
+                          ? " ↑"
+                          : " ↓"
+                        : ""}
+                    </TableHead>
+                  ))}
+                  <TableHead>Action</TableHead>
+                  <TableHead>For Next Step</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCases.length === 0 ? (
+                {paginatedProjects.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center text-muted-foreground">
                       No research data found.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredCases.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map(c => (
+                  paginatedProjects.map((c) => (
                     <TableRow key={c.case_id}>
-                      <TableCell>{c.case_id}</TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[110px]">{c.case_id}</TableCell>
+                      <TableCell className="min-w-[180px]">
                         <div className="flex flex-col">
                           <span
                             className={`relative group ${c.is_urgent ? "text-red-600 font-semibold" : ""}`}
@@ -335,21 +363,21 @@ export default function ResearcherHomePage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{c.case_type}</TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[120px]">{c.case_type}</TableCell>
+                      <TableCell className="min-w-[100px] text-center">
                         {c.status === true ? (
                           <Badge variant="outline">TRL {c.trl_score}</Badge>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[90px] text-center">
                         <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(c.status === true ? "Approve" : "In process")}`}>
                           {c.status === true ? "Approve" : "In process"}
                         </Badge>
                       </TableCell>
 
-                      <TableCell>
+                      <TableCell className="min-w-[250px]">
                         <div className="flex gap-2 min-w-[160px]">
                           {c.status ? (
                             <>
@@ -366,8 +394,7 @@ export default function ResearcherHomePage() {
                                 size="sm"
                                 onClick={() =>
                                   handleDownloadResult(
-                                    c.case_title
-                                    // c.trl_result
+                                    c.trl_score
                                       ? `result_${c.case_title}.pdf`
                                       : `result_${c.case_title}.txt`
                                   )
@@ -413,7 +440,7 @@ export default function ResearcherHomePage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{c.trl_suggestion || "-"}</TableCell>
+                      <TableCell className="min-w-[250px]">{c.trl_suggestion || "-"}</TableCell>
                     </TableRow>
                   ))
                 )}
