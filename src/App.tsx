@@ -32,7 +32,7 @@ const App: React.FC = () => {
         <DifyChatIframe />
 
         <Routes>
-          <Route path="/" element={<StartPage />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/profile" element={<Profile />} />
