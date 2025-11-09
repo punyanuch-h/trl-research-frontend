@@ -125,7 +125,7 @@ export default function ResearcherForm() {
     coordinatorPhoneNumber: "",
     coordinatorEmail: "",
     // caseDetails
-    researcherId: "",
+    researcherId: userProfile?.id ?? "",
     trlScore: "",
     status: false,
     isUrgent: false,
