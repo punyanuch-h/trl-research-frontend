@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
-import Header from './Header';
+import Header from '../Header';
 
 interface AdminNavbarProps {
   activeView: 'management' | 'dashboard' | 'appointments';

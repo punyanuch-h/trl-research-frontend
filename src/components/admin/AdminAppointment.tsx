@@ -6,18 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 import { TablePagination } from "@/components/TablePagination";
-import { AddAppointmentModal } from "./modal/appointment/AddAppointmentModal";
-import EditAppointmentModal from "./modal/appointment/EditAppointmentModal";
+import { AddAppointmentModal } from "../modal/appointment/AddAppointmentModal";
+import EditAppointmentModal from "../modal/appointment/EditAppointmentModal";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../hooks/client/type";
 
-import type { CaseInfo, Appointment } from "../types/case";
-import type { ResearcherInfo } from "../types/researcher";
-
-interface Project extends CaseInfo {
-  appointments?: Appointment[];
-  researcherInfo?: ResearcherInfo;
+interface Project extends CaseResponse {
+  appointments?: AppointmentResponse[];
+  researcherInfo?: ResearcherResponse;
 }
 
 interface Props {
@@ -63,7 +61,7 @@ export default function AdminAppointment({
   const [selectedTime, setSelectedTime] = useState<string>("");
 
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [editingAppointment, setEditingAppointment] = useState<AppointmentResponse | null>(null);
 
   // 🧩 รวม appointments ทั้งหมด
   const allAppointments = projects.flatMap((project) =>
@@ -109,7 +107,7 @@ export default function AdminAppointment({
                   date: new Date(`${date}T${time}`).toISOString(),
                   status: "pending",
                   location: "Meeting Room A",
-                } as Appointment,
+                } as AppointmentResponse,
               ],
             }
           : p
@@ -118,7 +116,7 @@ export default function AdminAppointment({
     setShowModal(false);
   };
 
-  const handleSaveEdit = (updated: Appointment) => {
+  const handleSaveEdit = (updated: AppointmentResponse) => {
     setProjects(prev =>
       prev.map(project => {
         // ตรวจสอบว่า appointment นี้อยู่ใน project ไหน
@@ -137,7 +135,7 @@ export default function AdminAppointment({
     setEditingAppointment(null);
   };
 
-  const handleEditAppointment = (appointment: Appointment) => {
+  const handleEditAppointment = (appointment: AppointmentResponse) => {
     setEditingAppointment(appointment);
     setEditModalOpen(true);
   };

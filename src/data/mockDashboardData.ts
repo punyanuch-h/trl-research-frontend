@@ -1,4 +1,4 @@
-import { DashboardData } from '../hooks/useDashboardData';
+import { DashboardData } from '../hooks/admin/dashboard/useDashboardData';
 
 export const researcherInfo = [
   { research_id: 'R001', full_name: 'John Doe', email: 'john.doe@example.com', institution: 'University A', position: 'Professor' },
