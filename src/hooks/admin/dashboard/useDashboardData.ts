@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { researcherInfo, researchInfo, researchDetails } from '../data/mockDashboardData';
+import { researcherInfo, researchInfo, researchDetails } from '../../../data/mockDashboardData';
 
 export interface DashboardData {
   // Research Statistics

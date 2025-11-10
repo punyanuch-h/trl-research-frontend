@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
-import Header from './Header';
+import Header from '../Header';
 
 interface AdminNavbarProps {
   activeView: 'management' | 'dashboard' | 'appointments';
@@ -33,7 +33,6 @@ export default function AdminNavbar({
   selectedValue, setSelectedValue,
   columns, columnOptions
 }: AdminNavbarProps) {
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">

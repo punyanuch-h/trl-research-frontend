@@ -11,11 +11,11 @@ import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useUpdateUrgentStatus } from "@/hooks/case/patch/useUpdateUrgentStatus";
 
-import type { CaseInfo, Appointment } from "../types/case";
-import type { ResearcherInfo } from "../types/researcher";
-interface Project extends CaseInfo {
-  appointments?: Appointment[];
-  researcherInfo?: ResearcherInfo;
+import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../hooks/client/type";
+
+interface Project extends CaseResponse {
+  appointments?: AppointmentResponse[];
+  researcherInfo?: ResearcherResponse;
 }
 
 interface Props {
@@ -35,17 +35,14 @@ interface Props {
 
 export default function AdminManagement({
   projects,
-  setProjects,
   sortConfig,
   onSort,
-  onAIEstimate,
   onDownload,
   currentPage,
   rowsPerPage,
   setCurrentPage,
   setRowsPerPage,
   getFullNameByResearcherID,
-  onAssessment,
 }: Props) {
   const tableColumns = [
     { key: "createdAt", label: "Create Date" },
@@ -71,7 +68,7 @@ export default function AdminManagement({
 
   const handleViewResearch = (caseId: string) => {
     const c = projects.find(c => c.case_id === caseId);
-    navigate(`/case-detail/${caseId}`, { state: { caseInfo: c } });
+    navigate(`/case-detail/${caseId}`, { state: { CaseResponse: c } });
   };
 
   const totalPages = Math.ceil(projects.length / rowsPerPage);

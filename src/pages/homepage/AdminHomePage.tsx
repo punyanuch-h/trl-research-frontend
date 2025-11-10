@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import AdminNavbar from "../components/AdminNavbar";
-import AdminManagement from "../components/AdminManagement";
-import AdminDashboard from "../components/AdminDashboard";
-import AdminAppointment from "../components/AdminAppointment";
+import AdminNavbar from "../../components/admin/AdminNavbar";
+import AdminManagement from "../../components/admin/AdminManagement";
+import AdminDashboard from "../../components/admin/AdminDashboard";
+import AdminAppointment from "../../components/admin/AdminAppointment";
 
 import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
