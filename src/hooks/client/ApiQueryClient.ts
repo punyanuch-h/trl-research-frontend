@@ -7,8 +7,11 @@ import type {
   IntellectualPropertyResponse,
   LoginResponse,
   SupporterResponse,
+<<<<<<< Updated upstream
   ResearcherResponse,
   UserProfileResponse,
+=======
+>>>>>>> Stashed changes
 } from "@/hooks/client/type";
 import { getUserRole } from "@/lib/auth";
 
@@ -53,11 +56,14 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+<<<<<<< Updated upstream
   async useUpdateUrgentStatus(caseId: string, urgentData: { is_urgent: boolean; urgent_feedback: string }){
     const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, urgentData);
     return response.data;
   }
 
+=======
+>>>>>>> Stashed changes
   async useGetAllCases(): Promise<CaseResponse[]> {
     const response = await this.axiosInstance.get<CaseResponse[]>(`/trl/cases`);
     return response.data;
@@ -73,11 +79,14 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+<<<<<<< Updated upstream
   async useGetAppointmentByCaseId(caseId: string): Promise<AppointmentResponse> {
     const response = await this.axiosInstance.get<AppointmentResponse>(`/trl/appointment/case/${caseId}`);
     return response.data;
   }
 
+=======
+>>>>>>> Stashed changes
   async useGetIPAll(): Promise<IntellectualPropertyResponse[]> {
     const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ips`);
     return response.data;
@@ -88,11 +97,14 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+<<<<<<< Updated upstream
   async useGetIPByCaseId(caseId: string): Promise<IntellectualPropertyResponse> {
     const response = await this.axiosInstance.get<IntellectualPropertyResponse>(`/trl/ip/case/${caseId}`);
     return response.data;
   }
 
+=======
+>>>>>>> Stashed changes
   async useGetAllSupporters(): Promise<SupporterResponse[]> {
     const response = await this.axiosInstance.get<SupporterResponse[]>(`/trl/supporters`);
     return response.data;
@@ -103,11 +115,14 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+<<<<<<< Updated upstream
   async useGetSupporterByCaseId(caseId: string): Promise<SupporterResponse> {
     const response = await this.axiosInstance.get<SupporterResponse>(`/trl/supporter/case/${caseId}`);
     return response.data;
   }
 
+=======
+>>>>>>> Stashed changes
   async useGetAllCoordinators(): Promise<CoordinatorResponse[]> {
     const response = await this.axiosInstance.get<CoordinatorResponse[]>(`/trl/coordinators`);
     return response.data;
@@ -117,6 +132,7 @@ export class ApiQueryClient extends ApiBaseClient {
     const response = await this.axiosInstance.get<CoordinatorResponse>(`/trl/coordinator/${coordinatorId}`);
     return response.data;
   }
+<<<<<<< Updated upstream
 
   async useGetCoordinatorByCaseId(caseId: string): Promise<CoordinatorResponse> {
     const response = await this.axiosInstance.get<CoordinatorResponse>(`/trl/coordinator/case/${caseId}`);
@@ -232,4 +248,6 @@ export class ApiQueryClient extends ApiBaseClient {
       return response.data;
     }
   }
+=======
+>>>>>>> Stashed changes
 }
