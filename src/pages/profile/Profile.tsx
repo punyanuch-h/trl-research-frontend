@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { useUpdateUserProfile } from "@/hooks/user/patch/useUpdateUserProfile";
 import formatPhoneNumber from "@/utils/phone";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Edit, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import Header from "../../components/Header";
 
 export default function ProfilePage() {
   const { data: userProfile } = useGetUserProfile();
@@ -40,24 +41,54 @@ export default function ProfilePage() {
   const handleSave = async () => {
     try {
       const updated = await updateUserProfile.mutateAsync(form as any);
-      // ปรับ form ให้แสดงผลทันทีหลัง update สำเร็จ
       if (updated) {
         setForm(updated);
       }
       setIsEditing(false);
     } catch (err) {
-      // สามารถเพิ่มการแจ้งเตือนได้ตามต้องการ
       console.error("Update failed", err);
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
+      {/* <Header /> */}
       <div className="flex items-center justify-center py-10 px-4">
-        <Card className="w-full max-w-xl">
-          <CardHeader>
-            <ArrowLeft className="w-6 h-6 mr-2 cursor-pointer" onClick={() => navigate(-1)} />
-            <CardTitle className="text-center text-2xl">User Profile</CardTitle>
+        <Card className="w-full max-w-xl relative">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center">
+              <ArrowLeft
+                className="w-6 h-6 mr-2 cursor-pointer"
+                onClick={() => navigate(-1)}
+              />
+              <CardTitle className="text-2xl">User Profile</CardTitle>
+            </div>
+
+            {/* ปุ่ม Edit / Save มุมขวาบน */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (isEditing) handleSave();
+                else setIsEditing(true);
+              }}
+              disabled={updateUserProfile.isPending}
+              className="flex items-center gap-2"
+            >
+              {updateUserProfile.isPending ? (
+                "Saving..."
+              ) : isEditing ? (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save</span>
+                </>
+              ) : (
+                <>
+                  <Edit className="w-4 h-4" />
+                  <span>Edit</span>
+                </>
+              )}
+            </Button>
           </CardHeader>
 
           <CardContent>
@@ -71,39 +102,34 @@ export default function ProfilePage() {
                 { label: "Email", name: "email" },
                 { label: "Phone Number", name: "phone_number" },
               ].map((field) => (
-                <div key={field.name} className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-primary">{field.label}</label>
-                  {isEditing ? (
-                    <Input
-                      name={field.name}
-                      value={(form as any)[field.name] ?? ""}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    <span className="text-base font-medium border border-gray-300 rounded-md p-2">
-                      {field.name === "phone_number"
-                        ? formatPhoneNumber((form as any)?.[field.name])
-                        : (form as any)?.[field.name]}
-                    </span>
-                  )}
+                <div key={field.name} className="flex flex-col gap-2 relative">
+                  <label className="text-sm font-medium text-primary">
+                    {field.label}
+                  </label>
+
+                  <div className="relative flex items-center">
+                    {isEditing ? (
+                      <Input
+                        name={field.name}
+                        value={(form as any)[field.name] ?? ""}
+                        onChange={handleChange}
+                        className="text-base border-gray-300 pr-10 h-auto py-2"
+                      />
+                    ) : (
+                      <span className="text-base border border-gray-300 rounded-md p-2 w-full">
+                        {field.name === "phone_number"
+                          ? formatPhoneNumber((form as any)?.[field.name])
+                          : (form as any)?.[field.name]}
+                      </span>
+                    )}
+
+                    {/* แสดงไอคอน ✏️ เมื่ออยู่ในโหมดแก้ไข */}
+                    {isEditing && (
+                      <Edit className="absolute right-3 text-gray-500 w-4 h-4 pointer-events-none" />
+                    )}
+                  </div>
                 </div>
               ))}
-
-              {/* ปุ่ม Edit / Save */}
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (isEditing) handleSave();
-                  else setIsEditing(true);
-                }}
-                disabled={updateUserProfile.isPending}
-              >
-                {isEditing
-                  ? updateUserProfile.isPending
-                    ? "Saving..."
-                    : "Save"
-                  : "Edit"}
-              </Button>
             </div>
           </CardContent>
         </Card>
