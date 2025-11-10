@@ -33,7 +33,6 @@ export default function AdminNavbar({
   selectedValue, setSelectedValue,
   columns, columnOptions
 }: AdminNavbarProps) {
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">

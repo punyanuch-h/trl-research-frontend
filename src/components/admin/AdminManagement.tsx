@@ -35,17 +35,14 @@ interface Props {
 
 export default function AdminManagement({
   projects,
-  setProjects,
   sortConfig,
   onSort,
-  onAIEstimate,
   onDownload,
   currentPage,
   rowsPerPage,
   setCurrentPage,
   setRowsPerPage,
   getFullNameByResearcherID,
-  onAssessment,
 }: Props) {
   const tableColumns = [
     { key: "createdAt", label: "Create Date" },

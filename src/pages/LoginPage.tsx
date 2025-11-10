@@ -21,7 +21,6 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    setError,
     clearErrors,
     formState: { errors, isValid },
   } = useForm<LoginFormData>({
