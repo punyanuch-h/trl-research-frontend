@@ -34,9 +34,9 @@ const App: React.FC = () => {
           <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
-          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-          <Route path="/admin-homepage" element={<PrivateRoute><AdminHomePage /></PrivateRoute>} />
-          <Route path="/researcher-homepage" element={<PrivateRoute><ResearcherHomePage /></PrivateRoute>} />
+          <Route path="/admin/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/admin/homepage" element={<PrivateRoute><AdminHomePage /></PrivateRoute>} />
+          <Route path="/researcher/homepage" element={<PrivateRoute><ResearcherHomePage /></PrivateRoute>} />
           <Route path="/case-detail/:id" element={<PrivateRoute><CaseDetial /></PrivateRoute>} />
           
           {/* <Route path="/appointment-detail" element={<AppointmentDetail />} /> */}
