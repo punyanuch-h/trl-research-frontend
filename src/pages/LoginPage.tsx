@@ -140,7 +140,7 @@ export default function LoginPage() {
                 </p>
               )}
 
-              <Button type="submit" className="w-full" disabled={!isValid || loginPending}>
+              <Button type="submit" className="w-full" disabled={loginPending}>
                 {loginPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
