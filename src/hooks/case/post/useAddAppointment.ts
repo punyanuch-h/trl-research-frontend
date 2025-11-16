@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { BACKEND_HOST } from "@/constant/constants";
-import type { Appointment } from "@/types/case";
 
 interface AddAppointmentData {
   case_id: string;
@@ -31,8 +30,6 @@ export function useAddAppointment(onSuccess: () => void, onClose: () => void) {
         const error = await response.text();
         throw new Error(`Server error: ${error}`);
       }
-
-      const newAppointment = await response.json();
       
       // 🔄 Invalidate related queries เพื่อให้ข้อมูล sync กัน
       await queryClient.invalidateQueries({ queryKey: ["useGetAppointmentByCaseId"] });
