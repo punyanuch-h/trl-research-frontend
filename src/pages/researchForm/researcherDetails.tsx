@@ -23,7 +23,6 @@ export default function ResearcherDetails({
     refs,
 }: ResearcherDetailsProps) {
     const { data: userProfile } = useGetUserProfile(); // ดึงข้อมูลผู้ใช้จาก hook
-    console.log("User Profile:", userProfile);
 
     const applyAutoFill = () => {
         if (userProfile) {
