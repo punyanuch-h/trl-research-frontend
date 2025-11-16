@@ -37,16 +37,11 @@ interface Props {
 export default function AdminAppointment({
   projects,
   setProjects,
-  sortConfig,
-  onSort,
-  onAIEstimate,
-  onDownload,
   currentPage,
   rowsPerPage,
   setCurrentPage,
   setRowsPerPage,
   getFullNameByResearcherID,
-  onAssessment,
   userRole = "admin",
 }: Props) {
   const navigate = useNavigate();
@@ -56,9 +51,6 @@ export default function AdminAppointment({
   const today = new Date();
 
   const [showModal, setShowModal] = useState(false);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [selectedTime, setSelectedTime] = useState<string>("");
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<AppointmentResponse | null>(null);

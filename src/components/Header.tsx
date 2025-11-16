@@ -15,7 +15,7 @@ export default function Header() {
   const handleLogout = () => {
     // if success logout then show toast success else toast error
     try {
-      localStorage.removeItem("auth_token");
+      localStorage.removeItem("token");
       toast.success("Logged out successfully");
       navigate("/");
     } catch {
