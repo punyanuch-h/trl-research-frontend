@@ -7,12 +7,13 @@ import formatPhoneNumber from "@/utils/phone";
 import { ArrowLeft, Edit, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Header from "../../components/Header";
+import { useToast } from "@/hooks/toast/useToast";
 
 export default function ProfilePage() {
-  const { data: userProfile } = useGetUserProfile();
+  const { data: userProfile, refetch: refetchUserProfile } = useGetUserProfile();
   const navigate = useNavigate();
   const updateUserProfile = useUpdateUserProfile();
+  const { toast } = useToast();
 
   const [form, setForm] = useState({
     id: userProfile?.id || "",
@@ -42,11 +43,28 @@ export default function ProfilePage() {
     try {
       const updated = await updateUserProfile.mutateAsync(form as any);
       if (updated) {
-        setForm(updated);
+        // Show success toast
+        toast({
+          title: "Success",
+          description: "Profile updated successfully",
+        });
+
+        // Refetch profile data to get the latest from server
+        const { data: newProfileData } = await refetchUserProfile();
+        
+        // Update form with the new data
+        if (newProfileData) {
+          setForm(newProfileData);
+        }
       }
       setIsEditing(false);
     } catch (err) {
-      console.error("Update failed", err);
+      console.error("❌ Update failed", err);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
