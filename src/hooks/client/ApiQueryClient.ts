@@ -232,4 +232,33 @@ export class ApiQueryClient extends ApiBaseClient {
       return response.data;
     }
   }
+
+  async usePresignUpload(file: File) {
+    const response = await this.axiosInstance.post("/trl/presign/upload", {
+      file_name: file.name,
+      content_type: file.type,
+    });
+    return response.data;
+  }
+  
+  async useNotifyUploaded(payload: {
+    file_name: string;
+    object_path: string;
+    content_type: string;
+    belongs_to_case_id?: string;
+  }) {
+    const response = await this.axiosInstance.post("/trl/files/uploaded", payload);
+    return response.data;
+  }
+
+  async useGetDownloadURL(fileId: string) {
+    const response = await this.axiosInstance.get(`/trl/file/download-url/${fileId}`);
+    return response.data; // { download_url: "..." }
+  }
+  
+  async useGetFilesByCase(caseId: string) {
+    const response = await this.axiosInstance.get(`/trl/files?case_id=${caseId}`);
+    return response.data;
+  }
+  
 }
