@@ -22,7 +22,7 @@ import { format } from "date-fns";
 
 import type { CaseInfo, Appointment } from "../../../types/case";
 import type { ResearcherInfo } from "../../../types/researcher";
-import { useEditAppointment } from "@/hooks/case/useEditAppointment";
+import { useEditAppointment } from "@/hooks/case/patch/useEditAppointment";
 
 interface Project extends CaseInfo {
   appointments?: Appointment[];
