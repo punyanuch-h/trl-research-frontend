@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { TablePagination } from "@/components/TablePagination";
-import Header from "../../components/Header";
+import FilterPopup from "@/components/modal/filtter/filtter";
+import Header from "@/components/Header";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -74,10 +75,11 @@ export default function ResearcherHomePage() {
   const [showFilterModal, setShowFilterModal] = React.useState(false);
   const [selectedColumn, setSelectedColumn] = React.useState("type");
   const [selectedValue, setSelectedValue] = React.useState("");
+  const filterBtnRef = React.useRef<HTMLDivElement | null>(null);
 
   // --- Sorting state ---
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({
-    key: "createdAt",
+    key: "case_id",
     direction: "desc",
   });
 
@@ -143,16 +145,11 @@ export default function ResearcherHomePage() {
 
   // --- Filter options ---
   const columnOptions: Record<string, string[]> = {
-    case_type: [
-      "TRL software",
-      "TRL medical devices",
-      "TRL medicines vaccines stem cells",
-      "TRL plant/animal breeds",
-    ],
-    trl_score: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    status: ["Approve", "In process"],
-    is_urgent: ["true", "false"],
-    case_title: [...new Set(cases.map((c) => c.case_title))],
+    Type: [...new Set(cases.map((c) => c.case_type))],
+    Score: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    Status: ["Approve", "In process"],
+    Urgent: ["true", "false"],
+    Name: [...new Set(cases.map((c) => c.case_title))],
   };
 
   const handleSort = (key: string) => {
@@ -234,74 +231,29 @@ export default function ResearcherHomePage() {
                 </button>
               </Badge>
             ))}
-            <Button onClick={() => setShowFilterModal(true)} variant="outline">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
+            <div ref={filterBtnRef} className="inline-block">
+              <Button onClick={() => setShowFilterModal(true)} variant="outline">
+                <Filter className="h-4 w-4" />
+                Filter
+              </Button>
+            </div>
           </div>
-        </div>
+          
           {/* --- Modal Filter --- */}
-          <Dialog open={showFilterModal} onOpenChange={setShowFilterModal}>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Filter Research</DialogTitle>
-              </DialogHeader>
-              <div className="flex gap-4 mb-4">
-                <div className="flex-1">
-                  <label className="text-sm font-medium block mb-1">Column</label>
-                  <select
-                    value={selectedColumn}
-                    onChange={(e) => {
-                      setSelectedColumn(e.target.value);
-                      setSelectedValue("");
-                    }}
-                    className="w-full border rounded px-2 py-1 text-sm"
-                  >
-                    {Object.keys(columnOptions).map((col) => (
-                      <option key={col} value={col}>
-                        {col}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex-1">
-                  <label className="text-sm font-medium block mb-1">Value</label>
-                  <select
-                    value={selectedValue}
-                    onChange={(e) => setSelectedValue(e.target.value)}
-                    className="w-full border rounded px-2 py-1 text-sm"
-                  >
-                    <option value="">Select value</option>
-                    {columnOptions[selectedColumn]?.map((v) => (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={() => {
-                    if (selectedColumn && selectedValue) {
-                      setCustomFilters((prev) => [
-                        ...prev.filter((f) => f.column !== selectedColumn),
-                        { column: selectedColumn, value: selectedValue },
-                      ]);
-                      setShowFilterModal(false);
-                    }
-                  }}
-                  disabled={!selectedValue}
-                >
-                  Apply Filter
-                </Button>
-                <Button variant="ghost" onClick={() => setShowFilterModal(false)}>
-                  Cancel
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        
+          <FilterPopup
+            open={showFilterModal}
+            onOpenChange={setShowFilterModal}
+            anchorRef={filterBtnRef}
+            customFilters={customFilters}
+            setCustomFilters={setCustomFilters}
+            selectedColumn={selectedColumn}
+            setSelectedColumn={setSelectedColumn}
+            selectedValue={selectedValue}
+            setSelectedValue={setSelectedValue}
+            columns={Object.keys(columnOptions)}
+            columnOptions={columnOptions}
+          />
+        </div>
         
         {/* --- Table --- */}
         <Card>
