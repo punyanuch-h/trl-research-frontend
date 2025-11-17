@@ -4,10 +4,15 @@ title Sequence Diagram: Admin Views Research Details
 actor Admin
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database" as DB
+database "Database \n (Firebase)" as DB
 
 Admin -> UI: Navigate to 'Research Details' page
-UI -> API: GET /research/{id}
+UI -> API: GET /trl/case/{id}
+UI -> API: GET /trl/appointment/{id}
+UI -> API: GET /trl/coordinator/{id}
+UI -> API: GET /trl/assessment_trl/{id}
+UI -> API: GET /trl/ip/{id}
+UI -> API: GET /trl/supporter/{id}
 API -> DB: Fetch research details
 DB --> API: Return research details
 API --> UI: Return research details

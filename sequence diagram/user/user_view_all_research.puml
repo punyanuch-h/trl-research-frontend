@@ -1,0 +1,17 @@
+@startuml
+title Sequence Diagram: Researcher Views All Research
+
+actor Researcher
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database \n (Firebase)" as DB
+
+Researcher -> UI: Navigate to 'Research Details' page
+UI -> API: GET /trl/case/{id}
+UI -> API: GET /trl/appointment/{id}
+API -> DB: Fetch research data
+DB --> API: Return research data
+API --> UI: Return research data
+UI --> Researcher: Display research data
+
+@enduml
