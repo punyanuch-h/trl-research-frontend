@@ -9,6 +9,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import React from "react";
+import {useGetUserProfile} from "@/hooks/user/get/useGetUserProfile";
 
 interface ResearcherDetailsProps {
     formData: any;
@@ -21,6 +22,26 @@ export default function ResearcherDetails({
     handleInputChange,
     refs,
 }: ResearcherDetailsProps) {
+    const { data: userProfile } = useGetUserProfile(); // ดึงข้อมูลผู้ใช้จาก hook
+
+    const applyAutoFill = () => {
+        if (userProfile) {
+            handleInputChange("headPrefix", userProfile.prefix || "");
+            handleInputChange("headAcademicPosition", userProfile.academic_position || "");
+            handleInputChange("headFirstName", userProfile.first_name || "");
+            handleInputChange("headLastName", userProfile.last_name || "");
+            handleInputChange("headDepartment", userProfile.department || "");
+            handleInputChange("headPhoneNumber", userProfile.phone_number || "");
+            handleInputChange("headEmail", userProfile.email || "");
+        }
+    };
+
+    const clearFields = () => {
+        ["headPrefix", "headAcademicPosition", "headFirstName", "headLastName", "headDepartment", "headPhoneNumber", "headEmail"].forEach((field) =>
+            handleInputChange(field, "")
+        );
+    };
+
     // ✅ ฟังก์ชันเมื่อคลิก checkbox
     const handleSameAsHeadChange = (checked: boolean) => {
         handleInputChange("sameAsHead", checked);
@@ -43,7 +64,29 @@ export default function ResearcherDetails({
         <div className="space-y-6 text-gray-600">
             {/* ---------- ข้อมูลหัวหน้าโครงการ ---------- */}
             <div className="space-y-4">
-                <h3 className="font-semibold text-primary">ข้อมูลหัวหน้าโครงการ</h3>
+                <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-primary">
+                        ข้อมูลหัวหน้าโครงการ
+                    </h3>
+
+                    <div className="flex justify-end gap-2">
+                        <button
+                        type="button"
+                        onClick={applyAutoFill}
+                        className="px-3 py-1 rounded bg-primary text-white text-sm"
+                        >
+                        Auto fill
+                        </button>
+                        <button
+                        type="button"
+                        onClick={clearFields}
+                        className="px-3 py-1 rounded border text-sm"
+                        >
+                        Clear
+                        </button>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                     <div className="col-span-1">
                         <Label htmlFor="headPrefix">คำนำหน้า</Label>

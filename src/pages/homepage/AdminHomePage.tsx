@@ -145,9 +145,20 @@ export default function AdminHomePage() {
       if (column === "createdBy") return getFullNameByResearcherID(c.researcher_id) === value;
       if (column === "isUrgent") return String(c.is_urgent) === value;
       if (column === "researchTitle") return c.case_title === value;
+      if (column === "createdAt") return new Date(c.created_at).toISOString().slice(0, 10) === value;
       return true;
     })
   );
+
+  const columnOptions: Record<string, string[]> = {
+    Type: [...new Set(cases.map((c) => c.case_type))],
+    Score: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    Status: ["Approve", "In process"],
+    createdBy: researcherData.map(r => getFullNameByResearcherID(r.researcher_id)),
+    Urgent: ["true", "false"],
+    Name: [...new Set(cases.map((c) => c.case_title))],
+    Date: [...new Set(cases.map((c) => new Date(c.created_at).toISOString().slice(0, 10)))].sort().reverse(),
+  };
 
   function handleResearchClick(id: number, name: string, type: string) {
     navigate(`/trl-1?research=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}`);
@@ -189,8 +200,8 @@ export default function AdminHomePage() {
       setSelectedColumn={setSelectedColumn}
       selectedValue={selectedValue}
       setSelectedValue={setSelectedValue}
-      columns={activeView === "appointments" ? ["researchTitle", "createdBy", "isUrgent"] : ["type", "trlScore", "status", "createdBy", "isUrgent"]}
-      columnOptions={activeView === "appointments" ? {} : {}}
+      columns={activeView === "appointments" ? ["researchTitle", "createdBy", "isUrgent", "createdAt"] : ["type", "trlScore", "status", "createdBy", "isUrgent", "createdAt"]}
+      columnOptions={columnOptions}
     >
       <div className="max-w-6xl mx-auto px-6 py-8">
         {activeView === "management" ? (

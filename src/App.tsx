@@ -9,7 +9,6 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import Profile from "./pages/profile/Profile.tsx";
 import AdminHomePage from "./pages/homepage/AdminHomePage.tsx";
-import AppointmentDetail from "./pages/deposit-May-be-used/AppointmentDetail.tsx";
 import CaseDetial from "./pages/caseDetial/CaseDetial";
 import ResearcherForm from "./pages/researchForm/ResearcherForm";
 import TrlScore from "./pages/deposit-May-be-used/TrlScore.tsx";
@@ -18,6 +17,8 @@ import DifyChatIframe from "@/components/chat/DifyChatIFrame.tsx";
 import ResearcherHomePage from "./pages/homepage/ResearcherHomePage.tsx";
 import ResearcherDetailResearcher from "./pages/homepage/ResearcherHomePage.tsx";
 import AssessmentResult from "./pages/evaluate/assessmentResult.tsx";
+import PublicRoute from "./routers/PublicRoute.tsx";
+import PrivateRoute from "./routers/PrivateRoute.tsx";
 
 const queryClient = new QueryClient();
 
@@ -30,21 +31,21 @@ const App: React.FC = () => {
         <DifyChatIframe />
 
         <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/admin-homepage" element={<AdminHomePage />} />
-          <Route path="/researcher-homepage" element={<ResearcherHomePage />} />
-          <Route path="/case-detail/:id" element={<CaseDetial />} />
+          <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
+          <Route path="/admin/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/admin/homepage" element={<PrivateRoute><AdminHomePage /></PrivateRoute>} />
+          <Route path="/researcher/homepage" element={<PrivateRoute><ResearcherHomePage /></PrivateRoute>} />
+          <Route path="/case-detail/:id" element={<PrivateRoute><CaseDetial /></PrivateRoute>} />
           
           {/* <Route path="/appointment-detail" element={<AppointmentDetail />} /> */}
-          <Route path="/researcher-detail-researcher" element={<ResearcherDetailResearcher />} />
-          <Route path="/researcher-form" element={<ResearcherForm />} />
-          <Route path="/trl-score" element={<TrlScore />} />
-          <Route path="/assessment/:id" element={<AssessmentResult />} />
+          <Route path="/researcher-detail-researcher" element={<PrivateRoute><ResearcherDetailResearcher /></PrivateRoute>} />
+          <Route path="/researcher-form" element={<PrivateRoute><ResearcherForm /></PrivateRoute>} />
+          <Route path="/trl-score" element={<PrivateRoute><TrlScore /></PrivateRoute>} />
+          <Route path="/assessment/:id" element={<PrivateRoute><AssessmentResult /></PrivateRoute>} />
           {/* Catch-all route */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<PublicRoute><NotFound /></PublicRoute>} />
         </Routes>
       </TooltipProvider>
     </QueryClientProvider>

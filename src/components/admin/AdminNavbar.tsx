@@ -5,8 +5,8 @@ import { Filter, ChartArea, List, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-
-import Header from '../Header';
+import FilterPopup from "@/components/modal/filtter/filtter";
+import Header from "@/components/Header";
 
 interface AdminNavbarProps {
   activeView: 'management' | 'dashboard' | 'appointments';
@@ -34,6 +34,7 @@ export default function AdminNavbar({
   columns, columnOptions
 }: AdminNavbarProps) {
   const navigate = useNavigate();
+  const filterBtnRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,69 +69,28 @@ export default function AdminNavbar({
                   </button>
                 </Badge>
               ))}
-              <Button onClick={() => setShowFilterModal(true)} variant="outline">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
+              <div ref={filterBtnRef} className="inline-block">
+                <Button onClick={() => setShowFilterModal(true)} variant="outline">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </Button>
+              </div>
             </div>
           )}
           {/* Modal Filter */}
-          <Dialog open={showFilterModal} onOpenChange={setShowFilterModal}>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Filter Research</DialogTitle>
-              </DialogHeader>
-              <div className="flex gap-4 mb-4">
-                <div className="flex-1">
-                  <label className="text-sm font-medium block mb-1">Column</label>
-                  <select
-                    value={selectedColumn}
-                    onChange={(e) => {
-                      setSelectedColumn(e.target.value);
-                      setSelectedValue("");
-                    }}
-                    className="w-full border rounded px-2 py-1 text-sm"
-                  >
-                    {columns.map((col) => (
-                      <option key={col} value={col}>{col}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex-1">
-                  <label className="text-sm font-medium block mb-1">Value</label>
-                  <select
-                    value={selectedValue}
-                    onChange={(e) => setSelectedValue(e.target.value)}
-                    className="w-full border rounded px-2 py-1 text-sm"
-                  >
-                    <option value="">Select value</option>
-                    {(columnOptions[selectedColumn] || []).map((v) => (
-                      <option key={v} value={v}>{v}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={() => {
-                    if (selectedColumn && selectedValue) {
-                      setCustomFilters((prev) => [
-                        ...prev.filter((f) => f.column !== selectedColumn),
-                        { column: selectedColumn, value: selectedValue },
-                      ]);
-                      setShowFilterModal(false);
-                    }
-                  }}
-                  disabled={!selectedValue}
-                >
-                  Apply Filter
-                </Button>
-                <Button variant="ghost" onClick={() => setShowFilterModal(false)}>
-                  Cancel
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <FilterPopup
+            open={showFilterModal}
+            onOpenChange={setShowFilterModal}
+            anchorRef={filterBtnRef}
+            customFilters={customFilters}
+            setCustomFilters={setCustomFilters}
+            selectedColumn={selectedColumn}
+            setSelectedColumn={setSelectedColumn}
+            selectedValue={selectedValue}
+            setSelectedValue={setSelectedValue}
+            columns={Object.keys(columnOptions)}
+            columnOptions={columnOptions}
+          />
         </div>
         {/* View Toggle */}
         <div className="flex items-center space-x-2">

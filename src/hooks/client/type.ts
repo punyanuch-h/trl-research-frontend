@@ -99,6 +99,7 @@ export type SupporterResponse = {
     created_at: string;
     updated_at: string;
 };
+<<<<<<< Updated upstream
   
 export type ResearcherResponse = {
     researcher_id: string;
@@ -124,3 +125,6 @@ export type UserProfileResponse = {
 	phone_number: string;
 	email: string;
 };
+=======
+  
+>>>>>>> Stashed changes

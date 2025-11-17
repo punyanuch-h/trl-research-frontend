@@ -153,9 +153,17 @@ export default function CaseDetail() {
 
                   </div>
                 )}
-                {role === "admin" && caseData.trl_score && (
+                {role === "admin" && assessmentData.trl_level_result && caseData.status == false && (
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold">Estimated TRL Level</h3>
+                    <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
+                      Level {assessmentData.trl_level_result}
+                    </Badge>
+                  </div>
+                )}
+                {caseData.status == true && (
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold">TRL Level</h3>
                     <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
                       Level {caseData.trl_score}
                     </Badge>
