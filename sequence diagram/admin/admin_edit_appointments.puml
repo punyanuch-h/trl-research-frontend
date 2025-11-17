@@ -1,0 +1,16 @@
+@startuml
+title Sequence Diagram: Admin Edit Appointments
+
+actor Admin
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database \n (Firebase)" as DB
+
+Admin -> UI: Open 'Appointments Management' page
+UI -> API: PATCH /trl/appointment{id}
+API -> DB: Edit appointments data
+DB --> API: Success/Failure response
+API --> UI: Return result (success/failure)
+UI --> Admin: Show confirmation or error
+
+@enduml

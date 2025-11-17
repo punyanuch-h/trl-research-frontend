@@ -1,0 +1,21 @@
+@startuml
+title Sequence Diagram: Researcher Adds Research
+
+actor Researcher
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database \n (Firebase)" as DB
+
+Researcher -> UI: Open 'Add Research' page
+Researcher -> UI: Fill research details and submit
+UI -> API: POST /trl/case
+UI -> API: POST /trl/coordinator
+UI -> API: POST /trl/assessment_trl
+UI -> API: POST /trl/ip
+UI -> API: POST /trl/supporter
+API -> DB: Save research data
+DB --> API: Success/Failure response
+API --> UI: Return result (success/failure)
+UI --> Researcher: Show confirmation or error
+
+@enduml

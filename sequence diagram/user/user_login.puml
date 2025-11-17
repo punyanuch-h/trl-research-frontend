@@ -1,0 +1,17 @@
+@startuml
+title Sequence Diagram: Researcher Logs In
+
+actor Researcher
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database \n (Firebase)" as DB
+
+Researcher -> UI: Open 'Login' page
+Researcher -> UI: Fill login form and submit
+UI -> API: POST /auth/login
+API -> DB: Verify Researcher credentials
+DB --> API: Success/Failure response
+API --> UI: Return result (success/failure)
+UI --> Researcher: Show confirmation or error
+
+@enduml

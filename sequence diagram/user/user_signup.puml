@@ -1,0 +1,17 @@
+@startuml
+title Sequence Diagram: Researcher Signs Up
+
+actor Researcher
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+database "Database \n (Firebase)" as DB
+
+Researcher -> UI: Open 'Sign Up' page
+Researcher -> UI: Fill registration form\nand submit
+UI -> API: POST /signup (Researcher data)
+API -> DB: Create new Researcher record
+DB --> API: Success/Failure response
+API --> UI: Return result (success/failure)
+UI --> Researcher: Show confirmation or error
+
+@enduml
