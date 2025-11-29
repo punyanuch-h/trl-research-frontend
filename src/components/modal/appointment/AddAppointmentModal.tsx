@@ -4,15 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-
-import type { CaseInfo, Appointment } from "../../../types/case";
-import type { ResearcherInfo } from "../../../types/researcher";
+import { CaseResponse, AppointmentResponse,  ResearcherResponse} from '@/hooks/client/type.ts';
 
 import { useAddAppointment } from "@/hooks/case/post/useAddAppointment";
 
-interface Project extends CaseInfo {
-  appointments?: Appointment[];
-  researcherInfo?: ResearcherInfo;
+interface Project extends CaseResponse {
+  appointments?: AppointmentResponse[];
+  ResearcherResponse?: ResearcherResponse;
 }
 
 interface Props {
@@ -61,21 +59,21 @@ export function AddAppointmentModal({
       return;
     }
 
+    const dateTimeString = `${selectedDate}T${selectedTime}`;
+    const dateTime = new Date(dateTimeString);
+    const isoDateString = dateTime.toISOString();
+
     const appointmentData = {
       case_id: selectedProjectId,
-      date: `${selectedDate}T${selectedTime}:00Z`,
+      date: isoDateString,
       location,
       note: note,
     };
 
     try {
       // 🔄 ใช้ hook ใหม่ที่มี query invalidation
+      // ข้อมูลจะ refresh อัตโนมัติจาก server ผ่าน query invalidation
       await addAppointment({ ...appointmentData, status: "pending" });
-      
-      // 📝 เรียก onAdd callback ถ้ามี (สำหรับ backward compatibility)
-      if (onAdd) {
-        onAdd(selectedProjectId, selectedDate, selectedTime);
-      }
     } catch (error) {
       console.error("Error creating appointment:", error);
       alert("❌ ไม่สามารถบันทึกนัดหมายได้");

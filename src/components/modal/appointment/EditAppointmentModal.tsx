@@ -19,23 +19,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-
-import type { CaseInfo, Appointment } from "../../../types/case";
-import type { ResearcherInfo } from "../../../types/researcher";
+import { CaseResponse, AppointmentResponse,  ResearcherResponse} from '@/hooks/client/type.ts';
 import { useEditAppointment } from "@/hooks/case/patch/useEditAppointment";
 
-interface Project extends CaseInfo {
-  appointments?: Appointment[];
-  researcherInfo?: ResearcherInfo;
+interface Project extends CaseResponse {
+  appointments?: AppointmentResponse[];
+  researcherInfo?: ResearcherResponse;
 }
 
 interface Props {
   open: boolean;
   onClose: () => void;
   projects: Project[];
-  appointment: Appointment | null;
+  appointment: AppointmentResponse | null;
   getFullNameByResearcherID: (researcher_id: string) => string;
-  onSave: (updated: Appointment) => void;
+  onSave: (updated: AppointmentResponse) => void;
 }
 
 export default function EditAppointmentModal({
@@ -46,7 +44,7 @@ export default function EditAppointmentModal({
   getFullNameByResearcherID,
   onSave,
 }: Props) {
-  const [form, setForm] = useState<Appointment | null>(appointment);
+  const [form, setForm] = useState<AppointmentResponse | null>(appointment);
 
   const { editAppointment, loading } = useEditAppointment(onSave, onClose);
 
@@ -56,12 +54,24 @@ export default function EditAppointmentModal({
 
   if (!form) return null;
 
-  const handleChange = (field: keyof Appointment, value: any) => {
-    setForm({ ...form, [field]: value });
+  const handleChange = (field: keyof AppointmentResponse, value: any) => {
+    if (field === "date") {
+      // Convert datetime-local format to ISO string
+      const dateValue = value ? new Date(value).toISOString() : value;
+      setForm({ ...form, [field]: dateValue });
+    } else {
+      setForm({ ...form, [field]: value });
+    }
   };
 
   const handleSubmit = () => {
-    if (form) editAppointment(form);
+    if (form) {
+      const formToSubmit = {
+        ...form,
+        date: form.date instanceof Date ? form.date.toISOString() : form.date
+      };
+      editAppointment(formToSubmit);
+    }
   };
 
   return (
