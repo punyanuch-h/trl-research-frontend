@@ -139,13 +139,13 @@ export default function AdminHomePage() {
 
   const filteredCases = sortedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
-      if (column === "type") return c.case_type === value;
-      if (column === "trlScore") return c.trl_score?.toString() === value;
+      if (column === "Type") return c.case_type === value;
+      if (column === "Score") return c.trl_score?.toString() === value;
       if (column === "status") return (c.status ? "Approve" : "In process") === value;
       if (column === "createdBy") return getFullNameByResearcherID(c.researcher_id) === value;
-      if (column === "isUrgent") return String(c.is_urgent) === value;
-      if (column === "researchTitle") return c.case_title === value;
-      if (column === "createdAt") return new Date(c.created_at).toISOString().slice(0, 10) === value;
+      if (column === "Urgent") return String(c.is_urgent) === value;
+      if (column === "Name") return c.case_title === value;
+      if (column === "Date") return new Date(c.created_at).toISOString().slice(0, 10) === value;
       return true;
     })
   );
