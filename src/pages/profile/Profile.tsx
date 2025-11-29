@@ -8,6 +8,7 @@ import { ArrowLeft, Edit, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/toast/useToast";
+import Header from "@/components/Header";
 
 export default function ProfilePage() {
   const { data: userProfile, refetch: refetchUserProfile } = useGetUserProfile();
@@ -70,7 +71,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* <Header /> */}
+      <Header disabled />
       <div className="flex items-center justify-center py-10 px-4">
         <Card className="w-full max-w-xl relative">
           <CardHeader className="flex flex-row items-center justify-between">

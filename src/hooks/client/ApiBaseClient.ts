@@ -38,7 +38,9 @@ export class ApiBaseClient {
         return response;
       },
       (error) => {
-        if (error.response.status === 498) {
+        // Check if error.response exists before accessing its properties
+        // Network errors (like connection refused) don't have a response object
+        if (error.response?.status === 498) {
           localStorage.removeItem("token");
           window.location.href = "/login";
         }

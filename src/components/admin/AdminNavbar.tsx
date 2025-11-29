@@ -1,10 +1,8 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Filter, ChartArea, List, CalendarRange } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import FilterPopup from "@/components/modal/filtter/filtter";
 import Header from "@/components/Header";
 
@@ -29,11 +27,10 @@ export default function AdminNavbar({
   activeView, onViewChange, children,
   customFilters, setCustomFilters,
   showFilterModal, setShowFilterModal,
-  selectedColumn, setSelectedColumn,
-  selectedValue, setSelectedValue,
-  columns, columnOptions
+  selectedColumn: _selectedColumn, setSelectedColumn: _setSelectedColumn,
+  selectedValue: _selectedValue, setSelectedValue: _setSelectedValue,
+  columns: _columns, columnOptions
 }: AdminNavbarProps) {
-  const navigate = useNavigate();
   const filterBtnRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
@@ -84,10 +81,6 @@ export default function AdminNavbar({
             anchorRef={filterBtnRef}
             customFilters={customFilters}
             setCustomFilters={setCustomFilters}
-            selectedColumn={selectedColumn}
-            setSelectedColumn={setSelectedColumn}
-            selectedValue={selectedValue}
-            setSelectedValue={setSelectedValue}
             columns={Object.keys(columnOptions)}
             columnOptions={columnOptions}
           />

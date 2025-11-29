@@ -233,6 +233,16 @@ export class ApiQueryClient extends ApiBaseClient {
     }
   }
 
+  async useUpdateUserProfile(userProfile: UserProfileResponse): Promise<UserProfileResponse> {
+    if (getUserRole() === "admin") {
+      const response = await this.axiosInstance.patch<UserProfileResponse>(`/trl/admin/${userProfile.id}`, userProfile);
+      return response.data;
+    } else {
+      const response = await this.axiosInstance.patch<UserProfileResponse>(`/trl/researcher/${userProfile.id}`, userProfile);
+      return response.data;
+    }
+  }
+
   async usePresignUpload(file: File) {
     const response = await this.axiosInstance.post("/trl/presign/upload", {
       file_name: file.name,
