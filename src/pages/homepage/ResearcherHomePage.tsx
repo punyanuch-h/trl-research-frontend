@@ -125,11 +125,11 @@ export default function ResearcherHomePage() {
   // --- Filtering ---
   const filteredCases = sortedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
-      if (column === "case_type") return c.case_type === value;
-      if (column === "trl_score") return c.trl_score?.toString() === value;
-      if (column === "status") return (c.status ? "Approve" : "In process") === value;
-      if (column === "is_urgent") return String(c.is_urgent) === value;
-      if (column === "case_title") return c.case_title === value;
+      if (column === "Type") return c.case_type === value;
+      if (column === "Score") return c.trl_score?.toString() === value;
+      if (column === "Status") return (c.status ? "Approve" : "In process") === value;
+      if (column === "Urgent") return String(c.is_urgent) === value;
+      if (column === "Name") return c.case_title === value;
       return true;
     })
   );
