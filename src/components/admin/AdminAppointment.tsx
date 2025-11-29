@@ -87,26 +87,6 @@ export default function AdminAppointment({
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const handleAddAppointment = (projectId: string, date: string, time: string) => {
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.case_id === projectId
-          ? {
-              ...p,
-              appointments: [
-                ...(p.appointments || []),
-                {
-                  date: new Date(`${date}T${time}`).toISOString(),
-                  status: "pending",
-                  location: "Meeting Room A",
-                } as AppointmentResponse,
-              ],
-            }
-          : p
-      )
-    );
-    setShowModal(false);
-  };
 
   const handleSaveEdit = (updated: AppointmentResponse) => {
     setProjects(prev =>
@@ -246,14 +226,13 @@ export default function AdminAppointment({
         getFullNameByResearcherID={getFullNameByResearcherID}
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onAdd={handleAddAppointment}
       />
       <EditAppointmentModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         projects={projects}
         appointment={editingAppointment}
-        getFullNameByResearcherID={(e) => e}
+        getFullNameByResearcherID={getFullNameByResearcherID}
         onSave={handleSaveEdit}
       />
     </Card>
