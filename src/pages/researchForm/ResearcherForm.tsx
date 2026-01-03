@@ -233,10 +233,14 @@ export default function ResearcherForm() {
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (stepError) {
+      setStepError("");
+    }
   };
 
-  // Validation
-  function validateStepWithField(step: number): { valid: boolean; firstField?: string } {
+  // Validation - pure function that doesn't call setStepError
+  function validateStepWithField(step: number): { valid: boolean; firstField?: string; errorMessage?: string } {
     if (step === 1) {
       const required = [
         "headPrefix", "headAcademicPosition", "headFirstName", "headLastName",
@@ -245,10 +249,13 @@ export default function ResearcherForm() {
       ];
       for (const field of required) {
         // @ts-ignore dynamic access
-        if (!formData[field]) return { valid: false, firstField: field };
+        const value = formData[field];
+        if (!value || (typeof value === "string" && !value.trim())) {
+          return { valid: false, firstField: field, errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน" };
+        }
       }
       if (formData.isUrgent && !formData.urgentReason.trim()) {
-        return { valid: false, firstField: "urgentReason" };
+        return { valid: false, firstField: "urgentReason", errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน" };
       }
       return { valid: true };
     }
@@ -256,41 +263,67 @@ export default function ResearcherForm() {
       const required = ["researchTitle", "researchType", "description"];
       for (const field of required) {
         // @ts-ignore dynamic access
-        if (!formData[field]) return { valid: false, firstField: field };
+        const value = formData[field];
+        if (!value || (typeof value === "string" && !value.trim())) {
+          return { valid: false, firstField: field, errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน" };
+        }
       }
       return { valid: true };
     }
     if (step === 3) {
-      return { valid: formData.trlLevelResult !== null, firstField: formData.trlLevelResult === null ? "trlLevelResult" : undefined };
+      return { 
+        valid: formData.trlLevelResult !== null, 
+        firstField: formData.trlLevelResult === null ? "trlLevelResult" : undefined,
+        errorMessage: formData.trlLevelResult === null ? "กรุณาตอบแบบประเมิน TRL ให้ครบจนปรากฏข้อความระดับ TRL ก่อนดำเนินการต่อ" : undefined
+      };
     }
     if (step === 4) {
-      if (!formData.ipHas) {
-        setStepError("");
-        return { valid: true };
-      }
+      // Check if user selected "ไม่มี" (no IP) for all forms
       const ipForms = (formData.ipForms && formData.ipForms.length > 0) ? formData.ipForms : [
         {
           ipStatus: formData.ipProtectionStatus,
           ipTypes: formData.ipTypes,
           requestNumbers: formData.ipRequestNumber ? { [formData.ipTypes?.[0] || ""]: formData.ipRequestNumber } : {},
+          noIp: !formData.ipHas,
         },
       ];
+      
+      // If all forms have noIp = true, it's valid
+      const allNoIp = ipForms.every(form => form.noIp === true);
+      if (allNoIp) {
+        return { valid: true };
+      }
+      
+      // Otherwise, validate each form that has IP
       for (let i = 0; i < ipForms.length; i++) {
         const form = ipForms[i];
-        if (!form.ipStatus) {
-          setStepError(`กรุณาเลือกสถานะการคุ้มครองทรัพย์สินทางปัญญา (ใบที่ ${i + 1})`);
-          return { valid: false, firstField: "ipProtectionStatus" };
+        if (form.noIp) continue; // Skip forms with no IP
+        
+        if (!form.ipStatus || !form.ipStatus.trim()) {
+          return { 
+            valid: false, 
+            firstField: "ipProtectionStatus",
+            errorMessage: `กรุณาเลือกสถานะการคุ้มครองทรัพย์สินทางปัญญา (ใบที่ ${i + 1})`
+          };
         }
         if (!form.ipTypes || form.ipTypes.length === 0) {
-          setStepError(`กรุณาระบุประเภททรัพย์สินทางปัญญา (ใบที่ ${i + 1})`);
-          return { valid: false, firstField: "ipTypes" };
+          return { 
+            valid: false, 
+            firstField: "ipTypes",
+            errorMessage: `กรุณาระบุประเภททรัพย์สินทางปัญญา (ใบที่ ${i + 1})`
+          };
         }
-        if (form.ipStatus === "ได้เลขที่คำขอแล้ว" && !form.requestNumbers?.[form.ipTypes[0]]) {
-          setStepError(`กรุณาระบุเลขที่คำขอ (ใบที่ ${i + 1})`);
-          return { valid: false, firstField: "ipRequestNumber" };
+        if (form.ipStatus === "ได้เลขที่คำขอแล้ว") {
+          const requestNumber = form.requestNumbers?.[form.ipTypes[0]];
+          if (!requestNumber || !requestNumber.trim()) {
+            return { 
+              valid: false, 
+              firstField: "ipRequestNumber",
+              errorMessage: `กรุณาระบุเลขที่คำขอ (ใบที่ ${i + 1})`
+            };
+          }
         }
       }
-      setStepError("");
       return { valid: true };
     }
     if (step === 5) {
@@ -298,10 +331,21 @@ export default function ResearcherForm() {
         Array.isArray(formData.supportDevNeeded) && formData.supportDevNeeded.length > 0 &&
         Array.isArray(formData.supportMarketNeeded) && formData.supportMarketNeeded.length > 0
       ) {
+        // Check if "อื่น ๆ" is selected but otherSupportMarket is empty
+        if (formData.supportMarketNeeded.includes("อื่น ๆ") && (!formData.otherSupportMarket || !formData.otherSupportMarket.trim())) {
+          return { 
+            valid: false, 
+            firstField: "otherSupportMarket",
+            errorMessage: "กรุณาระบุความช่วยเหลืออื่น ๆ"
+          };
+        }
         return { valid: true };
       }
-      setStepError("กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน");
-      return { valid: false, firstField: !Array.isArray(formData.supportDevNeeded) || formData.supportDevNeeded.length === 0 ? "supportDevNeeded" : "supportMarketNeeded" };
+      return { 
+        valid: false, 
+        firstField: !Array.isArray(formData.supportDevNeeded) || formData.supportDevNeeded.length === 0 ? "supportDevNeeded" : "supportMarketNeeded",
+        errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน"
+      };
     }
     return { valid: true };
   }
@@ -316,12 +360,14 @@ export default function ResearcherForm() {
   }
 
   const handleNext = () => {
-    const { valid, firstField } = validateStepWithField(currentFormStep);
+    const { valid, firstField, errorMessage } = validateStepWithField(currentFormStep);
     if (!valid) {
-      if (currentFormStep === 3) {
-        setStepError("กรุณาตอบแบบประเมิน TRL ให้ครบจนปรากฏข้อความระดับ TRL ก่อนดำเนินการต่อ");
+      if (errorMessage) {
+        setStepError(errorMessage);
       } else {
         setStepError("กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน");
+      }
+      if (firstField) {
         setTimeout(() => scrollToField(firstField), 100);
       }
       return;
@@ -332,11 +378,23 @@ export default function ResearcherForm() {
     }
   };
 
+  // Check if current step is valid for button disabling
+  const isStepValid = () => {
+    const { valid } = validateStepWithField(currentFormStep);
+    return valid;
+  };
+
   const handleSubmit = async () => {
-    const { valid, firstField } = validateStepWithField(currentFormStep);
+    const { valid, firstField, errorMessage } = validateStepWithField(currentFormStep);
     if (!valid) {
-      setStepError("กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน");
-      setTimeout(() => scrollToField(firstField), 100);
+      if (errorMessage) {
+        setStepError(errorMessage);
+      } else {
+        setStepError("กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน");
+      }
+      if (firstField) {
+        setTimeout(() => scrollToField(firstField), 100);
+      }
       return;
     }
     setStepError("");
@@ -477,12 +535,12 @@ export default function ResearcherForm() {
               </Button>
               <div className="flex gap-3">
                 {currentFormStep === 5 ? (
-                  <Button onClick={handleSubmit} disabled={submitFormMutation.isPending}>
+                  <Button onClick={handleSubmit} disabled={submitFormMutation.isPending || !isStepValid()}>
                     Submit
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
-                  <Button onClick={handleNext}>
+                  <Button onClick={handleNext} disabled={!isStepValid()}>
                     Next
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
