@@ -198,7 +198,7 @@ export default function IntellectualProperty({
               {/* Radio inside each card */}
               <div>
                 <h3 className="font-semibold text-primary">
-                  สถานะการคุ้มครองทรัพย์สินทางปัญญา*
+                  สถานะการคุ้มครองทรัพย์สินทางปัญญา<span className="text-red-500">*</span>
                 </h3>
                 <RadioGroup
                   value={form.ipStatus}
@@ -206,6 +206,7 @@ export default function IntellectualProperty({
                     handleFormStatusChange(formIndex, value)
                   }
                   className="m-4 flex items-center space-x-2"
+                  required
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem
@@ -231,13 +232,14 @@ export default function IntellectualProperty({
               {/* Choose type */}
               {form.ipStatus && (
                 <div>
-                  <h3 className="font-semibold text-primary">ระบุประเภท*</h3>
+                  <h3 className="font-semibold text-primary">ระบุประเภท<span className="text-red-500">*</span></h3>
                   <RadioGroup
                     value={form.ipTypes[0] || ""}
                     onValueChange={(value) =>
                       handleFormTypeChange(formIndex, value)
                     }
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2"
+                    required
                   >
                     {ipTypesList.map((item) => (
                       <div key={item.id} className="flex items-center space-x-2">
@@ -257,7 +259,7 @@ export default function IntellectualProperty({
               {/* Number input */}
               {form.ipStatus === "ได้เลขที่คำขอแล้ว" && form.ipTypes[0] && (
                 <div>
-                  <h3 className="font-semibold text-primary">ระบุเลขที่คำขอ*</h3>
+                  <h3 className="font-semibold text-primary">ระบุเลขที่คำขอ<span className="text-red-500">*</span></h3>
                   <Input
                     type="text"
                     value={form.requestNumbers[form.ipTypes[0]] || ""}
@@ -270,6 +272,7 @@ export default function IntellectualProperty({
                     }
                     placeholder="เช่น 123456789"
                     className="mt-1"
+                    required
                   />
                 </div>
               )}

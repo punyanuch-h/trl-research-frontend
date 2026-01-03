@@ -5,12 +5,16 @@ import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
 interface EvaluateTRLProps {
   formData: any;
   handleInputChange: (field: string, value: any) => void;
-  setTrlLevel?: (level: number | null) => void; // เพิ่ม prop นี้
+  setTrlLevel?: (level: number | null) => void;
 }
 
-export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }: EvaluateTRLProps) {
-  const [currentCheckboxIndex, setCurrentCheckboxIndex] = useState<number | null>(null);
-  const [answersRadio, setAnswersRadio] = useState<{ [key: string]: number }>({
+export default function EvaluateTRL({
+  formData,
+  handleInputChange,
+  setTrlLevel,
+}: EvaluateTRLProps) {
+  /* ---------------- Part 1 ---------------- */
+  const [answersRadio, setAnswersRadio] = useState<{ [key: string]: number | null }>({
     rq1: null,
     rq2: null,
     rq3: null,
@@ -19,6 +23,11 @@ export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }
     rq6: null,
     rq7: null,
   });
+
+  /* ---------------- Part 2 ---------------- */
+  const [showPart2, setShowPart2] = useState(false);
+  const [checkboxQueue, setCheckboxQueue] = useState<number[]>([]);
+
   const [answersCheckbox, setAnswersCheckbox] = useState<{ [key: string]: number[] }>({
     cq1: [0, 0, 0],
     cq2: [0, 0, 0, 0, 0],
@@ -28,202 +37,161 @@ export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }
     cq6: [0, 0, 0, 0],
     cq7: [0, 0, 0, 0],
     cq8: [0, 0, 0],
-    cq9: [0, 0, 0, 0]
+    cq9: [0, 0, 0, 0],
   });
 
-  const [answersCheckboxx, setAnswersCheckboxx] = useState<{ [key: string]: string[] }>({
-    cq1: [],
-    cq2: [],
-    cq3: [],
-    cq4: [],
-    cq5: [],
-    cq6: [],
-    cq7: [],
-    cq8: [],
-    cq9: []
-  });
-  // console.log(answersCheckboxx)
+  const [levelMessage, setLevelMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // ปรับ setAnswerTRL ให้ sync ไปยัง parent
-  const [answerTRL, setAnswerTRL] = useState<number | null>(null);
-
-  const [levelMessage, setLevelMessage] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [showNextCheckboxButton, setShowNextCheckboxButton] = useState<boolean>(false);
-
+  /* ---------------- Handlers ---------------- */
   const handleRadioChange = (value: number, questionId: string) => {
-    setAnswersRadio((prevAnswers) => {
-      const newAnswers = {
-        ...prevAnswers,
-        [questionId]: value,
-      };
-
-      // ✅ Sync ไป parent
-      if (handleInputChange) {
-        handleInputChange(questionId + "Answer", value === 1); // แปลงเป็น boolean
-      }
-
-      return newAnswers;
-    });
+    setAnswersRadio((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }));
+    handleInputChange(questionId + "Answer", value === 1);
   };
-
-
 
   const handleCheckboxChange = (
     value: number[],
     itemId: string,
     selectedLabels: string[]
   ) => {
-    setAnswersCheckbox((prevAnswers) => ({
-      ...prevAnswers,
+    setAnswersCheckbox((prev) => ({
+      ...prev,
       [itemId]: value,
     }));
-
-    setAnswersCheckboxx((prevLabels) => {
-      const newLabels = {
-        ...prevLabels,
-        [itemId]: selectedLabels,
-      };
-      // ✅ Sync ไป parent
-      if (handleInputChange) {
-        handleInputChange(itemId + "Answer", selectedLabels);
-      }
-      return newLabels;
-    });
+    handleInputChange(itemId + "Answer", selectedLabels);
   };
 
-
-  const handleNextToCheckbox = () => {
-    const allAnswered = Object.values(answersRadio).every((answer) => answer !== null);
+  /* ---------------- Logic ---------------- */
+  const handleNextToPart2 = () => {
+    const allAnswered = Object.values(answersRadio).every((a) => a !== null);
     if (!allAnswered) {
       setErrorMessage("กรุณาตอบคำถาม Part 1 ให้ครบก่อน");
-      setLevelMessage("");
       return;
     }
-    setLevelMessage("");
+
     setErrorMessage("");
-    let nextIndex = 0;
-    if (answersRadio['rq1'] === 1) {
-      if (answersRadio['rq2'] === 1) {
-        if (answersRadio['rq3'] === 1) {
-          if (answersRadio['rq4'] === 1) {
-            if (answersRadio['rq5'] === 1) {
-              nextIndex = 9;
-            } else {
-              nextIndex = 8;
-            }
-          } else {
-            nextIndex = 7;
-          }
-        } else {
-          nextIndex = 6;
-        }
-      } else {
-        if (answersRadio['rq6'] === 1) {
-          nextIndex = 5;
-        } else {
-          nextIndex = 4;
-        }
-      }
-    } else {
-      if (answersRadio['rq7'] === 1) {
-        nextIndex = 3;
-      } else {
-        nextIndex = 2;
-      }
-    }
-    setCurrentCheckboxIndex(nextIndex);
-  }
-
-  const handleNextToCheckTRL = () => {
-    const currentAnswers = answersCheckbox[`cq${currentCheckboxIndex}`] || [];
-    const allTicked = currentAnswers.every(value => value === 1);
-
     setLevelMessage("");
-    setShowNextCheckboxButton(false);
 
-    if (!allTicked) {
-      if (currentCheckboxIndex === 1) {
+    let firstIndex = 0;
+
+    if (answersRadio.rq1 === 1) {
+      if (answersRadio.rq2 === 1) {
+        if (answersRadio.rq3 === 1) {
+          if (answersRadio.rq4 === 1) {
+            firstIndex = answersRadio.rq5 === 1 ? 9 : 8;
+          } else firstIndex = 7;
+        } else firstIndex = 6;
+      } else firstIndex = answersRadio.rq6 === 1 ? 5 : 4;
+    } else {
+      firstIndex = answersRadio.rq7 === 1 ? 3 : 2;
+    }
+
+    setCheckboxQueue([firstIndex]);
+    setShowPart2(true);
+  };
+
+  const handleSubmitCheckTRL = (index: number) => {
+    const answers = answersCheckbox[`cq${index}`] || [];
+    const allChecked = answers.every((v) => v === 1);
+
+    if (!allChecked) {
+      if (index === 1) {
         setLevelMessage("Research ของคุณไม่อยู่ในระดับ TRL");
-        setAnswerTRL(null);
-        if (setTrlLevel) setTrlLevel(null);
-        setShowNextCheckboxButton(false);
+        setTrlLevel?.(null);
         return;
       }
-      setShowNextCheckboxButton(true);
+
+      // เพิ่มคำถามใหม่ → ล็อกคำถามเก่าอัตโนมัติ
+      setCheckboxQueue((prev) => [...prev, index - 1]);
       return;
     }
 
-    setLevelMessage(`Research ของคุณอยู่ในระดับ TRL ${currentCheckboxIndex}`);
-    setAnswerTRL(currentCheckboxIndex);
-    if (setTrlLevel) setTrlLevel(currentCheckboxIndex); // sync ไป parent
+    setLevelMessage(`Research ของคุณอยู่ในระดับ TRL ${index}`);
+    setTrlLevel?.(index);
   };
 
-  const handleProceedToNextCheckbox = () => {
-    setCurrentCheckboxIndex(currentCheckboxIndex - 1);
-    setShowNextCheckboxButton(false);
-  };
-
+  /* ---------------- Render ---------------- */
   return (
     <div>
+      {/* ========== Part 1 ========== */}
       <h3 className="font-semibold text-primary text-lg">Part 1</h3>
+
       {Object.keys(answersRadio).map((key, index) => (
         <div key={key} className="mt-4">
           <RadioQuestion
-            key={key}
             index={index + 1}
-            value={answersRadio[key] === 1 ? "ใช่" : answersRadio[key] === 0 ? "ไม่ใช่" : ""}
+            value={
+              answersRadio[key] === 1
+                ? "ใช่"
+                : answersRadio[key] === 0
+                ? "ไม่ใช่"
+                : ""
+            }
             onChange={(value) => handleRadioChange(value, key)}
           />
         </div>
       ))}
-      <div className="mt-4">
+
+      <div className="mt-6">
         <button
-          onClick={handleNextToCheckbox}
+          onClick={handleNextToPart2}
           className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded"
         >
           Next to Part 2
         </button>
+
         {errorMessage && (
-          <div className="mt-4 text-sm text-red-500 font-semibold">{errorMessage}</div>
+          <div className="mt-3 text-sm text-red-500 font-semibold">
+            {errorMessage}
+          </div>
         )}
       </div>
 
-      <h3 className="mt-12 font-semibold text-primary text-lg">Part 2</h3>
-      <div className="mt-4">
-        {currentCheckboxIndex && (
-          <div>
-            <CheckboxQuestion
-              index={currentCheckboxIndex}
-              value={answersCheckbox[`cq${currentCheckboxIndex}`] || []}
-              onChange={(value, itemId, selectedLabels) => handleCheckboxChange(value, itemId, selectedLabels)}
-            />
-            <div className="mt-4">
-              <button
-                onClick={handleNextToCheckTRL}
-                className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded"
-              >
-                Submit and Check TRL Level
-              </button>
+      {/* ========== Part 2 ========== */}
+      {showPart2 && (
+        <>
+          <h3 className="mt-12 font-semibold text-primary text-lg">Part 2</h3>
+
+          {checkboxQueue.map((index, idx) => {
+            const isLocked = idx !== checkboxQueue.length - 1;
+
+            return (
+              <div key={index} className="mt-6 opacity-100">
+                <CheckboxQuestion
+                  index={index}
+                  value={answersCheckbox[`cq${index}`] || []}
+                  disabled={isLocked}
+                  onChange={(value, itemId, selectedLabels) =>
+                    !isLocked &&
+                    handleCheckboxChange(value, itemId, selectedLabels)
+                  }
+                />
+
+                <button
+                  disabled={isLocked}
+                  onClick={() => handleSubmitCheckTRL(index)}
+                  className={`mt-4 text-sm font-medium py-2 px-3 rounded
+                    ${
+                      isLocked
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-[#00c1d6] text-white"
+                    }`}
+                >
+                  Submit and Check TRL Level
+                </button>
+              </div>
+            );
+          })}
+
+          {levelMessage && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold">{levelMessage}</h3>
             </div>
-          </div>
-        )}
-        {showNextCheckboxButton && (
-          <div className="mt-4">
-            <button
-              onClick={handleProceedToNextCheckbox}
-              className="mt-2 bg-gray-300 text-gray-800 text-sm font-medium py-2 px-3 rounded"
-            >
-              Answer More Questions
-            </button>
-          </div>
-        )}
-      </div>
-
-      {levelMessage && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">{levelMessage}</h3>
-        </div>
+          )}
+        </>
       )}
     </div>
   );
