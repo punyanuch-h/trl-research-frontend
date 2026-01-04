@@ -107,6 +107,31 @@ export default function ResearcherForm() {
   const [trlLevel, setTrlLevel] = useState<number | null>(null);
   const submitFormMutation = useSubmitResearcherForm();
   const { data: userProfile } = useGetUserProfile();
+  
+  // TRL step state
+  const [trlState, setTrlState] = useState<{
+    showPart2: boolean;
+    checkboxQueue: number[];
+    answersRadio: { [key: string]: number | null };
+    answersCheckbox: { [key: string]: number[] };
+    levelMessage: string;
+    errorMessage: string;
+  }>({
+    showPart2: false,
+    checkboxQueue: [],
+    answersRadio: {
+      rq1: null,
+      rq2: null,
+      rq3: null,
+      rq4: null,
+      rq5: null,
+      rq6: null,
+      rq7: null,
+    },
+    answersCheckbox: {},
+    levelMessage: "",
+    errorMessage: "",
+  });
 
   const [formData, setFormData] = useState<FormState>({
     // researcher_info
@@ -360,6 +385,88 @@ export default function ResearcherForm() {
   }
 
   const handleNext = () => {
+    // Special handling for TRL step (step 3)
+    if (currentFormStep === 3) {
+      // If Part 2 is not shown yet, proceed to Part 2
+      if (!trlState.showPart2) {
+        const allAnswered = Object.values(trlState.answersRadio).every((a) => a !== null);
+        if (!allAnswered) {
+          setStepError("กรุณาตอบคำถาม Part 1 ให้ครบก่อน");
+          return;
+        }
+        
+        // Calculate first checkbox index
+        let firstIndex = 0;
+        if (trlState.answersRadio.rq1 === 1) {
+          if (trlState.answersRadio.rq2 === 1) {
+            if (trlState.answersRadio.rq3 === 1) {
+              if (trlState.answersRadio.rq4 === 1) {
+                firstIndex = trlState.answersRadio.rq5 === 1 ? 9 : 8;
+              } else firstIndex = 7;
+            } else firstIndex = 6;
+          } else firstIndex = trlState.answersRadio.rq6 === 1 ? 5 : 4;
+        } else {
+          firstIndex = trlState.answersRadio.rq7 === 1 ? 3 : 2;
+        }
+        
+        setTrlState(prev => ({
+          ...prev,
+          showPart2: true,
+          checkboxQueue: [firstIndex],
+          errorMessage: "",
+        }));
+        setStepError("");
+        return;
+      }
+      
+      // If Part 2 is shown, check current checkbox
+      const currentIndex = trlState.checkboxQueue[trlState.checkboxQueue.length - 1];
+      if (currentIndex) {
+        const answers = trlState.answersCheckbox[`cq${currentIndex}`] || [];
+        const allChecked = answers.length > 0 && answers.every((v) => v === 1);
+        
+        if (!allChecked) {
+          if (answers.length === 0) {
+            setStepError("กรุณาตอบคำถาม Part 2 ให้ครบก่อน");
+            return;
+          }
+          
+          if (currentIndex === 1) {
+            setStepError("Research ของคุณไม่อยู่ในระดับ TRL");
+            setTrlState(prev => ({
+              ...prev,
+              levelMessage: "Research ของคุณไม่อยู่ในระดับ TRL",
+              errorMessage: "",
+            }));
+            setFormData(prev => ({ ...prev, trlLevelResult: null }));
+            return;
+          }
+          
+          // Add next question
+          setTrlState(prev => ({
+            ...prev,
+            checkboxQueue: [...prev.checkboxQueue, currentIndex - 1],
+            errorMessage: "",
+          }));
+          setStepError("");
+          return;
+        }
+        
+        // All checked, set TRL level
+        setStepError("");
+        setTrlState(prev => ({
+          ...prev,
+          // levelMessage: `Research ของคุณอยู่ในระดับ TRL ${currentIndex}`,
+          errorMessage: "",
+        }));
+        setFormData(prev => ({ ...prev, trlLevelResult: currentIndex }));
+        // Proceed to next step
+        setCurrentFormStep(4);
+        return;
+      }
+    }
+    
+    // Normal validation for other steps
     const { valid, firstField, errorMessage } = validateStepWithField(currentFormStep);
     if (!valid) {
       if (errorMessage) {
@@ -380,8 +487,32 @@ export default function ResearcherForm() {
 
   // Check if current step is valid for button disabling
   const isStepValid = () => {
+    if (currentFormStep === 3) {
+      // For TRL step, check if Part 1 is complete
+      if (!trlState.showPart2) {
+        const allAnswered = Object.values(trlState.answersRadio).every((a) => a !== null);
+        return allAnswered;
+      }
+      // If Part 2 is shown, check if current checkbox has at least one answer
+      const currentIndex = trlState.checkboxQueue[trlState.checkboxQueue.length - 1];
+      if (currentIndex) {
+        const answers = trlState.answersCheckbox[`cq${currentIndex}`] || [];
+        // Allow button to be enabled if there's at least one answer
+        // The actual validation (all checked) will happen in handleNext
+        return answers.length > 0;
+      }
+      return false;
+    }
     const { valid } = validateStepWithField(currentFormStep);
     return valid;
+  };
+  
+  // Get button text for TRL step
+  const getTRLButtonText = () => {
+    if (!trlState.showPart2) {
+      return "Next to Part 2";
+    }
+    return "Submit";
   };
 
   const handleSubmit = async () => {
@@ -438,6 +569,9 @@ export default function ResearcherForm() {
               setFormData((prev) => ({ ...prev, trlLevelResult: level }));
               setTrlLevel(level);
             }}
+            onStateChange={(state) => setTrlState(state)}
+            currentCheckboxIndex={trlState.checkboxQueue[trlState.checkboxQueue.length - 1] || null}
+            externalState={trlState}
           />
         );
       case 4:
@@ -521,8 +655,15 @@ export default function ResearcherForm() {
           </CardHeader>
           <CardContent>
             {renderFormStep()}
-            {stepError && (
-              <div className="text-red-500 font-semibold mt-4">{stepError}</div>
+            {(stepError || (currentFormStep === 3 && trlState.errorMessage)) && (
+              <div className="text-red-500 font-semibold mt-4">
+                {currentFormStep === 3 && trlState.errorMessage ? trlState.errorMessage : stepError}
+              </div>
+            )}
+            {currentFormStep === 3 && trlState.levelMessage && (
+              <div className="text-lg font-semibold mt-4 text-primary">
+                {trlState.levelMessage}
+              </div>
             )}
             <div className="flex justify-between mt-8">
               <Button
@@ -537,6 +678,11 @@ export default function ResearcherForm() {
                 {currentFormStep === 5 ? (
                   <Button onClick={handleSubmit} disabled={submitFormMutation.isPending || !isStepValid()}>
                     Submit
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                ) : currentFormStep === 3 ? (
+                  <Button onClick={handleNext} disabled={!isStepValid()}>
+                    {getTRLButtonText()}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (

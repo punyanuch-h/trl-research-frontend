@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RadioQuestion from "@/components/evaluate/RadioQuestion";
 import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
 
@@ -6,12 +6,40 @@ interface EvaluateTRLProps {
   formData: any;
   handleInputChange: (field: string, value: any) => void;
   setTrlLevel?: (level: number | null) => void;
+  // Expose state and handlers for parent component
+  onStateChange?: (state: {
+    showPart2: boolean;
+    checkboxQueue: number[];
+    answersRadio: { [key: string]: number | null };
+    answersCheckbox: { [key: string]: number[] };
+    levelMessage: string;
+    errorMessage: string;
+  }) => void;
+  onNextToPart2?: () => void;
+  onSubmitCheckTRL?: (index: number) => void;
+  canProceedToPart2?: boolean;
+  currentCheckboxIndex?: number | null;
+  // External state from parent
+  externalState?: {
+    showPart2: boolean;
+    checkboxQueue: number[];
+    answersRadio: { [key: string]: number | null };
+    answersCheckbox: { [key: string]: number[] };
+    levelMessage: string;
+    errorMessage: string;
+  };
 }
 
 export default function EvaluateTRL({
   formData,
   handleInputChange,
   setTrlLevel,
+  onStateChange,
+  onNextToPart2,
+  onSubmitCheckTRL,
+  canProceedToPart2,
+  currentCheckboxIndex,
+  externalState,
 }: EvaluateTRLProps) {
   /* ---------------- Part 1 ---------------- */
   const [answersRadio, setAnswersRadio] = useState<{ [key: string]: number | null }>({
@@ -42,14 +70,39 @@ export default function EvaluateTRL({
 
   const [levelMessage, setLevelMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  
+  // Sync with external state if provided
+  useEffect(() => {
+    if (externalState) {
+      setAnswersRadio(externalState.answersRadio);
+      setShowPart2(externalState.showPart2);
+      setCheckboxQueue(externalState.checkboxQueue);
+      setAnswersCheckbox(externalState.answersCheckbox);
+      setLevelMessage(externalState.levelMessage);
+      setErrorMessage(externalState.errorMessage);
+    }
+  }, [externalState]);
 
   /* ---------------- Handlers ---------------- */
   const handleRadioChange = (value: number, questionId: string) => {
-    setAnswersRadio((prev) => ({
-      ...prev,
+    const newAnswers = {
+      ...answersRadio,
       [questionId]: value,
-    }));
+    };
+    setAnswersRadio(newAnswers);
     handleInputChange(questionId + "Answer", value === 1);
+    
+    // Notify parent of state change
+    if (onStateChange) {
+      onStateChange({
+        showPart2,
+        checkboxQueue,
+        answersRadio: newAnswers,
+        answersCheckbox,
+        levelMessage,
+        errorMessage,
+      });
+    }
   };
 
   const handleCheckboxChange = (
@@ -57,18 +110,41 @@ export default function EvaluateTRL({
     itemId: string,
     selectedLabels: string[]
   ) => {
-    setAnswersCheckbox((prev) => ({
-      ...prev,
+    const newAnswers = {
+      ...answersCheckbox,
       [itemId]: value,
-    }));
+    };
+    setAnswersCheckbox(newAnswers);
     handleInputChange(itemId + "Answer", selectedLabels);
+    
+    // Notify parent of state change
+    if (onStateChange) {
+      onStateChange({
+        showPart2,
+        checkboxQueue,
+        answersRadio,
+        answersCheckbox: newAnswers,
+        levelMessage,
+        errorMessage,
+      });
+    }
   };
 
   /* ---------------- Logic ---------------- */
-  const handleNextToPart2 = () => {
+  const handleNextToPart2Internal = () => {
     const allAnswered = Object.values(answersRadio).every((a) => a !== null);
     if (!allAnswered) {
       setErrorMessage("กรุณาตอบคำถาม Part 1 ให้ครบก่อน");
+      if (onStateChange) {
+        onStateChange({
+          showPart2,
+          checkboxQueue,
+          answersRadio,
+          answersCheckbox,
+          levelMessage,
+          errorMessage: "กรุณาตอบคำถาม Part 1 ให้ครบก่อน",
+        });
+      }
       return;
     }
 
@@ -89,29 +165,97 @@ export default function EvaluateTRL({
       firstIndex = answersRadio.rq7 === 1 ? 3 : 2;
     }
 
-    setCheckboxQueue([firstIndex]);
+    const newQueue = [firstIndex];
+    setCheckboxQueue(newQueue);
     setShowPart2(true);
+    
+    // Notify parent
+    if (onStateChange) {
+      onStateChange({
+        showPart2: true,
+        checkboxQueue: newQueue,
+        answersRadio,
+        answersCheckbox,
+        levelMessage: "",
+        errorMessage: "",
+      });
+    }
+    
+    if (onNextToPart2) {
+      onNextToPart2();
+    }
   };
 
-  const handleSubmitCheckTRL = (index: number) => {
+  const handleSubmitCheckTRLInternal = (index: number) => {
     const answers = answersCheckbox[`cq${index}`] || [];
     const allChecked = answers.every((v) => v === 1);
 
     if (!allChecked) {
       if (index === 1) {
-        setLevelMessage("Research ของคุณไม่อยู่ในระดับ TRL");
+        const msg = "Research ของคุณไม่อยู่ในระดับ TRL";
+        setLevelMessage(msg);
         setTrlLevel?.(null);
+        if (onStateChange) {
+          onStateChange({
+            showPart2,
+            checkboxQueue,
+            answersRadio,
+            answersCheckbox,
+            levelMessage: msg,
+            errorMessage,
+          });
+        }
         return;
       }
 
       // เพิ่มคำถามใหม่ → ล็อกคำถามเก่าอัตโนมัติ
-      setCheckboxQueue((prev) => [...prev, index - 1]);
+      const newQueue = [...checkboxQueue, index - 1];
+      setCheckboxQueue(newQueue);
+      if (onStateChange) {
+        onStateChange({
+          showPart2,
+          checkboxQueue: newQueue,
+          answersRadio,
+          answersCheckbox,
+          levelMessage,
+          errorMessage,
+        });
+      }
       return;
     }
 
-    setLevelMessage(`Research ของคุณอยู่ในระดับ TRL ${index}`);
+    const msg = `Research ของคุณอยู่ในระดับ TRL ${index}`;
+    setLevelMessage(msg);
     setTrlLevel?.(index);
+    if (onStateChange) {
+      onStateChange({
+        showPart2,
+        checkboxQueue,
+        answersRadio,
+        answersCheckbox,
+        levelMessage: msg,
+        errorMessage,
+      });
+    }
+    
+    if (onSubmitCheckTRL) {
+      onSubmitCheckTRL(index);
+    }
   };
+
+  // Use external handlers if provided, otherwise use internal
+  const handleNextToPart2 = onNextToPart2 ? () => {
+    const allAnswered = Object.values(answersRadio).every((a) => a !== null);
+    if (!allAnswered) {
+      setErrorMessage("กรุณาตอบคำถาม Part 1 ให้ครบก่อน");
+      return;
+    }
+    handleNextToPart2Internal();
+  } : handleNextToPart2Internal;
+
+  const handleSubmitCheckTRL = onSubmitCheckTRL ? (index: number) => {
+    handleSubmitCheckTRLInternal(index);
+  } : handleSubmitCheckTRLInternal;
 
   /* ---------------- Render ---------------- */
   return (
@@ -135,21 +279,6 @@ export default function EvaluateTRL({
         </div>
       ))}
 
-      <div className="mt-6">
-        <button
-          onClick={handleNextToPart2}
-          className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded"
-        >
-          Next to Part 2
-        </button>
-
-        {errorMessage && (
-          <div className="mt-3 text-sm text-red-500 font-semibold">
-            {errorMessage}
-          </div>
-        )}
-      </div>
-
       {/* ========== Part 2 ========== */}
       {showPart2 && (
         <>
@@ -157,6 +286,7 @@ export default function EvaluateTRL({
 
           {checkboxQueue.map((index, idx) => {
             const isLocked = idx !== checkboxQueue.length - 1;
+            const isCurrent = currentCheckboxIndex === index || (currentCheckboxIndex === null && idx === checkboxQueue.length - 1);
 
             return (
               <div key={index} className="mt-6 opacity-100">
@@ -169,19 +299,6 @@ export default function EvaluateTRL({
                     handleCheckboxChange(value, itemId, selectedLabels)
                   }
                 />
-
-                <button
-                  disabled={isLocked}
-                  onClick={() => handleSubmitCheckTRL(index)}
-                  className={`mt-4 text-sm font-medium py-2 px-3 rounded
-                    ${
-                      isLocked
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-[#00c1d6] text-white"
-                    }`}
-                >
-                  Submit and Check TRL Level
-                </button>
               </div>
             );
           })}
