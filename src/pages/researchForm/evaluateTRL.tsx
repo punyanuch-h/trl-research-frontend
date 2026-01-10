@@ -175,6 +175,33 @@ export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }
             value={answersRadio[key] === 1 ? "ใช่" : answersRadio[key] === 0 ? "ไม่ใช่" : ""}
             onChange={(value) => handleRadioChange(value, key)}
           />
+          <div className="mt-2 ml-4">
+            <button
+              type="button"
+              onClick={() => document.getElementById(`file-${key}`)?.click()}
+              className="text-sm px-3 py-1 bg-blue-50 border border-blue-200 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+            >
+              แนบหลักฐาน
+            </button>
+            <input
+              type="file"
+              id={`file-${key}`}
+              accept=".pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                handleInputChange("assessmentFiles", {
+                  ...formData.assessmentFiles,
+                  [key]: file
+                });
+              }}
+              className="hidden"
+            />
+            {formData.assessmentFiles?.[key as keyof typeof formData.assessmentFiles] && (
+              <span className="text-sm text-green-600 ml-2">
+                ✓ {formData.assessmentFiles[key as keyof typeof formData.assessmentFiles]?.name}
+              </span>
+            )}
+          </div>
         </div>
       ))}
       <div className="mt-4">
@@ -198,6 +225,33 @@ export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }
               value={answersCheckbox[`cq${currentCheckboxIndex}`] || []}
               onChange={(value, itemId, selectedLabels) => handleCheckboxChange(value, itemId, selectedLabels)}
             />
+            <div className="mt-2 ml-4">
+              <button
+                type="button"
+                onClick={() => document.getElementById(`file-cq${currentCheckboxIndex}`)?.click()}
+                className="text-sm px-3 py-1 bg-blue-50 border border-blue-200 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+              >
+                แนบหลักฐาน
+              </button>
+              <input
+                type="file"
+                id={`file-cq${currentCheckboxIndex}`}
+                accept=".pdf"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  handleInputChange("assessmentFiles", {
+                    ...formData.assessmentFiles,
+                    [`cq${currentCheckboxIndex}`]: file
+                  });
+                }}
+                className="hidden"
+              />
+              {formData.assessmentFiles?.[`cq${currentCheckboxIndex}` as keyof typeof formData.assessmentFiles] && (
+                <span className="text-sm text-green-600 ml-2">
+                  ✓ {formData.assessmentFiles[`cq${currentCheckboxIndex}` as keyof typeof formData.assessmentFiles]?.name}
+                </span>
+              )}
+            </div>
             <div className="mt-4">
               <button
                 onClick={handleNextToCheckTRL}
