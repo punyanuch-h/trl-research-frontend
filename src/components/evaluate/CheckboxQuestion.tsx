@@ -5,6 +5,7 @@ import { checkboxQuestionList } from "@/data/checkboxQuestionList";
 interface CheckboxQuestionProps {
   index: number;
   value: number[];
+  disabled?: boolean;
   onChange: (value: number[], itemId: string, selectedLabels: string[]) => void;
 }
 

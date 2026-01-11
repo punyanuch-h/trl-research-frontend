@@ -14,23 +14,25 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
     return (
         <div className="space-y-4 flex flex-col gap-2 text-gray-600">
             <div>
-                <h3 className="font-semibold text-primary">ชื่อผลงานนวัตกรรม*</h3>
+                <h3 className="font-semibold text-primary">ชื่อผลงานนวัตกรรม<span className="text-red-500">*</span></h3>
                 <Input
                     id="researchTitle"
                     value={formData.researchTitle}
                     onChange={(e) => handleInputChange("researchTitle", e.target.value)}
                     placeholder="ใส่ชื่อผลงานนวัตกรรม"
+                    required
                     ref={refs?.researchTitle}
                 />
             </div>
             <div>
-                <h3 className="font-semibold text-primary">TRL Type*</h3>
+                <h3 className="font-semibold text-primary">TRL Type<span className="text-red-500">*</span></h3>
                 <RadioGroup
                     id="researchType"
                     value={formData.researchType}
                     onValueChange={(value) => handleInputChange("researchType", value)}
                     className="space-y-2 mt-2"
                     ref={refs?.researchType}
+                    required
                 >
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="TRL software" id="software" />
@@ -51,7 +53,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 </RadioGroup>
             </div>
             <div>
-                <p className="text-base font-semibold">คำอธิบายโดยย่อของนวัตกรรม* (ไม่เกิน 350 คำ)</p>
+                <p className="text-base font-semibold">คำอธิบายโดยย่อของนวัตกรรม<span className="text-red-500">*</span> (ไม่เกิน 350 คำ)</p>
                 <p className="text-xs text-muted-foreground mb-1">
                     โดยอาจมีหัวข้อดังนี้: 1) Technology Overview, 2) Features & Specifications, 3) Potential Applications, 4) Unique Selling Point
                 </p>
@@ -61,6 +63,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                     onChange={(e) => handleInputChange("description", e.target.value)}
                     placeholder="อธิบายสรุปเกี่ยวกับผลงานนวัตกรรมของคุณ"
                     rows={6}
+                    required
                     ref={refs?.description}
                 />
             </div>

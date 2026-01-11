@@ -90,7 +90,7 @@ const Supporter: React.FC<SupporterProps> = ({
     <div className="supporter-form-container flex flex-col gap-4">
       <div className="form-group">
         <label className="form-label">
-          <h3 className="font-semibold text-primary">หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม* (เลือกได้มากกว่า 1 หน่วยงาน)</h3>
+          <h3 className="font-semibold text-primary">หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม<span className="text-red-500">*</span> (เลือกได้มากกว่า 1 หน่วยงาน)</h3>
         </label>
         <div className="checkbox-options flex flex-col gap-2">
           {innovationSupportOptions.map((option) => (
@@ -102,6 +102,7 @@ const Supporter: React.FC<SupporterProps> = ({
                 onChange={(e) => handleSupportDevChange(e.target.value, e.target.checked)}
                 checked={formData.supportDevNeeded.includes(option.value)}
                 className="mr-2"
+                required={formData.supportDevNeeded.length === 0}
               />
               {option.label}
             </label>
@@ -111,7 +112,7 @@ const Supporter: React.FC<SupporterProps> = ({
 
       <div className="form-group">
         <label className="form-label">
-          <h3 className="font-semibold text-primary">ความช่วยเหลือที่ต้องการ* (เลือกได้มากกว่า 1 ข้อ)</h3>
+          <h3 className="font-semibold text-primary">ความช่วยเหลือที่ต้องการ<span className="text-red-500">*</span> (เลือกได้มากกว่า 1 ข้อ)</h3>
         </label>
         <div className="checkbox-options flex flex-col gap-2">
           {assistanceOptions.map((option) => (
@@ -128,15 +129,18 @@ const Supporter: React.FC<SupporterProps> = ({
                 {option.label}
               </label>
               {option.value === 'อื่น ๆ' && (
-                <input
-                  type="text"
-                  name="otherSupportMarket"
-                  className="other-input pl-6 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition duration-300"
-                  value={formData.otherSupportMarket}
-                  onChange={(e) => handleInputChange('otherSupportMarket', e.target.value)}
-                  disabled={!formData.supportMarketNeeded.includes('อื่น ๆ')}
-                  placeholder="ระบุความช่วยเหลืออื่น ๆ"
-                />
+                <div className="pl-6">
+                  <input
+                    type="text"
+                    name="otherSupportMarket"
+                    className="other-input pl-6 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition duration-300 w-full"
+                    value={formData.otherSupportMarket}
+                    onChange={(e) => handleInputChange('otherSupportMarket', e.target.value)}
+                    disabled={!formData.supportMarketNeeded.includes('อื่น ๆ')}
+                    placeholder="ระบุความช่วยเหลืออื่น ๆ"
+                    required={formData.supportMarketNeeded.includes('อื่น ๆ')}
+                  />
+                </div>
               )}
             </React.Fragment>
           ))}
