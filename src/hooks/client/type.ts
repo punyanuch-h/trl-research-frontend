@@ -2,7 +2,7 @@ export type LoginResponse = {
     token: string;
     expires_in: number; // in hours (1 week)
     role: string;
-};   
+};
 
 export type CaseResponse = {
     case_id: string;
@@ -57,7 +57,7 @@ export type AppointmentResponse = {
     created_at: string;
     updated_at: string;
 };
-  
+
 export type IntellectualPropertyResponse = {
     id: string;
     case_id: string;
@@ -78,7 +78,7 @@ export type CoordinatorResponse = {
     created_at: string;
     updated_at: string;
 };
-  
+
 export type SupporterResponse = {
     supporter_id: string;
     case_id: string;
@@ -99,8 +99,7 @@ export type SupporterResponse = {
     created_at: string;
     updated_at: string;
 };
-<<<<<<< Updated upstream
-  
+
 export type ResearcherResponse = {
     researcher_id: string;
     admin_id: string;
@@ -116,15 +115,13 @@ export type ResearcherResponse = {
 };
 
 export type UserProfileResponse = {
-	id: string;
-	prefix: string;
-	academic_position: string;
-	first_name: string;
-	last_name: string;
-	department: string;
-	phone_number: string;
-	email: string;
+    id: string;
+    prefix: string;
+    academic_position: string;
+    first_name: string;
+    last_name: string;
+    department: string;
+    phone_number: string;
+    email: string;
 };
-=======
-  
->>>>>>> Stashed changes
+

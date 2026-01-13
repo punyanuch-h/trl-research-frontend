@@ -70,7 +70,7 @@ export default function EvaluateTRL({
 
   const [levelMessage, setLevelMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  
+
   // Sync with external state if provided
   useEffect(() => {
     if (externalState) {
@@ -91,7 +91,7 @@ export default function EvaluateTRL({
     };
     setAnswersRadio(newAnswers);
     handleInputChange(questionId + "Answer", value === 1);
-    
+
     // Notify parent of state change
     if (onStateChange) {
       onStateChange({
@@ -116,7 +116,7 @@ export default function EvaluateTRL({
     };
     setAnswersCheckbox(newAnswers);
     handleInputChange(itemId + "Answer", selectedLabels);
-    
+
     // Notify parent of state change
     if (onStateChange) {
       onStateChange({
@@ -168,7 +168,7 @@ export default function EvaluateTRL({
     const newQueue = [firstIndex];
     setCheckboxQueue(newQueue);
     setShowPart2(true);
-    
+
     // Notify parent
     if (onStateChange) {
       onStateChange({
@@ -180,7 +180,7 @@ export default function EvaluateTRL({
         errorMessage: "",
       });
     }
-    
+
     if (onNextToPart2) {
       onNextToPart2();
     }
@@ -237,7 +237,7 @@ export default function EvaluateTRL({
         errorMessage,
       });
     }
-    
+
     if (onSubmitCheckTRL) {
       onSubmitCheckTRL(index);
     }
@@ -271,11 +271,38 @@ export default function EvaluateTRL({
               answersRadio[key] === 1
                 ? "ใช่"
                 : answersRadio[key] === 0
-                ? "ไม่ใช่"
-                : ""
+                  ? "ไม่ใช่"
+                  : ""
             }
             onChange={(value) => handleRadioChange(value, key)}
           />
+          <div className="mt-2 ml-4">
+            <button
+              type="button"
+              onClick={() => document.getElementById(`file-${key}`)?.click()}
+              className="text-sm px-3 py-1 bg-blue-50 border border-blue-200 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+            >
+              แนบหลักฐาน
+            </button>
+            <input
+              type="file"
+              id={`file-${key}`}
+              accept=".pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                handleInputChange("assessmentFiles", {
+                  ...formData.assessmentFiles,
+                  [key]: file
+                });
+              }}
+              className="hidden"
+            />
+            {formData.assessmentFiles?.[key as keyof typeof formData.assessmentFiles] && (
+              <span className="text-sm text-green-600 ml-2">
+                ✓ {formData.assessmentFiles[key as keyof typeof formData.assessmentFiles]?.name}
+              </span>
+            )}
+          </div>
         </div>
       ))}
 
@@ -286,19 +313,65 @@ export default function EvaluateTRL({
 
           {checkboxQueue.map((index, idx) => {
             const isLocked = idx !== checkboxQueue.length - 1;
-            const isCurrent = currentCheckboxIndex === index || (currentCheckboxIndex === null && idx === checkboxQueue.length - 1);
+            const currentIdx = index;
 
             return (
               <div key={index} className="mt-6 opacity-100">
                 <CheckboxQuestion
-                  index={index}
-                  value={answersCheckbox[`cq${index}`] || []}
+                  index={currentIdx}
+                  value={answersCheckbox[`cq${currentIdx}`] || []}
                   disabled={isLocked}
                   onChange={(value, itemId, selectedLabels) =>
                     !isLocked &&
                     handleCheckboxChange(value, itemId, selectedLabels)
                   }
                 />
+
+                {/* File Upload for Part 2 */}
+                <div className="mt-2 ml-4">
+                  <button
+                    type="button"
+                    disabled={isLocked}
+                    onClick={() => document.getElementById(`file-cq${currentIdx}`)?.click()}
+                    className={`text-sm px-3 py-1 border rounded transition-colors ${isLocked
+                      ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 transition-all font-medium"
+                      }`}
+                  >
+                    แนบหลักฐาน
+                  </button>
+                  <input
+                    type="file"
+                    id={`file-cq${currentIdx}`}
+                    accept=".pdf"
+                    disabled={isLocked}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      handleInputChange("assessmentFiles", {
+                        ...formData.assessmentFiles,
+                        [`cq${currentIdx}`]: file
+                      });
+                    }}
+                    className="hidden"
+                  />
+                  {formData.assessmentFiles?.[`cq${currentIdx}` as keyof typeof formData.assessmentFiles] && (
+                    <span className="text-sm text-green-600 ml-2">
+                      ✓ {formData.assessmentFiles[`cq${currentIdx}` as keyof typeof formData.assessmentFiles]?.name}
+                    </span>
+                  )}
+                </div>
+
+                {/* Submit button for current question */}
+                {!isLocked && (
+                  <div className="mt-4">
+                    <button
+                      onClick={() => handleSubmitCheckTRL(currentIdx)}
+                      className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded hover:bg-[#00a8bb] transition-colors"
+                    >
+                      Submit and Check TRL Level
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -313,3 +386,4 @@ export default function EvaluateTRL({
     </div>
   );
 }
+

@@ -10,6 +10,7 @@ interface IpFormState {
   ipTypes: string[];
   requestNumbers: { [key: string]: string };
   noIp: boolean;
+  file?: File | null;
 }
 
 interface IntellectualPropertyProps {
@@ -35,7 +36,7 @@ export default function IntellectualProperty({
     if (formData.ipForms && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
       return formData.ipForms;
     }
-    return [{ ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false }];
+    return [{ ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false, file: null }];
   });
 
   // เมื่อ formData.ipForms เปลี่ยน (เช่น กรณี user กลับมาจาก step 5) ให้ sync state forms ด้วย
@@ -69,7 +70,7 @@ export default function IntellectualProperty({
       }
       return updated;
     });
-    
+
     // sync กลับไป parent
     handleInputChange("ipHas", !checked);
     if (checked) {
@@ -89,7 +90,7 @@ export default function IntellectualProperty({
       }
       return updatedForms;
     });
-    
+
     // sync กลับไป parent
     handleInputChange("ipProtectionStatus", value);
     if (value !== "ได้เลขที่คำขอแล้ว") {
@@ -105,7 +106,7 @@ export default function IntellectualProperty({
       updatedForms[formIndex].requestNumbers = {};
       return updatedForms;
     });
-    
+
     // sync กลับไป parent
     handleInputChange("ipTypes", [newIpType]);
     handleInputChange("ipRequestNumber", "");
@@ -122,7 +123,7 @@ export default function IntellectualProperty({
       updatedForms[formIndex].requestNumbers[ipType] = value;
       return updatedForms;
     });
-    
+
     // sync กลับไป parent
     handleInputChange("ipRequestNumber", value);
   };
@@ -130,8 +131,16 @@ export default function IntellectualProperty({
   const handleAddForm = () => {
     setForms((currentForms) => [
       ...currentForms,
-      { ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false },
+      { ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false, file: null },
     ]);
+  };
+
+  const handleFormFileChange = (formIndex: number, file: File | null) => {
+    setForms((currentForms) => {
+      const updatedForms = [...currentForms];
+      updatedForms[formIndex].file = file;
+      return updatedForms;
+    });
   };
 
   const handleRemoveForm = (formIndex: number) => {
@@ -276,6 +285,34 @@ export default function IntellectualProperty({
                   />
                 </div>
               )}
+
+              {/* File upload */}
+              <div>
+                <h3 className="font-semibold text-primary">เอกสารเพิ่มเติม (แนบ file)</h3>
+                <div className="flex gap-2 items-center mt-2">
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById(`ipFile-${formIndex}`)?.click()}
+                    className="w-30 sm:w-auto px-2 py-1 bg-gray-100/50 border border-gray-200 text-gray-400 rounded-lg hover:bg-primary hover:border-primary hover:text-white transition-colors duration-300 focus:outline-none focus:bg-primary focus:text-white"
+                  >
+                    Choose File
+                  </button>
+                  <input
+                    type="file"
+                    id={`ipFile-${formIndex}`}
+                    name={`ipFile-${formIndex}`}
+                    accept=".pdf"
+                    onChange={(e) => handleFormFileChange(formIndex, e.target.files?.[0] || null)}
+                    className="hidden"
+                  />
+                  {form.file && (
+                    <h4 className="text-sm text-gray-600 mt-1">
+                      <span>ไฟล์ที่เลือก:</span>
+                      <span className="text-primary ml-1">{form.file.name}</span>
+                    </h4>
+                  )}
+                </div>
+              </div>
             </>
           )}
         </div>

@@ -22,12 +22,12 @@ export class ApiQueryClient extends ApiBaseClient {
 
     return response.data;
   }
-  
+
   async useGetAllResearcher(): Promise<ResearcherResponse[]> {
     const response = await this.axiosInstance.get<ResearcherResponse[]>(`/trl/researchers`);
     return response.data;
   }
-  
+
   async useGetResearcherById(researcherId: string): Promise<ResearcherResponse> {
     const response = await this.axiosInstance.get<ResearcherResponse>(`/trl/researcher/${researcherId}`);
     return response.data;
@@ -37,7 +37,7 @@ export class ApiQueryClient extends ApiBaseClient {
     const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/researcher/${researcherId}`);
     return response.data;
   }
-  
+
   async useGetCaseById(caseId: string): Promise<CaseResponse> {
     const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/${caseId}`);
     return response.data;
@@ -48,12 +48,12 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async useUpdateAssessment(caseId: string, statusData: { status: boolean }){
+  async useUpdateAssessment(caseId: string, statusData: { status: boolean }) {
     const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, statusData);
     return response.data;
   }
 
-  async useUpdateUrgentStatus(caseId: string, urgentData: { is_urgent: boolean; urgent_feedback: string }){
+  async useUpdateUrgentStatus(caseId: string, urgentData: { is_urgent: boolean; urgent_feedback: string }) {
     const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, urgentData);
     return response.data;
   }
@@ -124,7 +124,7 @@ export class ApiQueryClient extends ApiBaseClient {
   }
 
   // Submit researcher form
-  async useSubmitResearcherForm(formData: any): Promise<any> {    
+  async useSubmitResearcherForm(formData: any): Promise<any> {
     // 1. Create Case
     const casePayload = {
       researcher_id: formData.id ?? "",
@@ -139,8 +139,36 @@ export class ApiQueryClient extends ApiBaseClient {
       case_keywords: formData.keywords,
       status: formData.status ?? false,
     };
-    
-    const caseResponse = await this.axiosInstance.post(`/trl/case`, casePayload);
+
+    let caseResponse;
+    if (formData.researchDetailsFiles && formData.researchDetailsFiles.length > 0) {
+      console.log('📎 Attaching files to case:', formData.researchDetailsFiles.length, 'files');
+      const caseFormData = new FormData();
+      Object.keys(casePayload).forEach(key => {
+        caseFormData.append(key, String((casePayload as any)[key]));
+      });
+      // Append all files with the field name the backend expects
+      formData.researchDetailsFiles.forEach((file) => {
+        console.log('📎 Appending file:', file.name, 'size:', file.size);
+        caseFormData.append('case_attachments', file);
+      });
+      console.log('📤 Sending FormData to /trl/case');
+      console.log("caseFormData entries:", Array.from(caseFormData.entries()).map(([key, value]) => ({
+        key,
+        value: value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value
+      })));
+
+      try {
+        caseResponse = await this.axiosInstance.post(`/trl/case`, caseFormData);
+        console.log("✅ Case created successfully:", caseResponse.data);
+      } catch (error) {
+        console.error("❌ Error creating case with files:", error);
+        throw error;
+      }
+    } else {
+      console.log('📤 Sending JSON to /trl/case (no files)');
+      caseResponse = await this.axiosInstance.post(`/trl/case`, casePayload);
+    }
     const caseId = caseResponse.data.case_id;
 
     // 2. Create Coordinator
@@ -173,12 +201,35 @@ export class ApiQueryClient extends ApiBaseClient {
       cq9_answer: formData.cq9_answer || [],
     };
 
-    const assessmentResponse = await this.axiosInstance.post(`/trl/assessment_trl`, assessmentPayload);
+    let assessmentResponse;
+    const hasAssessmentFiles = formData.assessmentFiles && Object.values(formData.assessmentFiles).some(file => file !== null && file !== undefined);
+
+    if (hasAssessmentFiles) {
+      const assessmentFormData = new FormData();
+      Object.keys(assessmentPayload).forEach(key => {
+        const value = (assessmentPayload as any)[key];
+        if (Array.isArray(value)) {
+          assessmentFormData.append(key, JSON.stringify(value));
+        } else {
+          assessmentFormData.append(key, String(value));
+        }
+      });
+      // Append files with their question keys matching backend field names
+      Object.entries(formData.assessmentFiles).forEach(([key, file]) => {
+        if (file) {
+          // Backend expects field names like 'rq1_attachment', 'cq1_attachment', etc.
+          assessmentFormData.append(`${key}_attachment`, file as File);
+        }
+      });
+      assessmentResponse = await this.axiosInstance.post(`/trl/assessment_trl`, assessmentFormData);
+    } else {
+      assessmentResponse = await this.axiosInstance.post(`/trl/assessment_trl`, assessmentPayload);
+    }
 
     // 4. Create IP records (if applicable)
     if (formData.ipHas && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
       for (let i = 0; i < formData.ipForms.length; i++) {
-        const ipForm = formData.ipForms[i];        
+        const ipForm = formData.ipForms[i];
         if (ipForm.noIp) {
           continue;
         }
@@ -189,13 +240,23 @@ export class ApiQueryClient extends ApiBaseClient {
           ip_protection_status: ipForm.ipStatus || "",
           ip_request_number: ipForm.requestNumbers?.[ipForm.ipTypes[0]] || "",
         };
-        
-        await this.axiosInstance.post(`/trl/ip`, ipPayload);
+
+        if (ipForm.file) {
+          const ipFormData = new FormData();
+          Object.keys(ipPayload).forEach(key => {
+            ipFormData.append(key, String((ipPayload as any)[key]));
+          });
+          // Backend expects field name 'ip_attachment'
+          ipFormData.append('ip_attachment', ipForm.file);
+          await this.axiosInstance.post(`/trl/ip`, ipFormData);
+        } else {
+          await this.axiosInstance.post(`/trl/ip`, ipPayload);
+        }
       }
     }
 
     // 5. Create Supporter
-    const supporterPayload = {
+    const supporterPayload: any = {
       case_id: caseId,
       support_research: (formData.supportDevNeeded || []).includes("ฝ่ายวิจัย"),
       support_vdc: (formData.supportDevNeeded || []).includes("ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)"),
@@ -210,7 +271,6 @@ export class ApiQueryClient extends ApiBaseClient {
       need_certification: (formData.supportMarketNeeded || []).includes("การขอรับรองมาตรฐานหรือคุณภาพ"),
       need_account: (formData.supportMarketNeeded || []).includes("บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม"),
       need: formData.otherSupportMarket || "",
-      additional_documents: "", // if you want to upload file, use multipart/form-data
     };
 
     const supporterResponse = await this.axiosInstance.post(`/trl/supporter`, supporterPayload);
@@ -250,7 +310,7 @@ export class ApiQueryClient extends ApiBaseClient {
     });
     return response.data;
   }
-  
+
   async useNotifyUploaded(payload: {
     file_name: string;
     object_path: string;
@@ -265,10 +325,10 @@ export class ApiQueryClient extends ApiBaseClient {
     const response = await this.axiosInstance.get(`/trl/file/download-url/${fileId}`);
     return response.data; // { download_url: "..." }
   }
-  
+
   async useGetFilesByCase(caseId: string) {
     const response = await this.axiosInstance.get(`/trl/files?case_id=${caseId}`);
     return response.data;
   }
-  
+
 }

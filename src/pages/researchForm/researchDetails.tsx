@@ -77,6 +77,42 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                     ref={refs?.keywords}
                 />
             </div>
+            <div>
+                <h3 className="font-semibold text-primary">เอกสารเพิ่มเติม (แนบ file - เลือกได้หลายไฟล์)</h3>
+                <div className="flex gap-2 items-center mt-2">
+                    <button
+                        type="button"
+                        onClick={() => document.getElementById('researchDetailsFiles')?.click()}
+                        className="w-30 sm:w-auto px-2 py-1 bg-gray-100/50 border border-gray-200 text-gray-400 rounded-lg hover:bg-primary hover:border-primary hover:text-white transition-colors duration-300 focus:outline-none focus:bg-primary focus:text-white"
+                    >
+                        Choose Files
+                    </button>
+                    <input
+                        type="file"
+                        id="researchDetailsFiles"
+                        name="researchDetailsFiles"
+                        accept=".pdf"
+                        multiple
+                        onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+                            handleInputChange("researchDetailsFiles", files);
+                        }}
+                        className="hidden"
+                    />
+                    {formData.researchDetailsFiles && formData.researchDetailsFiles.length > 0 && (
+                        <div className="flex flex-col gap-1">
+                            <h4 className="text-sm text-gray-600">
+                                <span>ไฟล์ที่เลือก ({formData.researchDetailsFiles.length} ไฟล์):</span>
+                            </h4>
+                            {formData.researchDetailsFiles.map((file, index) => (
+                                <span key={index} className="text-sm text-primary ml-2">
+                                    {index + 1}. {file.name}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

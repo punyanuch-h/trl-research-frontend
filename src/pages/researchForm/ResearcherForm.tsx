@@ -26,6 +26,7 @@ interface IpForm {
   ipTypes: string[];
   ipStatus: string;
   requestNumbers: Record<string, string>;
+  file?: File | null;
 }
 
 type FormState = {
@@ -55,6 +56,7 @@ type FormState = {
   researchType: string;
   description: string;
   keywords: string;
+  researchDetailsFiles: File[];
   // evaluateTRL
   trlSoftware: string;
   trlMedicalDevices: string;
@@ -66,6 +68,24 @@ type FormState = {
 
   // Assessment_trl
   trlLevelResult: number | null;
+  assessmentFiles: {
+    rq1?: File | null;
+    rq2?: File | null;
+    rq3?: File | null;
+    rq4?: File | null;
+    rq5?: File | null;
+    rq6?: File | null;
+    rq7?: File | null;
+    cq1?: File | null;
+    cq2?: File | null;
+    cq3?: File | null;
+    cq4?: File | null;
+    cq5?: File | null;
+    cq6?: File | null;
+    cq7?: File | null;
+    cq8?: File | null;
+    cq9?: File | null;
+  };
   // Research Questions (RQ)
   rq1_answer: boolean;
   rq2_answer: boolean;
@@ -97,7 +117,6 @@ type FormState = {
   readyForShowcase: string;
   consent: string;
   otherSupportMarket: string;
-  additionalDocuments: File | null;
 };
 
 export default function ResearcherForm() {
@@ -160,6 +179,7 @@ export default function ResearcherForm() {
     researchType: "",
     description: "",
     keywords: "",
+    researchDetailsFiles: [],
     // evaluateTRL
     trlSoftware: "",
     trlMedicalDevices: "",
@@ -170,6 +190,7 @@ export default function ResearcherForm() {
     targetUsers: "",
     // Assessment_trl
     trlLevelResult: null,
+    assessmentFiles: {},
     // RQ
     rq1_answer: false,
     rq2_answer: false,
@@ -193,7 +214,7 @@ export default function ResearcherForm() {
     ipProtectionStatus: "",
     ipRequestNumber: "",
     ipTypes: [] as string[],
-    ipForms: [{ ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false }] as IpForm[],
+    ipForms: [{ ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false, file: null }] as IpForm[],
     // Supporter
     supportDevNeeded: [] as string[],
     supportMarketNeeded: [] as string[],
@@ -201,7 +222,6 @@ export default function ResearcherForm() {
     readyForShowcase: "",
     consent: "",
     otherSupportMarket: "",
-    additionalDocuments: null,
   });
 
   const [stepError, setStepError] = useState<string>("");
@@ -581,7 +601,6 @@ export default function ResearcherForm() {
           formData={formData}
           handleInputChange={handleInputChange}
           handleCheckboxChange={handleCheckboxChange}
-          handleFileChange={handleFileChange}
         />;
       default:
         return null;
@@ -630,19 +649,17 @@ export default function ResearcherForm() {
                 <div className="text-sm font-medium mr-2">
                   Step
                 </div>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step.id === currentFormStep
-                    ? "bg-primary text-primary-foreground"
-                    : step.id < currentFormStep
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${step.id === currentFormStep
+                  ? "bg-primary text-primary-foreground"
+                  : step.id < currentFormStep
                     ? "bg-primary/20 text-primary"
                     : "bg-muted text-muted-foreground"
-                }`}>
+                  }`}>
                   {step.id}
                 </div>
                 {index < formSteps.length - 1 && (
-                  <div className={`w-16 h-0.5 mx-2 ${
-                    step.id < currentFormStep ? "bg-primary" : "bg-muted"
-                  }`} />
+                  <div className={`w-16 h-0.5 mx-2 ${step.id < currentFormStep ? "bg-primary" : "bg-muted"
+                    }`} />
                 )}
               </div>
             ))}
