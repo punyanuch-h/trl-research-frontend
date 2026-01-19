@@ -89,7 +89,7 @@ export default function ResearcherDetails({
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                     <div className="col-span-1">
-                        <Label htmlFor="headPrefix">คำนำหน้า</Label>
+                        <Label htmlFor="headPrefix">คำนำหน้า<span className="text-red-500">*</span></Label>
                         <Select
                             onValueChange={(value) =>
                                 handleInputChange("headPrefix", value)
@@ -113,7 +113,7 @@ export default function ResearcherDetails({
                     </div>
 
                     <div className="col-span-1">
-                        <Label htmlFor="headAcademicPosition">ตำแหน่งวิชาการ</Label>
+                        <Label htmlFor="headAcademicPosition">ตำแหน่งวิชาการ<span className="text-red-500">*</span></Label>
                         <Select
                             onValueChange={(value) =>
                                 handleInputChange("headAcademicPosition", value)
@@ -134,7 +134,7 @@ export default function ResearcherDetails({
                     </div>
 
                     <div className="col-span-1">
-                        <Label htmlFor="headFirstName">ชื่อ*</Label>
+                        <Label htmlFor="headFirstName">ชื่อ<span className="text-red-500">*</span></Label>
                         <Input
                             id="headFirstName"
                             value={formData.headFirstName}
@@ -148,7 +148,7 @@ export default function ResearcherDetails({
                     </div>
 
                     <div className="col-span-1">
-                        <Label htmlFor="headLastName">นามสกุล*</Label>
+                        <Label htmlFor="headLastName">นามสกุล<span className="text-red-500">*</span></Label>
                         <Input
                             id="headLastName"
                             value={formData.headLastName}
@@ -164,7 +164,7 @@ export default function ResearcherDetails({
 
                 <div>
                     <Label htmlFor="headDepartment">
-                        ภาควิชา / สถาน / หน่วยงาน ของหัวหน้าโครงการ*
+                        ภาควิชา / สถาน / หน่วยงาน ของหัวหน้าโครงการ<span className="text-red-500">*</span>
                     </Label>
                     <p className="text-xs text-muted-foreground mb-1">
                         (รวมหน่วยงานที่เทียบเท่าภาควิชา)
@@ -182,7 +182,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="headPhoneNumber">เบอร์โทรศัพท์*</Label>
+                    <Label htmlFor="headPhoneNumber">เบอร์โทรศัพท์<span className="text-red-500">*</span></Label>
                     <Input
                         id="headPhoneNumber"
                         value={formData.headPhoneNumber}
@@ -196,7 +196,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="headEmail">อีเมล์*</Label>
+                    <Label htmlFor="headEmail">อีเมล์<span className="text-red-500">*</span></Label>
                     <Input
                         id="headEmail"
                         value={formData.headEmail}
@@ -229,7 +229,7 @@ export default function ResearcherDetails({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <Label htmlFor="coordinatorFirstName">ชื่อ*</Label>
+                        <Label htmlFor="coordinatorFirstName">ชื่อ<span className="text-red-500">*</span></Label>
                         <Input
                             id="coordinatorFirstName"
                             value={formData.coordinatorFirstName}
@@ -243,7 +243,7 @@ export default function ResearcherDetails({
                         />
                     </div>
                     <div>
-                        <Label htmlFor="coordinatorLastName">นามสกุล*</Label>
+                        <Label htmlFor="coordinatorLastName">นามสกุล<span className="text-red-500">*</span></Label>
                         <Input
                             id="coordinatorLastName"
                             value={formData.coordinatorLastName}
@@ -259,7 +259,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="coordinatorPhoneNumber">เบอร์โทรศัพท์*</Label>
+                    <Label htmlFor="coordinatorPhoneNumber">เบอร์โทรศัพท์<span className="text-red-500">*</span></Label>
                     <Input
                         id="coordinatorPhoneNumber"
                         value={formData.coordinatorPhoneNumber}
@@ -274,7 +274,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="coordinatorEmail">อีเมล์*</Label>
+                    <Label htmlFor="coordinatorEmail">อีเมล์<span className="text-red-500">*</span></Label>
                     <Input
                         id="coordinatorEmail"
                         value={formData.coordinatorEmail}

@@ -1,16 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RadioQuestion from "@/components/evaluate/RadioQuestion";
 import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
 
 interface EvaluateTRLProps {
   formData: any;
   handleInputChange: (field: string, value: any) => void;
-  setTrlLevel?: (level: number | null) => void; // เพิ่ม prop นี้
+  setTrlLevel?: (level: number | null) => void;
+  // Expose state and handlers for parent component
+  onStateChange?: (state: {
+    showPart2: boolean;
+    checkboxQueue: number[];
+    answersRadio: { [key: string]: number | null };
+    answersCheckbox: { [key: string]: number[] };
+    levelMessage: string;
+    errorMessage: string;
+  }) => void;
+  onNextToPart2?: () => void;
+  onSubmitCheckTRL?: (index: number) => void;
+  canProceedToPart2?: boolean;
+  currentCheckboxIndex?: number | null;
+  // External state from parent
+  externalState?: {
+    showPart2: boolean;
+    checkboxQueue: number[];
+    answersRadio: { [key: string]: number | null };
+    answersCheckbox: { [key: string]: number[] };
+    levelMessage: string;
+    errorMessage: string;
+  };
 }
 
-export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }: EvaluateTRLProps) {
-  const [currentCheckboxIndex, setCurrentCheckboxIndex] = useState<number | null>(null);
-  const [answersRadio, setAnswersRadio] = useState<{ [key: string]: number }>({
+export default function EvaluateTRL({
+  formData,
+  handleInputChange,
+  setTrlLevel,
+  onStateChange,
+  onNextToPart2,
+  onSubmitCheckTRL,
+  canProceedToPart2,
+  currentCheckboxIndex,
+  externalState,
+}: EvaluateTRLProps) {
+  /* ---------------- Part 1 ---------------- */
+  const [answersRadio, setAnswersRadio] = useState<{ [key: string]: number | null }>({
     rq1: null,
     rq2: null,
     rq3: null,
@@ -19,6 +51,11 @@ export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }
     rq6: null,
     rq7: null,
   });
+
+  /* ---------------- Part 2 ---------------- */
+  const [showPart2, setShowPart2] = useState(false);
+  const [checkboxQueue, setCheckboxQueue] = useState<number[]>([]);
+
   const [answersCheckbox, setAnswersCheckbox] = useState<{ [key: string]: number[] }>({
     cq1: [0, 0, 0],
     cq2: [0, 0, 0, 0, 0],
@@ -28,203 +65,325 @@ export default function EvaluateTRL({ formData, handleInputChange, setTrlLevel }
     cq6: [0, 0, 0, 0],
     cq7: [0, 0, 0, 0],
     cq8: [0, 0, 0],
-    cq9: [0, 0, 0, 0]
+    cq9: [0, 0, 0, 0],
   });
 
-  const [answersCheckboxx, setAnswersCheckboxx] = useState<{ [key: string]: string[] }>({
-    cq1: [],
-    cq2: [],
-    cq3: [],
-    cq4: [],
-    cq5: [],
-    cq6: [],
-    cq7: [],
-    cq8: [],
-    cq9: []
-  });
-  // console.log(answersCheckboxx)
+  const [levelMessage, setLevelMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // ปรับ setAnswerTRL ให้ sync ไปยัง parent
-  const [answerTRL, setAnswerTRL] = useState<number | null>(null);
+  // Sync with external state if provided
+  useEffect(() => {
+    if (externalState) {
+      setAnswersRadio(externalState.answersRadio);
+      setShowPart2(externalState.showPart2);
+      setCheckboxQueue(externalState.checkboxQueue);
+      setAnswersCheckbox(externalState.answersCheckbox);
+      setLevelMessage(externalState.levelMessage);
+      setErrorMessage(externalState.errorMessage);
+    }
+  }, [externalState]);
 
-  const [levelMessage, setLevelMessage] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [showNextCheckboxButton, setShowNextCheckboxButton] = useState<boolean>(false);
-
+  /* ---------------- Handlers ---------------- */
   const handleRadioChange = (value: number, questionId: string) => {
-    setAnswersRadio((prevAnswers) => {
-      const newAnswers = {
-        ...prevAnswers,
-        [questionId]: value,
-      };
+    const newAnswers = {
+      ...answersRadio,
+      [questionId]: value,
+    };
+    setAnswersRadio(newAnswers);
+    handleInputChange(questionId + "Answer", value === 1);
 
-      // ✅ Sync ไป parent
-      if (handleInputChange) {
-        handleInputChange(questionId + "Answer", value === 1); // แปลงเป็น boolean
-      }
-
-      return newAnswers;
-    });
+    // Notify parent of state change
+    if (onStateChange) {
+      onStateChange({
+        showPart2,
+        checkboxQueue,
+        answersRadio: newAnswers,
+        answersCheckbox,
+        levelMessage,
+        errorMessage,
+      });
+    }
   };
-
-
 
   const handleCheckboxChange = (
     value: number[],
     itemId: string,
     selectedLabels: string[]
   ) => {
-    setAnswersCheckbox((prevAnswers) => ({
-      ...prevAnswers,
+    const newAnswers = {
+      ...answersCheckbox,
       [itemId]: value,
-    }));
+    };
+    setAnswersCheckbox(newAnswers);
+    handleInputChange(itemId + "Answer", selectedLabels);
 
-    setAnswersCheckboxx((prevLabels) => {
-      const newLabels = {
-        ...prevLabels,
-        [itemId]: selectedLabels,
-      };
-      // ✅ Sync ไป parent
-      if (handleInputChange) {
-        handleInputChange(itemId + "Answer", selectedLabels);
-      }
-      return newLabels;
-    });
+    // Notify parent of state change
+    if (onStateChange) {
+      onStateChange({
+        showPart2,
+        checkboxQueue,
+        answersRadio,
+        answersCheckbox: newAnswers,
+        levelMessage,
+        errorMessage,
+      });
+    }
   };
 
-
-  const handleNextToCheckbox = () => {
-    const allAnswered = Object.values(answersRadio).every((answer) => answer !== null);
+  /* ---------------- Logic ---------------- */
+  const handleNextToPart2Internal = () => {
+    const allAnswered = Object.values(answersRadio).every((a) => a !== null);
     if (!allAnswered) {
       setErrorMessage("กรุณาตอบคำถาม Part 1 ให้ครบก่อน");
-      setLevelMessage("");
+      if (onStateChange) {
+        onStateChange({
+          showPart2,
+          checkboxQueue,
+          answersRadio,
+          answersCheckbox,
+          levelMessage,
+          errorMessage: "กรุณาตอบคำถาม Part 1 ให้ครบก่อน",
+        });
+      }
       return;
     }
-    setLevelMessage("");
+
     setErrorMessage("");
-    let nextIndex = 0;
-    if (answersRadio['rq1'] === 1) {
-      if (answersRadio['rq2'] === 1) {
-        if (answersRadio['rq3'] === 1) {
-          if (answersRadio['rq4'] === 1) {
-            if (answersRadio['rq5'] === 1) {
-              nextIndex = 9;
-            } else {
-              nextIndex = 8;
-            }
-          } else {
-            nextIndex = 7;
-          }
-        } else {
-          nextIndex = 6;
-        }
-      } else {
-        if (answersRadio['rq6'] === 1) {
-          nextIndex = 5;
-        } else {
-          nextIndex = 4;
-        }
-      }
-    } else {
-      if (answersRadio['rq7'] === 1) {
-        nextIndex = 3;
-      } else {
-        nextIndex = 2;
-      }
-    }
-    setCurrentCheckboxIndex(nextIndex);
-  }
-
-  const handleNextToCheckTRL = () => {
-    const currentAnswers = answersCheckbox[`cq${currentCheckboxIndex}`] || [];
-    const allTicked = currentAnswers.every(value => value === 1);
-
     setLevelMessage("");
-    setShowNextCheckboxButton(false);
 
-    if (!allTicked) {
-      if (currentCheckboxIndex === 1) {
-        setLevelMessage("Research ของคุณไม่อยู่ในระดับ TRL");
-        setAnswerTRL(null);
-        if (setTrlLevel) setTrlLevel(null);
-        setShowNextCheckboxButton(false);
+    let firstIndex = 0;
+
+    if (answersRadio.rq1 === 1) {
+      if (answersRadio.rq2 === 1) {
+        if (answersRadio.rq3 === 1) {
+          if (answersRadio.rq4 === 1) {
+            firstIndex = answersRadio.rq5 === 1 ? 9 : 8;
+          } else firstIndex = 7;
+        } else firstIndex = 6;
+      } else firstIndex = answersRadio.rq6 === 1 ? 5 : 4;
+    } else {
+      firstIndex = answersRadio.rq7 === 1 ? 3 : 2;
+    }
+
+    const newQueue = [firstIndex];
+    setCheckboxQueue(newQueue);
+    setShowPart2(true);
+
+    // Notify parent
+    if (onStateChange) {
+      onStateChange({
+        showPart2: true,
+        checkboxQueue: newQueue,
+        answersRadio,
+        answersCheckbox,
+        levelMessage: "",
+        errorMessage: "",
+      });
+    }
+
+    if (onNextToPart2) {
+      onNextToPart2();
+    }
+  };
+
+  const handleSubmitCheckTRLInternal = (index: number) => {
+    const answers = answersCheckbox[`cq${index}`] || [];
+    const allChecked = answers.every((v) => v === 1);
+
+    if (!allChecked) {
+      if (index === 1) {
+        const msg = "Research ของคุณไม่อยู่ในระดับ TRL";
+        setLevelMessage(msg);
+        setTrlLevel?.(null);
+        if (onStateChange) {
+          onStateChange({
+            showPart2,
+            checkboxQueue,
+            answersRadio,
+            answersCheckbox,
+            levelMessage: msg,
+            errorMessage,
+          });
+        }
         return;
       }
-      setShowNextCheckboxButton(true);
+
+      // เพิ่มคำถามใหม่ → ล็อกคำถามเก่าอัตโนมัติ
+      const newQueue = [...checkboxQueue, index - 1];
+      setCheckboxQueue(newQueue);
+      if (onStateChange) {
+        onStateChange({
+          showPart2,
+          checkboxQueue: newQueue,
+          answersRadio,
+          answersCheckbox,
+          levelMessage,
+          errorMessage,
+        });
+      }
       return;
     }
 
-    setLevelMessage(`Research ของคุณอยู่ในระดับ TRL ${currentCheckboxIndex}`);
-    setAnswerTRL(currentCheckboxIndex);
-    if (setTrlLevel) setTrlLevel(currentCheckboxIndex); // sync ไป parent
+    const msg = `Research ของคุณอยู่ในระดับ TRL ${index}`;
+    setLevelMessage(msg);
+    setTrlLevel?.(index);
+    if (onStateChange) {
+      onStateChange({
+        showPart2,
+        checkboxQueue,
+        answersRadio,
+        answersCheckbox,
+        levelMessage: msg,
+        errorMessage,
+      });
+    }
+
+    if (onSubmitCheckTRL) {
+      onSubmitCheckTRL(index);
+    }
   };
 
-  const handleProceedToNextCheckbox = () => {
-    setCurrentCheckboxIndex(currentCheckboxIndex - 1);
-    setShowNextCheckboxButton(false);
-  };
+  // Use external handlers if provided, otherwise use internal
+  const handleNextToPart2 = onNextToPart2 ? () => {
+    const allAnswered = Object.values(answersRadio).every((a) => a !== null);
+    if (!allAnswered) {
+      setErrorMessage("กรุณาตอบคำถาม Part 1 ให้ครบก่อน");
+      return;
+    }
+    handleNextToPart2Internal();
+  } : handleNextToPart2Internal;
 
+  const handleSubmitCheckTRL = onSubmitCheckTRL ? (index: number) => {
+    handleSubmitCheckTRLInternal(index);
+  } : handleSubmitCheckTRLInternal;
+
+  /* ---------------- Render ---------------- */
   return (
     <div>
+      {/* ========== Part 1 ========== */}
       <h3 className="font-semibold text-primary text-lg">Part 1</h3>
+
       {Object.keys(answersRadio).map((key, index) => (
         <div key={key} className="mt-4">
           <RadioQuestion
-            key={key}
             index={index + 1}
-            value={answersRadio[key] === 1 ? "ใช่" : answersRadio[key] === 0 ? "ไม่ใช่" : ""}
+            value={
+              answersRadio[key] === 1
+                ? "ใช่"
+                : answersRadio[key] === 0
+                  ? "ไม่ใช่"
+                  : ""
+            }
             onChange={(value) => handleRadioChange(value, key)}
           />
+          <div className="mt-2 ml-4">
+            <button
+              type="button"
+              onClick={() => document.getElementById(`file-${key}`)?.click()}
+              className="text-sm px-3 py-1 bg-blue-50 border border-blue-200 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+            >
+              แนบหลักฐาน
+            </button>
+            <input
+              type="file"
+              id={`file-${key}`}
+              accept=".pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                handleInputChange("assessmentFiles", {
+                  ...formData.assessmentFiles,
+                  [key]: file
+                });
+              }}
+              className="hidden"
+            />
+            {formData.assessmentFiles?.[key as keyof typeof formData.assessmentFiles] && (
+              <span className="text-sm text-green-600 ml-2">
+                ✓ {formData.assessmentFiles[key as keyof typeof formData.assessmentFiles]?.name}
+              </span>
+            )}
+          </div>
         </div>
       ))}
-      <div className="mt-4">
-        <button
-          onClick={handleNextToCheckbox}
-          className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded"
-        >
-          Next to Part 2
-        </button>
-        {errorMessage && (
-          <div className="mt-4 text-sm text-red-500 font-semibold">{errorMessage}</div>
-        )}
-      </div>
 
-      <h3 className="mt-12 font-semibold text-primary text-lg">Part 2</h3>
-      <div className="mt-4">
-        {currentCheckboxIndex && (
-          <div>
-            <CheckboxQuestion
-              index={currentCheckboxIndex}
-              value={answersCheckbox[`cq${currentCheckboxIndex}`] || []}
-              onChange={(value, itemId, selectedLabels) => handleCheckboxChange(value, itemId, selectedLabels)}
-            />
-            <div className="mt-4">
-              <button
-                onClick={handleNextToCheckTRL}
-                className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded"
-              >
-                Submit and Check TRL Level
-              </button>
+      {/* ========== Part 2 ========== */}
+      {showPart2 && (
+        <>
+          <h3 className="mt-12 font-semibold text-primary text-lg">Part 2</h3>
+
+          {checkboxQueue.map((index, idx) => {
+            const isLocked = idx !== checkboxQueue.length - 1;
+            const currentIdx = index;
+
+            return (
+              <div key={index} className="mt-6 opacity-100">
+                <CheckboxQuestion
+                  index={currentIdx}
+                  value={answersCheckbox[`cq${currentIdx}`] || []}
+                  disabled={isLocked}
+                  onChange={(value, itemId, selectedLabels) =>
+                    !isLocked &&
+                    handleCheckboxChange(value, itemId, selectedLabels)
+                  }
+                />
+
+                {/* File Upload for Part 2 */}
+                <div className="mt-2 ml-4">
+                  <button
+                    type="button"
+                    disabled={isLocked}
+                    onClick={() => document.getElementById(`file-cq${currentIdx}`)?.click()}
+                    className={`text-sm px-3 py-1 border rounded transition-colors ${isLocked
+                      ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 transition-all font-medium"
+                      }`}
+                  >
+                    แนบหลักฐาน
+                  </button>
+                  <input
+                    type="file"
+                    id={`file-cq${currentIdx}`}
+                    accept=".pdf"
+                    disabled={isLocked}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      handleInputChange("assessmentFiles", {
+                        ...formData.assessmentFiles,
+                        [`cq${currentIdx}`]: file
+                      });
+                    }}
+                    className="hidden"
+                  />
+                  {formData.assessmentFiles?.[`cq${currentIdx}` as keyof typeof formData.assessmentFiles] && (
+                    <span className="text-sm text-green-600 ml-2">
+                      ✓ {formData.assessmentFiles[`cq${currentIdx}` as keyof typeof formData.assessmentFiles]?.name}
+                    </span>
+                  )}
+                </div>
+
+                {/* Submit button for current question */}
+                {!isLocked && (
+                  <div className="mt-4">
+                    <button
+                      onClick={() => handleSubmitCheckTRL(currentIdx)}
+                      className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded hover:bg-[#00a8bb] transition-colors"
+                    >
+                      Submit and Check TRL Level
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {levelMessage && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold">{levelMessage}</h3>
             </div>
-          </div>
-        )}
-        {showNextCheckboxButton && (
-          <div className="mt-4">
-            <button
-              onClick={handleProceedToNextCheckbox}
-              className="mt-2 bg-gray-300 text-gray-800 text-sm font-medium py-2 px-3 rounded"
-            >
-              Answer More Questions
-            </button>
-          </div>
-        )}
-      </div>
-
-      {levelMessage && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">{levelMessage}</h3>
-        </div>
+          )}
+        </>
       )}
     </div>
   );
 }
+

@@ -9,6 +9,7 @@ interface IpForm {
   ipTypes: string[];
   ipStatus: string;
   requestNumbers: Record<string, string>;
+  file?: File | null;
 }
 
 interface FormState {
@@ -38,6 +39,7 @@ interface FormState {
   researchType: string;
   description: string;
   keywords: string;
+  researchDetailsFiles: File[];
   // evaluateTRL
   trlSoftware: string;
   trlMedicalDevices: string;
@@ -49,6 +51,24 @@ interface FormState {
 
   // Assessment_trl
   trlLevelResult: number | null;
+  assessmentFiles: {
+    rq1?: File | null;
+    rq2?: File | null;
+    rq3?: File | null;
+    rq4?: File | null;
+    rq5?: File | null;
+    rq6?: File | null;
+    rq7?: File | null;
+    cq1?: File | null;
+    cq2?: File | null;
+    cq3?: File | null;
+    cq4?: File | null;
+    cq5?: File | null;
+    cq6?: File | null;
+    cq7?: File | null;
+    cq8?: File | null;
+    cq9?: File | null;
+  };
   // Research Questions (RQ)
   rq1_answer: boolean;
   rq2_answer: boolean;
@@ -80,7 +100,6 @@ interface FormState {
   readyForShowcase: string;
   consent: string;
   otherSupportMarket: string;
-  additionalDocuments: File | null;
 }
 
 export function useSubmitResearcherForm() {
@@ -90,7 +109,7 @@ export function useSubmitResearcherForm() {
 
   return useMutation({
     mutationFn: async (formData: FormState) => {
-      console.log("✅ Form submitted successfully",formData);
+      console.log("✅ Form submitted successfully", formData);
       return apiClient.useSubmitResearcherForm(formData);
     },
     onSuccess: () => {
@@ -99,7 +118,7 @@ export function useSubmitResearcherForm() {
       queryClient.invalidateQueries({ queryKey: ["getAllCoordinators"] });
       queryClient.invalidateQueries({ queryKey: ["getAllSupporters"] });
       queryClient.invalidateQueries({ queryKey: ["useGetIPAll"] });
-      
+
       // Success - clear and navigate
       alert("บันทึกข้อมูลสำเร็จ!");
       localStorage.removeItem("currentFormStep");
