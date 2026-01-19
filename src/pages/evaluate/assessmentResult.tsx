@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import { useGetCaseById } from '@/hooks/case/get/useGetCaseById';
 import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByCaseId";
 import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
 import { useUpdateAssessment } from '@/hooks/case/patch/useUpdateAssessment';
+import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImprovementSuggestion';
 import { toast } from 'sonner';
 import { AssessmentResponse } from '@/hooks/client/type';
 
@@ -21,6 +22,7 @@ const AssessmentResult = () => {
     const { data: coordinatorData } = useGetCoordinatorByCaseId(id || '');
     const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentById(id || '');
     const updateAssessmentMutation = useUpdateAssessment(caseData?.case_id || '');
+    const updateSuggestionMutation = useUpdateImprovementSuggestion();
     
     // State for editable suggestions
     const [suggestions, setSuggestions] = useState<{[key: string]: string}>({});
@@ -29,6 +31,15 @@ const AssessmentResult = () => {
     
     // State for collapsible TRL levels
     const [collapsedLevels, setCollapsedLevels] = useState<{[key: number]: boolean}>({});
+
+    useEffect(() => {
+        if (assessmentData?.improvement_suggestion) {
+            setSuggestions(prev => ({
+                ...prev,
+                "all": assessmentData.improvement_suggestion
+            }));
+        }
+    }, [assessmentData]);
     
     // Handle navigation
     const handleBackToCaseDetail = () => {
@@ -93,12 +104,24 @@ const AssessmentResult = () => {
         return unselectedCriteria;
     };
 
-    const handleSaveSuggestion = (criteriaId: string, text: string) => {
-        setSuggestions(prev => ({
-            ...prev,
-            [criteriaId]: text
-        }));
-        setEditingSuggestion(null);
+    const handleSaveSuggestion = (text: string) => {
+        setSuggestions(prev => ({ ...prev, "all": text }));
+
+        const assessmentId = assessmentData?.id;
+
+        if (assessmentId) {
+            updateSuggestionMutation.mutate({
+                assessmentId: assessmentId,
+                suggestionData: { improvement_suggestion: text }
+            }, {
+                onSuccess: () => {
+                    setIsEditing(false);
+                }
+            });
+        } else {
+            console.error("Assessment ID missing in data:", assessmentData);
+            toast.error("Error: Cannot find Assessment ID to save.");
+        }
     };
   
     return (
@@ -401,8 +424,9 @@ const AssessmentResult = () => {
                 {isEditing ? (
                   <Textarea
                     value={suggestions["all"] || ''}
-                    onChange={(e) => handleSaveSuggestion("all", e.target.value)}
+                    onChange={(e) => setSuggestions(prev => ({...prev, "all": e.target.value}))}
                     className="min-h-[200px] bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm leading-relaxed text-yellow-800 font-medium"
+                    placeholder="Enter improvement suggestions here..."
                   />
                 ) : (
                   <div
@@ -441,14 +465,23 @@ const AssessmentResult = () => {
                   <Button
                     size="sm"
                     className="bg-primary hover:bg-primary/80 mr-2"
+                    disabled={updateSuggestionMutation.isPending}
                     onClick={() => {
-                      handleSaveSuggestion("all", suggestions["all"] || '');
-                      setIsEditing(false);
+                      handleSaveSuggestion(suggestions["all"] || '');
                     }}
                   >
-                    Save
+                    {updateSuggestionMutation.isPending ? (
+                        <>
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            Save
+                        </>
+                    )}
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => setIsEditing(false)}>
+                  <Button variant="outline" size="sm" disabled={updateSuggestionMutation.isPending} onClick={() => setIsEditing(false)}>
                     Cancel
                   </Button>
                 </>
@@ -458,15 +491,12 @@ const AssessmentResult = () => {
                   size="sm"
                   onClick={() => {
                     // Fill textarea with either saved suggestion or bullet points
-                    const defaultText =
-                      suggestions["all"] ||
-                      getUnselectedCriteria()
-                        .map(
-                          (criteria) =>
-                            `• TRL ${criteria.level}: ${criteria.question}`
-                        )
-                        .join("\n");
-                    handleSaveSuggestion("all", defaultText);
+                    if (!suggestions["all"]) {
+                        const defaultText = getUnselectedCriteria()
+                            .map((criteria) => `• TRL ${criteria.level}: ${criteria.question}`)
+                            .join("\n");
+                        setSuggestions(prev => ({...prev, "all": defaultText}));
+                    }
                     setIsEditing(true);
                   }}
                   className="text-primary border-primary hover:bg-primary/10"

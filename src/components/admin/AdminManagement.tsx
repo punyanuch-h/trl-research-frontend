@@ -17,14 +17,13 @@ interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
   researcherInfo?: ResearcherResponse;
 }
-
 interface Props {
   projects: Project[];
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   sortConfig: { key: string; direction: "asc" | "desc" };
   onSort: (key: string) => void;
   onAIEstimate: (project: Project) => void;
-  onDownload: (filename: string) => void;
+  onDownload: (project: Project) => void;
   currentPage: number;
   rowsPerPage: number;
   setCurrentPage: (page: number) => void;
@@ -103,10 +102,6 @@ export default function AdminManagement({
         alert("Failed to update urgent status. Please try again.");
       }
     }
-  };
-
-  const handleDownloadResult = (filename: string) => {
-    onDownload(filename);
   };
 
   return (
@@ -209,11 +204,7 @@ export default function AdminManagement({
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() =>
-                                  handleDownloadResult(
-                                    `result_${project.case_title}.pdf`
-                                  )
-                                }
+                                onClick={() => onDownload(project)}
                               >
                                 <Download className="w-4 h-4 mr-2" />
                                 Result

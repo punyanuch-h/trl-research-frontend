@@ -42,6 +42,7 @@ export type AssessmentResponse = {
     cq7_answer: string[];
     cq8_answer: string[];
     cq9_answer: string[];
+    improvement_suggestion: string;
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
 };
@@ -99,8 +100,7 @@ export type SupporterResponse = {
     created_at: string;
     updated_at: string;
 };
-<<<<<<< Updated upstream
-  
+
 export type ResearcherResponse = {
     researcher_id: string;
     admin_id: string;
@@ -125,6 +125,3 @@ export type UserProfileResponse = {
 	phone_number: string;
 	email: string;
 };
-=======
-  
->>>>>>> Stashed changes

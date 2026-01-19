@@ -24,7 +24,6 @@ interface Props {
   sortConfig: { key: string; direction: "asc" | "desc" };
   onSort: (key: string) => void;
   onAIEstimate: (project: Project) => void;
-  onDownload: (filename: string) => void;
   currentPage: number;
   rowsPerPage: number;
   setCurrentPage: (page: number) => void;
