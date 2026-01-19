@@ -226,6 +226,11 @@ export default function ResearcherForm() {
 
   const [stepError, setStepError] = useState<string>("");
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentFormStep]);
+
   const refs = {
     headPrefix: useRef<HTMLInputElement>(null),
     headAcademicPosition: useRef<HTMLInputElement>(null),
@@ -245,36 +250,6 @@ export default function ResearcherForm() {
     description: useRef<HTMLTextAreaElement>(null),
     keywords: useRef<HTMLInputElement>(null),
   };
-
-  // Load from localStorage
-  useEffect(() => {
-    const savedStep = localStorage.getItem("currentFormStep");
-    if (savedStep) {
-      setCurrentFormStep(Number(savedStep));
-    }
-    const savedFormData = localStorage.getItem("researcherFormData");
-    if (savedFormData) {
-      try {
-        const parsed = JSON.parse(savedFormData);
-        // ensure trlLevelResult is number|null (backwards-compat)
-        if (parsed && parsed.trlLevelResult !== undefined && parsed.trlLevelResult !== null) {
-          parsed.trlLevelResult = typeof parsed.trlLevelResult === "number" ? parsed.trlLevelResult : Number(parsed.trlLevelResult) || null;
-        }
-        setFormData(prev => ({ ...prev, ...parsed }));
-      } catch (error) {
-        console.error("Error parsing saved form data:", error);
-      }
-    }
-  }, []);
-
-  // Save to localStorage
-  useEffect(() => {
-    localStorage.setItem("researcherFormData", JSON.stringify(formData));
-  }, [formData]);
-
-  useEffect(() => {
-    localStorage.setItem("currentFormStep", currentFormStep.toString());
-  }, [currentFormStep]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -618,7 +593,6 @@ export default function ResearcherForm() {
   const handlePrev = () => {
     if (currentFormStep > 1) {
       setCurrentFormStep(currentFormStep - 1);
-      localStorage.setItem("currentFormStep", (currentFormStep - 1).toString());
     }
   };
 
