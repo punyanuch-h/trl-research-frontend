@@ -42,6 +42,7 @@ export type AssessmentResponse = {
     cq7_answer: string[];
     cq8_answer: string[];
     cq9_answer: string[];
+    improvement_suggestion: string;
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
 };

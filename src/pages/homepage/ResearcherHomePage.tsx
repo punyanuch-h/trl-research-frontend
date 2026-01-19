@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Download, Eye, Filter, Plus } from "lucide-react";
+import { pdf } from "@react-pdf/renderer";
+import { useQueryClient } from "@tanstack/react-query";
+import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { TablePagination } from "@/components/TablePagination";
 import FilterPopup from "@/components/modal/filtter/filtter";
 import Header from "@/components/Header";
+import { CaseReportPDF } from "@/components/modal/report/report";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -62,8 +66,11 @@ function mergeCasesData(
 
 export default function ResearcherHomePage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
+  
   const { data: userProfile } = useGetUserProfile();
-  const { data: caseData = [] } = useGetAllCasesByID(userProfile?.id);
+  const { data: caseData = [] } = useGetAllCasesByID(userProfile?.id) as { data: CaseResponse[] | undefined };
   const { data: appointmentData = [] } = useGetAllAppointments();
   
   // --- State ---
@@ -97,7 +104,7 @@ export default function ResearcherHomePage() {
   }, [caseData, appointmentData]);
 
   // --- Sorting ---
-  function sortResearch(researchList: typeof caseData) {
+  function sortResearch(researchList: (CaseResponse & { appointments: Appointment[]; latestAppointment: Appointment | null })[]) {
     const sorted = [...researchList].sort((a, b) => {
       const { key, direction } = sortConfig;
       let aValue: any = (a as any)[key];
@@ -189,11 +196,86 @@ export default function ResearcherHomePage() {
     navigate(`/case-detail/${caseId}`, { state: { caseInfo: c } });
   };
 
-  const handleDownloadResult = (filename: string) => {
-    const link = document.createElement("a");
-    link.href = "#";
-    link.download = filename;
-    link.click();
+  const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: Appointment[]; latestAppointment: Appointment | null }) => {
+    try {
+      console.log("Generating PDF for:", caseInfo.case_title);
+
+      let coordinatorData = null;
+      try {
+        coordinatorData = await queryClient.fetchQuery({
+          queryKey: ["useGetCoordinatorByCaseId", caseInfo.case_id],
+          queryFn: async () => {
+            return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.case_id);
+          },
+        });
+      } catch (err) {
+        console.warn("No coordinator data found or error fetching", err);
+      }
+
+      let ipData = [];
+      try {
+        ipData = await queryClient.fetchQuery({
+          queryKey: ["useGetIPByCaseId", caseInfo.case_id],
+          queryFn: async () => {
+            return await apiQueryClient.useGetIPByCaseId(caseInfo.case_id); 
+          },
+        });
+      } catch (err) {
+        console.warn("No IP data found", err);
+      }
+
+      let supporterData = null;
+      try {
+        supporterData = await queryClient.fetchQuery({
+          queryKey: ["useGetSupporterByCaseId", caseInfo.case_id],
+          queryFn: async () => {
+            return await apiQueryClient.useGetSupporterByCaseId(caseInfo.case_id);
+          },
+        });
+      } catch (err) {
+        console.warn("No supporter data found", err);
+      }
+
+      let assessmentData = null;
+      try {
+        assessmentData = await queryClient.fetchQuery({
+          queryKey: ["useGetAssessmentByCaseId", caseInfo.case_id],
+          queryFn: async () => {
+            return await apiQueryClient.useGetAssessmentById(caseInfo.case_id);
+          },
+        });
+      } catch (err) {
+        console.warn("No assessment data found", err);
+      }
+
+      const pdfProps = {
+        c: caseInfo,
+        appointments: caseInfo.appointments || [],
+        coordinatorData: coordinatorData,
+        ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
+        supporterData: supporterData,
+        assessmentData: assessmentData,
+      };
+
+      const blob = await pdf(<CaseReportPDF {...pdfProps} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      const rawTitle = caseInfo.case_title || caseInfo.case_id;
+      const sanitizedTitle = rawTitle.toString()
+          .replace(/[<>:"/\\|?*]/g, '_')
+          .trim();
+      link.download = `result_${sanitizedTitle}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+    }
   };
   
   return (
@@ -246,10 +328,6 @@ export default function ResearcherHomePage() {
             anchorRef={filterBtnRef}
             customFilters={customFilters}
             setCustomFilters={setCustomFilters}
-            selectedColumn={selectedColumn}
-            setSelectedColumn={setSelectedColumn}
-            selectedValue={selectedValue}
-            setSelectedValue={setSelectedValue}
             columns={Object.keys(columnOptions)}
             columnOptions={columnOptions}
           />
@@ -344,13 +422,7 @@ export default function ResearcherHomePage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() =>
-                                  handleDownloadResult(
-                                    c.trl_score
-                                      ? `result_${c.case_title}.pdf`
-                                      : `result_${c.case_title}.txt`
-                                  )
-                                }
+                                onClick={() => handleDownloadResult(c)}
                               >
                                 <Download className="w-4 h-4 mr-2" />
                                 Result

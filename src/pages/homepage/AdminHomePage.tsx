@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { pdf } from "@react-pdf/renderer";
+import { useQueryClient } from "@tanstack/react-query";
+import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminManagement from "../../components/admin/AdminManagement";
 import AdminDashboard from "../../components/admin/AdminDashboard";
 import AdminAppointment from "../../components/admin/AdminAppointment";
+import { CaseReportPDF } from "@/components/modal/report/report";
 
 import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
@@ -68,6 +72,9 @@ function mergeCasesData(
 
 export default function AdminHomePage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
+
   const [activeView, setActiveView] = useState<"management" | "dashboard" | "appointments">("management");
   const { data: researcherData = [] } = useGetAllResearcher();
   const { data: caseData = [] } = useGetAllCases();
@@ -168,12 +175,83 @@ export default function AdminHomePage() {
     navigate("/trl-score", { state: { project } });
   }
 
-  function handleDownloadResult(filename: string) {
-    const link = document.createElement("a");
-    link.href = "#";
-    link.download = filename;
-    link.click();
-  }
+  const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: Appointment[]; latestAppointment: Appointment | null }) => {
+      try {
+        console.log("Generating PDF for:", caseInfo.case_title);
+  
+        let coordinatorData = null;
+        try {
+          coordinatorData = await queryClient.fetchQuery({
+            queryKey: ["useGetCoordinatorByCaseId", caseInfo.case_id],
+            queryFn: async () => {
+              return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.case_id);
+            },
+          });
+        } catch (err) {
+          console.warn("No coordinator data found or error fetching", err);
+        }
+  
+        let ipData = [];
+        try {
+          ipData = await queryClient.fetchQuery({
+            queryKey: ["useGetIPByCaseId", caseInfo.case_id],
+            queryFn: async () => {
+              return await apiQueryClient.useGetIPByCaseId(caseInfo.case_id); 
+            },
+          });
+        } catch (err) {
+          console.warn("No IP data found", err);
+        }
+  
+        let supporterData = null;
+        try {
+          supporterData = await queryClient.fetchQuery({
+            queryKey: ["useGetSupporterByCaseId", caseInfo.case_id],
+            queryFn: async () => {
+              return await apiQueryClient.useGetSupporterByCaseId(caseInfo.case_id);
+            },
+          });
+        } catch (err) {
+          console.warn("No supporter data found", err);
+        }
+
+        let assessmentData = null;
+        try {
+          assessmentData = await queryClient.fetchQuery({
+            queryKey: ["useGetAssessmentByCaseId", caseInfo.case_id],
+            queryFn: async () => {
+              return await apiQueryClient.useGetAssessmentById(caseInfo.case_id);
+            },
+          });
+        } catch (err) {
+          console.warn("No assessment data found", err);
+        }
+  
+        const pdfProps = {
+          c: caseInfo,
+          appointments: caseInfo.appointments || [],
+          coordinatorData: coordinatorData,
+          ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
+          supporterData: supporterData,
+          assessmentData: assessmentData,
+        };
+  
+        const blob = await pdf(<CaseReportPDF {...pdfProps} />).toBlob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `result_${caseInfo.case_title || caseInfo.case_id}.pdf`;
+       
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+  
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+        alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+      }
+    };
 
   function handleSort(key: string) {
     setSortConfig((prev) => {
@@ -228,7 +306,6 @@ export default function AdminHomePage() {
             sortConfig={sortConfig}
             onSort={handleSort}
             onAIEstimate={handleAIEstimate}
-            onDownload={handleDownloadResult}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
             setCurrentPage={setCurrentPage}
