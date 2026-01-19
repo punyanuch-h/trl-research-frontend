@@ -291,10 +291,12 @@ export default function ResearcherForm() {
       return { valid: true };
     }
     if (step === 3) {
+      // Check if levelMessage exists (either TRL level or "ไม่อยู่ในระดับ TRL")
+      const hasLevelMessage = trlState.levelMessage && trlState.levelMessage.trim() !== "";
       return { 
-        valid: formData.trlLevelResult !== null, 
-        firstField: formData.trlLevelResult === null ? "trlLevelResult" : undefined,
-        errorMessage: formData.trlLevelResult === null ? "กรุณาตอบแบบประเมิน TRL ให้ครบจนปรากฏข้อความระดับ TRL ก่อนดำเนินการต่อ" : undefined
+        valid: hasLevelMessage, 
+        firstField: !hasLevelMessage ? "trlLevelResult" : undefined,
+        errorMessage: !hasLevelMessage ? "กรุณาตอบแบบประเมิน TRL ให้ครบจนปรากฏข้อความระดับ TRL ก่อนดำเนินการต่อ" : undefined
       };
     }
     if (step === 4) {
@@ -382,11 +384,37 @@ export default function ResearcherForm() {
   const handleNext = () => {
     // Special handling for TRL step (step 3)
     if (currentFormStep === 3) {
+      // If levelMessage already exists, proceed to next step
+      if (trlState.levelMessage && trlState.levelMessage.trim() !== "") {
+        // Validate and proceed to next step
+        const { valid, firstField, errorMessage } = validateStepWithField(currentFormStep);
+        if (!valid) {
+          if (errorMessage) {
+            setStepError(errorMessage);
+          } else {
+            setStepError("กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน");
+          }
+          if (firstField) {
+            setTimeout(() => scrollToField(firstField), 100);
+          }
+          return;
+        }
+        setStepError("");
+        if (currentFormStep < 5) {
+          setCurrentFormStep(currentFormStep + 1);
+        }
+        return;
+      }
+      
       // If Part 2 is not shown yet, proceed to Part 2
       if (!trlState.showPart2) {
         const allAnswered = Object.values(trlState.answersRadio).every((a) => a !== null);
         if (!allAnswered) {
           setStepError("กรุณาตอบคำถาม Part 1 ให้ครบก่อน");
+          setTrlState(prev => ({
+            ...prev,
+            errorMessage: "กรุณาตอบคำถาม Part 1 ให้ครบก่อน",
+          }));
           return;
         }
         
@@ -409,6 +437,7 @@ export default function ResearcherForm() {
           showPart2: true,
           checkboxQueue: [firstIndex],
           errorMessage: "",
+          levelMessage: "",
         }));
         setStepError("");
         return;
@@ -423,6 +452,10 @@ export default function ResearcherForm() {
         if (!allChecked) {
           if (answers.length === 0) {
             setStepError("กรุณาตอบคำถาม Part 2 ให้ครบก่อน");
+            setTrlState(prev => ({
+              ...prev,
+              errorMessage: "กรุณาตอบคำถาม Part 2 ให้ครบก่อน",
+            }));
             return;
           }
           
@@ -447,16 +480,16 @@ export default function ResearcherForm() {
           return;
         }
         
-        // All checked, set TRL level
+        // All checked, set TRL level and levelMessage
+        const levelMsg = `Research ของคุณอยู่ในระดับ TRL ${currentIndex}`;
         setStepError("");
         setTrlState(prev => ({
           ...prev,
-          // levelMessage: `Research ของคุณอยู่ในระดับ TRL ${currentIndex}`,
+          levelMessage: levelMsg,
           errorMessage: "",
         }));
         setFormData(prev => ({ ...prev, trlLevelResult: currentIndex }));
-        // Proceed to next step
-        setCurrentFormStep(4);
+        // Don't proceed to next step automatically - wait for user to click Next again
         return;
       }
     }
@@ -507,7 +540,11 @@ export default function ResearcherForm() {
     if (!trlState.showPart2) {
       return "Next to Part 2";
     }
-    return "Submit";
+    // If levelMessage exists, allow proceeding to next step
+    if (trlState.levelMessage && trlState.levelMessage.trim() !== "") {
+      return "Next";
+    }
+    return "Submit and Check TRL Level";
   };
 
   const handleSubmit = async () => {
