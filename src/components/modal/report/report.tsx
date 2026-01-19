@@ -5,18 +5,19 @@ import { th } from 'date-fns/locale';
 import { radioQuestionList } from '@/data/radioQuestionList';
 import { checkboxQuestionList } from '@/data/checkboxQuestionList';
 
-Font.register({
-  family: 'Sarabun',
-  fonts: [
-    { src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/sarabun/Sarabun-Regular.ttf' },
-    { 
-      src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/sarabun/Sarabun-Italic.ttf', 
-      fontStyle: 'italic' 
-    },
-    { src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/sarabun/Sarabun-Bold.ttf', fontWeight: 'bold' },
-    { src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/sarabun/Sarabun-SemiBold.ttf', fontWeight: 600 },
-  ],
-});
+try {
+  Font.register({
+    family: "Sarabun",
+    fonts: [
+      { src: "assets/fonts/Sarabun-Regular.ttf" },
+      { src: "assets/fonts/Sarabun-Bold.ttf", fontWeight: "bold" },
+      { src: "assets/fonts/Sarabun-Italic.ttf", fontStyle: "italic" },
+      { src: "assets/fonts/Sarabun-BoldItalic.ttf", fontWeight: "bold", fontStyle: "italic" },
+    ],
+  });
+} catch (e) {
+  console.error("Error registering font:", e);
+}
 
 Font.registerHyphenationCallback(word => {
   if (word.length < 2) return [word];

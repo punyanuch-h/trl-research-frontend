@@ -261,8 +261,12 @@ export default function ResearcherHomePage() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `result_${caseInfo.case_title || caseInfo.case_id}.pdf`;
-      
+      const rawTitle = caseInfo.case_title || caseInfo.case_id;
+      const sanitizedTitle = rawTitle.toString()
+          .replace(/[<>:"/\\|?*]/g, '_')
+          .trim();
+      link.download = `result_${sanitizedTitle}.pdf`;
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
