@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ChevronDown, ChevronUp, ArrowLeft, CheckCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowLeft, CheckCircle, Pencil, X, Check } from 'lucide-react';
 import { radioQuestionList } from '@/data/radioQuestionList';
 import { checkboxQuestionList } from '@/data/checkboxQuestionList';
 import { useGetCaseById } from '@/hooks/case/get/useGetCaseById';
@@ -12,17 +12,21 @@ import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByC
 import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
 import { useUpdateAssessment } from '@/hooks/case/patch/useUpdateAssessment';
 import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImprovementSuggestion';
+import { useUpdateTrlLevelResult } from '@/hooks/case/patch/useUpdateTrlLevelResult';
+import { useUpdateTrlScore } from '@/hooks/case/patch/useUpdateTrlScore';
 import { toast } from 'sonner';
 import { AssessmentResponse } from '@/hooks/client/type';
 
 const AssessmentResult = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { data: caseData, isPending: isCasePending, isError: isCaseError } = useGetCaseById(id || '');
+    const { data: caseData, isPending: isCasePending, isError: isCaseError, refetch: refetchCase } = useGetCaseById(id || '');
     const { data: coordinatorData } = useGetCoordinatorByCaseId(id || '');
-    const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentById(id || '');
+    const { data: assessmentData, isPending: isAssessmentPending, refetch: refetchAssessment } = useGetAssessmentById(id || '');
     const updateAssessmentMutation = useUpdateAssessment(caseData?.case_id || '');
     const updateSuggestionMutation = useUpdateImprovementSuggestion();
+    const updateTrlLevelResultMutation = useUpdateTrlLevelResult();
+    const updateTrlScoreMutation = useUpdateTrlScore();
     
     // State for editable suggestions
     const [suggestions, setSuggestions] = useState<{[key: string]: string}>({});
@@ -31,6 +35,10 @@ const AssessmentResult = () => {
     
     // State for collapsible TRL levels
     const [collapsedLevels, setCollapsedLevels] = useState<{[key: number]: boolean}>({});
+
+    // State for Editable TRL Level
+    const [isEditingTrl, setIsEditingTrl] = useState<boolean>(false);
+    const [manualTrl, setManualTrl] = useState<number>(1);
 
     useEffect(() => {
         if (assessmentData?.improvement_suggestion) {
@@ -56,6 +64,47 @@ const AssessmentResult = () => {
           toast.error('Failed to approve research ID: ' + caseData?.case_id);
         }
       });
+    };
+
+    const handleEditTrlClick = (currentLevel: number) => {
+        setManualTrl(currentLevel);
+        setIsEditingTrl(true);
+    };
+
+    const handleSaveTrlLevel = async () => {
+      const trlString = manualTrl.toString();
+      const assessmentId = assessmentData?.id;
+      const caseId = caseData?.case_id || id;
+
+      if (!assessmentId || !caseId) {
+        toast.error("Error: Missing Data IDs");
+        return;
+      }
+
+      try {
+        await Promise.all([
+          updateTrlLevelResultMutation.mutateAsync({
+            assessmentId: assessmentId,
+            trlData: { trl_level_result: manualTrl }
+          }),
+          updateTrlScoreMutation.mutateAsync({
+            caseId: caseId,
+            trlData: { trl_score: trlString }
+          })
+        ]);
+
+        await Promise.all([
+            refetchCase(),
+            refetchAssessment()
+        ]);
+
+        toast.success(`TRL Level updated to ${manualTrl} successfully`);
+        setIsEditingTrl(false);
+
+      } catch (error) {
+        console.error(error);
+        toast.error('Failed to update. Please try again.');
+      }
     };
     
     // Toggle TRL level collapse
@@ -227,20 +276,68 @@ const AssessmentResult = () => {
 
                   </div>
                 )}
-                {assessmentData.trl_level_result && caseData.status == false && (
+
+                {assessmentData && (
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">Estimated TRL Level</h3>
-                    <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                      Level {assessmentData.trl_level_result}
-                    </Badge>
-                  </div>
-                )}
-                {caseData.status == true && (
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">TRL Level</h3>
-                    <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                      Level {caseData.trl_score}
-                    </Badge>
+                    <h3 className="font-semibold">
+                      {caseData.status === true ? "TRL Level" : "Estimated TRL Level"}
+                    </h3>
+
+                    {isEditingTrl ? (
+                      <div className="flex items-center gap-2">
+                        <select 
+                          className="h-9 w-20 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                          value={manualTrl}
+                          onChange={(e) => setManualTrl(Number(e.target.value))}
+                        >
+                          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
+                            <option key={level} value={level}>
+                              {level}
+                            </option>
+                          ))}
+                        </select>
+
+                        <Button 
+                          size="icon" 
+                          className="h-8 w-8 bg-green-600 hover:bg-green-700" 
+                          onClick={handleSaveTrlLevel}
+                          disabled={updateTrlLevelResultMutation.isPending || updateTrlScoreMutation.isPending}
+                        >
+                          {updateTrlLevelResultMutation.isPending || updateTrlScoreMutation.isPending ? (
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                          ) : (
+                            <Check className="h-4 w-4" />
+                          )}
+                        </Button>
+                        
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-8 w-8 text-red-500 hover:bg-red-50" 
+                          onClick={() => setIsEditingTrl(false)}
+                        >
+                          <X className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
+                          Level {caseData.status === true ? caseData.trl_score : assessmentData.trl_level_result}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={() => handleEditTrlClick(
+                            Number(caseData.status === true 
+                              ? (caseData.trl_score || 1) 
+                              : (assessmentData.trl_level_result || 1))
+                          )}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
 

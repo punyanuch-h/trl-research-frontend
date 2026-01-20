@@ -53,8 +53,18 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async useUpdateTrlLevelResultByID(assessmentId: string, trlLevelResultData: { trl_level_result: number }): Promise<AssessmentResponse> {
+    const response = await this.axiosInstance.patch<AssessmentResponse>(`/trl/assessment_trl/${assessmentId}`, trlLevelResultData);
+    return response.data;
+  }
+
   async useUpdateAssessment(caseId: string, statusData: { status: boolean }) {
     const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, statusData);
+    return response.data;
+  }
+
+  async useUpdateTrlScore(caseId: string, trlData: { trl_score: string }) {
+    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, trlData);
     return response.data;
   }
 
