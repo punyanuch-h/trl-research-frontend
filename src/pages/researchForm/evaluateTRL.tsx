@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import RadioQuestion from "@/components/evaluate/RadioQuestion";
 import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
 
@@ -6,32 +6,12 @@ interface EvaluateTRLProps {
   formData: any;
   handleInputChange: (field: string, value: any) => void;
   setTrlLevel?: (level: number | null) => void;
-  onStateChange?: (state: {
-    showPart2: boolean;
-    checkboxQueue: number[];
-    answersRadio: { [key: string]: number | null };
-    answersCheckbox: { [key: string]: number[] };
-    levelMessage: string;
-    errorMessage: string;
-  }) => void;
-  externalState?: {
-    showPart2: boolean;
-    checkboxQueue: number[];
-    answersRadio: { [key: string]: number | null };
-    answersCheckbox: { [key: string]: number[] };
-    levelMessage: string;
-    errorMessage: string;
-  };
-  currentCheckboxIndex?: number | null;
 }
 
 export default function EvaluateTRL({
   formData,
   handleInputChange,
   setTrlLevel,
-  onStateChange,
-  externalState,
-  currentCheckboxIndex,
 }: EvaluateTRLProps) {
   /* ---------------- Part 1 ---------------- */
   const [answersRadio, setAnswersRadio] = useState<{ [key: string]: number | null }>({
@@ -63,58 +43,12 @@ export default function EvaluateTRL({
   const [levelMessage, setLevelMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Use external state if provided, otherwise use internal state
-  const currentShowPart2 = externalState?.showPart2 ?? showPart2;
-  const currentCheckboxQueue = externalState?.checkboxQueue ?? checkboxQueue;
-  const currentAnswersRadio = externalState?.answersRadio ?? answersRadio;
-  const currentAnswersCheckbox = externalState?.answersCheckbox ?? answersCheckbox;
-  const currentLevelMessage = externalState?.levelMessage ?? levelMessage;
-  const currentErrorMessage = externalState?.errorMessage ?? errorMessage;
-
-  // Sync internal state with external state
-  useEffect(() => {
-    if (externalState) {
-      setShowPart2(externalState.showPart2);
-      setCheckboxQueue(externalState.checkboxQueue);
-      setAnswersRadio(externalState.answersRadio);
-      setAnswersCheckbox(externalState.answersCheckbox);
-      setLevelMessage(externalState.levelMessage);
-      setErrorMessage(externalState.errorMessage);
-    }
-  }, [externalState]);
-
-  // Notify parent of state changes
-  useEffect(() => {
-    if (onStateChange && !externalState) {
-      onStateChange({
-        showPart2,
-        checkboxQueue,
-        answersRadio,
-        answersCheckbox,
-        levelMessage,
-        errorMessage,
-      });
-    }
-  }, [showPart2, checkboxQueue, answersRadio, answersCheckbox, levelMessage, errorMessage, onStateChange, externalState]);
-
   /* ---------------- Handlers ---------------- */
   const handleRadioChange = (value: number, questionId: string) => {
-    const newAnswersRadio = {
-      ...currentAnswersRadio,
+    setAnswersRadio((prev) => ({
+      ...prev,
       [questionId]: value,
-    };
-    
-    if (externalState && onStateChange) {
-      // Update parent state directly
-      onStateChange({
-        ...externalState,
-        answersRadio: newAnswersRadio,
-      });
-    } else {
-      // Update internal state
-      setAnswersRadio(newAnswersRadio);
-    }
-    
+    }));
     handleInputChange(questionId + "Answer", value === 1);
   };
 
@@ -123,23 +57,61 @@ export default function EvaluateTRL({
     itemId: string,
     selectedLabels: string[]
   ) => {
-    const newAnswersCheckbox = {
-      ...currentAnswersCheckbox,
+    setAnswersCheckbox((prev) => ({
+      ...prev,
       [itemId]: value,
-    };
-    
-    if (externalState && onStateChange) {
-      // Update parent state directly
-      onStateChange({
-        ...externalState,
-        answersCheckbox: newAnswersCheckbox,
-      });
-    } else {
-      // Update internal state
-      setAnswersCheckbox(newAnswersCheckbox);
-    }
-    
+    }));
     handleInputChange(itemId + "Answer", selectedLabels);
+  };
+
+  /* ---------------- Logic ---------------- */
+  const handleNextToPart2 = () => {
+    const allAnswered = Object.values(answersRadio).every((a) => a !== null);
+    if (!allAnswered) {
+      setErrorMessage("กรุณาตอบคำถาม Part 1 ให้ครบก่อน");
+      return;
+    }
+
+    setErrorMessage("");
+    setLevelMessage("");
+
+    let firstIndex = 0;
+
+    if (answersRadio.rq1 === 1) {
+      if (answersRadio.rq2 === 1) {
+        if (answersRadio.rq3 === 1) {
+          if (answersRadio.rq4 === 1) {
+            firstIndex = answersRadio.rq5 === 1 ? 9 : 8;
+          } else firstIndex = 7;
+        } else firstIndex = 6;
+      } else firstIndex = answersRadio.rq6 === 1 ? 5 : 4;
+    } else {
+      firstIndex = answersRadio.rq7 === 1 ? 3 : 2;
+    }
+
+    setCheckboxQueue([firstIndex]);
+    setShowPart2(true);
+  };
+
+  const handleSubmitCheckTRL = (index: number) => {
+    const answers = answersCheckbox[`cq${index}`] || [];
+    console.log("Checking TRL for index:", index, "with answers:", answers);
+    const allChecked = answers.every((v) => v === 1);
+
+    if (!allChecked) {
+      if (index === 1) {
+        setLevelMessage("Research ของคุณไม่อยู่ในระดับ TRL");
+        setTrlLevel?.(null);
+        return;
+      }
+
+      // เพิ่มคำถามใหม่ → ล็อกคำถามเก่าอัตโนมัติ
+      setCheckboxQueue((prev) => [...prev, index - 1]);
+      return;
+    }
+
+    setLevelMessage(`Research ของคุณอยู่ในระดับ TRL ${index}`);
+    setTrlLevel?.(index);
   };
 
   /* ---------------- Render ---------------- */
@@ -148,20 +120,20 @@ export default function EvaluateTRL({
       {/* ========== Part 1 ========== */}
       <h3 className="font-semibold text-primary text-lg">Part 1</h3>
 
-      {Object.keys(currentAnswersRadio).map((key, index) => (
+      {Object.keys(answersRadio).map((key, index) => (
         <div key={key} className="mt-4">
           <RadioQuestion
             index={index + 1}
             value={
-              currentAnswersRadio[key] === 1
+              answersRadio[key] === 1
                 ? "ใช่"
-                : currentAnswersRadio[key] === 0
+                : answersRadio[key] === 0
                 ? "ไม่ใช่"
                 : ""
             }
             onChange={(value) => handleRadioChange(value, key)}
           />
-          <div className="mt-2 ml-4">
+           <div className="mt-2 ml-4">
             <button
               type="button"
               onClick={() => document.getElementById(`file-${key}`)?.click()}
@@ -191,33 +163,41 @@ export default function EvaluateTRL({
         </div>
       ))}
 
-      {currentErrorMessage && (
-        <div className="mt-6 text-sm text-red-500 font-semibold">
-          {currentErrorMessage}
-        </div>
-      )}
+      <div className="mt-6">
+        <button
+          onClick={handleNextToPart2}
+          className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded"
+        >
+          Next to Part 2
+        </button>
+
+        {errorMessage && (
+          <div className="mt-3 text-sm text-red-500 font-semibold">
+            {errorMessage}
+          </div>
+        )}
+      </div>
 
       {/* ========== Part 2 ========== */}
-      {currentShowPart2 && (
+      {showPart2 && (
         <>
           <h3 className="mt-12 font-semibold text-primary text-lg">Part 2</h3>
 
-          {currentCheckboxQueue.map((index, idx) => {
-            const isLocked = idx !== currentCheckboxQueue.length - 1;
+          {checkboxQueue.map((index, idx) => {
+            const isLocked = idx !== checkboxQueue.length - 1;
 
             return (
               <div key={index} className="mt-6 opacity-100">
                 <CheckboxQuestion
                   index={index}
-                  value={currentAnswersCheckbox[`cq${index}`] || []}
+                  value={answersCheckbox[`cq${index}`] || []}
                   disabled={isLocked}
                   onChange={(value, itemId, selectedLabels) =>
                     !isLocked &&
                     handleCheckboxChange(value, itemId, selectedLabels)
                   }
                 />
-
-               
+                
                 {/* File Upload for Part 2 */}
                 <div className="mt-2 ml-4">
                   <button
@@ -252,13 +232,25 @@ export default function EvaluateTRL({
                   )}
                 </div>
 
+                <button
+                  disabled={isLocked}
+                  onClick={() => handleSubmitCheckTRL(index)}
+                  className={`mt-4 text-sm font-medium py-2 px-3 rounded
+                    ${
+                      isLocked
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-[#00c1d6] text-white"
+                    }`}
+                >
+                  Submit and Check TRL Level
+                </button>
               </div>
             );
           })}
 
-          {currentLevelMessage && (
+          {levelMessage && (
             <div className="mt-6">
-              <h3 className="text-lg font-semibold">{currentLevelMessage}</h3>
+              <h3 className="text-lg font-semibold">{levelMessage}</h3>
             </div>
           )}
         </>
