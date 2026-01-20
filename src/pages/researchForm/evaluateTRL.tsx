@@ -188,7 +188,6 @@ export default function EvaluateTRL({
           {checkboxQueue.map((index, idx) => {
             const isLocked = idx !== checkboxQueue.length - 1;
             const checkboxValues = answersCheckbox[`cq${index}`] || [];
-            const hasAnyChecked = checkboxValues.some((v) => v === 1);
 
             return (
               <div key={index} className="mt-6 opacity-100">
@@ -200,38 +199,14 @@ export default function EvaluateTRL({
                     !isLocked &&
                     handleCheckboxChange(value, itemId, selectedLabels)
                   }
+                  assessmentFiles={formData.assessmentFiles}
+                  onAttachFile={(fieldKey, file) =>
+                    handleInputChange("assessmentFiles", {
+                      ...formData.assessmentFiles,
+                      [fieldKey]: file,
+                    })
+                  }
                 />
-                
-                {/* File Upload for Part 2 (show only when there is at least one checkbox checked and not locked) */}
-                {!isLocked && hasAnyChecked && (
-                  <div className="mt-2 ml-4">
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById(`file-cq${index}`)?.click()}
-                      className="text-sm px-3 py-1 border rounded bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 transition-all font-medium"
-                    >
-                      แนบหลักฐาน
-                    </button>
-                    <input
-                      type="file"
-                      id={`file-cq${index}`}
-                      accept=".pdf"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0] || null;
-                        handleInputChange("assessmentFiles", {
-                          ...formData.assessmentFiles,
-                          [`cq${index}`]: file,
-                        });
-                      }}
-                      className="hidden"
-                    />
-                    {formData.assessmentFiles?.[`cq${index}` as keyof typeof formData.assessmentFiles] && (
-                      <span className="text-sm text-green-600 ml-2">
-                        ✓ {formData.assessmentFiles[`cq${index}` as keyof typeof formData.assessmentFiles]?.name}
-                      </span>
-                    )}
-                  </div>
-                )}
 
                 <button
                   disabled={isLocked}
