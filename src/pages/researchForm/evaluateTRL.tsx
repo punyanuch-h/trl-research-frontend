@@ -42,6 +42,7 @@ export default function EvaluateTRL({
 
   const [levelMessage, setLevelMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [trlLevelCompleted, setTrlLevelCompleted] = useState(false);
 
   /* ---------------- Handlers ---------------- */
   const handleRadioChange = (value: number, questionId: string) => {
@@ -94,6 +95,8 @@ export default function EvaluateTRL({
   };
 
   const handleSubmitCheckTRL = (index: number) => {
+    if (trlLevelCompleted) return;
+    
     const answers = answersCheckbox[`cq${index}`] || [];
     console.log("Checking TRL for index:", index, "with answers:", answers);
     const allChecked = answers.every((v) => v === 1);
@@ -102,6 +105,7 @@ export default function EvaluateTRL({
       if (index === 1) {
         setLevelMessage("Research ของคุณไม่อยู่ในระดับ TRL");
         setTrlLevel?.(null);
+        setTrlLevelCompleted(true);
         return;
       }
 
@@ -112,6 +116,7 @@ export default function EvaluateTRL({
 
     setLevelMessage(`Research ของคุณอยู่ในระดับ TRL ${index}`);
     setTrlLevel?.(index);
+    setTrlLevelCompleted(true);
   };
 
   /* ---------------- Render ---------------- */
@@ -132,13 +137,19 @@ export default function EvaluateTRL({
                 : ""
             }
             onChange={(value) => handleRadioChange(value, key)}
+            disabled={showPart2}
           />
           {answersRadio[key] === 1 && (
-            <div className="mt-2 ml-4">
+            <div className={`mt-2 ml-4 ${showPart2 ? "opacity-60 pointer-events-none" : ""}`}>
               <button
                 type="button"
-                onClick={() => document.getElementById(`file-${key}`)?.click()}
-                className="text-sm px-3 py-1 bg-blue-50 border border-blue-200 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                onClick={() => !showPart2 && document.getElementById(`file-${key}`)?.click()}
+                disabled={showPart2}
+                className={`text-sm px-3 py-1 border rounded transition-colors ${
+                  showPart2
+                    ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
+                }`}
               >
                 แนบหลักฐาน
               </button>
@@ -146,12 +157,15 @@ export default function EvaluateTRL({
                 type="file"
                 id={`file-${key}`}
                 accept=".pdf"
+                disabled={showPart2}
                 onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  handleInputChange("assessmentFiles", {
-                    ...formData.assessmentFiles,
-                    [key]: file,
-                  });
+                  if (!showPart2) {
+                    const file = e.target.files?.[0] || null;
+                    handleInputChange("assessmentFiles", {
+                      ...formData.assessmentFiles,
+                      [key]: file,
+                    });
+                  }
                 }}
                 className="hidden"
               />
@@ -168,7 +182,12 @@ export default function EvaluateTRL({
       <div className="mt-6">
         <button
           onClick={handleNextToPart2}
-          className="bg-[#00c1d6] text-white text-sm font-medium py-2 px-3 rounded"
+          disabled={showPart2}
+          className={`text-sm font-medium py-2 px-3 rounded ${
+            showPart2
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-[#00c1d6] text-white hover:bg-[#00a8bb]"
+          }`}
         >
           Next to Part 2
         </button>
@@ -188,32 +207,35 @@ export default function EvaluateTRL({
           {checkboxQueue.map((index, idx) => {
             const isLocked = idx !== checkboxQueue.length - 1;
             const checkboxValues = answersCheckbox[`cq${index}`] || [];
+            const isDisabled = isLocked || trlLevelCompleted;
 
             return (
-              <div key={index} className="mt-6 opacity-100">
+              <div key={index} className={`mt-6 ${trlLevelCompleted ? "opacity-60" : "opacity-100"}`}>
                 <CheckboxQuestion
                   index={index}
                   value={checkboxValues}
-                  disabled={isLocked}
+                  disabled={isDisabled}
                   onChange={(value, itemId, selectedLabels) =>
-                    !isLocked &&
+                    !isDisabled &&
                     handleCheckboxChange(value, itemId, selectedLabels)
                   }
                   assessmentFiles={formData.assessmentFiles}
-                  onAttachFile={(fieldKey, file) =>
-                    handleInputChange("assessmentFiles", {
-                      ...formData.assessmentFiles,
-                      [fieldKey]: file,
-                    })
-                  }
+                  onAttachFile={(fieldKey, file) => {
+                    if (!trlLevelCompleted) {
+                      handleInputChange("assessmentFiles", {
+                        ...formData.assessmentFiles,
+                        [fieldKey]: file,
+                      });
+                    }
+                  }}
                 />
 
                 <button
-                  disabled={isLocked}
+                  disabled={isDisabled}
                   onClick={() => handleSubmitCheckTRL(index)}
                   className={`mt-4 text-sm font-medium py-2 px-3 rounded
                     ${
-                      isLocked
+                      isDisabled
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-[#00c1d6] text-white"
                     }`}

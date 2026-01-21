@@ -62,11 +62,16 @@ const CheckboxQuestion = ({
 
               {/* File upload per checked item */}
               {isChecked && onAttachFile && (
-                <div className="ml-6 flex items-center space-x-2">
+                <div className={`ml-6 flex items-center space-x-2 ${disabled ? "opacity-60" : ""}`}>
                   <button
                     type="button"
-                    className="text-xs px-2 py-1 bg-blue-50 border border-blue-200 text-blue-600 rounded hover:bg-blue-100 transition-colors"
-                    onClick={() => document.getElementById(`file-${fieldKey}`)?.click()}
+                    disabled={disabled}
+                    className={`text-xs px-2 py-1 border rounded transition-colors ${
+                      disabled
+                        ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
+                    }`}
+                    onClick={() => !disabled && document.getElementById(`file-${fieldKey}`)?.click()}
                   >
                     แนบหลักฐาน
                   </button>
@@ -74,10 +79,13 @@ const CheckboxQuestion = ({
                     type="file"
                     id={`file-${fieldKey}`}
                     accept=".pdf"
+                    disabled={disabled}
                     className="hidden"
                     onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      onAttachFile(fieldKey, file);
+                      if (!disabled) {
+                        const file = e.target.files?.[0] || null;
+                        onAttachFile(fieldKey, file);
+                      }
                     }}
                   />
                   {attachedFile && (
