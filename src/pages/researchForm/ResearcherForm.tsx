@@ -119,6 +119,15 @@ type FormState = {
   otherSupportMarket: string;
 };
 
+/**
+ * Render a multi-step research submission form for researchers with per-step validation and submission flow.
+ *
+ * The component presents five steps (Researcher Details, Research Details, Research Assessment TRL, Intellectual Property, Supportment),
+ * enforces required-field validation per step, integrates a TRL evaluation step that must be completed before proceeding,
+ * supports adding IP form entries (including "no IP" handling), and submits the aggregated form data after user confirmation.
+ *
+ * @returns The rendered React element for the researcher multi-step form.
+ */
 export default function ResearcherForm() {
   const navigate = useNavigate();
   const [currentFormStep, setCurrentFormStep] = useState<number>(1);

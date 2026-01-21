@@ -8,6 +8,14 @@ interface EvaluateTRLProps {
   setTrlLevel?: (level: number | null) => void;
 }
 
+/**
+ * Render an interactive two-part TRL evaluation form that collects Part 1 radio answers, optional evidence files, and Part 2 checkbox selections to determine and report a TRL level.
+ *
+ * @param formData - Form state object; expected to include an `assessmentFiles` map used for file attachments.
+ * @param handleInputChange - Callback to persist field changes; called with a field key and its new value (e.g., `"rq1Answer"`, `true` or `"assessmentFiles"`, updatedFiles).
+ * @param setTrlLevel - Optional callback invoked with the determined TRL level number or `null` when the research is not in a TRL.
+ * @returns The React element tree for the TRL evaluation UI.
+ */
 export default function EvaluateTRL({
   formData,
   handleInputChange,
@@ -256,4 +264,3 @@ export default function EvaluateTRL({
     </div>
   );
 }
-
