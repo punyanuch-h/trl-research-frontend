@@ -107,30 +107,57 @@ export default function ResearcherDetails({
                                 <SelectItem value="ทพญ.">ทพญ.</SelectItem>
                                 <SelectItem value="นาย">นาย</SelectItem>
                                 <SelectItem value="นาง">นาง</SelectItem>
-                                <SelectItem value="นส.">นส.</SelectItem>
+                                <SelectItem value="นางสาว">นางสาว</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="col-span-1">
-                        <Label htmlFor="headAcademicPosition">ตำแหน่งวิชาการ<span className="text-red-500">*</span></Label>
-                        <Select
+                        <Label htmlFor="headAcademicPosition">ตำแหน่งวิชาการ
+                            {formData.headAcademicPosition === "other" && (
+                            <span className="text-red-500">*</span>
+                        )}</Label>
+                        <div
+                            className={`grid gap-2 ${
+                            formData.headAcademicPosition === "other"
+                                ? "grid-cols-2"
+                                : "grid-cols-1"
+                            }`}
+                        >
+                            <Select
                             onValueChange={(value) =>
                                 handleInputChange("headAcademicPosition", value)
                             }
                             value={formData.headAcademicPosition}
                             required
-                        >
-                            <SelectTrigger>
+                            >
+                            <SelectTrigger className="w-full">
                                 <SelectValue placeholder="เลือก" />
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem value="none">ไม่มี</SelectItem>
                                 <SelectItem value="อ.">อ.</SelectItem>
                                 <SelectItem value="ผศ.">ผศ.</SelectItem>
                                 <SelectItem value="รศ.">รศ.</SelectItem>
                                 <SelectItem value="ศ.">ศ.</SelectItem>
+                                <SelectItem value="other">อื่นๆ</SelectItem>
                             </SelectContent>
-                        </Select>
+                            </Select>
+
+                            {/* Custom input for "other" */}
+                            {formData.headAcademicPosition === "other" && (
+                            <input
+                                type="text"
+                                placeholder="ตำแหน่ง"
+                                className="w-full border rounded px-3 py-2 text-sm"
+                                onChange={(e) =>
+                                    handleInputChange("headAcademicPositionOther", e.target.value)
+                                }
+                                value={formData.headAcademicPositionOther || ""}
+                                required
+                            />
+                            )}
+                        </div>
                     </div>
 
                     <div className="col-span-1">
