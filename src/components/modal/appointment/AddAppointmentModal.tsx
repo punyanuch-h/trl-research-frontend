@@ -112,6 +112,7 @@ export function AddAppointmentModal({
             type="text"
             value={selectedProject ? getFullNameByResearcherID(selectedProject.researcher_id) : ""}
             readOnly
+            disabled
           />
         </div>
 
