@@ -109,8 +109,14 @@ export function useSubmitResearcherForm() {
 
   return useMutation({
     mutationFn: async (formData: FormState) => {
-      console.log("✅ Form submitted successfully", formData);
-      return apiClient.useSubmitResearcherForm(formData);
+      try {
+        const results = await Promise.all([
+          apiClient.useSubmitResearcherForm(formData),
+        ]);
+        return results;
+      } catch (error) {
+        throw error;
+      }
     },
     onSuccess: () => {
       // Invalidate related queries to refresh data

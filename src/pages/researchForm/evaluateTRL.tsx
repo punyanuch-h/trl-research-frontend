@@ -98,7 +98,6 @@ export default function EvaluateTRL({
     if (trlLevelCompleted) return;
     
     const answers = answersCheckbox[`cq${index}`] || [];
-    console.log("Checking TRL for index:", index, "with answers:", answers);
     const allChecked = answers.every((v) => v === 1);
 
     if (!allChecked) {
