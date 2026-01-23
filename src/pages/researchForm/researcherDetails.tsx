@@ -144,15 +144,16 @@ export default function ResearcherDetails({
                             </SelectContent>
                             </Select>
 
-                            {/* ช่องกรอกเมื่อเลือก "อื่นๆ" */}
+                            {/* Custom input for "other" */}
                             {formData.headAcademicPosition === "other" && (
                             <input
                                 type="text"
                                 placeholder="ตำแหน่ง"
                                 className="w-full border rounded px-3 py-2 text-sm"
                                 onChange={(e) =>
-                                handleInputChange("headAcademicPosition", e.target.value)
+                                    handleInputChange("headAcademicPositionOther", e.target.value)
                                 }
+                                value={formData.headAcademicPositionOther || ""}
                                 required
                             />
                             )}
