@@ -88,6 +88,7 @@ export default function EditAppointmentModal({
               type="text"
               value={projects.find(p => p.case_id === form.case_id)?.case_title || ""}
               readOnly
+              disabled
             />
           </div>
 
@@ -101,6 +102,7 @@ export default function EditAppointmentModal({
                 ) || ""
               }
               readOnly
+              disabled
             />
           </div>
 
