@@ -113,7 +113,6 @@ export function useSubmitResearcherForm() {
         const results = await Promise.all([
           apiClient.useSubmitResearcherForm(formData),
         ]);
-        console.log("✅ Form submitted successfully", formData);
         return results;
       } catch (error) {
         throw error;
