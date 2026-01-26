@@ -39,7 +39,6 @@ const CheckboxQuestion = ({
 
   return (
     <div>
-      <h3 className="font-semibold text-primary">Research ของคุณตรงตามข้อใดบ้าง</h3>
       <div className="grid grid-cols-1 md:grid-cols gap-2 mt-2">
         {selectedQuestions.map((item) => {
           const isChecked = value[Number(item.id) - 1] === 1;

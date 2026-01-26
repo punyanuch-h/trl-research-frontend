@@ -124,6 +124,7 @@ export default function ResearcherForm() {
   const [currentFormStep, setCurrentFormStep] = useState<number>(1);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [trlCompleted, setTrlCompleted] = useState(false);
+  const [isEvaluated, setIsEvaluated] = useState(false);
   const submitFormMutation = useSubmitResearcherForm();
   const { data: userProfile } = useGetUserProfile();
 
@@ -266,13 +267,13 @@ export default function ResearcherForm() {
       return { valid: true };
     }
     if (step === 3) {
-      // Step 3 (TRL) is valid once the TRL evaluation has been completed in EvaluateTRL
-      if (!trlCompleted) {
+      // Step 3 (TRL) is valid only if TRL evaluation is completed and the user has clicked "Evaluate"
+      if (!trlCompleted || !isEvaluated) {
         return {
           valid: false,
           firstField: "trlLevelResult",
           errorMessage:
-            "กรุณาตอบแบบประเมิน TRL ให้ครบจนปรากฏข้อความระดับ TRL ก่อนดำเนินการต่อ",
+            "กรุณาตอบคำถามใน Part 1 และ Part 2 ให้ครบถ้วน และกดปุ่ม 'ประเมิน' ก่อนดำเนินการต่อ",
         };
       }
       return { valid: true };
@@ -441,8 +442,9 @@ export default function ResearcherForm() {
             }
             setTrlLevel={(level: number | null) => {
               setFormData((prev) => ({ ...prev, trlLevelResult: level }));
-              setTrlCompleted(true);
             }}
+            setTrlCompleted={setTrlCompleted} // Pass setTrlCompleted
+            setIsEvaluated={setIsEvaluated} // Pass setIsEvaluated
           />
         );
       case 4:
