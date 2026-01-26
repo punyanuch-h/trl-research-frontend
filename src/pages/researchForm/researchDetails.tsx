@@ -68,12 +68,13 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 />
             </div>
             <div>
-                <h3 className="font-semibold text-primary">Keywords</h3>
+                <h3 className="font-semibold text-primary">Keywords<span className="text-red-500">*</span></h3>
                 <Input
                     id="keywords"
                     value={formData.keywords}
                     onChange={(e) => handleInputChange("keywords", e.target.value)}
                     placeholder="เช่น AI, Healthcare, Medical devices"
+                    required
                     ref={refs?.keywords}
                 />
             </div>
