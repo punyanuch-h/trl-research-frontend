@@ -66,7 +66,7 @@ export default function AdminManagement({
   };
 
   const handleViewResearch = (caseId: string) => {
-    const c = projects.find(c => c.case_id === caseId);
+    const c = projects.find(c => c.id === caseId);
     navigate(`/case-detail/${caseId}`, { state: { CaseResponse: c } });
   };
 
@@ -136,7 +136,7 @@ export default function AdminManagement({
                   </TableRow>
                 ) : (
                   paginatedProjects.map(project => (
-                    <TableRow key={project.case_id}>
+                    <TableRow key={project.id}>
                       <TableCell className="min-w-[140px] px-2 text-center align-middle">
                         {new Date(project.created_at).toLocaleDateString()}
                       </TableCell>
@@ -148,7 +148,7 @@ export default function AdminManagement({
                           <span
                             className={`relative group ${project.is_urgent ? "text-red-600 font-semibold" : ""}`}
                           >
-                            {project.case_title}
+                            {project.title}
 
                             {project.is_urgent && (
                               <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
@@ -168,7 +168,7 @@ export default function AdminManagement({
 
                         {project.is_urgent && (
                           <button
-                            onClick={() => handleAskConfirm(project.case_id)}
+                            onClick={() => handleAskConfirm(project.id)}
                             className="text-red-500 hover:text-red-700"
                             title="Mark as not urgent"
                           >
@@ -176,7 +176,7 @@ export default function AdminManagement({
                           </button>
                         )}
                       </TableCell>
-                      <TableCell>{project.case_type}</TableCell>
+                      <TableCell>{project.type}</TableCell>
                       <TableCell className="min-w-[120px] px-2 text-center align-middle">
                         {project.status === true ? (
                           <Badge variant="outline">TRL {project.trl_score}</Badge>
@@ -195,7 +195,7 @@ export default function AdminManagement({
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleViewResearch(project.case_id)}
+                              onClick={() => handleViewResearch(project.id)}
                             >
                               <Eye className="w-4 h-4 mr-1" />
                               View
@@ -226,7 +226,7 @@ export default function AdminManagement({
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleViewResearch(project.case_id)}
+                                onClick={() => handleViewResearch(project.id)}
                               >
                                 <Eye className="w-4 h-4 mr-1" />
                                 View

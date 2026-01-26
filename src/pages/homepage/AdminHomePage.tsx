@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
+import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "@/hooks/client/type";
 
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminManagement from "../../components/admin/AdminManagement";
@@ -14,52 +15,16 @@ import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
 
-
-
-// --- Types ---
-interface CaseResponse {
-  case_id: string;
-  researcher_id: string;
-  coordinator_email: string;
-  trl_score: string; // or number if always numeric
-  trl_suggestion: string;
-  status: boolean;
-  is_urgent: boolean;
-  urgent_reason: string;
-  urgent_feedback: string;
-  case_title: string;
-  case_type: string;
-  case_description: string;
-  case_keywords: string;
-  created_at: string; // ISO date string
-  updated_at: string; // ISO date string
-};
-
-interface Appointment {
-  appointment_id: string;
-  case_id: string;
-  date: string;
-  status: string;
-  location: string;
-  note?: string;
-}
-
-interface ResearcherInfo {
-  researcher_id: string;
-  researcher_first_name: string;
-  researcher_last_name: string;
-}
-
 // Merge Case + Appointment + Researcher
 function mergeCasesData(
   cases: CaseResponse[],
-  appointments: Appointment[],
-  researchers: ResearcherInfo[]
+  appointments: AppointmentResponse[],
+  researchers: ResearcherResponse[]
 ) {
   return cases.map((c) => {
-    const researcher = researchers.find((r) => r.researcher_id === c.researcher_id);
+    const researcher = researchers.find((r) => r.id === c.researcher_id);
     const caseAppointments = appointments
-      .filter((a) => a.case_id === c.case_id)
+      .filter((a) => a.case_id === c.id)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // ล่าสุดก่อน
     return {
       ...c,
@@ -80,7 +45,7 @@ export default function AdminHomePage() {
   const { data: caseData = [] } = useGetAllCases();
   const { data: appointmentData = [] } = useGetAllAppointments();
 
-  const [cases, setCases] = useState<(CaseResponse & { appointments: Appointment[], researcherInfo: ResearcherInfo | null, latestAppointment: Appointment | null })[]>([]);
+  const [cases, setCases] = useState<(CaseResponse & { appointments: AppointmentResponse[], researcherInfo: ResearcherResponse | null, latestAppointment: AppointmentResponse | null })[]>([]);
   const [loading, setLoading] = useState(true);
 
   // --- Filter state ---
@@ -140,30 +105,30 @@ export default function AdminHomePage() {
 
   // --- Filtering ---
   function getFullNameByResearcherID(id: string): string {
-    const researcher = researcherData.find((r) => r.researcher_id === id);
-    return researcher ? `${researcher.researcher_first_name} ${researcher.researcher_last_name}` : "";
+    const researcher = researcherData.find((r) => r.id === id);
+    return researcher ? `${researcher.first_name} ${researcher.last_name}` : "";
   }
 
   const filteredCases = sortedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
-      if (column === "Type") return c.case_type === value;
+      if (column === "Type") return c.type === value;
       if (column === "Score") return c.trl_score?.toString() === value;
       if (column === "status") return (c.status ? "Approve" : "In process") === value;
       if (column === "createdBy") return getFullNameByResearcherID(c.researcher_id) === value;
       if (column === "Urgent") return String(c.is_urgent) === value;
-      if (column === "Name") return c.case_title === value;
+      if (column === "Name") return c.title === value;
       if (column === "Date") return new Date(c.created_at).toISOString().slice(0, 10) === value;
       return true;
     })
   );
 
   const columnOptions: Record<string, string[]> = {
-    Type: [...new Set(cases.map((c) => c.case_type))],
+    Type: [...new Set(cases.map((c) => c.type))],
     Score: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     Status: ["Approve", "In process"],
-    createdBy: researcherData.map(r => getFullNameByResearcherID(r.researcher_id)),
+    createdBy: researcherData.map(r => getFullNameByResearcherID(r.id)),
     Urgent: ["true", "false"],
-    Name: [...new Set(cases.map((c) => c.case_title))],
+    Name: [...new Set(cases.map((c) => c.title))],
     Date: [...new Set(cases.map((c) => new Date(c.created_at).toISOString().slice(0, 10)))].sort().reverse(),
   };
 
@@ -175,16 +140,16 @@ export default function AdminHomePage() {
     navigate("/trl-score", { state: { project } });
   }
 
-  const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: Appointment[]; latestAppointment: Appointment | null }) => {
+  const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null }) => {
       try {
-        console.log("Generating PDF for:", caseInfo.case_title);
+        console.log("Generating PDF for:", caseInfo.title);
   
         let coordinatorData = null;
         try {
           coordinatorData = await queryClient.fetchQuery({
-            queryKey: ["useGetCoordinatorByCaseId", caseInfo.case_id],
+            queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
             queryFn: async () => {
-              return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.case_id);
+              return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.id);
             },
           });
         } catch (err) {
@@ -194,33 +159,33 @@ export default function AdminHomePage() {
         let ipData = [];
         try {
           ipData = await queryClient.fetchQuery({
-            queryKey: ["useGetIPByCaseId", caseInfo.case_id],
+            queryKey: ["useGetIPByCaseId", caseInfo.id],
             queryFn: async () => {
-              return await apiQueryClient.useGetIPByCaseId(caseInfo.case_id); 
+              return await apiQueryClient.useGetIPByCaseId(caseInfo.id); 
             },
           });
         } catch (err) {
           console.warn("No IP data found", err);
         }
-  
-        let supporterData = null;
+
+        let supportmentData = null;
         try {
-          supporterData = await queryClient.fetchQuery({
-            queryKey: ["useGetSupporterByCaseId", caseInfo.case_id],
+          supportmentData = await queryClient.fetchQuery({
+            queryKey: ["useGetSupporterByCaseId", caseInfo.id],
             queryFn: async () => {
-              return await apiQueryClient.useGetSupporterByCaseId(caseInfo.case_id);
+              return await apiQueryClient.useGetSupporterByCaseId(caseInfo.id);
             },
           });
         } catch (err) {
-          console.warn("No supporter data found", err);
+          console.warn("No supportment data found", err);
         }
 
         let assessmentData = null;
         try {
           assessmentData = await queryClient.fetchQuery({
-            queryKey: ["useGetAssessmentByCaseId", caseInfo.case_id],
+            queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
             queryFn: async () => {
-              return await apiQueryClient.useGetAssessmentById(caseInfo.case_id);
+              return await apiQueryClient.useGetAssessmentById(caseInfo.id);
             },
           });
         } catch (err) {
@@ -232,7 +197,7 @@ export default function AdminHomePage() {
           appointments: caseInfo.appointments || [],
           coordinatorData: coordinatorData,
           ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
-          supporterData: supporterData,
+          supportmentData: supportmentData,
           assessmentData: assessmentData,
         };
   
@@ -240,7 +205,7 @@ export default function AdminHomePage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `result_${caseInfo.case_title || caseInfo.case_id}.pdf`;
+        link.download = `result_${caseInfo.title || caseInfo.id}.pdf`;
        
         document.body.appendChild(link);
         link.click();

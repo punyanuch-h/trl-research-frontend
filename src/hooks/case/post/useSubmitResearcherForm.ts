@@ -30,7 +30,7 @@ interface FormState {
   coordinatorEmail: string;
   // caseDetails
   researcherId: string;
-  trlScore: string;
+  trlScore: number;
   status: boolean;
   isUrgent: boolean;
   urgentReason: string;
@@ -109,6 +109,7 @@ export function useSubmitResearcherForm() {
 
   return useMutation({
     mutationFn: async (formData: FormState) => {
+      console.log("🚀 Submitting form data:", formData);
       try {
         const results = await Promise.all([
           apiClient.useSubmitResearcherForm(formData),

@@ -230,7 +230,7 @@ interface Props {
   coordinatorData?: any;
   appointments?: any[];
   ipList?: any[];
-  supporterData?: any;
+  supportmentData?: any;
   assessmentData?: any;
 }
 
@@ -239,7 +239,7 @@ export const CaseReportPDF: React.FC<Props> = ({
   coordinatorData, 
   appointments = [], 
   ipList = [], 
-  supporterData,
+  supportmentData,
   assessmentData,
 }) => {
 
@@ -271,9 +271,9 @@ export const CaseReportPDF: React.FC<Props> = ({
         {/* Header */}
         <View style={styles.headerContainer}>
           <Text style={styles.headerTitle}>INNOVATION CASE DETAIL REPORT</Text>
-          <Text style={styles.headerSubTitle}>{c.case_title || 'N/A'}</Text>
+          <Text style={styles.headerSubTitle}>{c.title || 'N/A'}</Text>
           <Text style={styles.headerCaseId}>
-            Case ID: <Text style={{ fontWeight: 'bold', color: '#65758b' }}>{c.case_id || 'N/A'}</Text>
+            Case ID: <Text style={{ fontWeight: 'bold', color: '#65758b' }}>{c.id || 'N/A'}</Text>
           </Text>
         </View>
 
@@ -281,15 +281,15 @@ export const CaseReportPDF: React.FC<Props> = ({
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Case Details</Text>
           <View style={styles.rowWrap}>
-            <View style={styles.col50}><Text><Text style={styles.label}>Case Name: </Text><Text style={styles.value}>{c.case_title || '-'}</Text></Text></View>
-            <View style={styles.col50}><Text><Text style={styles.label}>Case ID: </Text><Text style={styles.value}>{c.case_id || '-'}</Text></Text></View>
-            <View style={styles.col50}><Text><Text style={styles.label}>Type: </Text><Text style={styles.value}>{c.case_type || '-'}</Text></Text></View>
+            <View style={styles.col50}><Text><Text style={styles.label}>Case Name: </Text><Text style={styles.value}>{c.title || '-'}</Text></Text></View>
+            <View style={styles.col50}><Text><Text style={styles.label}>Case ID: </Text><Text style={styles.value}>{c.id || '-'}</Text></Text></View>
+            <View style={styles.col50}><Text><Text style={styles.label}>Type: </Text><Text style={styles.value}>{c.type || '-'}</Text></Text></View>
             <View style={styles.col50}><Text><Text style={styles.label}>TRL Score: </Text><Text style={styles.value}>{c.trl_score ?? '-'}</Text></Text></View>
             <View style={styles.col50}><Text><Text style={styles.label}>Submitted at: </Text><Text style={styles.value}>{formatDate(c.created_at, true)}</Text></Text></View>
           </View>
           <View style={{ marginTop: 15, marginBottom: 10 }}>
-            <Text style={{ marginBottom: 8 }}><Text style={styles.label}>Description: </Text><Text style={styles.value}>{c.case_description || '-'}</Text></Text>
-            <Text style={{ marginBottom: 8 }}><Text style={styles.label}>Keywords: </Text><Text style={styles.value}>{c.case_keywords || '-'}</Text></Text>
+            <Text style={{ marginBottom: 8 }}><Text style={styles.label}>Description: </Text><Text style={styles.value}>{c.description || '-'}</Text></Text>
+            <Text style={{ marginBottom: 8 }}><Text style={styles.label}>Keywords: </Text><Text style={styles.value}>{c.keywords || '-'}</Text></Text>
           </View>
         </View>
 
@@ -298,9 +298,9 @@ export const CaseReportPDF: React.FC<Props> = ({
           <View style={styles.section}>
             <Text style={styles.sectionHeader}>Coordinator</Text>
             <View style={{ ...styles.rowWrap, marginBottom: 10 }}>
-              <View style={styles.col50}><Text><Text style={styles.label}>Name: </Text><Text style={styles.value}>{coordinatorData.coordinator_name || '-'}</Text></Text></View>
-              <View style={styles.col50}><Text><Text style={styles.label}>Tel: </Text><Text style={styles.value}>{coordinatorData.coordinator_phone || '-'}</Text></Text></View>
-              <View style={styles.col100}><Text><Text style={styles.label}>Email: </Text><Text style={styles.value}>{coordinatorData.coordinator_email || '-'}</Text></Text></View>
+              <View style={styles.col50}><Text><Text style={styles.label}>Name: </Text><Text style={styles.value}>{coordinatorData.name || '-'}</Text></Text></View>
+              <View style={styles.col50}><Text><Text style={styles.label}>Tel: </Text><Text style={styles.value}>{coordinatorData.phone_number || '-'}</Text></Text></View>
+              <View style={styles.col100}><Text><Text style={styles.label}>Email: </Text><Text style={styles.value}>{coordinatorData.email || '-'}</Text></Text></View>
             </View>
           </View>
         )}
@@ -312,7 +312,7 @@ export const CaseReportPDF: React.FC<Props> = ({
             {appointments.map((a, index) => (
               <View key={index} style={styles.appointmentItem} wrap={false}>
                 <View style={styles.appointmentRow}>
-                  <Text style={{ fontSize: 10 }}><Text style={styles.label}>ID: </Text><Text style={styles.value}>{a.appointment_id}</Text></Text>
+                  <Text style={{ fontSize: 10 }}><Text style={styles.label}>ID: </Text><Text style={styles.value}>{a.id}</Text></Text>
                   <Text style={{ fontSize: 10 }}><Text style={styles.label}>วันที่นัดหมาย: </Text><Text style={styles.value}>{formatDate(a.date, true)}</Text></Text>
                 </View>
                 <Text style={{ marginVertical: 4 }}><Text style={styles.label}>สถานที่: </Text><Text style={styles.value}>{a.location || '-'}</Text></Text>
@@ -321,7 +321,7 @@ export const CaseReportPDF: React.FC<Props> = ({
                   <Text style={{ fontWeight: 'bold', color: getStatusColor(a.status) }}>{a.status || '-'}</Text>
                 </Text>
                 {a.summary && <Text style={{ marginVertical: 4 }}><Text style={styles.label}>สรุปการประชุม: </Text><Text style={styles.value}>{a.summary}</Text></Text>}
-                {a.note && <Text style={{ marginVertical: 4 }}><Text style={styles.label}>หมายเหตุ: </Text><Text style={styles.value}>{a.note}</Text></Text>}
+                {a.detail && <Text style={{ marginVertical: 4 }}><Text style={styles.label}>หมายเหตุ: </Text><Text style={styles.value}>{a.detail}</Text></Text>}
               </View>
             ))}
           </View>
@@ -334,9 +334,9 @@ export const CaseReportPDF: React.FC<Props> = ({
             {ipList.map((ip, index) => (
               <View key={index} style={{ ...styles.appointmentItem, paddingBottom: 15 }}>
                 <View style={styles.rowWrap}>
-                  <View style={styles.col50}><Text><Text style={styles.label}>ประเภท: </Text><Text style={styles.value}>{ip.ip_types || '-'}</Text></Text></View>
-                  <View style={styles.col50}><Text><Text style={styles.label}>สถานะ: </Text><Text style={styles.value}>{ip.ip_protection_status || '-'}</Text></Text></View>
-                  <View style={styles.col50}><Text><Text style={styles.label}>เลขที่คำขอ: </Text><Text style={styles.value}>{ip.ip_request_number || '-'}</Text></Text></View>
+                  <View style={styles.col50}><Text><Text style={styles.label}>ประเภท: </Text><Text style={styles.value}>{ip.types || '-'}</Text></Text></View>
+                  <View style={styles.col50}><Text><Text style={styles.label}>สถานะ: </Text><Text style={styles.value}>{ip.protection_status || '-'}</Text></Text></View>
+                  <View style={styles.col50}><Text><Text style={styles.label}>เลขที่คำขอ: </Text><Text style={styles.value}>{ip.request_number || '-'}</Text></Text></View>
                   <View style={styles.col50}><Text><Text style={styles.label}>สร้างเมื่อ: </Text><Text style={styles.value}>{formatDate(ip.created_at)}</Text></Text></View>
                 </View>
               </View>
@@ -345,18 +345,18 @@ export const CaseReportPDF: React.FC<Props> = ({
         )}
 
         {/* Supporter Information */}
-        {supporterData && (
+        {supportmentData && (
           <View style={styles.section}>
             <Text style={styles.sectionHeader}>Supporter Information</Text>
 
             {/* หน่วยงานสนับสนุน */}
             <View style={{ marginTop: 15, borderBottomWidth: 1, borderBottomColor: '#d1d5db', paddingBottom: 20 }}>
               <Text style={{ ...styles.label, marginBottom: 8, fontSize: 12 }}>หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม</Text>
-              {(supporterData.support_research || supporterData.support_vdc || supporterData.support_sieic) ? (
+              {(supportmentData.support_research || supportmentData.support_vdc || supportmentData.support_sieic) ? (
                 <View style={{ marginLeft: 15 }}>
-                  {supporterData.support_research && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>ฝ่ายวิจัย (Research Division)</Text></View>}
-                  {supporterData.support_vdc && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>ศูนย์ขับเคลื่อนคุณค่าการบริการ (VDC)</Text></View>}
-                  {supporterData.support_sieic && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (SiEIC)</Text></View>}
+                  {supportmentData.support_research && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>ฝ่ายวิจัย (Research Division)</Text></View>}
+                  {supportmentData.support_vdc && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>ศูนย์ขับเคลื่อนคุณค่าการบริการ (VDC)</Text></View>}
+                  {supportmentData.support_sieic && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (SiEIC)</Text></View>}
                 </View>
               ) : (
                 <Text style={{ ...styles.value, fontSize: 12, marginLeft: 10 }}>ไม่มีหน่วยงานสนับสนุนนวัตกรรม</Text>
@@ -366,17 +366,17 @@ export const CaseReportPDF: React.FC<Props> = ({
             {/* ความช่วยเหลือที่ต้องการ */}
             <View style={{ marginTop: 23, borderBottomWidth: 1, borderBottomColor: '#d1d5db', paddingBottom: 20 }}>
               <Text style={{ ...styles.label, marginBottom: 8, fontSize: 12 }}>ความช่วยเหลือที่ต้องการ</Text>
-              {(supporterData.need_protect_intellectual_property || supporterData.need_co_developers || supporterData.need_activities || supporterData.need_test || supporterData.need_capital || supporterData.need_partners || supporterData.need_guidelines || supporterData.need_certification || supporterData.need_account) ? (
+              {(supportmentData.need_protect_intellectual_property || supportmentData.need_co_developers || supportmentData.need_activities || supportmentData.need_test || supportmentData.need_capital || supportmentData.need_partners || supportmentData.need_guidelines || supportmentData.need_certification || supportmentData.need_account) ? (
                 <View style={{ marginLeft: 15 }}>
-                   {supporterData.need_protect_intellectual_property && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>การคุ้มครองทรัพย์สินทางปัญญา</Text></View>}
-                   {supporterData.need_co_developers && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม</Text></View>}
-                   {supporterData.need_activities && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>จัดกิจกรรมร่วม เช่น Design Thinking, Prototype Testing</Text></View>}
-                   {supporterData.need_test && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม</Text></View>}
-                   {supporterData.need_capital && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>หาแหล่งทุน</Text></View>}
-                   {supporterData.need_partners && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>หาคู่ค้าทางธุรกิจ</Text></View>}
-                   {supporterData.need_guidelines && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>แนะนำแนวทางการเริ่มธุรกิจ</Text></View>}
-                   {supporterData.need_certification && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>การขอรับรองมาตรฐานหรือคุณภาพ</Text></View>}
-                   {supporterData.need_account && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม</Text></View>}
+                   {supportmentData.need_protect_intellectual_property && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>การคุ้มครองทรัพย์สินทางปัญญา</Text></View>}
+                   {supportmentData.need_co_developers && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม</Text></View>}
+                   {supportmentData.need_activities && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>จัดกิจกรรมร่วม เช่น Design Thinking, Prototype Testing</Text></View>}
+                   {supportmentData.need_test && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม</Text></View>}
+                   {supportmentData.need_capital && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>หาแหล่งทุน</Text></View>}
+                   {supportmentData.need_partners && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>หาคู่ค้าทางธุรกิจ</Text></View>}
+                   {supportmentData.need_guidelines && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>แนะนำแนวทางการเริ่มธุรกิจ</Text></View>}
+                   {supportmentData.need_certification && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>การขอรับรองมาตรฐานหรือคุณภาพ</Text></View>}
+                   {supportmentData.need_account && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม</ Text></View>}
                 </View>
               ) : (
                 <Text style={{ ...styles.value, fontSize: 12, marginLeft: 10 }}>ไม่ต้องการความช่วยเหลือ</Text>
@@ -384,18 +384,18 @@ export const CaseReportPDF: React.FC<Props> = ({
             </View>
 
             {/* ความต้องการอื่นๆ */}
-            {supporterData.need && (
+            {supportmentData.need && (
               <View style={{ marginTop: 15, paddingTop: 5 }}>
                 <Text style={{ ...styles.label, marginBottom: 4, fontSize: 12 }}>ความต้องการอื่นๆ</Text>
-                <Text style={{ ...styles.value, fontSize: 12, marginLeft: 10, padding: 8 }}>{supporterData.need}</Text>
+                <Text style={{ ...styles.value, fontSize: 12, marginLeft: 10, padding: 8 }}>{supportmentData.need}</Text>
               </View>
             )}
 
             {/* เอกสารเพิ่มเติม */}
-            {supporterData.additional_documents && (
+            {supportmentData.additional_documents && (
               <View style={{ marginTop: 15, marginBottom: 10 }}>
                 <Text style={{ ...styles.label, marginBottom: 4, fontSize: 12 }}>เอกสารเพิ่มเติม</Text>
-                <Text style={{ ...styles.value, fontSize: 12, marginLeft: 10, padding: 8 }}>{supporterData.additional_documents}</Text>
+                <Text style={{ ...styles.value, fontSize: 12, marginLeft: 10, padding: 8 }}>{supportmentData.additional_documents}</Text>
               </View>
             )}
           </View>

@@ -12,10 +12,9 @@ import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByC
 import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
 import { useUpdateAssessment } from '@/hooks/case/patch/useUpdateAssessment';
 import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImprovementSuggestion';
-import { useUpdateTrlLevelResult } from '@/hooks/case/patch/useUpdateTrlLevelResult';
+import { useUpdateTrlLevelResult } from '@/hooks/case/patch/useUpdateTrlEstimate';
 import { useUpdateTrlScore } from '@/hooks/case/patch/useUpdateTrlScore';
 import { toast } from 'sonner';
-import { AssessmentResponse } from '@/hooks/client/type';
 
 const AssessmentResult = () => {
     const { id } = useParams<{ id: string }>();
@@ -23,7 +22,7 @@ const AssessmentResult = () => {
     const { data: caseData, isPending: isCasePending, isError: isCaseError, refetch: refetchCase } = useGetCaseById(id || '');
     const { data: coordinatorData } = useGetCoordinatorByCaseId(id || '');
     const { data: assessmentData, isPending: isAssessmentPending, refetch: refetchAssessment } = useGetAssessmentById(id || '');
-    const updateAssessmentMutation = useUpdateAssessment(caseData?.case_id || '');
+    const updateAssessmentMutation = useUpdateAssessment(caseData?.id || '');
     const updateSuggestionMutation = useUpdateImprovementSuggestion();
     const updateTrlLevelResultMutation = useUpdateTrlLevelResult();
     const updateTrlScoreMutation = useUpdateTrlScore();
@@ -57,11 +56,11 @@ const AssessmentResult = () => {
     const handleApproveAssessment = () => {
       updateAssessmentMutation.mutate(undefined, {
         onSuccess: () => {
-          toast.success('Approved research ID: ' + caseData?.case_id + ' successfully');
+          toast.success('Approved research ID: ' + caseData?.id + ' successfully');
           navigate('/admin-homepage');
         },
         onError: () => {
-          toast.error('Failed to approve research ID: ' + caseData?.case_id);
+          toast.error('Failed to approve research ID: ' + caseData?.id);
         }
       });
     };
@@ -72,9 +71,8 @@ const AssessmentResult = () => {
     };
 
     const handleSaveTrlLevel = async () => {
-      const trlString = manualTrl.toString();
       const assessmentId = assessmentData?.id;
-      const caseId = caseData?.case_id || id;
+      const caseId = caseData?.id || id;
 
       if (!assessmentId || !caseId) {
         toast.error("Error: Missing Data IDs");
@@ -85,11 +83,11 @@ const AssessmentResult = () => {
         await Promise.all([
           updateTrlLevelResultMutation.mutateAsync({
             assessmentId: assessmentId,
-            trlData: { trl_level_result: manualTrl }
+            trlData: { trl_estimate: manualTrl }
           }),
           updateTrlScoreMutation.mutateAsync({
             caseId: caseId,
-            trlData: { trl_score: trlString }
+            trlData: { trl_score: manualTrl }
           })
         ]);
 
@@ -197,7 +195,7 @@ const AssessmentResult = () => {
               
               <div className="flex items-center gap-3">
                 <Badge variant="outline" className="text-sm">
-                  Case ID: {caseData?.case_id || 'Loading...'}
+                  Case ID: {caseData?.id || 'Loading...'}
                 </Badge>
                 <Button
                   onClick={handleApproveAssessment}
@@ -235,17 +233,17 @@ const AssessmentResult = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-3xl font-bold mb-2">
-                    {caseData.case_title}
+                    {caseData.title}
                   </CardTitle>
                   <div className="flex gap-2 mb-2">
-                    <Badge variant="outline">{caseData.case_type}</Badge>
+                    <Badge variant="outline">{caseData.type}</Badge>
                     <Badge variant={caseData.is_urgent ? "destructive" : "secondary"}>
                       {caseData.is_urgent ? "Urgent" : "Not Urgent"}
                     </Badge>
                   </div>
                 </div>
                 <div className="text-right text-sm text-muted-foreground">
-                  <p>Case ID: {caseData.case_id}</p>
+                  <p>Case ID: {caseData.id}</p>
                   <p>Submitted at: {new Date(caseData.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
@@ -257,21 +255,21 @@ const AssessmentResult = () => {
               <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold mb-2">Description</h3>
-                  <p className="text-sm leading-relaxed">{caseData.case_description}</p>
+                  <p className="text-sm leading-relaxed">{caseData.description}</p>
                 </div>
                 
                 <div>
                   <h3 className="font-semibold mb-2">Keywords</h3>
-                  <p className="text-sm text-muted-foreground">{caseData.case_keywords}</p>
+                  <p className="text-sm text-muted-foreground">{caseData.keywords}</p>
                 </div>
   
                 {coordinatorData && (
                   <div className="space-y-4">
                     <div>
                       <h3 className="font-semibold mb-2">Coordinator</h3>
-                      <p className="text-sm text-muted-foreground">{coordinatorData.coordinator_name}</p>
-                      <p className="text-sm text-muted-foreground">{coordinatorData.coordinator_email}</p>
-                      <p className="text-sm text-muted-foreground">{coordinatorData.coordinator_phone}</p>
+                      <p className="text-sm text-muted-foreground">{coordinatorData.first_name} {coordinatorData.last_name}</p>
+                      <p className="text-sm text-muted-foreground">{coordinatorData.email}</p>
+                      <p className="text-sm text-muted-foreground">{coordinatorData.phone_number}</p>
                     </div>
 
                   </div>
@@ -322,7 +320,7 @@ const AssessmentResult = () => {
                     ) : (
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                          Level {caseData.status === true ? caseData.trl_score : assessmentData.trl_level_result}
+                          Level {caseData.status === true ? caseData.trl_score : assessmentData.trl_estimate}
                         </Badge>
                         <Button
                           variant="ghost"
@@ -331,7 +329,7 @@ const AssessmentResult = () => {
                           onClick={() => handleEditTrlClick(
                             Number(caseData.status === true 
                               ? (caseData.trl_score || 1) 
-                              : (assessmentData.trl_level_result || 1))
+                              : (assessmentData.trl_estimate || 1))
                           )}
                         >
                           <Pencil className="h-4 w-4" />

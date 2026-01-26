@@ -58,9 +58,9 @@ export default function AdminAppointment({
   const allAppointments = projects.flatMap((project) =>
     (project.appointments || []).map((a) => ({
       ...a,
-      researchTitle: project.case_title,
+      researchTitle: project.title,
       researcherName: getFullNameByResearcherID(project.researcher_id),
-      case_id: project.case_id,
+      case_id: project.id,
     }))
   );
 
@@ -91,10 +91,10 @@ export default function AdminAppointment({
     setProjects(prev =>
       prev.map(project => {
         // ตรวจสอบว่า appointment นี้อยู่ใน project ไหน
-        if (project.case_id !== updated.case_id) return project;
+        if (project.id !== updated.case_id) return project;
 
         const updatedAppointments = (project.appointments || []).map(a =>
-          a.appointment_id === updated.appointment_id
+          a.id === updated.id
             ? { ...a, ...updated } // merge ค่าใหม่ทั้งหมด
             : a
         );
@@ -112,7 +112,7 @@ export default function AdminAppointment({
   };
 
   const handleViewResearch = (id: string) => {
-    const c = projects.find(c => c.case_id === id);
+    const c = projects.find(c => c.id === id);
     navigate(`/case-detail/${id}`, { state: { research: c } });
   };
 
@@ -175,7 +175,7 @@ export default function AdminAppointment({
           <ul className="space-y-3">
             {paginatedAppointments.map((a) => (
               <li
-                key={a.appointment_id}
+                key={a.id}
                 onClick={() => handleViewResearch(a.case_id)}
                 className="p-3 border rounded-lg flex justify-between items-center hover:bg-gray-50"
               >
