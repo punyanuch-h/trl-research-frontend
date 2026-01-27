@@ -1,258 +1,318 @@
 import { useState } from "react";
 import RadioQuestion from "@/components/evaluate/RadioQuestion";
 import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
+import { checkboxQuestionList } from "@/data/checkboxQuestionList";
 
 interface EvaluateTRLProps {
   formData: any;
   handleInputChange: (field: string, value: any) => void;
   setTrlLevel?: (level: number | null) => void;
+  setTrlCompleted: (completed: boolean) => void;
+  setIsEvaluated: (evaluated: boolean) => void;
 }
 
 export default function EvaluateTRL({
   formData,
   handleInputChange,
   setTrlLevel,
+  setIsEvaluated,
+  setTrlCompleted,
 }: EvaluateTRLProps) {
-  /* ---------------- Part 1 ---------------- */
-  const [answersRadio, setAnswersRadio] = useState<{ [key: string]: number | null }>({
-    rq1: null,
-    rq2: null,
-    rq3: null,
-    rq4: null,
-    rq5: null,
-    rq6: null,
-    rq7: null,
-  });
+  const radioDecisionMap: {
+    [index: number]: {
+      yes?: number;
+      no?: number;
+      yesStartTRL?: number;
+      noStartTRL?: number;
+    };
+  } = {
+    0: { yes: 1, no: 6 },
+    1: { yes: 2, no: 5 },
+    2: { yes: 3, no: 4 },
+    3: { yes: 4, noStartTRL: 7 },
+    4: { yesStartTRL: 9, noStartTRL: 8 },
+    5: { yesStartTRL: 5, noStartTRL: 4 },
+    6: { yesStartTRL: 3, noStartTRL: 2 },
+  };
 
-  /* ---------------- Part 2 ---------------- */
-  const [showPart2, setShowPart2] = useState(false);
-  const [checkboxQueue, setCheckboxQueue] = useState<number[]>([]);
+  const [radioAnswers, setRadioAnswers] = useState<
+    { index: number; value: string }[]
+  >([]);
+  const [checkboxSteps, setCheckboxSteps] = useState<
+    {
+      level: number;
+      value: number[];
+    }[]
+  >([]);
+  const [radioFiles, setRadioFiles] = useState<{
+    [key: string]: File | null;
+  }>({});
+  const isYes = (value: string) => value === "ใช่";
 
-  const [answersCheckbox, setAnswersCheckbox] = useState<{ [key: string]: number[] }>({
-    cq1: [0, 0, 0],
-    cq2: [0, 0, 0, 0, 0],
-    cq3: [0, 0, 0, 0, 0, 0, 0],
-    cq4: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    cq5: [0, 0, 0, 0, 0, 0],
-    cq6: [0, 0, 0, 0],
-    cq7: [0, 0, 0, 0],
-    cq8: [0, 0, 0],
-    cq9: [0, 0, 0, 0],
-  });
+  const [radioIndex, setRadioIndex] = useState(0);
+  const [maxLevel, setMaxLevel] = useState<number | null>(null);
+  const [phase, setPhase] = useState<"radio" | "checkbox" | "result">("radio");
 
-  const [levelMessage, setLevelMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [trlLevelCompleted, setTrlLevelCompleted] = useState(false);
+  const updateTrlLevel = (level: number | null) => {
+    if (!setTrlLevel) return;
 
-  /* ---------------- Handlers ---------------- */
-  const handleRadioChange = (value: number, questionId: string) => {
-    setAnswersRadio((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
-    handleInputChange(questionId + "Answer", value === 1);
+    if (level !== null && level >= 1 && level <= 9) {
+      setTrlLevel(level);
+    } else {
+      setTrlLevel(0);
+    }
+  };
+  
+  const handleRadioChange = (index: number, value: number) => {
+    const answerText = value === 1 ? "ใช่" : "ไม่ใช่";
+    const answerBool = value === 1;
+    const rqField = `rq${index + 1}_answer`;
+
+    // Store answer in formData
+    handleInputChange(rqField, answerBool);
+
+    setRadioAnswers(prev => {
+      const updated = prev.slice(0, index);
+
+      updated.push({ index, value: answerText });
+      return updated;
+    });
+    const decision = radioDecisionMap[index];
+    const nextRadioIndex = answerBool ? decision?.yes : decision?.no;
+    const startTRL = answerBool
+      ? decision?.yesStartTRL
+      : decision?.noStartTRL;
+
+    if (startTRL) {
+      setCheckboxSteps([
+        {
+          level: startTRL,
+          value: [],
+        },
+      ]);
+      setPhase("checkbox");
+      setRadioIndex(index);
+      updateTrlLevel(0);
+      setIsEvaluated(false);
+      setTrlCompleted(false);
+      return;
+    }
+
+    if (typeof nextRadioIndex === "number") {
+      setRadioIndex(nextRadioIndex);
+      setPhase("radio");
+    }
+
+    setIsEvaluated(false);
+    setTrlCompleted(false);
+  };
+
+  const isChecklistComplete = (level: number, value: number[]) => {
+    const questions = checkboxQuestionList[level - 1];
+    return questions.every((_, idx) => value[idx] === 1);
   };
 
   const handleCheckboxChange = (
-    value: number[],
-    itemId: string,
-    selectedLabels: string[]
+    stepIndex: number,
+    newValue: number[]
   ) => {
-    setAnswersCheckbox((prev) => ({
-      ...prev,
-      [itemId]: value,
-    }));
-    handleInputChange(itemId + "Answer", selectedLabels);
-  };
+    setCheckboxSteps(prev => {
+      const updated = [...prev];
+      const step = updated[stepIndex];
 
-  /* ---------------- Logic ---------------- */
-  const handleNextToPart2 = () => {
-    const allAnswered = Object.values(answersRadio).every((a) => a !== null);
-    if (!allAnswered) {
-      setErrorMessage("กรุณาตอบคำถาม Part 1 ให้ครบก่อน");
-      return;
-    }
+      step.value.forEach((oldVal, idx) => {
+        if (oldVal === 1 && newValue[idx] === 0) {
+          const fileKey = `cq${step.level}-${idx + 1}`;
+          handleInputChange("assessmentFiles", {
+            ...formData.assessmentFiles,
+            [fileKey]: null,
+          });
+        }
+      });
 
-    setErrorMessage("");
-    setLevelMessage("");
+      const wasComplete = isChecklistComplete(step.level, step.value);
+      const isNowComplete = isChecklistComplete(step.level, newValue);
 
-    let firstIndex = 0;
+      updated[stepIndex] = {
+        ...step,
+        value: newValue,
+      };
 
-    if (answersRadio.rq1 === 1) {
-      if (answersRadio.rq2 === 1) {
-        if (answersRadio.rq3 === 1) {
-          if (answersRadio.rq4 === 1) {
-            firstIndex = answersRadio.rq5 === 1 ? 9 : 8;
-          } else firstIndex = 7;
-        } else firstIndex = 6;
-      } else firstIndex = answersRadio.rq6 === 1 ? 5 : 4;
-    } else {
-      firstIndex = answersRadio.rq7 === 1 ? 3 : 2;
-    }
+      const questions = checkboxQuestionList[step.level - 1];
+      const selectedLabels = questions
+        .map((item, idx) => (newValue[idx] === 1 ? item.label : null))
+        .filter((label): label is string => label !== null);
+      const cqField = `cq${step.level}_answer`;
+      handleInputChange(cqField, selectedLabels);
 
-    setCheckboxQueue([firstIndex]);
-    setShowPart2(true);
-  };
-
-  const handleSubmitCheckTRL = (index: number) => {
-    if (trlLevelCompleted) return;
-    
-    const answers = answersCheckbox[`cq${index}`] || [];
-    const allChecked = answers.every((v) => v === 1);
-
-    if (!allChecked) {
-      if (index === 1) {
-        setLevelMessage("Research ของคุณไม่อยู่ในระดับ TRL");
-        setTrlLevel?.(null);
-        setTrlLevelCompleted(true);
-        return;
+      if (wasComplete !== isNowComplete) {
+        const stepsToRemove = updated.slice(stepIndex + 1);
+        stepsToRemove.forEach(removedStep => {
+          const removedCqField = `cq${removedStep.level}_answer`;
+          handleInputChange(removedCqField, []);
+        });
+        
+        updated.splice(stepIndex + 1);
+        setPhase("checkbox");
+        setMaxLevel(null);
+        updateTrlLevel(0);
       }
+      setTrlCompleted(false);
+      setIsEvaluated(false);
 
-      // เพิ่มคำถามใหม่ → ล็อกคำถามเก่าอัตโนมัติ
-      setCheckboxQueue((prev) => [...prev, index - 1]);
-      return;
-    }
-
-    setLevelMessage(`Research ของคุณอยู่ในระดับ TRL ${index}`);
-    setTrlLevel?.(index);
-    setTrlLevelCompleted(true);
+      return updated;
+    });
   };
 
-  /* ---------------- Render ---------------- */
+  
+  
+  const currentStepIndex = checkboxSteps.length - 1;
+  const currentStep = checkboxSteps[currentStepIndex];
+
+  const handleEvaluateCheckbox = () => {
+    if (!currentStep) return;
+
+    if (isChecklistComplete(currentStep.level, currentStep.value)) {
+      setPhase("result");
+      setMaxLevel(currentStep.level);
+      updateTrlLevel(currentStep.level);
+      setIsEvaluated(true);
+      setTrlCompleted(true);
+      return;
+    }
+    setCheckboxSteps(prev => [
+      ...prev,
+      {
+        level: currentStep.level - 1,
+        value: [],
+      },
+    ]);
+    updateTrlLevel(0);
+    setIsEvaluated(false);
+    setTrlCompleted(false);
+  };
+
+  const [levelMessage, setLevelMessage] = useState("");
+
+
+  /* ================= Render ================= */
   return (
     <div>
       {/* ========== Part 1 ========== */}
-      <h3 className="font-semibold text-primary text-lg">Part 1</h3>
+      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm space-y-4 mb-8">
+        <h3 className="font-semibold text-primary text-lg">Part 1</h3>
 
-      {Object.keys(answersRadio).map((key, index) => (
-        <div key={key} className="mt-4">
-          <RadioQuestion
-            index={index + 1}
-            value={
-              answersRadio[key] === 1
-                ? "ใช่"
-                : answersRadio[key] === 0
-                ? "ไม่ใช่"
-                : ""
-            }
-            onChange={(value) => handleRadioChange(value, key)}
-            disabled={showPart2}
-          />
-          {answersRadio[key] === 1 && (
-            <div className={`mt-2 ml-4 ${showPart2 ? "opacity-60 pointer-events-none" : ""}`}>
-              <button
-                type="button"
-                onClick={() => !showPart2 && document.getElementById(`file-${key}`)?.click()}
-                disabled={showPart2}
-                className={`text-sm px-3 py-1 border rounded transition-colors ${
-                  showPart2
-                    ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
-                }`}
-              >
-                แนบหลักฐาน
-              </button>
-              <input
-                type="file"
-                id={`file-${key}`}
-                accept=".pdf"
-                disabled={showPart2}
-                onChange={(e) => {
-                  if (!showPart2) {
-                    const file = e.target.files?.[0] || null;
-                    handleInputChange("assessmentFiles", {
-                      ...formData.assessmentFiles,
-                      [key]: file,
-                    });
-                  }
-                }}
-                className="hidden"
+        {radioAnswers.map((ans) => {
+          const fileKey = `radio-${ans.index}`;
+          const file = radioFiles[fileKey];
+
+          return (
+            <div key={ans.index} className="space-y-2">
+              <RadioQuestion
+                index={ans.index + 1}
+                value={ans.value}
+                onChange={(v) => handleRadioChange(ans.index, v)}
               />
-              {formData.assessmentFiles?.[key as keyof typeof formData.assessmentFiles] && (
-                <span className="text-sm text-green-600 ml-2">
-                  ✓ {formData.assessmentFiles[key as keyof typeof formData.assessmentFiles]?.name}
-                </span>
+
+              {isYes(ans.value) && (
+                <div className="ml-6 flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document.getElementById(`file-${fileKey}`)?.click()
+                    }
+                    className="text-sm px-3 py-1 border rounded
+              bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
+                  >
+                    แนบหลักฐาน
+                  </button>
+
+                  <input
+                    type="file"
+                    id={`file-${fileKey}`}
+                    accept=".pdf"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] || null;
+                      setRadioFiles(prev => ({
+                        ...prev,
+                        [fileKey]: f,
+                      }));
+                      // Store file in formData.assessmentFiles
+                      const rqFileKey = `rq${ans.index + 1}`;
+                      handleInputChange("assessmentFiles", {
+                        ...formData.assessmentFiles,
+                        [rqFileKey]: f,
+                      });
+                    }}
+                  />
+
+                  {file && (
+                    <span className="text-sm text-green-600">
+                      ✓ {file.name}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
-      ))}
+          );
+        })}
 
-      <div className="mt-6">
-        <button
-          onClick={handleNextToPart2}
-          disabled={showPart2}
-          className={`text-sm font-medium py-2 px-3 rounded ${
-            showPart2
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-[#00c1d6] text-white hover:bg-[#00a8bb]"
-          }`}
-        >
-          Next to Part 2
-        </button>
 
-        {errorMessage && (
-          <div className="mt-3 text-sm text-red-500 font-semibold">
-            {errorMessage}
+        {phase === "radio" && (
+          <RadioQuestion
+            index={radioIndex + 1}
+            value={
+              radioAnswers.find(a => a.index === radioIndex)?.value ?? ""
+            }
+            onChange={(v) => handleRadioChange(radioIndex, v)}
+          />
+        )}
+
+      </div>
+
+
+      {/* ========== Part 2 ========== */}
+      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm space-y-4 mb-8">
+        <h3 className="font-semibold text-primary text-lg">Part 2</h3>
+        {checkboxSteps.map((step, stepIndex) => (
+          <div key={stepIndex} className="space-y-2">
+            <CheckboxQuestion
+              index={step.level}
+              value={step.value}
+              onChange={(value) =>
+                handleCheckboxChange(stepIndex, value)
+              }
+              assessmentFiles={formData.assessmentFiles}
+              onAttachFile={(fieldKey, file) => {
+                handleInputChange("assessmentFiles", {
+                  ...formData.assessmentFiles,
+                  [fieldKey]: file,
+                });
+              }}
+            />
           </div>
+        ))}
+        {/* 🔘 Global Evaluate Button */}
+        {phase === "checkbox" && currentStep && (
+          <div className="flex justify-end pt-4 border-t">
+            <button
+              onClick={handleEvaluateCheckbox}
+              className="px-6 py-2 bg-primary text-white rounded-lg shadow hover:opacity-90"
+            >
+              ประเมิน
+            </button>
+          </div>
+        )}
+
+        {phase === "result" && (
+          <h2>ผลการประเมิน: TRL {maxLevel}</h2>
         )}
       </div>
 
-      {/* ========== Part 2 ========== */}
-      {showPart2 && (
-        <>
-          <h3 className="mt-12 font-semibold text-primary text-lg">Part 2</h3>
-
-          {checkboxQueue.map((index, idx) => {
-            const isLocked = idx !== checkboxQueue.length - 1;
-            const checkboxValues = answersCheckbox[`cq${index}`] || [];
-            const isDisabled = isLocked || trlLevelCompleted;
-
-            return (
-              <div key={index} className={`mt-6 ${trlLevelCompleted ? "opacity-60" : "opacity-100"}`}>
-                <CheckboxQuestion
-                  index={index}
-                  value={checkboxValues}
-                  disabled={isDisabled}
-                  onChange={(value, itemId, selectedLabels) =>
-                    !isDisabled &&
-                    handleCheckboxChange(value, itemId, selectedLabels)
-                  }
-                  assessmentFiles={formData.assessmentFiles}
-                  onAttachFile={(fieldKey, file) => {
-                    if (!trlLevelCompleted) {
-                      handleInputChange("assessmentFiles", {
-                        ...formData.assessmentFiles,
-                        [fieldKey]: file,
-                      });
-                    }
-                  }}
-                />
-
-                <button
-                  disabled={isDisabled}
-                  onClick={() => handleSubmitCheckTRL(index)}
-                  className={`mt-4 text-sm font-medium py-2 px-3 rounded
-                    ${
-                      isDisabled
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-[#00c1d6] text-white"
-                    }`}
-                >
-                  Submit and Check TRL Level
-                </button>
-              </div>
-            );
-          })}
-
-          {levelMessage && (
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold">{levelMessage}</h3>
-            </div>
-          )}
-        </>
+      {levelMessage && (
+        <div className="mt-6 text-lg font-semibold">{levelMessage}</div>
       )}
     </div>
   );
 }
-
