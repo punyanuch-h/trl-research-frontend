@@ -1,4 +1,4 @@
-// supporter.tsx
+// supportment.tsx
 
 import React from 'react';
 
@@ -80,7 +80,7 @@ const Supporter: React.FC<SupporterProps> = ({
   };
 
   return (
-    <div className="supporter-form-container flex flex-col gap-4">
+    <div className="supportment-form-container flex flex-col gap-4">
       <div className="form-group">
         <label className="form-label">
           <h3 className="font-semibold text-primary">หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม<span className="text-red-500">*</span> (เลือกได้มากกว่า 1 หน่วยงาน)</h3>

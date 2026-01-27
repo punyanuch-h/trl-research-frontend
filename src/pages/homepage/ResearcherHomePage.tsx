@@ -4,6 +4,7 @@ import { Download, Eye, Filter, Plus } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
+import type { CaseResponse, AppointmentResponse } from "@/hooks/client/type";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,40 +22,14 @@ import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { useGetAllCasesByID } from "@/hooks/case/get/useGetAllCasesByID";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
 
-// --- Types ---
-interface CaseResponse {
-  case_id: string;
-  researcher_id: string;
-  coordinator_email: string;
-  trl_score: string;
-  trl_suggestion: string;
-  status: boolean;
-  is_urgent: boolean;
-  urgent_reason: string;
-  urgent_feedback: string;
-  case_title: string;
-  case_type: string;
-  case_description: string;
-  case_keywords: string;
-};
-
-interface Appointment {
-  appointment_id: string;
-  case_id: string;
-  date: string;
-  status: string;
-  location: string;
-  note?: string;
-}
-
 // Merge Case + Appointment
 function mergeCasesData(
   cases: CaseResponse[],
-  appointments: Appointment[],
+  appointments: AppointmentResponse[],
 ) {
   return cases.map((c) => {
     const caseAppointments = appointments
-      .filter((a) => a.case_id === c.case_id)
+      .filter((a) => a.case_id === c.id)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return {
       ...c,
@@ -74,7 +49,7 @@ export default function ResearcherHomePage() {
   const { data: appointmentData = [] } = useGetAllAppointments();
   
   // --- State ---
-  const [cases, setCases] = useState<(CaseResponse & { appointments: Appointment[]; latestAppointment: Appointment | null })[]>([]);
+  const [cases, setCases] = useState<(CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null })[]>([]);
   const [loading, setLoading] = useState(true);
 
   // --- State ---
@@ -104,7 +79,7 @@ export default function ResearcherHomePage() {
   }, [caseData, appointmentData]);
 
   // --- Sorting ---
-  function sortResearch(researchList: (CaseResponse & { appointments: Appointment[]; latestAppointment: Appointment | null })[]) {
+  function sortResearch(researchList: (CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null })[]) {
     const sorted = [...researchList].sort((a, b) => {
       const { key, direction } = sortConfig;
       let aValue: any = (a as any)[key];
@@ -132,11 +107,11 @@ export default function ResearcherHomePage() {
   // --- Filtering ---
   const filteredCases = sortedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
-      if (column === "Type") return c.case_type === value;
+      if (column === "Type") return c.type === value;
       if (column === "Score") return c.trl_score?.toString() === value;
       if (column === "Status") return (c.status ? "Approve" : "In process") === value;
       if (column === "Urgent") return String(c.is_urgent) === value;
-      if (column === "Name") return c.case_title === value;
+      if (column === "Name") return c.title === value;
       return true;
     })
   );
@@ -152,11 +127,11 @@ export default function ResearcherHomePage() {
 
   // --- Filter options ---
   const columnOptions: Record<string, string[]> = {
-    Type: [...new Set(cases.map((c) => c.case_type))],
+    Type: [...new Set(cases.map((c) => c.type))],
     Score: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     Status: ["Approve", "In process"],
     Urgent: ["true", "false"],
-    Name: [...new Set(cases.map((c) => c.case_title))],
+    Name: [...new Set(cases.map((c) => c.title))],
   };
 
   const handleSort = (key: string) => {
@@ -192,20 +167,20 @@ export default function ResearcherHomePage() {
   };
 
   const handleViewCase = (caseId: string) => {
-    const c = cases.find((c) => c.case_id === caseId);
+    const c = cases.find((c) => c.id === caseId);
     navigate(`/case-detail/${caseId}`, { state: { caseInfo: c } });
   };
 
-  const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: Appointment[]; latestAppointment: Appointment | null }) => {
+  const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null }) => {
     try {
-      console.log("Generating PDF for:", caseInfo.case_title);
+      console.log("Generating PDF for:", caseInfo.title);
 
       let coordinatorData = null;
       try {
         coordinatorData = await queryClient.fetchQuery({
-          queryKey: ["useGetCoordinatorByCaseId", caseInfo.case_id],
+          queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.case_id);
+            return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.id);
           },
         });
       } catch (err) {
@@ -215,33 +190,33 @@ export default function ResearcherHomePage() {
       let ipData = [];
       try {
         ipData = await queryClient.fetchQuery({
-          queryKey: ["useGetIPByCaseId", caseInfo.case_id],
+          queryKey: ["useGetIPByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetIPByCaseId(caseInfo.case_id); 
+            return await apiQueryClient.useGetIPByCaseId(caseInfo.id); 
           },
         });
       } catch (err) {
         console.warn("No IP data found", err);
       }
 
-      let supporterData = null;
+      let supportmentData = null;
       try {
-        supporterData = await queryClient.fetchQuery({
-          queryKey: ["useGetSupporterByCaseId", caseInfo.case_id],
+        supportmentData = await queryClient.fetchQuery({
+          queryKey: ["useGetSupporterByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetSupporterByCaseId(caseInfo.case_id);
+            return await apiQueryClient.useGetSupporterByCaseId(caseInfo.id);
           },
         });
       } catch (err) {
-        console.warn("No supporter data found", err);
+        console.warn("No supportment data found", err);
       }
 
       let assessmentData = null;
       try {
         assessmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetAssessmentByCaseId", caseInfo.case_id],
+          queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetAssessmentById(caseInfo.case_id);
+            return await apiQueryClient.useGetAssessmentById(caseInfo.id);
           },
         });
       } catch (err) {
@@ -253,7 +228,7 @@ export default function ResearcherHomePage() {
         appointments: caseInfo.appointments || [],
         coordinatorData: coordinatorData,
         ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
-        supporterData: supporterData,
+        supportmentData: supportmentData,
         assessmentData: assessmentData,
       };
 
@@ -261,7 +236,7 @@ export default function ResearcherHomePage() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      const rawTitle = caseInfo.case_title || caseInfo.case_id;
+      const rawTitle = caseInfo.title || caseInfo.id;
       const sanitizedTitle = rawTitle.toString()
           .replace(/[<>:"/\\|?*]/g, '_')
           .trim();
@@ -369,14 +344,14 @@ export default function ResearcherHomePage() {
                   </TableRow>
                 ) : (
                   paginatedProjects.map((c) => (
-                    <TableRow key={c.case_id}>
-                      <TableCell className="min-w-[110px]">{c.case_id}</TableCell>
+                    <TableRow key={c.id}>
+                      <TableCell className="min-w-[110px]">{c.id}</TableCell>
                       <TableCell className="min-w-[180px]">
                         <div className="flex flex-col">
                           <span
                             className={`relative group ${c.is_urgent ? "text-red-600 font-semibold" : ""}`}
                           >
-                            {c.case_title}
+                            {c.title}
                             {c.is_urgent && (
                               <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
                                               border border-red-600 bg-white text-black text-xs font-normal
@@ -393,7 +368,7 @@ export default function ResearcherHomePage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="min-w-[120px]">{c.case_type}</TableCell>
+                      <TableCell className="min-w-[120px]">{c.type}</TableCell>
                       <TableCell className="min-w-[100px] text-center">
                         {c.status === true ? (
                           <Badge variant="outline">TRL {c.trl_score}</Badge>
@@ -414,7 +389,7 @@ export default function ResearcherHomePage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleViewCase(c.case_id)}
+                                onClick={() => handleViewCase(c.id)}
                               >
                                 <Eye className="w-4 h-4 mr-2" />
                                 View
@@ -434,7 +409,7 @@ export default function ResearcherHomePage() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleViewCase(c.case_id)}
+                                    onClick={() => handleViewCase(c.id)}
                                   >
                                     <Eye className="w-4 h-4 mr-2" />
                                     View
@@ -442,7 +417,7 @@ export default function ResearcherHomePage() {
                               </div>
                               {(() => {
                                 const caseAppointments = appointmentData
-                                  .filter((a) => a.case_id === c.case_id)
+                                  .filter((a) => a.case_id === c.id)
                                   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
                                 const latestAppointment = caseAppointments[caseAppointments.length - 1];

@@ -10,9 +10,9 @@ Researcher -> UI: Open 'Add Research' page
 Researcher -> UI: Fill research details and submit
 UI -> API: POST /trl/case
 UI -> API: POST /trl/coordinator
-UI -> API: POST /trl/assessment_trl
+UI -> API: POST /trl/assessment
 UI -> API: POST /trl/ip
-UI -> API: POST /trl/supporter
+UI -> API: POST /trl/supportment
 API -> DB: Save research data
 DB --> API: Success/Failure response
 API --> UI: Return result (success/failure)

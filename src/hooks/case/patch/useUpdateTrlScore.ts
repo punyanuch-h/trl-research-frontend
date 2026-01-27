@@ -8,7 +8,7 @@ export const useUpdateTrlScore = () => {
   return useMutation({
     mutationFn: async ({ caseId, trlData }: {
       caseId: string;
-      trlData: { trl_score: string }
+      trlData: { trl_score: number }
     }) => {
       return apiClient.useUpdateTrlScore(caseId, trlData);
     },

@@ -5,19 +5,20 @@ export type LoginResponse = {
 };
 
 export type CaseResponse = {
-    case_id: string;
+    id: string;
     researcher_id: string;
-    coordinator_email: string;
-    trl_score: string; // or number if always numeric
+    admin_id: string;
+    coordinator_id: string;
+    title: string;
+    type: string;
+    description: string;
+    keywords: string;
+    trl_score: number;
     trl_suggestion: string;
     status: boolean;
     is_urgent: boolean;
     urgent_reason: string;
     urgent_feedback: string;
-    case_title: string;
-    case_type: string;
-    case_description: string;
-    case_keywords: string;
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
 };
@@ -25,7 +26,7 @@ export type CaseResponse = {
 export type AssessmentResponse = {
     id: string;
     case_id: string;
-    trl_level_result: number;
+    trl_estimate: number;
     rq1_answer: boolean;
     rq2_answer: boolean;
     rq3_answer: boolean;
@@ -48,12 +49,12 @@ export type AssessmentResponse = {
 };
 
 export type AppointmentResponse = {
-    appointment_id: string;
+    id: string;
     case_id: string;
     date: string;
     status: string;
     location: string;
-    note: string;
+    detail: string;
     summary: string;
     created_at: string;
     updated_at: string;
@@ -62,26 +63,28 @@ export type AppointmentResponse = {
 export type IntellectualPropertyResponse = {
     id: string;
     case_id: string;
-    ip_types: string;
-    ip_protection_status: string;
-    ip_request_number: string;
+    types: string;
+    protection_status: string;
+    request_number: string;
     created_at: string;
     updated_at: string;
 };
 
 export type CoordinatorResponse = {
-    coordinator_id: string;
-    case_id: string;
-    coordinator_email: string;
-    coordinator_name: string;
-    coordinator_phone: string;
+    id: string;
+    prefix: string;
+    academic_position: string;
+    first_name: string;
+    last_name: string;
     department: string;
+    phone_number: string;
+    email: string;
     created_at: string;
     updated_at: string;
 };
 
-export type SupporterResponse = {
-    supporter_id: string;
+export type SupportmentResponse = {
+    id: string;
     case_id: string;
     support_research: boolean;
     support_vdc: boolean;
@@ -102,15 +105,14 @@ export type SupporterResponse = {
 };
 
 export type ResearcherResponse = {
-    researcher_id: string;
-    admin_id: string;
-    researcher_prefix: string;
-    researcher_academic_position: string;
-    researcher_first_name: string;
-    researcher_last_name: string;
-    researcher_department: string;
-    researcher_phone_number: string;
-    researcher_email: string;
+    id: string;
+    prefix: string;
+    academic_position: string;
+    first_name: string;
+    last_name: string;
+    department: string;
+    phone_number: string;
+    email: string;
     created_at: string;
     updated_at: string;
 };

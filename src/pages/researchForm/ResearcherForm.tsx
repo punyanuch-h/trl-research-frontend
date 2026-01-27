@@ -19,7 +19,7 @@ import ResearcherDetails from '@/pages/researchForm/researcherDetails';
 import ResearchDetails from '@/pages/researchForm/researchDetails';
 import EvaluateTRL from '@/pages/researchForm/evaluateTRL';
 import IntellectualProperty from '@/pages/researchForm/intellectualProperty';
-import Supporter from '@/pages/researchForm/Supporter';
+import Supporter from '@/pages/researchForm/Supportment';
 
 interface IpForm {
   noIp?: boolean;
@@ -47,7 +47,7 @@ type FormState = {
   coordinatorEmail: string;
   // caseDetails
   researcherId: string;
-  trlScore: string;
+  trlScore: number | null;
   status: boolean;
   isUrgent: boolean;
   urgentReason: string;
@@ -145,7 +145,7 @@ export default function ResearcherForm() {
     coordinatorEmail: "",
     // caseDetails
     researcherId: userProfile?.id ?? "",
-    trlScore: "",
+    trlScore: null,
     status: false,
     isUrgent: false,
     urgentReason: "",

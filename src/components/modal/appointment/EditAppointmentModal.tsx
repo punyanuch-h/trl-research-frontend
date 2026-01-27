@@ -68,7 +68,7 @@ export default function EditAppointmentModal({
     if (form) {
       const formToSubmit = {
         ...form,
-        date: form.date instanceof Date ? form.date.toISOString() : form.date
+        date: new Date(form.date).toISOString()
       };
       editAppointment(formToSubmit);
     }
@@ -86,7 +86,7 @@ export default function EditAppointmentModal({
             <Label>Project</Label>
             <Input
               type="text"
-              value={projects.find(p => p.case_id === form.case_id)?.case_title || ""}
+              value={projects.find(p => p.id === form.case_id)?.title || ""}
               readOnly
               disabled
             />
@@ -98,7 +98,7 @@ export default function EditAppointmentModal({
               type="text"
               value={
                 getFullNameByResearcherID(
-                  projects.find(p => p.case_id === form.case_id)?.researcher_id || ""
+                  projects.find(p => p.id === form.case_id)?.researcher_id || ""
                 ) || ""
               }
               readOnly
@@ -155,8 +155,8 @@ export default function EditAppointmentModal({
           <div>
             <Label>Notes</Label>
             <Textarea
-              value={form.note || ""}
-              onChange={(e) => handleChange("note", e.target.value)}
+              value={form.detail || ""}
+              onChange={(e) => handleChange("detail", e.target.value)}
               placeholder="Enter notes"
               rows={3}
             />

@@ -4,12 +4,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import type { CaseInfo, Appointment } from "../types/case";
-import type { ResearcherInfo } from "../types/researcher";
+import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "@/hooks/client/type";
 
-interface Project extends CaseInfo {
-  appointments?: Appointment[];
-  researcherInfo?: ResearcherInfo;
+
+interface Project extends CaseResponse {
+  appointments?: AppointmentResponse[];
+  researcherInfo?: ResearcherResponse;
 }
 
 interface Props {
@@ -26,7 +26,7 @@ export default function AppointmentDetail({ projects, getFullNameByResearcherID 
     .flatMap((p) =>
       (p.appointments || []).map((a) => ({
         ...a,
-        researchTitle: p.case_title,
+        researchTitle: p.title,
         researcherName: getFullNameByResearcherID(p.researcher_id),
       }))
     )

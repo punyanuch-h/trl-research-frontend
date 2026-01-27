@@ -16,7 +16,7 @@ export default function TRLDashboard() {
     const urgent = allCases.filter((c) => c.is_urgent).length;
 
     const trlScores = allCases
-      .map((c) => parseFloat(c.trl_score))
+      .map((c) => parseFloat(String(c.trl_score)))
       .filter((v) => !isNaN(v));
     const avgTRL =
       trlScores.length > 0
@@ -34,7 +34,7 @@ export default function TRLDashboard() {
     const trlDistribution = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((level, index) => ({
       level: `TRL ${level}`,
       count: allCases.filter(
-        (c) => Math.floor(parseFloat(c.trl_score)) === level
+        (c) => Math.floor(parseFloat(String(c.trl_score))) === level
       ).length,
       fill: COLORS[index % COLORS.length],
     }));
@@ -42,7 +42,7 @@ export default function TRLDashboard() {
     // Case types (as list)
     const typeCounts: Record<string, number> = {};
     allCases.forEach((c) => {
-      const t = c.case_type || "Unspecified";
+      const t = c.type || "Unspecified";
       typeCounts[t] = (typeCounts[t] || 0) + 1;
     });
     const caseTypeData = Object.entries(typeCounts)
@@ -65,11 +65,11 @@ export default function TRLDashboard() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
       .map(([id, count]) => {
-        const r = allResearchers.find((x) => x.researcher_id === id);
+        const r = allResearchers.find((x) => x.id === id);
         return {
           id,
           name: r
-            ? `${r.researcher_first_name || ""} ${r.researcher_last_name || ""}`
+            ? `${r.first_name || ""} ${r.last_name || ""}`
             : id,
           count: count as number,
         };
@@ -90,10 +90,10 @@ export default function TRLDashboard() {
       })
       .slice(0, 3)
       .map((a) => {
-        const relatedCase = allCases.find((c) => c.case_id === a.case_id);
+        const relatedCase = allCases.find((c) => c.id === a.case_id);
         return {
           ...a,
-          case_title: relatedCase?.case_title || "Case",
+          case_title: relatedCase?.title || "Case",
         };
       });
 
@@ -277,7 +277,7 @@ export default function TRLDashboard() {
             {stats.upcoming.length > 0 ? (
               <ul className="text-sm space-y-2">
                 {stats.upcoming.map((a) => (
-                  <li key={a.appointment_id}>
+                  <li key={a.id}>
                     <p className="font-medium">{a.case_title}</p>
                     <p className="text-gray-500 text-xs">
                       {new Date(a.date).toLocaleString()}

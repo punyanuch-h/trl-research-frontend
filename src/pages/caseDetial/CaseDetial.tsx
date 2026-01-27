@@ -25,7 +25,7 @@ export default function CaseDetail() {
   const { data: appointmentData, isPending: isAppointmentPending, isError: isAppointmentError } = useGetAppointmentByCaseId(id || '');
   const { data: assessmentData, isPending: isAssessmentPending, isError: isAssessmentError  } = useGetAssessmentById(id || '');
   const { data: ipData, isPending: isIPPending, isError: isIPError  } = useGetIPByCaseId(id || '');
-  const { data: supporterData, isPending: isSupporterPending, isError: isSupporterError } = useGetSupporterByCaseId(id || '');
+  const { data: supportmentData, isPending: isSupporterPending, isError: isSupporterError } = useGetSupporterByCaseId(id || '');
   
   // Get researcher data for the case
   const { data: researcherData } = useGetResearcherById(caseData?.researcher_id || '');
@@ -47,7 +47,7 @@ export default function CaseDetail() {
   // Function to get researcher full name
   const getFullNameByResearcherID = (researcher_id: string) => {
     if (!researcherData) return researcher_id;
-    return `${researcherData.researcher_first_name} ${researcherData.researcher_last_name}`;
+    return `${researcherData.first_name} ${researcherData.last_name}`;
   };
 
   return (
@@ -74,7 +74,7 @@ export default function CaseDetail() {
               
               <div className="flex items-center gap-3">
                 <Badge variant="outline" className="text-sm">
-                  Case ID: {caseData?.case_id || 'Loading...'}
+                  Case ID: {caseData?.id || 'Loading...'}
                 </Badge>
                 {role === "admin" && (
                   <Button onClick={() => navigate(`/assessment/${id}`)} >
@@ -112,17 +112,17 @@ export default function CaseDetail() {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-3xl font-bold mb-2">
-                    {caseData.case_title}
+                    {caseData.title}
                   </CardTitle>
                   <div className="flex gap-2 mb-2">
-                    <Badge variant="outline">{caseData.case_type}</Badge>
+                    <Badge variant="outline">{caseData.type}</Badge>
                     <Badge variant={caseData.is_urgent ? "destructive" : "secondary"}>
                       {caseData.is_urgent ? "Urgent" : "Not Urgent"}
                     </Badge>
                   </div>
                 </div>
                 <div className="text-right text-sm text-muted-foreground">
-                  <p>Case ID: {caseData.case_id}</p>
+                  <p>Case ID: {caseData.id}</p>
                   <p>Submitted at: {new Date(caseData.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
@@ -134,30 +134,30 @@ export default function CaseDetail() {
               <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold mb-2">Description</h3>
-                  <p className="text-sm leading-relaxed">{caseData.case_description}</p>
+                  <p className="text-sm leading-relaxed">{caseData.description}</p>
                 </div>
                 
                 <div>
                   <h3 className="font-semibold mb-2">Keywords</h3>
-                  <p className="text-sm text-muted-foreground">{caseData.case_keywords}</p>
+                  <p className="text-sm text-muted-foreground">{caseData.keywords}</p>
                 </div>
   
                 {coordinatorData && (
                   <div className="space-y-4">
                     <div>
                       <h3 className="font-semibold mb-2">Coordinator</h3>
-                      <p className="text-sm text-muted-foreground">{coordinatorData.coordinator_name}</p>
-                      <p className="text-sm text-muted-foreground">{coordinatorData.coordinator_email}</p>
-                      <p className="text-sm text-muted-foreground">{coordinatorData.coordinator_phone}</p>
+                      <p className="text-sm text-muted-foreground">{coordinatorData.first_name} {coordinatorData.last_name}</p>
+                      <p className="text-sm text-muted-foreground">{coordinatorData.email}</p>
+                      <p className="text-sm text-muted-foreground">{coordinatorData.phone_number}</p>
                     </div>
 
                   </div>
                 )}
-                {role === "admin" && assessmentData.trl_level_result && caseData.status == false && (
+                {role === "admin" && assessmentData.trl_estimate && caseData.status == false && (
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold">Estimated TRL Level</h3>
                     <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                      Level {assessmentData.trl_level_result}
+                      Level {assessmentData.trl_estimate}
                     </Badge>
                   </div>
                 )}
@@ -306,22 +306,22 @@ export default function CaseDetail() {
                     className="border p-4 rounded-2xl shadow-sm bg-gray-50"
                   >
                     <h3 className="font-semibold text-lg mb-1">
-                      {ip.ip_types || "ไม่ระบุประเภทสิทธิ์"}
+                      {ip.types || "ไม่ระบุประเภทสิทธิ์"}
                     </h3>
 
                     <div className="flex items-center gap-2 mb-1">
                       <Badge
                         className={
-                          ip.ip_protection_status?.toLowerCase().includes("filed") ||
-                          ip.ip_protection_status?.toLowerCase().includes("granted")
+                          ip.protection_status?.toLowerCase().includes("filed") ||
+                          ip.protection_status?.toLowerCase().includes("granted")
                             ? "bg-green-500 text-white"
                             : "bg-yellow-400 text-black"
                         }
                       >
-                        {ip.ip_protection_status || "สถานะไม่ระบุ"}
+                        {ip.protection_status || "สถานะไม่ระบุ"}
                       </Badge>
                       <span className="text-sm text-muted-foreground">
-                        {ip.ip_request_number || "-"}
+                        {ip.request_number || "-"}
                       </span>
                     </div>
 
@@ -340,8 +340,8 @@ export default function CaseDetail() {
           </Card>
         )}
 
-        {/* Supporter Data */}
-        {!isSupporterPending && !isSupporterError && supporterData && (
+        {/* Supportment Data */}
+        {!isSupporterPending && !isSupporterError && supportmentData && (
           <Card className="w-full">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-primary mb-2">
@@ -355,14 +355,14 @@ export default function CaseDetail() {
               <div>
                 <h3 className="font-semibold mb-2">หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม</h3>
                 {(
-                  supporterData.support_research ||
-                  supporterData.support_vdc ||
-                  supporterData.support_sieic
+                  supportmentData.support_research ||
+                  supportmentData.support_vdc ||
+                  supportmentData.support_sieic
                 ) ? (
                   <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    {supporterData.support_research && <li>ฝ่ายวิจัย (Research Division)</li>}
-                    {supporterData.support_vdc && <li>ศูนย์ขับเคลื่อนคุณค่าการบริการ (VDC)</li>}
-                    {supporterData.support_sieic && <li>ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (SiEIC)</li>}
+                    {supportmentData.support_research && <li>ฝ่ายวิจัย (Research Division)</li>}
+                    {supportmentData.support_vdc && <li>ศูนย์ขับเคลื่อนคุณค่าการบริการ (VDC)</li>}
+                    {supportmentData.support_sieic && <li>ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (SiEIC)</li>}
                   </ul>
                 ) : (
                   <p className="text-sm text-muted-foreground">ไม่มีหน่วยงานสนับสนุนนวัตกรรม</p>
@@ -373,26 +373,26 @@ export default function CaseDetail() {
               <div>
                 <h3 className="font-semibold mb-2">ความช่วยเหลือที่ต้องการ</h3>
                 {(
-                  supporterData.need_protect_intellectual_property ||
-                  supporterData.need_co_developers ||
-                  supporterData.need_activities ||
-                  supporterData.need_test ||
-                  supporterData.need_capital ||
-                  supporterData.need_partners ||
-                  supporterData.need_guidelines ||
-                  supporterData.need_certification ||
-                  supporterData.need_account
+                  supportmentData.need_protect_intellectual_property ||
+                  supportmentData.need_co_developers ||
+                  supportmentData.need_activities ||
+                  supportmentData.need_test ||
+                  supportmentData.need_capital ||
+                  supportmentData.need_partners ||
+                  supportmentData.need_guidelines ||
+                  supportmentData.need_certification ||
+                  supportmentData.need_account
                 ) ? (
                   <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    {supporterData.need_protect_intellectual_property && <li>การคุ้มครองทรัพย์สินทางปัญญา</li>}
-                    {supporterData.need_co_developers && <li>หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม</li>}
-                    {supporterData.need_activities && <li>จัดกิจกรรมร่วม เช่น Design Thinking, Prototype Testing</li>}
-                    {supporterData.need_test && <li>หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม</li>}
-                    {supporterData.need_capital && <li>หาแหล่งทุน</li>}
-                    {supporterData.need_partners && <li>หาคู่ค้าทางธุรกิจ</li>}
-                    {supporterData.need_guidelines && <li>แนะนำแนวทางการเริ่มธุรกิจ</li>}
-                    {supporterData.need_certification && <li>การขอรับรองมาตรฐานหรือคุณภาพ</li>}
-                    {supporterData.need_account && <li>บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม</li>}
+                    {supportmentData.need_protect_intellectual_property && <li>การคุ้มครองทรัพย์สินทางปัญญา</li>}
+                    {supportmentData.need_co_developers && <li>หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม</li>}
+                    {supportmentData.need_activities && <li>จัดกิจกรรมร่วม เช่น Design Thinking, Prototype Testing</li>}
+                    {supportmentData.need_test && <li>หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม</li>}
+                    {supportmentData.need_capital && <li>หาแหล่งทุน</li>}
+                    {supportmentData.need_partners && <li>หาคู่ค้าทางธุรกิจ</li>}
+                    {supportmentData.need_guidelines && <li>แนะนำแนวทางการเริ่มธุรกิจ</li>}
+                    {supportmentData.need_certification && <li>การขอรับรองมาตรฐานหรือคุณภาพ</li>}
+                    {supportmentData.need_account && <li>บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม</li>}
                   </ul>
                 ) : (
                   <p className="text-sm text-muted-foreground">ไม่ต้องการความช่วยเหลือ</p>
@@ -400,17 +400,17 @@ export default function CaseDetail() {
               </div>
 
               {/* ฟิลด์เพิ่มเติม */}
-              {supporterData.need && (
+              {supportmentData.need && (
                 <div>
                   <h3 className="font-semibold mb-2">รายละเอียดเพิ่มเติม</h3>
-                  <p className="text-sm text-muted-foreground">{supporterData.need}</p>
+                  <p className="text-sm text-muted-foreground">{supportmentData.need}</p>
                 </div>
               )}
 
-              {supporterData.additional_documents && (
+              {supportmentData.additional_documents && (
                 <div>
                   <h3 className="font-semibold mb-2">เอกสารเพิ่มเติม</h3>
-                  <p className="text-sm text-muted-foreground">{supporterData.additional_documents}</p>
+                  <p className="text-sm text-muted-foreground">{supportmentData.additional_documents}</p>
                 </div>
               )}
             </div>

@@ -10,17 +10,17 @@ export function useEditAppointment(onSave: (updated: AppointmentResponse) => voi
   const editAppointment = async (form: AppointmentResponse) => {
     setLoading(true);
     try {
-      const response = await fetch(`${BACKEND_HOST}/trl/appointment/${form.appointment_id}`, {
+      const response = await fetch(`${BACKEND_HOST}/trl/appointment/${form.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          appointment_id: form.appointment_id,
+          id: form.id,
           case_id: form.case_id,
           date: form.date,
           status: form.status,
           location: form.location,
+          detail: form.detail,
           summary: form.summary,
-          note: form.note,
         }),
       });
 
