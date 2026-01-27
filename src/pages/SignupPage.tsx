@@ -146,7 +146,7 @@ export default function SignupPage() {
                       render={({ field }) => (
                         <Select
                           value={field.value ?? "none"}
-                          onValueChange={field.onChange}
+                          onValueChange={(val) => field.onChange(val === "none" ? null : val)}
                         >
                           <SelectTrigger className="pl-10">
                             <SelectValue placeholder="ตำแหน่งทางวิชาการ" />
