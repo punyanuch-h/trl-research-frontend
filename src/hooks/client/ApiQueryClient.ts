@@ -169,7 +169,10 @@ export class ApiQueryClient extends ApiBaseClient {
       console.log('📎 Attaching files to case:', formData.researchDetailsFiles.length, 'files');
       const caseFormData = new FormData();
       Object.keys(casePayload).forEach(key => {
-        caseFormData.append(key, String((casePayload as any)[key]));
+        const value = (casePayload as any)[key];
+        if (value !== null && value !== undefined) {
+          caseFormData.append(key, String(value));
+        }
       });
       // Append all files with the field name the backend expects
       formData.researchDetailsFiles.forEach((file) => {
@@ -226,10 +229,12 @@ export class ApiQueryClient extends ApiBaseClient {
       const assessmentFormData = new FormData();
       Object.keys(assessmentPayload).forEach(key => {
         const value = (assessmentPayload as any)[key];
-        if (Array.isArray(value)) {
-          assessmentFormData.append(key, JSON.stringify(value));
-        } else {
-          assessmentFormData.append(key, String(value));
+        if (value !== null && value !== undefined) {
+          if (Array.isArray(value)) {
+            assessmentFormData.append(key, JSON.stringify(value));
+          } else {
+            assessmentFormData.append(key, String(value));
+          }
         }
       });
       // Append files with their question keys matching backend field names
@@ -262,7 +267,10 @@ export class ApiQueryClient extends ApiBaseClient {
         if (ipForm.file) {
           const ipFormData = new FormData();
           Object.keys(ipPayload).forEach(key => {
-            ipFormData.append(key, String((ipPayload as any)[key]));
+            const value = (ipPayload as any)[key];
+            if (value !== null && value !== undefined) {
+              ipFormData.append(key, String(value));
+            }
           });
           // Backend expects field name 'attachments'
           ipFormData.append('attachments', ipForm.file);

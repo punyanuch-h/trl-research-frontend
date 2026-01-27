@@ -7,9 +7,10 @@ export const useGetCoordinatorByCaseId = (caseId: string) => {
   );
 
   return useQuery({
-    queryKey: ["useGetCoordinatorByCaseId", caseId],
+    queryKey: ["getCoordinatorByCaseId", caseId],
     queryFn: async () => {
       return apiQueryClient.useGetCoordinatorByCaseId(caseId);
-    }
+    },
+    enabled: !!caseId
   });
 };
