@@ -10,6 +10,7 @@ export const useGetCaseById = (caseId: string) => {
     queryKey: ["getCaseById", caseId],
     queryFn: async () => {
       return apiQueryClient.useGetCaseById(caseId);
-    }
+    },
+    enabled: !!caseId
   });
 };

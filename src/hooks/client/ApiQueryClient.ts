@@ -146,19 +146,21 @@ export class ApiQueryClient extends ApiBaseClient {
   // Submit researcher form
   async useSubmitResearcherForm(formData: any): Promise<any> {
 
-    // 2. Create Coordinator
+    // 1. Create Coordinator
     const coordinatorPayload = {
+      academic_position: formData.coordinatorAcademicPosition,
+      prefix: formData.coordinatorPrefix,
+      department: formData.coordinatorDepartment,
       email: formData.coordinatorEmail,
-      name: `${formData.coordinatorFirstName} ${formData.coordinatorLastName}`,
+      first_name: formData.coordinatorFirstName,
+      last_name: formData.coordinatorLastName,
       phone_number: formData.coordinatorPhoneNumber,
     };
     const coordinatorResponse = await this.axiosInstance.post(`/trl/coordinator`, coordinatorPayload);
-
-    // 1. Create Case
+    // 2. Create Case
     const casePayload = {
       researcher_id: formData.id ?? "",
-      admin_id: "AD-00001",
-      coordinator_email: formData.coordinatorEmail,
+      coordinator_id: coordinatorResponse.data.id,
       trl_score: formData.trlScore ?? null,
       is_urgent: formData.isUrgent ?? false,
       urgent_reason: formData.urgentReason ?? "",
@@ -169,14 +171,16 @@ export class ApiQueryClient extends ApiBaseClient {
       keywords: formData.keywords,
       status: formData.status ?? false,
     };
-    console.log("🚀 Case payload:", casePayload);
 
     let caseResponse;
     if (formData.researchDetailsFiles && formData.researchDetailsFiles.length > 0) {
       console.log('📎 Attaching files to case:', formData.researchDetailsFiles.length, 'files');
       const caseFormData = new FormData();
       Object.keys(casePayload).forEach(key => {
-        caseFormData.append(key, String((casePayload as any)[key]));
+        const value = (casePayload as any)[key];
+        if (value !== null && value !== undefined) {
+          caseFormData.append(key, String(value));
+        }
       });
       // Append all files with the field name the backend expects
       formData.researchDetailsFiles.forEach((file) => {
@@ -226,8 +230,6 @@ export class ApiQueryClient extends ApiBaseClient {
       improvement_suggestion: "",
     };
 
-    console.log("🚀 Assessment payload:", assessmentPayload);
-
     let assessmentResponse;
     const hasAssessmentFiles = formData.assessmentFiles && Object.values(formData.assessmentFiles).some(file => file !== null && file !== undefined);
 
@@ -235,10 +237,12 @@ export class ApiQueryClient extends ApiBaseClient {
       const assessmentFormData = new FormData();
       Object.keys(assessmentPayload).forEach(key => {
         const value = (assessmentPayload as any)[key];
-        if (Array.isArray(value)) {
-          assessmentFormData.append(key, JSON.stringify(value));
-        } else {
-          assessmentFormData.append(key, String(value));
+        if (value !== null && value !== undefined) {
+          if (Array.isArray(value)) {
+            assessmentFormData.append(key, JSON.stringify(value));
+          } else {
+            assessmentFormData.append(key, String(value));
+          }
         }
       });
       // Append files with their question keys matching backend field names
@@ -271,7 +275,10 @@ export class ApiQueryClient extends ApiBaseClient {
         if (ipForm.file) {
           const ipFormData = new FormData();
           Object.keys(ipPayload).forEach(key => {
-            ipFormData.append(key, String((ipPayload as any)[key]));
+            const value = (ipPayload as any)[key];
+            if (value !== null && value !== undefined) {
+              ipFormData.append(key, String(value));
+            }
           });
           // Backend expects field name 'attachments'
           ipFormData.append('attachments', ipForm.file);

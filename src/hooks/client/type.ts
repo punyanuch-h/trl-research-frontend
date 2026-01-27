@@ -7,7 +7,6 @@ export type LoginResponse = {
 export type CaseResponse = {
     id: string;
     researcher_id: string;
-    admin_id: string;
     coordinator_id: string;
     title: string;
     type: string;

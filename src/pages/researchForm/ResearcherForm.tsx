@@ -41,8 +41,11 @@ type FormState = {
   headEmail: string;
   // coordinator_info
   sameAsHead: boolean;
+  coordinatorPrefix: string;
+  coordinatorAcademicPosition: string;
   coordinatorFirstName: string;
   coordinatorLastName: string;
+  coordinatorDepartment: string;
   coordinatorPhoneNumber: string;
   coordinatorEmail: string;
   // caseDetails
@@ -124,6 +127,7 @@ export default function ResearcherForm() {
   const [currentFormStep, setCurrentFormStep] = useState<number>(1);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [trlCompleted, setTrlCompleted] = useState(false);
+  const [isEvaluated, setIsEvaluated] = useState(false);
   const submitFormMutation = useSubmitResearcherForm();
   const { data: userProfile } = useGetUserProfile();
 
@@ -139,8 +143,11 @@ export default function ResearcherForm() {
     headEmail: "",
     // coordinator_info
     sameAsHead: false,
+    coordinatorPrefix: "",
+    coordinatorAcademicPosition: "",
     coordinatorFirstName: "",
     coordinatorLastName: "",
+    coordinatorDepartment: "",
     coordinatorPhoneNumber: "",
     coordinatorEmail: "",
     // caseDetails
@@ -214,8 +221,11 @@ export default function ResearcherForm() {
     headDepartment: useRef<HTMLInputElement>(null),
     headPhoneNumber: useRef<HTMLInputElement>(null),
     headEmail: useRef<HTMLInputElement>(null),
+    coordinatorPrefix: useRef<HTMLInputElement>(null),
+    coordinatorAcademicPosition: useRef<HTMLInputElement>(null),
     coordinatorFirstName: useRef<HTMLInputElement>(null),
     coordinatorLastName: useRef<HTMLInputElement>(null),
+    coordinatorDepartment: useRef<HTMLInputElement>(null),
     coordinatorPhoneNumber: useRef<HTMLInputElement>(null),
     coordinatorEmail: useRef<HTMLInputElement>(null),
     urgentReason: useRef<HTMLTextAreaElement>(null),
@@ -240,7 +250,7 @@ export default function ResearcherForm() {
       const required = [
         "headPrefix", "headAcademicPosition", "headFirstName", "headLastName",
         "headDepartment", "headPhoneNumber", "headEmail",
-        "coordinatorFirstName", "coordinatorLastName", "coordinatorPhoneNumber", "coordinatorEmail"
+        "coordinatorPrefix", "coordinatorAcademicPosition", "coordinatorFirstName", "coordinatorLastName", "coordinatorDepartment", "coordinatorPhoneNumber", "coordinatorEmail"
       ];
       for (const field of required) {
         // @ts-ignore dynamic access
@@ -266,13 +276,13 @@ export default function ResearcherForm() {
       return { valid: true };
     }
     if (step === 3) {
-      // Step 3 (TRL) is valid once the TRL evaluation has been completed in EvaluateTRL
-      if (!trlCompleted) {
+      // Step 3 (TRL) is valid only if TRL evaluation is completed and the user has clicked "Evaluate"
+      if (!trlCompleted || !isEvaluated) {
         return {
           valid: false,
           firstField: "trlLevelResult",
           errorMessage:
-            "กรุณาตอบแบบประเมิน TRL ให้ครบจนปรากฏข้อความระดับ TRL ก่อนดำเนินการต่อ",
+            "กรุณาตอบคำถามใน Part 1 และ Part 2 ให้ครบถ้วน และกดปุ่ม 'ประเมิน' ก่อนดำเนินการต่อ",
         };
       }
       return { valid: true };
@@ -382,8 +392,8 @@ export default function ResearcherForm() {
   // Check if current step is valid for button disabling
   const isStepValid = () => {
     if (currentFormStep === 3) {
-      // For TRL step, enable Next once TRL has been evaluated (even if result is "not in TRL")
-      return trlCompleted;
+      // For TRL step, enable Next once TRL has been evaluated
+      return trlCompleted && isEvaluated;
     }
     const { valid } = validateStepWithField(currentFormStep);
     return valid;
@@ -441,8 +451,9 @@ export default function ResearcherForm() {
             }
             setTrlLevel={(level: number | null) => {
               setFormData((prev) => ({ ...prev, trlLevelResult: level }));
-              setTrlCompleted(true);
             }}
+            setTrlCompleted={setTrlCompleted}
+            setIsEvaluated={setIsEvaluated} 
           />
         );
       case 4:
