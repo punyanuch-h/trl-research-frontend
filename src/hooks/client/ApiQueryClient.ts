@@ -33,6 +33,11 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async usePostResearcher(researcherData: Partial<ResearcherResponse>): Promise<ResearcherResponse> {
+    const response = await this.axiosInstance.post<ResearcherResponse>(`/trl/researcher`, researcherData);
+    return response.data;
+  }
+
   async useGetAllCasesByID(researcherId: string): Promise<CaseResponse> {
     const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/researcher/${researcherId}`);
     return response.data;
