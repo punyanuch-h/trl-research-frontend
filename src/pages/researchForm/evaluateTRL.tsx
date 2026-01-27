@@ -305,9 +305,9 @@ export default function EvaluateTRL({
           </div>
         )}
 
-        {phase === "result" && (
+        {/* {phase === "result" && (
           <h2>ผลการประเมิน: TRL {maxLevel}</h2>
-        )}
+        )} */}
       </div>
 
       {levelMessage && (

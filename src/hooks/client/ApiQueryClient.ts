@@ -141,15 +141,18 @@ export class ApiQueryClient extends ApiBaseClient {
   // Submit researcher form
   async useSubmitResearcherForm(formData: any): Promise<any> {
 
-    // 2. Create Coordinator
+    // 1. Create Coordinator
     const coordinatorPayload = {
+      academic_position: formData.coordinatorAcademicPosition,
+      prefix: formData.coordinatorPrefix,
+      department: formData.coordinatorDepartment,
       email: formData.coordinatorEmail,
-      name: `${formData.coordinatorFirstName} ${formData.coordinatorLastName}`,
+      first_name: formData.coordinatorFirstName,
+      last_name: formData.coordinatorLastName,
       phone_number: formData.coordinatorPhoneNumber,
     };
     const coordinatorResponse = await this.axiosInstance.post(`/trl/coordinator`, coordinatorPayload);
-
-    // 1. Create Case
+    // 2. Create Case
     const casePayload = {
       researcher_id: formData.id ?? "",
       coordinator_id: coordinatorResponse.data.id,
