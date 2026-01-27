@@ -135,7 +135,7 @@ export default function ResearcherDetails({
                                 <SelectValue placeholder="เลือก" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="none">ไม่มี</SelectItem>
+                                <SelectItem value={null}>ไม่มี</SelectItem>
                                 <SelectItem value="อ.">อ.</SelectItem>
                                 <SelectItem value="ผศ.">ผศ.</SelectItem>
                                 <SelectItem value="รศ.">รศ.</SelectItem>

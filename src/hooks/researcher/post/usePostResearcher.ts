@@ -20,7 +20,7 @@ export function usePostResearcher(onSuccess: () => void) {
   const postResearcher = async (data: PostResearcherData) => {
     setLoading(true);
     try {
-      const response = await fetch(`${BACKEND_HOST}/signup`, {
+      const response = await fetch(`${BACKEND_HOST}/trl/researcher`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

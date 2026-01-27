@@ -4,6 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { GraduationCap, Loader2, User, Lock, Mail, Phone, Building } from "lucide-react";
 import { usePostResearcher } from "@/hooks/researcher/post/usePostResearcher";
 
@@ -98,36 +105,64 @@ export default function SignupPage() {
           </CardHeader>
 
           <CardContent>
-            <div className="space-y-6">
-              {/* Prefix */}
-              <div className="space-y-2">
-                <Label>คำนำหน้า</Label>
-                <Input
-                  placeholder="ดร., ผศ., นาย, นาง"
-                  value={formData.prefix}
-                  onChange={(e) =>
-                    setFormData({ ...formData, prefix: e.target.value })
-                  }
-                />
-              </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Prefix */}
+                <div>
+                  <Label>คำนำหน้า</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <Select
+                      value={formData.prefix}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, prefix: value })
+                      }
+                      required
+                    >
+                      <SelectTrigger className="w-full pl-10">
+                        <SelectValue placeholder="คำนำหน้า" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="นพ.">นพ.</SelectItem>
+                        <SelectItem value="พญ.">พญ.</SelectItem>
+                        <SelectItem value="ภญ.">ภญ.</SelectItem>
+                        <SelectItem value="ทพญ.">ทพญ.</SelectItem>
+                        <SelectItem value="นาย">นาย</SelectItem>
+                        <SelectItem value="นาง">นาง</SelectItem>
+                        <SelectItem value="นางสาว">นางสาว</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-              {/* Academic Position */}
-              <div className="space-y-2">
-                <Label>ตำแหน่งทางวิชาการ</Label>
-                <Input
-                  placeholder="เช่น อาจารย์, นักวิจัย"
-                  value={formData.academic_position}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      academic_position: e.target.value,
-                    })
-                  }
-                />
+                {/* Academic Position */}
+                <div>
+                  <Label>ตำแหน่งทางวิชาการ</Label>
+                  <div className="relative">
+                    <GraduationCap className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <Select
+                        value={formData.academic_position}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, academic_position: value })
+                        }
+                        required
+                      >
+                      <SelectTrigger className="w-full pl-10">
+                          <SelectValue placeholder="ตำแหน่งทางวิชาการ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value={null}>ไม่มี</SelectItem>
+                          <SelectItem value="อ.">อ.</SelectItem>
+                          <SelectItem value="ผศ.">ผศ.</SelectItem>
+                          <SelectItem value="รศ.">รศ.</SelectItem>
+                          <SelectItem value="ศ.">ศ.</SelectItem>
+                      </SelectContent>
+                      </Select>
+                  </div>
+                </div>
               </div>
-
               {/* First Name */}
-              <div className="space-y-2">
+              <div>
                 <Label>ชื่อ</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
@@ -138,12 +173,13 @@ export default function SignupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, first_name: e.target.value })
                     }
+                    required
                   />
                 </div>
               </div>
 
               {/* Last Name */}
-              <div className="space-y-2">
+              <div>
                 <Label>นามสกุล</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
@@ -154,34 +190,36 @@ export default function SignupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, last_name: e.target.value })
                     }
+                    required
                   />
                 </div>
               </div>
 
               {/* Department */}
-              <div className="space-y-2">
-                <Label>ภาควิชา / หน่วยงาน</Label>
+              <div>
+                <Label>ภาควิชา / สถาน / หน่วยงาน</Label>
                 <div className="relative">
                   <Building className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     className="pl-10"
-                    placeholder="ภาควิชา / หน่วยงาน"
+                    placeholder="เช่น ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์"
                     value={formData.department}
                     onChange={(e) =>
                       setFormData({ ...formData, department: e.target.value })
                     }
+                    required
                   />
                 </div>
               </div>
 
               {/* Phone */}
-              <div className="space-y-2">
+              <div>
                 <Label>เบอร์โทรศัพท์</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     className="pl-10"
-                    placeholder="08xxxxxxxx"
+                    placeholder="0xxxxxxxxx"
                     value={formData.phone_number}
                     onChange={(e) =>
                       setFormData({
@@ -189,12 +227,13 @@ export default function SignupPage() {
                         phone_number: e.target.value,
                       })
                     }
+                    required
                   />
                 </div>
               </div>
 
               {/* Email */}
-              <div className="space-y-2">
+              <div>
                 <Label>อีเมล</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
@@ -206,12 +245,13 @@ export default function SignupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
+                    required
                   />
                 </div>
               </div>
 
               {/* Password */}
-              <div className="space-y-2">
+              <div>
                 <Label>รหัสผ่าน</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
@@ -223,6 +263,7 @@ export default function SignupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
+                    required
                   />
                 </div>
                 {errors.password && (
@@ -231,7 +272,7 @@ export default function SignupPage() {
               </div>
 
               {/* Confirm Password */}
-              <div className="space-y-2">
+              <div>
                 <Label>ยืนยันรหัสผ่าน</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
@@ -246,6 +287,7 @@ export default function SignupPage() {
                         confirmPassword: e.target.value,
                       })
                     }
+                    required
                   />
                 </div>
                 {errors.confirmPassword && (
