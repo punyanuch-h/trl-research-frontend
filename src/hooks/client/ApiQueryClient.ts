@@ -152,7 +152,7 @@ export class ApiQueryClient extends ApiBaseClient {
     // 1. Create Case
     const casePayload = {
       researcher_id: formData.id ?? "",
-      coordinator_id: formData.coordinatorId ?? "",
+      coordinator_id: coordinatorResponse.data.id,
       trl_score: formData.trlScore ?? null,
       is_urgent: formData.isUrgent ?? false,
       urgent_reason: formData.urgentReason ?? "",
@@ -163,7 +163,6 @@ export class ApiQueryClient extends ApiBaseClient {
       keywords: formData.keywords,
       status: formData.status ?? false,
     };
-    console.log("🚀 Case payload:", casePayload);
 
     let caseResponse;
     if (formData.researchDetailsFiles && formData.researchDetailsFiles.length > 0) {
@@ -219,8 +218,6 @@ export class ApiQueryClient extends ApiBaseClient {
       cq9_answer: formData.cq9_answer || [],
       improvement_suggestion: "",
     };
-
-    console.log("🚀 Assessment payload:", assessmentPayload);
 
     let assessmentResponse;
     const hasAssessmentFiles = formData.assessmentFiles && Object.values(formData.assessmentFiles).some(file => file !== null && file !== undefined);
