@@ -47,7 +47,7 @@ type FormState = {
   coordinatorEmail: string;
   // caseDetails
   researcherId: string;
-  trlScore: number;
+  trlScore: number | null;
   status: boolean;
   isUrgent: boolean;
   urgentReason: string;

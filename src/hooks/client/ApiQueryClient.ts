@@ -299,9 +299,9 @@ export class ApiQueryClient extends ApiBaseClient {
 
     return {
       caseId,
-      coordinatorId: coordinatorResponse.data.coordinator_id,
-      assessmentId: assessmentResponse.data.assessment_id,
-      supportmentId: supportmentResponse.data.supportment_id,
+      coordinatorId: coordinatorResponse.data.id,
+      assessmentId: assessmentResponse.data.id,
+      supportmentId: supportmentResponse.data.id,
     };
   }
 

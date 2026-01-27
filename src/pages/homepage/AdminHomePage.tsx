@@ -113,7 +113,7 @@ export default function AdminHomePage() {
     customFilters.every(({ column, value }) => {
       if (column === "Type") return c.type === value;
       if (column === "Score") return c.trl_score?.toString() === value;
-      if (column === "status") return (c.status ? "Approve" : "In process") === value;
+      if (column === "Status") return (c.status ? "Approve" : "In process") === value;
       if (column === "createdBy") return getFullNameByResearcherID(c.researcher_id) === value;
       if (column === "Urgent") return String(c.is_urgent) === value;
       if (column === "Name") return c.title === value;
@@ -205,7 +205,9 @@ export default function AdminHomePage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `result_${caseInfo.title || caseInfo.id}.pdf`;
+        const rawTitle = caseInfo.title || caseInfo.id;
+        const sanitizedTitle = rawTitle.toString().replace(/[<>:"/\\|?*]/g, "_").trim();
+        link.download = `result_${sanitizedTitle}.pdf`;
        
         document.body.appendChild(link);
         link.click();
