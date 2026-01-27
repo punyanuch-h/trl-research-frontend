@@ -145,14 +145,14 @@ export default function SignupPage() {
                       name="academic_position"
                       render={({ field }) => (
                         <Select
-                          value={field.value ?? ""}
+                          value={field.value ?? "none"}
                           onValueChange={field.onChange}
                         >
                           <SelectTrigger className="pl-10">
                             <SelectValue placeholder="ตำแหน่งทางวิชาการ" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={null}>ไม่มี</SelectItem>
+                            <SelectItem value="none">ไม่มี</SelectItem>
                             <SelectItem value="อ.">อ.</SelectItem>
                             <SelectItem value="ผศ.">ผศ.</SelectItem>
                             <SelectItem value="รศ.">รศ.</SelectItem>
@@ -300,6 +300,7 @@ export default function SignupPage() {
                     type="password"
                     className="pl-10"
                     {...register("confirmPassword", {
+                      required: "กรุณายืนยันรหัสผ่าน",
                       validate: (value) =>
                         value === password || "รหัสผ่านไม่ตรงกัน",
                     })}

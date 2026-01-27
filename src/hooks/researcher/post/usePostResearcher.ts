@@ -4,7 +4,7 @@ import { BACKEND_HOST } from "@/constant/constants";
 
 export interface PostResearcherData {
   prefix: string;
-  academic_position: string;
+  academic_position: string | null;
   first_name: string;
   last_name: string;
   department: string;
