@@ -133,6 +133,11 @@ export default function SignupPage() {
                       )}
                     />
                   </div>
+                  {errors.prefix && (
+                    <p className="text-sm text-destructive">
+                      {errors.prefix.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Academic Position */}
