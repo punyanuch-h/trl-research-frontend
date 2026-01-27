@@ -1,4 +1,3 @@
-// src/hooks/case/post/useSubmitResearcherForm.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { ApiQueryClient } from "../../client/ApiQueryClient";
@@ -24,8 +23,11 @@ interface FormState {
   headEmail: string;
   // coordinator_info
   sameAsHead: boolean;
+  coordinatorPrefix: string;
+  coordinatorAcademicPosition: string;
   coordinatorFirstName: string;
   coordinatorLastName: string;
+  coordinatorDepartment: string;  
   coordinatorPhoneNumber: string;
   coordinatorEmail: string;
   // caseDetails

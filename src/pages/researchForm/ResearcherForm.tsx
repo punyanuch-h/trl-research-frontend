@@ -41,8 +41,11 @@ type FormState = {
   headEmail: string;
   // coordinator_info
   sameAsHead: boolean;
+  coordinatorPrefix: string;
+  coordinatorAcademicPosition: string;
   coordinatorFirstName: string;
   coordinatorLastName: string;
+  coordinatorDepartment: string;
   coordinatorPhoneNumber: string;
   coordinatorEmail: string;
   // caseDetails
@@ -140,8 +143,11 @@ export default function ResearcherForm() {
     headEmail: "",
     // coordinator_info
     sameAsHead: false,
+    coordinatorPrefix: "",
+    coordinatorAcademicPosition: "",
     coordinatorFirstName: "",
     coordinatorLastName: "",
+    coordinatorDepartment: "",
     coordinatorPhoneNumber: "",
     coordinatorEmail: "",
     // caseDetails
@@ -215,8 +221,11 @@ export default function ResearcherForm() {
     headDepartment: useRef<HTMLInputElement>(null),
     headPhoneNumber: useRef<HTMLInputElement>(null),
     headEmail: useRef<HTMLInputElement>(null),
+    coordinatorPrefix: useRef<HTMLInputElement>(null),
+    coordinatorAcademicPosition: useRef<HTMLInputElement>(null),
     coordinatorFirstName: useRef<HTMLInputElement>(null),
     coordinatorLastName: useRef<HTMLInputElement>(null),
+    coordinatorDepartment: useRef<HTMLInputElement>(null),
     coordinatorPhoneNumber: useRef<HTMLInputElement>(null),
     coordinatorEmail: useRef<HTMLInputElement>(null),
     urgentReason: useRef<HTMLTextAreaElement>(null),
@@ -241,7 +250,7 @@ export default function ResearcherForm() {
       const required = [
         "headPrefix", "headAcademicPosition", "headFirstName", "headLastName",
         "headDepartment", "headPhoneNumber", "headEmail",
-        "coordinatorFirstName", "coordinatorLastName", "coordinatorPhoneNumber", "coordinatorEmail"
+        "coordinatorPrefix", "coordinatorAcademicPosition", "coordinatorFirstName", "coordinatorLastName", "coordinatorDepartment", "coordinatorPhoneNumber", "coordinatorEmail"
       ];
       for (const field of required) {
         // @ts-ignore dynamic access
