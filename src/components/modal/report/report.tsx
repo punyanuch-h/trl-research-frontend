@@ -298,7 +298,7 @@ export const CaseReportPDF: React.FC<Props> = ({
           <View style={styles.section}>
             <Text style={styles.sectionHeader}>Coordinator</Text>
             <View style={{ ...styles.rowWrap, marginBottom: 10 }}>
-              <View style={styles.col50}><Text><Text style={styles.label}>Name: </Text><Text style={styles.value}>{coordinatorData.firstname || '-'} {coordinatorData.lastname || ''}</Text></Text></View>
+              <View style={styles.col50}><Text><Text style={styles.label}>Name: </Text><Text style={styles.value}>{coordinatorData.firstname || '-'} {coordinatorData.lastname || '-'}</Text></Text></View>
               <View style={styles.col50}><Text><Text style={styles.label}>Tel: </Text><Text style={styles.value}>{coordinatorData.phone_number || '-'}</Text></Text></View>
               <View style={styles.col100}><Text><Text style={styles.label}>Email: </Text><Text style={styles.value}>{coordinatorData.email || '-'}</Text></Text></View>
             </View>
@@ -376,7 +376,7 @@ export const CaseReportPDF: React.FC<Props> = ({
                    {supportmentData.need_partners && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>หาคู่ค้าทางธุรกิจ</Text></View>}
                    {supportmentData.need_guidelines && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>แนะนำแนวทางการเริ่มธุรกิจ</Text></View>}
                    {supportmentData.need_certification && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>การขอรับรองมาตรฐานหรือคุณภาพ</Text></View>}
-                   {supportmentData.need_account && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม</ Text></View>}
+                   {supportmentData.need_account && <View style={styles.listItem}><Text style={styles.bullet}>•</Text><Text style={styles.listText}>บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม</Text></View>}
                 </View>
               ) : (
                 <Text style={{ ...styles.value, fontSize: 12, marginLeft: 10 }}>ไม่ต้องการความช่วยเหลือ</Text>
