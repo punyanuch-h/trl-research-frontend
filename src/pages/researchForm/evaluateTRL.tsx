@@ -21,6 +21,23 @@ export default function EvaluateTRL({
   setIsEvaluated,
   setTrlCompleted,
 }: EvaluateTRLProps) {
+  const radioDecisionMap: {
+    [index: number]: {
+      yes?: number;
+      no?: number;
+      yesStartTRL?: number;
+      noStartTRL?: number;
+    };
+  } = {
+    0: { yes: 1, no: 6 },
+    1: { yes: 2, no: 5 },
+    2: { yes: 3, no: 4 },
+    3: { yes: 4, noStartTRL: 7 },
+    4: { yesStartTRL: 9, noStartTRL: 8 },
+    5: { yesStartTRL: 5, noStartTRL: 4 },
+    6: { yesStartTRL: 3, noStartTRL: 2 },
+  };
+
   const [radioAnswers, setRadioAnswers] = useState<
     { index: number; value: string }[]
   >([]);
@@ -35,12 +52,20 @@ export default function EvaluateTRL({
   }>({});
   const isYes = (value: string) => value === "ใช่";
 
-
-
   const [radioIndex, setRadioIndex] = useState(0);
   const [maxLevel, setMaxLevel] = useState<number | null>(null);
   const [phase, setPhase] = useState<"radio" | "checkbox" | "result">("radio");
 
+  const updateTrlLevel = (level: number | null) => {
+    if (!setTrlLevel) return;
+
+    if (level !== null && level >= 1 && level <= 9) {
+      setTrlLevel(level);
+    } else {
+      setTrlLevel(0);
+    }
+  };
+  
   const handleRadioChange = (index: number, value: number) => {
     const answerText = value === 1 ? "ใช่" : "ไม่ใช่";
     const answerBool = value === 1;
@@ -57,35 +82,34 @@ export default function EvaluateTRL({
       updated.push({ index, value: answerText });
       return updated;
     });
-    if (!answerBool) {
-      setRadioFiles(prev => {
-        const updated = { ...prev };
-        delete updated[fileKey];
-        return updated;
-      });
-    }
+    const decision = radioDecisionMap[index];
+    const nextRadioIndex = answerBool ? decision?.yes : decision?.no;
+    const startTRL = answerBool
+      ? decision?.yesStartTRL
+      : decision?.noStartTRL;
 
-    setPhase("radio");
-    setMaxLevel(prev =>
-      answerBool ? level : prev && prev > level ? level - 1 : prev
-    );
-    updateTrlLevel(0);
-
-    if (index < radioQuestionList.length - 1) {
-      setRadioIndex(index + 1);
-    } else {
-      if (level) {
-        setCheckboxSteps([
-          {
-            level: maxLevel!,
-            value: [],
-          },
-        ]);
-      }
+    if (startTRL) {
+      setCheckboxSteps([
+        {
+          level: startTRL,
+          value: [],
+        },
+      ]);
       setPhase("checkbox");
+      setRadioIndex(index);
+      updateTrlLevel(0);
+      setIsEvaluated(false);
+      setTrlCompleted(false);
+      return;
     }
-    setTrlCompleted(false);
+
+    if (typeof nextRadioIndex === "number") {
+      setRadioIndex(nextRadioIndex);
+      setPhase("radio");
+    }
+
     setIsEvaluated(false);
+    setTrlCompleted(false);
   };
 
   const isChecklistComplete = (level: number, value: number[]) => {
@@ -145,15 +169,7 @@ export default function EvaluateTRL({
     });
   };
 
-  const updateTrlLevel = (level: number | null) => {
-    if (!setTrlLevel) return;
-
-    if (level !== null && level >= 1 && level <= 9) {
-      setTrlLevel(level);
-    } else {
-      setTrlLevel(0);
-    }
-  };
+  
   
   const currentStepIndex = checkboxSteps.length - 1;
   const currentStep = checkboxSteps[currentStepIndex];
@@ -248,10 +264,12 @@ export default function EvaluateTRL({
         })}
 
 
-        {phase === "radio" && radioIndex === radioAnswers.length && (
+        {phase === "radio" && (
           <RadioQuestion
             index={radioIndex + 1}
-            value=""
+            value={
+              radioAnswers.find(a => a.index === radioIndex)?.value ?? ""
+            }
             onChange={(v) => handleRadioChange(radioIndex, v)}
           />
         )}
@@ -264,10 +282,6 @@ export default function EvaluateTRL({
         <h3 className="font-semibold text-primary text-lg">Part 2</h3>
         {checkboxSteps.map((step, stepIndex) => (
           <div key={stepIndex} className="space-y-2">
-            <h4 className="font-semibold">
-              ตรวจสอบเงื่อนไข TRL {step.level}
-            </h4>
-
             <CheckboxQuestion
               index={step.level}
               value={step.value}
