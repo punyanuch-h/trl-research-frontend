@@ -109,7 +109,6 @@ export function useSubmitResearcherForm() {
 
   return useMutation({
     mutationFn: async (formData: FormState) => {
-      console.log("🚀 Submitting form data:", formData);
       try {
         const results = await Promise.all([
           apiClient.useSubmitResearcherForm(formData),
