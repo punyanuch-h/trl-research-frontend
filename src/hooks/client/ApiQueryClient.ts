@@ -152,8 +152,7 @@ export class ApiQueryClient extends ApiBaseClient {
     // 1. Create Case
     const casePayload = {
       researcher_id: formData.id ?? "",
-      admin_id: "AD-00001",
-      coordinator_email: formData.coordinatorEmail,
+      coordinator_id: formData.coordinatorId ?? "",
       trl_score: formData.trlScore ?? null,
       is_urgent: formData.isUrgent ?? false,
       urgent_reason: formData.urgentReason ?? "",
