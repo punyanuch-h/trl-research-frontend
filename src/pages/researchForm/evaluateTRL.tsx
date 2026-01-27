@@ -1,9 +1,6 @@
 import { useState } from "react";
 import RadioQuestion from "@/components/evaluate/RadioQuestion";
 import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { radioQuestionList } from "@/data/radioQuestionList";
 import { checkboxQuestionList } from "@/data/checkboxQuestionList";
 
 interface EvaluateTRLProps {
@@ -69,8 +66,6 @@ export default function EvaluateTRL({
   const handleRadioChange = (index: number, value: number) => {
     const answerText = value === 1 ? "ใช่" : "ไม่ใช่";
     const answerBool = value === 1;
-    const level = index + 3;
-    const fileKey = `radio-${index}`;
     const rqField = `rq${index + 1}_answer`;
 
     // Store answer in formData

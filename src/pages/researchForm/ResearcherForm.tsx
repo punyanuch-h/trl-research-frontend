@@ -383,8 +383,8 @@ export default function ResearcherForm() {
   // Check if current step is valid for button disabling
   const isStepValid = () => {
     if (currentFormStep === 3) {
-      // For TRL step, enable Next once TRL has been evaluated (even if result is "not in TRL")
-      return trlCompleted;
+      // For TRL step, enable Next once TRL has been evaluated
+      return trlCompleted && isEvaluated;
     }
     const { valid } = validateStepWithField(currentFormStep);
     return valid;
