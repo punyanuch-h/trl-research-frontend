@@ -12,7 +12,7 @@ import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByC
 import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
 import { useUpdateAssessment } from '@/hooks/case/patch/useUpdateAssessment';
 import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImprovementSuggestion';
-import { useUpdateTrlLevelResult } from '@/hooks/case/patch/useUpdateTrlEstimate';
+import { useUpdateTrlEstimate } from '@/hooks/case/patch/useUpdateTrlEstimate';
 import { useUpdateTrlScore } from '@/hooks/case/patch/useUpdateTrlScore';
 import { toast } from 'sonner';
 
@@ -24,7 +24,7 @@ const AssessmentResult = () => {
     const { data: assessmentData, isPending: isAssessmentPending, refetch: refetchAssessment } = useGetAssessmentById(id || '');
     const updateAssessmentMutation = useUpdateAssessment(caseData?.id || '');
     const updateSuggestionMutation = useUpdateImprovementSuggestion();
-    const updateTrlLevelResultMutation = useUpdateTrlLevelResult();
+    const updateTrlEstimateMutation = useUpdateTrlEstimate();
     const updateTrlScoreMutation = useUpdateTrlScore();
     
     // State for editable suggestions
@@ -81,7 +81,7 @@ const AssessmentResult = () => {
 
       try {
         await Promise.all([
-          updateTrlLevelResultMutation.mutateAsync({
+          updateTrlEstimateMutation.mutateAsync({
             assessmentId: assessmentId,
             trlData: { trl_estimate: manualTrl }
           }),
@@ -299,9 +299,9 @@ const AssessmentResult = () => {
                           size="icon" 
                           className="h-8 w-8 bg-green-600 hover:bg-green-700" 
                           onClick={handleSaveTrlLevel}
-                          disabled={updateTrlLevelResultMutation.isPending || updateTrlScoreMutation.isPending}
+                          disabled={updateTrlEstimateMutation.isPending || updateTrlScoreMutation.isPending}
                         >
-                          {updateTrlLevelResultMutation.isPending || updateTrlScoreMutation.isPending ? (
+                          {updateTrlEstimateMutation.isPending || updateTrlScoreMutation.isPending ? (
                             <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
                           ) : (
                             <Check className="h-4 w-4" />

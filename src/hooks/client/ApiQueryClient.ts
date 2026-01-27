@@ -195,7 +195,7 @@ export class ApiQueryClient extends ApiBaseClient {
       console.log('📤 Sending JSON to /trl/case (no files)');
       caseResponse = await this.axiosInstance.post(`/trl/case`, casePayload);
     }
-    const caseId = caseResponse.data.case_id;
+    const caseId = caseResponse.data.id;
 
 
     // 3. Create Assessment
