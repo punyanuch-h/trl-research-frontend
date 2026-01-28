@@ -36,6 +36,9 @@ export default function Dashboard() {
     colors: COLORS,
   });
 
+  const safePendingRatio = stats.total ? (stats.pending / stats.total) * 100 : 0;
+  const safeUrgentRatio = stats.total ? (stats.urgent / stats.total) * 100 : 0;
+
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-8 rounded-lg">
       {/* KPIs */}
@@ -67,8 +70,8 @@ export default function Dashboard() {
         <div className="space-y-6">
           <AveragesCard
             avgTRL={stats.avgTRL}
-            pendingRatio={(stats.pending / stats.total) * 100 || 0}
-            urgentRatio={(stats.urgent / stats.total) * 100 || 0}
+            pendingRatio={safePendingRatio}
+            urgentRatio={safeUrgentRatio}
           />
           <TopResearchersCard researchers={stats.topResearchers} />
           <AppointmentsCard

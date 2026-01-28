@@ -141,9 +141,12 @@ export function useDashboardStats({
       .slice(0, 3)
       .map(([id, count]) => {
         const r = allResearchers.find((x) => x.id === id);
+        const displayName = r
+          ? `${r.first_name || ""} ${r.last_name || ""}`.trim()
+          : "";
         return {
           id,
-          name: r ? `${r.first_name || ""} ${r.last_name || ""}`.trim() : id,
+          name: displayName || id,
           count: count as number,
         };
       });
@@ -185,5 +188,5 @@ export function useDashboardStats({
       fail,
       upcoming,
     };
-  }, [allCases, allResearchers, allAppointments, allIntellectualProperties, allSupportments]);
+  }, [allCases, allResearchers, allAppointments, allIntellectualProperties, allSupportments, colors]);
 }
