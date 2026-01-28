@@ -339,7 +339,7 @@ export default function ResearcherHomePage() {
                 {paginatedProjects.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center text-muted-foreground">
-                      No research data found.
+                      ไม่พบข้อมูลงานวิจัย
                     </TableCell>
                   </TableRow>
                 ) : (

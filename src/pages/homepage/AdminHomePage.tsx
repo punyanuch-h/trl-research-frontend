@@ -231,8 +231,6 @@ export default function AdminHomePage() {
     setCurrentPage(1);
   }, [customFilters, rowsPerPage]);
 
-  if (loading) return <div className="p-10 text-center text-lg text-gray-500">Loading data...</div>;
-
   return (
     <AdminNavbar
       activeView={activeView}
