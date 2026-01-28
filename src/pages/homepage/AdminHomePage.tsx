@@ -7,7 +7,7 @@ import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "@/ho
 
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminManagement from "../../components/admin/AdminManagement";
-import AdminDashboard from "../../components/admin/AdminDashboard";
+import AdminDashboard from "../../components/admin/Dashboard";
 import AdminAppointment from "../../components/admin/AdminAppointment";
 import { CaseReportPDF } from "@/components/modal/report/report";
 

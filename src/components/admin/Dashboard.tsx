@@ -4,11 +4,15 @@ import { FileText, Users, Zap, AlertCircle, Calendar } from "lucide-react";
 import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
+import { useGetAllIPs } from "@/hooks/case/get/useGetAllIPs";
+import { useGetAllSupportments } from "@/hooks/case/get/useGetAllSupportments";
 
-export default function TRLDashboard() {
+export default function Dashboard() {
   const { data: allCases = [] } = useGetAllCases();
   const { data: allResearchers = [] } = useGetAllResearcher();
   const { data: allAppointments = [] } = useGetAllAppointments();
+  const { data: allIntellectualProperties = [] } = useGetAllIPs();
+  const { data: allSupportments = [] } = useGetAllSupportments();
 
   const stats = useMemo(() => {
     const total = allCases.length;
@@ -39,7 +43,7 @@ export default function TRLDashboard() {
       fill: COLORS[index % COLORS.length],
     }));
 
-    // Case types (as list)
+    // Case types
     const typeCounts: Record<string, number> = {};
     allCases.forEach((c) => {
       const t = c.type || "Unspecified";
@@ -54,6 +58,50 @@ export default function TRLDashboard() {
       { name: "Active", value: total - pending },
       { name: "Urgent", value: urgent },
     ];
+
+    // Intellectual Property
+    const ipCounts: Record<string, number> = {};
+    allIntellectualProperties.forEach((ip) => {
+      const t = ip.types || "Unspecified";
+      ipCounts[t] = (ipCounts[t] || 0) + 1;
+    });
+    const ipData = Object.entries(ipCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+
+    // Supportment Group 1: หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม
+    const agencyLabels: Record<string, string> = {
+      support_research: "Research Dept",
+      support_vdc: "VDC",
+      support_sieic: "SiEIC",
+    };
+
+    // Supportment Group 2: ความช่วยเหลือที่ต้องการ
+    const needLabels: Record<string, string> = {
+      need_protect_intellectual_property: "IP Protection",
+      need_co_developers: "Co-developers",
+      need_activities: "Activities",
+      need_test: "Testing",
+      need_capital: "Capital",
+      need_partners: "Partners",
+      need_guidelines: "Guidelines",
+      need_certification: "Certification",
+      need_account: "Benefit Account",
+    };
+
+    const agencyData = Object.entries(agencyLabels)
+      .map(([key, label]) => ({
+        name: label,
+        value: allSupportments.filter((s: any) => s[key] === true).length,
+      }))
+      .sort((a, b) => b.value - a.value);
+
+    const neededSupportData = Object.entries(needLabels)
+      .map(([key, label]) => ({
+        name: label,
+        value: allSupportments.filter((s: any) => s[key] === true).length,
+      }))
+      .sort((a, b) => b.value - a.value);
 
     // Researchers
     const topResearchers = Object.entries(
@@ -105,6 +153,9 @@ export default function TRLDashboard() {
       trlDistribution,
       caseTypeData,
       statusData,
+      ipData,
+      agencyData,
+      neededSupportData,
       COLORS,
       BASE_COLOR,
       topResearchers,
@@ -112,7 +163,7 @@ export default function TRLDashboard() {
       fail,
       upcoming,
     };
-  }, [allCases, allResearchers, allAppointments]);
+  }, [allCases, allResearchers, allAppointments, allIntellectualProperties, allSupportments]);
 
   const KPICard = ({ icon: Icon, label, value }: any) => (
     <div className="p-4 bg-white rounded-lg border border-gray-100 flex items-center gap-3">
@@ -125,7 +176,7 @@ export default function TRLDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-8">
+    <div className="min-h-screen bg-gray-50 px-6 py-8 rounded-lg">
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <KPICard icon={FileText} label="Total Cases" value={stats.total} />
@@ -162,7 +213,7 @@ export default function TRLDashboard() {
 
           {/* Case Type Breakdown */}
           <div className="bg-white p-5 border border-gray-100 rounded-lg">
-            <h3 className="font-semibold mb-3 text-sm">Case Type</h3>
+            <h3 className="font-semibold mb-3 text-sm">Case Type & Status</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Status Pie */}
               <div className="flex justify-center">
@@ -209,9 +260,89 @@ export default function TRLDashboard() {
               </div>
             </div>
           </div>
+
+          {/* Intellectual Property */}
+          <div className="bg-white p-5 border border-gray-100 rounded-lg">
+            <h3 className="font-semibold mb-3 text-sm">Intellectual Property Types</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.ipData} margin={{ bottom: 40 }}>
+                  <XAxis
+                    dataKey="name"
+                    fontSize={10}
+                    angle={-45}
+                    textAnchor="end"
+                    interval={0}
+                  />
+                  <YAxis allowDecimals={false} fontSize={10} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill={stats.BASE_COLOR} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Supportment Needs */}
+          <div className="bg-white p-5 border border-gray-100 rounded-lg space-y-8">
+            <div>
+              <h3 className="font-semibold mb-3 text-sm">หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม</h3>
+              <div className="h-40">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={stats.agencyData}
+                    layout="vertical"
+                    margin={{ left: 20, right: 30 }}
+                  >
+                    <XAxis type="number" hide />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      fontSize={10}
+                      width={100}
+                    />
+                    <Tooltip />
+                    <Bar
+                      dataKey="value"
+                      fill={stats.BASE_COLOR}
+                      radius={[0, 4, 4, 0]}
+                      barSize={20}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-3 text-sm">ความช่วยเหลือที่ต้องการ</h3>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={stats.neededSupportData}
+                    layout="vertical"
+                    margin={{ left: 20, right: 30 }}
+                  >
+                    <XAxis type="number" hide />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      fontSize={10}
+                      width={100}
+                    />
+                    <Tooltip />
+                    <Bar
+                      dataKey="value"
+                      fill={stats.BASE_COLOR}
+                      radius={[0, 4, 4, 0]}
+                      barSize={20}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Sidebar */}
+        {/* Right Sidebar */}
         <div className="space-y-6">
           <div className="bg-white p-5 border border-gray-100 rounded-lg">
             <h3 className="font-semibold mb-3 text-sm">Averages</h3>

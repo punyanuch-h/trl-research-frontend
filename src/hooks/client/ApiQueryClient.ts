@@ -360,4 +360,14 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async getAllIPs(): Promise<IntellectualPropertyResponse[]> {
+    const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ips`);
+    return response.data;
+  }
+
+  async getAllSupportments(): Promise<SupportmentResponse[]> {
+    const response = await this.axiosInstance.get<SupportmentResponse[]>(`/trl/supportments`);
+    return response.data;
+  }
+
 }
