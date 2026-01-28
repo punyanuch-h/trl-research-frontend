@@ -131,7 +131,7 @@ export default function AdminManagement({
                 {paginatedProjects.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={tableColumns.length + 1} className="text-center text-muted-foreground">
-                      No research data found.
+                      ไม่พบข้อมูลงานวิจัย
                     </TableCell>
                   </TableRow>
                 ) : (
