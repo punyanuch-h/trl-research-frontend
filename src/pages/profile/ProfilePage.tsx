@@ -53,8 +53,8 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    if (userProfile) setForm(userProfile);
-  }, [userProfile]);
+    if (userProfile && !isEditing) setForm(userProfile);
+  }, [userProfile, isEditing]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
