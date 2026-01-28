@@ -338,7 +338,7 @@ export default function ResearcherHomePage() {
               <TableBody>
                 {paginatedProjects.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground">
+                    <TableCell colSpan={columns.length + 2} className="text-center text-muted-foreground">
                       ไม่พบข้อมูลงานวิจัย
                     </TableCell>
                   </TableRow>
