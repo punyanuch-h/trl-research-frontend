@@ -7,7 +7,7 @@ import { Routes, Route } from "react-router-dom";
 
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import Profile from "./pages/profile/Profile.tsx";
+import Profile from "./pages/profile/ProfilePage.tsx";
 import AdminHomePage from "./pages/homepage/AdminHomePage.tsx";
 import CaseDetial from "./pages/caseDetial/CaseDetial";
 import ResearcherForm from "./pages/researchForm/ResearcherForm";
@@ -19,6 +19,7 @@ import ResearcherDetailResearcher from "./pages/homepage/ResearcherHomePage.tsx"
 import AssessmentResult from "./pages/evaluate/assessmentResult.tsx";
 import PublicRoute from "./routers/PublicRoute.tsx";
 import PrivateRoute from "./routers/PrivateRoute.tsx";
+import CreateAccountPage from "./pages/CreateAccountPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App: React.FC = () => {
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
           <Route path="/admin/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/admin/create-admin" element={<PrivateRoute><CreateAccountPage /></PrivateRoute>} />
           <Route path="/admin/homepage" element={<PrivateRoute><AdminHomePage /></PrivateRoute>} />
           <Route path="/researcher/homepage" element={<PrivateRoute><ResearcherHomePage /></PrivateRoute>} />
           <Route path="/case-detail/:id" element={<PrivateRoute><CaseDetial /></PrivateRoute>} />

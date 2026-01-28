@@ -3,6 +3,7 @@ import { LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { getUserRole } from "@/lib/auth";
 
 import { Home } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +15,7 @@ interface HeaderProps {
 
 export default function Header({ disabled = false }: HeaderProps) {
   const navigate = useNavigate();
+  const role = getUserRole();
   const { data: userProfile } = useGetUserProfile();
 
   const handleLogout = () => {
@@ -58,7 +60,7 @@ export default function Header({ disabled = false }: HeaderProps) {
                 <span className="text-sm font-medium">{userProfile?.first_name} {userProfile?.last_name}</span>
               </div>
             </PopoverTrigger>
-            <PopoverContent className="w-40 p-2">
+            <PopoverContent className="w-auto inline-block p-2 mr-4">
               <div className="flex flex-col space-y-2">
                 <Button
                   variant="ghost"
@@ -68,6 +70,16 @@ export default function Header({ disabled = false }: HeaderProps) {
                   <User className="w-4 h-4 mr-2" />
                   My Profile
                 </Button>
+                {role === "admin" && (
+                  <Button
+                    variant="ghost"
+                    className="justify-start text-sm w-full focus-visible:ring-0 focus-visible:ring-offset-0"
+                    onClick={() => navigate("/admin/create-admin")}
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Add Admin account
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   className="justify-start text-sm w-full"
