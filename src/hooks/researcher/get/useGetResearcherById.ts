@@ -9,7 +9,9 @@ export const useGetResearcherById = (researcherId: string) => {
   return useQuery({
     queryKey: ["getResearcherById", researcherId],
     queryFn: async () => {
+      console.log('Fetching researcher with ID:', researcherId);
       return apiQueryClient.useGetResearcherById(researcherId);
-    }
+    },
+    enabled: !!researcherId
   });
 };

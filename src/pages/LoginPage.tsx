@@ -150,6 +150,17 @@ export default function LoginPage() {
                     "เข้าสู่ระบบ"
                   )}
               </Button>
+              {/* Signup link */}
+              <div className="text-center text-sm text-muted-foreground">
+                ยังไม่มีบัญชี?{" "}
+                <button
+                  type="button"
+                  onClick={() => navigate("/signup")}
+                  className="text-primary hover:underline font-medium"
+                >
+                  ลงทะเบียน
+                </button>
+              </div>
             </form>
           </CardContent>
         </Card>
