@@ -335,6 +335,15 @@ export default function SignupPage() {
                 )}
               </Button>
             </form>
+            <p className="text-sm text-center text-muted-foreground mt-4">
+              มีบัญชีอยู่แล้ว?{" "}
+              <span
+                onClick={() => navigate("/login")}
+                className="text-primary cursor-pointer hover:underline"
+              >
+                เข้าสู่ระบบ
+              </span>
+            </p>
           </CardContent>
         </Card>
       </div>
