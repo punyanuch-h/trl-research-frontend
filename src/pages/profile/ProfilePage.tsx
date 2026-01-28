@@ -3,73 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit, Save } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+
+import ProfileField, {
+  UserProfile,
+} from "@/components/profile/ProfileField";
 
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { useUpdateUserProfile } from "@/hooks/user/patch/useUpdateUserProfile";
 import { useToast } from "@/hooks/toast/useToast";
-import formatPhoneNumber from "@/utils/phone";
-
-type UserProfile = {
-  id: string;
-  prefix: string;
-  first_name: string;
-  last_name: string;
-  academic_position: string;
-  department: string;
-  email: string;
-  phone_number: string;
-};
 
 /* =======================
-   Reusable Field Component
+   Field Config
 ======================= */
-type ProfileFieldProps = {
-  label: string;
-  name: keyof UserProfile;
-  value: string;
-  isEditing: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};
-
-function ProfileField({
-  label,
-  name,
-  value,
-  isEditing,
-  onChange,
-}: ProfileFieldProps) {
-  const displayValue =
-    name === "phone_number" ? formatPhoneNumber(value) : value;
-
-  return (
-    <div className="flex flex-col gap-2 relative">
-      <label className="text-sm font-medium text-primary">{label}</label>
-
-      <div className="relative flex items-center">
-        {isEditing ? (
-          <Input
-            name={name}
-            value={value}
-            onChange={onChange}
-            className="text-base border-gray-300 pr-10 h-auto py-2"
-          />
-        ) : (
-          <span className="text-base border border-gray-300 rounded-md p-2 w-full">
-            {displayValue || "-"}
-          </span>
-        )}
-
-        {isEditing && (
-          <Edit className="absolute right-3 text-gray-500 w-4 h-4 pointer-events-none" />
-        )}
-      </div>
-    </div>
-  );
-}
-
 const FIELD_GROUPS: { label: string; name: keyof UserProfile }[][] = [
   [
     { label: "คำนำหน้า", name: "prefix" },
@@ -111,10 +58,7 @@ export default function ProfilePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
@@ -124,10 +68,9 @@ export default function ProfilePage() {
         title: "Success",
         description: "Profile updated successfully",
       });
-
       await refetch();
       setIsEditing(false);
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to update profile",
