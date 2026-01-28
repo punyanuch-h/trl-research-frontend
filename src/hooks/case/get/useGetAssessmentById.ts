@@ -10,6 +10,7 @@ export const useGetAssessmentById = (caseId: string) => {
     queryKey: ["getAssessmentById", caseId],
     queryFn: async () => {
       return apiQueryClient.useGetAssessmentById(caseId);
-    }
+    },
+    enabled: !!caseId
   });
 };

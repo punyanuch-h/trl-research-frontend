@@ -83,7 +83,7 @@ const AssessmentResult = () => {
     }
 
     const originalTrlEstimate = assessmentData?.trl_estimate;
-    
+
     setIsUpdatingTrl(true);
     try {
       // Step 1: Update Assessment TRL Estimate
@@ -98,14 +98,20 @@ const AssessmentResult = () => {
           caseId: caseId,
           trlData: { trl_score: manualTrl }
         });
-      } catch (scoreError) {
+      } catch (scoreError: any) {
         // Rollback Step 1 if Step 2 fails
         console.error("Step 2 failed, rolling back Step 1:", scoreError);
-        await updateTrlEstimateMutation.mutateAsync({
-          assessmentId: assessmentId,
-          trlData: { trl_estimate: originalTrlEstimate ?? 0 }
-        });
-        throw new Error("Failed to update Case TRL Score. Assessment TRL Estimate has been rolled back.");
+        try {
+          await updateTrlEstimateMutation.mutateAsync({
+            assessmentId: assessmentId,
+            trlData: { trl_estimate: originalTrlEstimate ?? 1 }
+          });
+          throw new Error(`Step 2 failed and rollback logic executed: ${scoreError.message || scoreError}`);
+        } catch (rollbackError: any) {
+          console.error("Rollback failed:", rollbackError);
+          const combinedMessage = `Step 2 failed and rollback failed: <details>Score Error: ${scoreError.message || scoreError}, Rollback Error: ${rollbackError.message || rollbackError}</details>`;
+          throw new Error(combinedMessage);
+        }
       }
 
       // Re-fetch both to ensure UI is in sync
@@ -299,6 +305,11 @@ const AssessmentResult = () => {
                     <Skeleton className="h-4 w-48" />
                     <Skeleton className="h-4 w-40" />
                   </div>
+                ) : isResearcherError ? (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    <h3 className="font-semibold">Failed to load researcher</h3>
+                    <p className="text-sm">Please try refreshing the page or contact support.</p>
+                  </div>
                 ) : researcherData ? (
                   <div className="space-y-4">
                     <div>
@@ -315,6 +326,11 @@ const AssessmentResult = () => {
                     <Skeleton className="h-5 w-32" />
                     <Skeleton className="h-4 w-48" />
                     <Skeleton className="h-4 w-40" />
+                  </div>
+                ) : isCoordinatorError ? (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    <h3 className="font-semibold">Failed to load coordinator</h3>
+                    <p className="text-sm">Unable to retrieve coordinator information for this case.</p>
                   </div>
                 ) : coordinatorData ? (
                   <div className="space-y-4">
@@ -386,8 +402,8 @@ const AssessmentResult = () => {
                           className="h-8 w-8 text-muted-foreground hover:text-primary"
                           onClick={() => handleEditTrlClick(
                             Number(caseData.status === true
-                              ? (caseData.trl_score || 1)
-                              : (assessmentData.trl_estimate || 1))
+                              ? (caseData.trl_score ?? 1)
+                              : (assessmentData.trl_estimate ?? 1))
                           )}
                         >
                           <Pencil className="h-4 w-4" />
