@@ -1,23 +1,101 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Edit, Save } from "lucide-react";
+
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
-import { useUpdateUserProfile } from "@/hooks/user/patch/useUpdateUserProfile";
-import formatPhoneNumber from "@/utils/phone";
-import { ArrowLeft, Edit, Save } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/toast/useToast";
 import Header from "@/components/Header";
 
+import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
+import { useUpdateUserProfile } from "@/hooks/user/patch/useUpdateUserProfile";
+import { useToast } from "@/hooks/toast/useToast";
+import formatPhoneNumber from "@/utils/phone";
+
+type UserProfile = {
+  id: string;
+  prefix: string;
+  first_name: string;
+  last_name: string;
+  academic_position: string;
+  department: string;
+  email: string;
+  phone_number: string;
+};
+
+/* =======================
+   Reusable Field Component
+======================= */
+type ProfileFieldProps = {
+  label: string;
+  name: keyof UserProfile;
+  value: string;
+  isEditing: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+function ProfileField({
+  label,
+  name,
+  value,
+  isEditing,
+  onChange,
+}: ProfileFieldProps) {
+  const displayValue =
+    name === "phone_number" ? formatPhoneNumber(value) : value;
+
+  return (
+    <div className="flex flex-col gap-2 relative">
+      <label className="text-sm font-medium text-primary">{label}</label>
+
+      <div className="relative flex items-center">
+        {isEditing ? (
+          <Input
+            name={name}
+            value={value}
+            onChange={onChange}
+            className="text-base border-gray-300 pr-10 h-auto py-2"
+          />
+        ) : (
+          <span className="text-base border border-gray-300 rounded-md p-2 w-full">
+            {displayValue || "-"}
+          </span>
+        )}
+
+        {isEditing && (
+          <Edit className="absolute right-3 text-gray-500 w-4 h-4 pointer-events-none" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+const FIELD_GROUPS: { label: string; name: keyof UserProfile }[][] = [
+  [
+    { label: "คำนำหน้า", name: "prefix" },
+    { label: "ตำแหน่งทางวิชาการ", name: "academic_position" },
+  ],
+  [
+    { label: "ชื่อ", name: "first_name" },
+    { label: "นามสกุล", name: "last_name" },
+    { label: "ภาควิชา", name: "department" },
+  ],
+  [
+    { label: "อีเมล", name: "email" },
+    { label: "เบอร์โทรศัพท์", name: "phone_number" },
+  ],
+];
+
 export default function ProfilePage() {
-  const { data: userProfile, refetch: refetchUserProfile } = useGetUserProfile();
   const navigate = useNavigate();
-  const updateUserProfile = useUpdateUserProfile();
   const { toast } = useToast();
 
-  const [form, setForm] = useState({
-    id: userProfile?.id || "",
+  const { data: userProfile, refetch } = useGetUserProfile();
+  const updateUserProfile = useUpdateUserProfile();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState<UserProfile>({
+    id: "",
     prefix: "",
     first_name: "",
     last_name: "",
@@ -27,43 +105,32 @@ export default function ProfilePage() {
     phone_number: "",
   });
 
-  const [isEditing, setIsEditing] = useState(false);
-
   useEffect(() => {
-    if (userProfile) {
-      setForm(userProfile);
-    }
+    if (userProfile) setForm(userProfile);
   }, [userProfile]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSave = async () => {
     try {
-      const updated = await updateUserProfile.mutateAsync(form as any);
-      if (updated) {
-        // Show success toast
-        toast({
-          title: "Success",
-          description: "Profile updated successfully",
-        });
+      await updateUserProfile.mutateAsync(form);
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
 
-        // Refetch profile data to get the latest from server
-        const { data: newProfileData } = await refetchUserProfile();
-        
-        // Update form with the new data
-        if (newProfileData) {
-          setForm(newProfileData);
-        }
-      }
+      await refetch();
       setIsEditing(false);
-    } catch (err) {
-      console.error("❌ Update failed", err);
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: "Failed to update profile",
         variant: "destructive",
       });
     }
@@ -72,25 +139,29 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header disabled />
-      <div className="flex items-center justify-center py-10 px-4">
-        <Card className="w-full max-w-xl relative">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center">
-              <ArrowLeft
-                className="w-6 h-6 mr-2 cursor-pointer"
-                onClick={() => navigate(-1)}
-              />
-              <CardTitle className="text-2xl">User Profile</CardTitle>
-            </div>
 
-            {/* ปุ่ม Edit / Save มุมขวาบน */}
+      <div className="flex flex-col items-center py-10 px-4 gap-6">
+        {/* Header */}
+        <div className="w-full max-w-xl grid grid-cols-3 items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="w-fit"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            ย้อนกลับ
+          </Button>
+
+          <h2 className="text-2xl text-center font-semibold">
+            ข้อมูลบัญชีผู้ใช้
+          </h2>
+
+          <div className="flex justify-end">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                if (isEditing) handleSave();
-                else setIsEditing(true);
-              }}
+              onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
               disabled={updateUserProfile.isPending}
               className="flex items-center gap-2"
             >
@@ -99,57 +170,42 @@ export default function ProfilePage() {
               ) : isEditing ? (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>Save</span>
+                  บันทึก
                 </>
               ) : (
                 <>
                   <Edit className="w-4 h-4" />
-                  <span>Edit</span>
+                  แก้ไข
                 </>
               )}
             </Button>
-          </CardHeader>
+          </div>
+        </div>
 
+        {/* Card */}
+        <Card className="w-full max-w-xl">
           <CardContent>
-            <div className="space-y-4">
-              {[
-                { label: "Prefix", name: "prefix" },
-                { label: "First Name", name: "first_name" },
-                { label: "Last Name", name: "last_name" },
-                { label: "Academic Position", name: "academic_position" },
-                { label: "Department", name: "department" },
-                { label: "Email", name: "email" },
-                { label: "Phone Number", name: "phone_number" },
-              ].map((field) => (
-                <div key={field.name} className="flex flex-col gap-2 relative">
-                  <label className="text-sm font-medium text-primary">
-                    {field.label}
-                  </label>
-
-                  <div className="relative flex items-center">
-                    {isEditing ? (
-                      <Input
-                        name={field.name}
-                        value={(form as any)[field.name] ?? ""}
-                        onChange={handleChange}
-                        className="text-base border-gray-300 pr-10 h-auto py-2"
-                      />
-                    ) : (
-                      <span className="text-base border border-gray-300 rounded-md p-2 w-full">
-                        {field.name === "phone_number"
-                          ? formatPhoneNumber((form as any)?.[field.name])
-                          : (form as any)?.[field.name]}
-                      </span>
-                    )}
-
-                    {/* แสดงไอคอน ✏️ เมื่ออยู่ในโหมดแก้ไข */}
-                    {isEditing && (
-                      <Edit className="absolute right-3 text-gray-500 w-4 h-4 pointer-events-none" />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            {FIELD_GROUPS.map((group, index) => (
+              <div
+                key={index}
+                className={
+                  group.length === 2
+                    ? "grid grid-cols-2 gap-4 mt-4"
+                    : "space-y-4 mt-4"
+                }
+              >
+                {group.map((field) => (
+                  <ProfileField
+                    key={field.name}
+                    label={field.label}
+                    name={field.name}
+                    value={form[field.name]}
+                    isEditing={isEditing}
+                    onChange={handleChange}
+                  />
+                ))}
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>
