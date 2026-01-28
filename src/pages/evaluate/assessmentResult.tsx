@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +32,6 @@ const AssessmentResult = () => {
 
   // State for editable suggestions
   const [suggestions, setSuggestions] = useState<{ [key: string]: string }>({});
-  const [editingSuggestion, setEditingSuggestion] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   // State for collapsible TRL levels
@@ -41,6 +40,7 @@ const AssessmentResult = () => {
   // State for Editable TRL Level
   const [isEditingTrl, setIsEditingTrl] = useState<boolean>(false);
   const [manualTrl, setManualTrl] = useState<number>(1);
+  const [isUpdatingTrl, setIsUpdatingTrl] = useState<boolean>(false);
 
   useEffect(() => {
     if (assessmentData?.improvement_suggestion) {
@@ -82,18 +82,33 @@ const AssessmentResult = () => {
       return;
     }
 
+    const originalTrlEstimate = assessmentData?.trl_estimate;
+    
+    setIsUpdatingTrl(true);
     try {
-      await Promise.all([
-        updateTrlEstimateMutation.mutateAsync({
-          assessmentId: assessmentId,
-          trlData: { trl_estimate: manualTrl }
-        }),
-        updateTrlScoreMutation.mutateAsync({
+      // Step 1: Update Assessment TRL Estimate
+      await updateTrlEstimateMutation.mutateAsync({
+        assessmentId: assessmentId,
+        trlData: { trl_estimate: manualTrl }
+      });
+
+      try {
+        // Step 2: Update Case TRL Score
+        await updateTrlScoreMutation.mutateAsync({
           caseId: caseId,
           trlData: { trl_score: manualTrl }
-        })
-      ]);
+        });
+      } catch (scoreError) {
+        // Rollback Step 1 if Step 2 fails
+        console.error("Step 2 failed, rolling back Step 1:", scoreError);
+        await updateTrlEstimateMutation.mutateAsync({
+          assessmentId: assessmentId,
+          trlData: { trl_estimate: originalTrlEstimate ?? 0 }
+        });
+        throw new Error("Failed to update Case TRL Score. Assessment TRL Estimate has been rolled back.");
+      }
 
+      // Re-fetch both to ensure UI is in sync
       await Promise.all([
         refetchCase(),
         refetchAssessment()
@@ -102,9 +117,16 @@ const AssessmentResult = () => {
       toast.success(`TRL Level updated to ${manualTrl} successfully`);
       setIsEditingTrl(false);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error('Failed to update. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update. Please try again.';
+      toast.error(errorMessage);
+
+      // Final attempt to sync state from server if everything fails
+      refetchCase();
+      refetchAssessment();
+    } finally {
+      setIsUpdatingTrl(false);
     }
   };
 
@@ -202,10 +224,15 @@ const AssessmentResult = () => {
               </Badge>
               <Button
                 onClick={handleApproveAssessment}
+                disabled={!caseData?.id || updateAssessmentMutation.isPending}
                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
               >
-                <CheckCircle className="h-4 w-4" />
-                Approve Assessment
+                {updateAssessmentMutation.isPending ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                ) : (
+                  <CheckCircle className="h-4 w-4" />
+                )}
+                {updateAssessmentMutation.isPending ? "Approving..." : "Approve Assessment"}
               </Button>
             </div>
           </div>
@@ -330,9 +357,9 @@ const AssessmentResult = () => {
                           size="icon"
                           className="h-8 w-8 bg-green-600 hover:bg-green-700"
                           onClick={handleSaveTrlLevel}
-                          disabled={updateTrlEstimateMutation.isPending || updateTrlScoreMutation.isPending}
+                          disabled={isUpdatingTrl}
                         >
-                          {updateTrlEstimateMutation.isPending || updateTrlScoreMutation.isPending ? (
+                          {isUpdatingTrl ? (
                             <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
                           ) : (
                             <Check className="h-4 w-4" />
@@ -405,8 +432,8 @@ const AssessmentResult = () => {
                       <Badge
                         variant={getRQAnswer(index) ? "default" : "destructive"}
                         className={`flex items-center justify-center py-1 w-10 ${getRQAnswer(index)
-                            ? "bg-green-500/20 hover:bg-green-600 text-green-500 rounded-sm"
-                            : "bg-red-500/20 hover:bg-red-600 text-red-500 rounded-sm"
+                          ? "bg-green-500/20 hover:bg-green-600 text-green-500 rounded-sm"
+                          : "bg-red-500/20 hover:bg-red-600 text-red-500 rounded-sm"
                           }`}
                       >
                         {getRQAnswer(index) ? "ใช่" : "ไม่ใช่"}
