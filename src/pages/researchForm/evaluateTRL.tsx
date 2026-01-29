@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RadioQuestion from "@/components/evaluate/RadioQuestion";
 import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
 import { checkboxQuestionList } from "@/data/checkboxQuestionList";
@@ -195,6 +195,34 @@ export default function EvaluateTRL({
   const [levelMessage, setLevelMessage] = useState("");
 
 
+  useEffect(() => {
+    handleInputChange("radioAnswers", radioAnswers);
+    handleInputChange("checkboxSteps", checkboxSteps);
+    handleInputChange("radioFiles", radioFiles);
+  }, [radioAnswers, checkboxSteps, radioFiles, handleInputChange]);
+
+  useEffect(() => {
+    if (formData.radioAnswers) {
+      setRadioAnswers(formData.radioAnswers);
+    }
+
+    if (formData.checkboxSteps) {
+      setCheckboxSteps(formData.checkboxSteps);
+      setPhase("checkbox");
+    }
+
+    if (formData.radioFiles) {
+      setRadioFiles(formData.radioFiles);
+    }
+
+    if (formData.radioAnswers?.length) {
+      const last = formData.radioAnswers[formData.radioAnswers.length - 1];
+      setRadioIndex(last.index);
+      setPhase("radio");
+    }
+  }, []);
+
+
   /* ================= Render ================= */
   return (
     <div>
@@ -273,42 +301,40 @@ export default function EvaluateTRL({
 
 
       {/* ========== Part 2 ========== */}
-      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm space-y-4 mb-8">
-        <h3 className="font-semibold text-primary text-lg">Part 2</h3>
-        {checkboxSteps.map((step, stepIndex) => (
-          <div key={stepIndex} className="space-y-2">
-            <CheckboxQuestion
-              index={step.level}
-              value={step.value}
-              onChange={(value) =>
-                handleCheckboxChange(stepIndex, value)
-              }
-              assessmentFiles={formData.assessmentFiles}
-              onAttachFile={(fieldKey, file) => {
-                handleInputChange("assessmentFiles", {
-                  ...formData.assessmentFiles,
-                  [fieldKey]: file,
-                });
-              }}
-            />
-          </div>
-        ))}
-        {/* 🔘 Global Evaluate Button */}
-        {phase === "checkbox" && currentStep && (
-          <div className="flex justify-end pt-4 border-t">
-            <button
-              onClick={handleEvaluateCheckbox}
-              className="px-6 py-2 bg-primary text-white rounded-lg shadow hover:opacity-90"
-            >
-              ประเมิน
-            </button>
-          </div>
-        )}
-
-        {/* {phase === "result" && (
-          <h2>ผลการประเมิน: TRL {maxLevel}</h2>
-        )} */}
-      </div>
+      {(phase === "checkbox" || phase === "result") && (
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm space-y-4 mb-8">
+          <h3 className="font-semibold text-primary text-lg">Part 2</h3>
+          {checkboxSteps.map((step, stepIndex) => (
+            <div key={stepIndex} className="space-y-2">
+              <CheckboxQuestion
+                index={step.level}
+                value={step.value}
+                onChange={(value) =>
+                  handleCheckboxChange(stepIndex, value)
+                }
+                assessmentFiles={formData.assessmentFiles}
+                onAttachFile={(fieldKey, file) => {
+                  handleInputChange("assessmentFiles", {
+                    ...formData.assessmentFiles,
+                    [fieldKey]: file,
+                  });
+                }}
+              />
+            </div>
+          ))}
+          {/* 🔘 Global Evaluate Button */}
+          {phase === "checkbox" && currentStep && (
+            <div className="flex justify-end pt-4 border-t">
+              <button
+                onClick={handleEvaluateCheckbox}
+                className="px-6 py-2 bg-primary text-white rounded-lg shadow hover:opacity-90"
+              >
+                ประเมิน
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {levelMessage && (
         <div className="mt-6 text-lg font-semibold">{levelMessage}</div>

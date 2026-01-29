@@ -49,14 +49,14 @@ const CheckboxQuestion = ({
             <div key={item.id} className="flex flex-col space-y-1">
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id={item.id}
+                  id={fieldKey}
                   checked={isChecked}
                   disabled={disabled}
                   onCheckedChange={(checked: boolean) =>
                     !disabled && handleCheckboxChange(checked, item.id)
                   }
                 />
-                <Label htmlFor={item.id}>{item.label}</Label>
+                <Label htmlFor={fieldKey}>{item.label}</Label>
               </div>
 
               {/* File upload per checked item */}
