@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { usePostAdmin } from "@/hooks/admin/post/usePostAdmin";
 import Header from "@/components/Header";
+import { PhoneInput } from "@/components/format/PhoneInput";
 
 type CreateAccountFormValues = {
   prefix: string;
@@ -279,26 +280,23 @@ export default function CreateAccountPage() {
                 {/* Phone */}
                 <div>
                   <Label>เบอร์โทรศัพท์</Label><span className="text-red-500">*</span>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="tel"
-                      placeholder="0XXXXXXXXX"
-                      className="pl-10"
-                      {...register("phone_number", {
-                        required: "กรุณากรอกเบอร์โทรศัพท์",
-                        pattern: {
-                          value: /^0[0-9]{9}$/,
-                          message: "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง",
-                        }
-                      })}
-                    />
-                    {errors.phone_number && (
-                      <p className="text-sm text-destructive">
-                        {errors.phone_number.message}
-                      </p>
+                  <Controller
+                    name="phone_number"
+                    control={control}
+                    rules={{
+                      required: "กรุณากรอกเบอร์โทรศัพท์",
+                      pattern: {
+                        value: /^0\d{9}$/,
+                        message: "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง",
+                      },
+                    }}
+                    render={({ field, fieldState }) => (
+                      <PhoneInput
+                        {...field}
+                        error={fieldState.error?.message}
+                      />
                     )}
-                  </div>
+                  />
                 </div>
 
                 {/* Email */}

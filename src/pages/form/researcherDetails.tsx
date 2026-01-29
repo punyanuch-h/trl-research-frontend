@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,8 +9,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import React from "react";
 import {useGetUserProfile} from "@/hooks/user/get/useGetUserProfile";
+import { PhoneInput } from "@/components/format/PhoneInput";
 
 interface ResearcherDetailsProps {
     formData: any;
@@ -22,7 +23,30 @@ export default function ResearcherDetails({
     handleInputChange,
     refs,
 }: ResearcherDetailsProps) {
-    const { data: userProfile } = useGetUserProfile(); // ดึงข้อมูลผู้ใช้จาก hook
+    const { data: userProfile } = useGetUserProfile();
+    const [errors, setErrors] = useState({
+        headPhoneNumber: "",
+        headEmail: "",
+        coordinatorPhoneNumber: "",
+        coordinatorEmail: "",
+    });
+
+    const validateField = (field: string, value: string) => {
+        let errorMessage = "";
+        if (field === "headPhoneNumber" || field === "coordinatorPhoneNumber") {
+            const phoneRegex = /^[0-9]{10}$/;
+            const normalized = value.replace(/\D/g, "");
+            if (!phoneRegex.test(normalized)) {
+                errorMessage = "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)";
+            }
+        } else if (field === "headEmail" || field === "coordinatorEmail") {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                errorMessage = "กรุณากรอกอีเมลให้ถูกต้อง";
+            }
+        }
+        setErrors((prev) => ({ ...prev, [field]: errorMessage }));
+    };
 
     const applyAutoFill = () => {
         if (userProfile) {
@@ -216,16 +240,17 @@ export default function ResearcherDetails({
 
                 <div>
                     <Label htmlFor="headPhoneNumber">เบอร์โทรศัพท์<span className="text-red-500">*</span></Label>
-                    <Input
-                        id="headPhoneNumber"
+                    <PhoneInput
                         value={formData.headPhoneNumber}
-                        onChange={(e) =>
-                            handleInputChange("headPhoneNumber", e.target.value)
-                        }
-                        placeholder="0XXXXXXXXX"
-                        required
+                        onChange={(value) => {
+                            handleInputChange("headPhoneNumber", value);
+                            validateField("headPhoneNumber", value);
+                        }}
                         ref={refs?.headPhoneNumber}
                     />
+                    {errors.headPhoneNumber && (
+                        <p className="text-red-500 text-sm mt-1">{errors.headPhoneNumber}</p>
+                    )}
                 </div>
 
                 <div>
@@ -233,13 +258,17 @@ export default function ResearcherDetails({
                     <Input
                         id="headEmail"
                         value={formData.headEmail}
-                        onChange={(e) =>
-                            handleInputChange("headEmail", e.target.value)
-                        }
+                        onChange={(e) => {
+                            handleInputChange("headEmail", e.target.value);
+                            validateField("headEmail", e.target.value);
+                        }}
                         placeholder="example@email.com"
                         required
                         ref={refs?.headEmail}
                     />
+                    {errors.headEmail && (
+                        <p className="text-red-500 text-sm mt-1">{errors.headEmail}</p>
+                    )}
                 </div>
             </div>
 
@@ -383,16 +412,17 @@ export default function ResearcherDetails({
 
                 <div>
                     <Label htmlFor="coordinatorPhoneNumber">เบอร์โทรศัพท์<span className="text-red-500">*</span></Label>
-                    <Input
-                        id="coordinatorPhoneNumber"
+                    <PhoneInput
                         value={formData.coordinatorPhoneNumber}
-                        onChange={(e) =>
-                            handleInputChange("coordinatorPhoneNumber", e.target.value)
-                        }
-                        placeholder="0XX-XXX-XXXX"
-                        required
+                        onChange={(value) => {
+                            handleInputChange("coordinatorPhoneNumber", value);
+                            validateField("coordinatorPhoneNumber", value);
+                        }}
                         ref={refs?.coordinatorPhoneNumber}
                     />
+                    {errors.coordinatorPhoneNumber && (
+                        <p className="text-red-500 text-sm mt-1">{errors.coordinatorPhoneNumber}</p>
+                    )}
                 </div>
 
                 <div>
@@ -400,13 +430,17 @@ export default function ResearcherDetails({
                     <Input
                         id="coordinatorEmail"
                         value={formData.coordinatorEmail}
-                        onChange={(e) =>
-                            handleInputChange("coordinatorEmail", e.target.value)
-                        }
+                        onChange={(e) => {
+                            handleInputChange("coordinatorEmail", e.target.value);
+                            validateField("coordinatorEmail", e.target.value);
+                        }}
                         placeholder="example@email.com"
                         required
                         ref={refs?.coordinatorEmail}
                     />
+                    {errors.coordinatorEmail && (
+                        <p className="text-red-500 text-sm mt-1">{errors.coordinatorEmail}</p>
+                    )}
                 </div>
 
                 {/* เดิม: ช่อง mark urgent */}
