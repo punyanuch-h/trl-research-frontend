@@ -13,7 +13,6 @@ import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByC
 import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
 import { useUpdateAssessment } from '@/hooks/case/patch/useUpdateAssessment';
 import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImprovementSuggestion';
-import { useUpdateTrlEstimate } from '@/hooks/case/patch/useUpdateTrlEstimate';
 import { useUpdateTrlScore } from '@/hooks/case/patch/useUpdateTrlScore';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,10 +23,10 @@ const AssessmentResult = () => {
   const { data: caseData, isPending: isCasePending, isError: isCaseError, refetch: refetchCase } = useGetCaseById(id || '');
   const { data: researcherData, isPending: isResearcherPending, isError: isResearcherError } = useGetResearcherById(caseData?.researcher_id || '');
   const { data: coordinatorData, isPending: isCoordinatorPending, isError: isCoordinatorError } = useGetCoordinatorByCaseId(id || '');
-  const { data: assessmentData, isPending: isAssessmentPending, refetch: refetchAssessment } = useGetAssessmentById(id || '');
+  const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentById(id || '');
+  
   const updateAssessmentMutation = useUpdateAssessment(caseData?.id || '');
   const updateSuggestionMutation = useUpdateImprovementSuggestion();
-  const updateTrlEstimateMutation = useUpdateTrlEstimate();
   const updateTrlScoreMutation = useUpdateTrlScore();
 
   // State for editable suggestions
@@ -56,16 +55,49 @@ const AssessmentResult = () => {
     navigate(`/case-detail/${id}`);
   };
 
-  const handleApproveAssessment = () => {
-    updateAssessmentMutation.mutate(undefined, {
-      onSuccess: () => {
-        toast.success('Approved research ID: ' + caseData?.id + ' successfully');
-        navigate('/admin-homepage');
-      },
-      onError: () => {
-        toast.error('Failed to approve research ID: ' + caseData?.id);
+  const handleApproveAssessment = async () => {
+    const currentTrlScore = caseData?.trl_score;
+    const estimatedTrl = assessmentData?.trl_estimate;
+    const caseId = caseData?.id || id;
+    const assessmentId = assessmentData?.id;
+
+    try {
+      if (currentTrlScore === null || currentTrlScore === undefined) {
+        if (estimatedTrl !== undefined) {
+          await updateTrlScoreMutation.mutateAsync({
+            caseId: caseId,
+            trlData: { trl_score: estimatedTrl }
+          });
+          console.log("Auto-filled TRL Score with Estimate:", estimatedTrl);
+        }
       }
-    });
+
+      if (assessmentId && !assessmentData?.improvement_suggestion) {
+        const defaultSuggestion = getUnselectedCriteria()
+          .map((criteria) => `• TRL ${criteria.level}: ${criteria.question}`)
+          .join("\n");
+        
+        if (defaultSuggestion) {
+          await updateSuggestionMutation.mutateAsync({
+            assessmentId: assessmentId,
+            suggestionData: { improvement_suggestion: defaultSuggestion }
+          });
+        }
+      }
+
+      updateAssessmentMutation.mutate(undefined, {
+        onSuccess: () => {
+          toast.success(`Approved research ID: ${caseData?.id} successfully`);
+          navigate('/admin-homepage');
+        },
+        onError: () => {
+          toast.error('Failed to approve research ID: ' + caseData?.id);
+        }
+      });
+    } catch (error) {
+      console.error("Error during approval process:", error);
+      toast.error('กระบวนการ Approve ขัดข้อง โปรดลองอีกครั้ง');
+    }
   };
 
   const handleEditTrlClick = (currentLevel: number) => {
@@ -74,50 +106,29 @@ const AssessmentResult = () => {
   };
 
   const handleSaveTrlLevel = async () => {
-    const assessmentId = assessmentData?.id;
     const caseId = caseData?.id || id;
 
-    if (!assessmentId || !caseId) {
+    if (!caseId) {
       toast.error("Error: Missing Data IDs");
       return;
     }
 
-    const originalTrlEstimate = assessmentData?.trl_estimate;
-
     setIsUpdatingTrl(true);
     try {
-      // Step 1: Update Assessment TRL Estimate
-      await updateTrlEstimateMutation.mutateAsync({
-        assessmentId: assessmentId,
-        trlData: { trl_estimate: manualTrl }
-      });
-
       try {
-        // Step 2: Update Case TRL Score
+        // Update Case TRL Score
         await updateTrlScoreMutation.mutateAsync({
           caseId: caseId,
           trlData: { trl_score: manualTrl }
         });
-      } catch (scoreError: any) {
-        // Rollback Step 1 if Step 2 fails
-        console.error("Step 2 failed, rolling back Step 1:", scoreError);
-        try {
-          await updateTrlEstimateMutation.mutateAsync({
-            assessmentId: assessmentId,
-            trlData: { trl_estimate: originalTrlEstimate ?? 1 }
-          });
-          throw new Error(`Step 2 failed and rollback logic executed: ${scoreError.message || scoreError}`);
-        } catch (rollbackError: any) {
-          console.error("Rollback failed:", rollbackError);
-          const combinedMessage = `Step 2 failed and rollback failed: <details>Score Error: ${scoreError.message || scoreError}, Rollback Error: ${rollbackError.message || rollbackError}</details>`;
-          throw new Error(combinedMessage);
-        }
+      } catch (error) {
+        console.error("Error updating TRL Score:", error);
+        throw new Error('Failed to update TRL Level on case. Please try again.');
       }
 
       // Re-fetch both to ensure UI is in sync
       await Promise.all([
         refetchCase(),
-        refetchAssessment()
       ]);
 
       toast.success(`TRL Level updated to ${manualTrl} successfully`);
@@ -130,7 +141,6 @@ const AssessmentResult = () => {
 
       // Final attempt to sync state from server if everything fails
       refetchCase();
-      refetchAssessment();
     } finally {
       setIsUpdatingTrl(false);
     }
@@ -230,15 +240,23 @@ const AssessmentResult = () => {
               </Badge>
               <Button
                 onClick={handleApproveAssessment}
-                disabled={!caseData?.id || updateAssessmentMutation.isPending}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                disabled={!caseData?.id || updateAssessmentMutation.isPending || caseData?.status === true}
+                className={`flex items-center gap-2 ${
+                  caseData?.status === true 
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
               >
                 {updateAssessmentMutation.isPending ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                 ) : (
-                  <CheckCircle className="h-4 w-4" />
+                  caseData?.status === true ? <Check className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />
                 )}
-                {updateAssessmentMutation.isPending ? "Approving..." : "Approve Assessment"}
+                
+                {caseData?.status === true 
+                  ? "Approved" 
+                  : (updateAssessmentMutation.isPending ? "Approving..." : "Approve Assessment")
+                }              
               </Button>
             </div>
           </div>
@@ -349,67 +367,73 @@ const AssessmentResult = () => {
                     <Skeleton className="h-4 w-48" />
                     <Skeleton className="h-4 w-40" />
                   </div>
-                ) : assessmentData ? (
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">
-                      {caseData.status === true ? "TRL Level" : "Estimated TRL Level"}
-                    </h3>
+                ) : assessmentData && caseData ? (
+                  <div className="space-y-4 pt-2">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">Estimated TRL Level</h3>
+                      <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
+                        Level {assessmentData.trl_estimate}
+                      </Badge>
+                    </div>
 
-                    {isEditingTrl ? (
-                      <div className="flex items-center gap-2">
-                        <select
-                          className="h-9 w-20 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                          value={manualTrl}
-                          onChange={(e) => setManualTrl(Number(e.target.value))}
-                        >
-                          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
-                            <option key={level} value={level}>
-                              {level}
-                            </option>
-                          ))}
-                        </select>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">Final TRL Level</h3>
+                      {isEditingTrl ? (
+                        <div className="flex items-center gap-2">
+                          <select
+                            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                            value={manualTrl}
+                            onChange={(e) => setManualTrl(Number(e.target.value))}
+                          >
+                            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
+                              <option key={level} value={level}>
+                                Level {level}
+                              </option>
+                            ))}
+                          </select>
 
-                        <Button
-                          size="icon"
-                          className="h-8 w-8 bg-green-600 hover:bg-green-700"
-                          onClick={handleSaveTrlLevel}
-                          disabled={isUpdatingTrl}
-                        >
-                          {isUpdatingTrl ? (
-                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                          ) : (
-                            <Check className="h-4 w-4" />
+                          <Button
+                            size="icon"
+                            className="h-8 w-8 bg-green-600 hover:bg-green-700"
+                            onClick={handleSaveTrlLevel}
+                            disabled={isUpdatingTrl}
+                          >
+                            {isUpdatingTrl ? (
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                            ) : (
+                              <Check className="h-4 w-4" />
+                            )}
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 text-red-500 hover:bg-red-50"
+                            onClick={() => setIsEditingTrl(false)}
+                          >
+                            <X className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
+                            Level {caseData.trl_score ?? assessmentData.trl_estimate}
+                          </Badge>
+                          {caseData.status !== true && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-primary"
+                              onClick={() => handleEditTrlClick(
+                                Number(caseData.trl_score ?? assessmentData.trl_estimate)
+                              )}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
                           )}
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8 text-red-500 hover:bg-red-50"
-                          onClick={() => setIsEditingTrl(false)}
-                        >
-                          <X className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                          Level {caseData.status === true ? caseData.trl_score : assessmentData.trl_estimate}
-                        </Badge>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-primary"
-                          onClick={() => handleEditTrlClick(
-                            Number(caseData.status === true
-                              ? (caseData.trl_score ?? 1)
-                              : (assessmentData.trl_estimate ?? 1))
-                          )}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : null}
 
@@ -629,49 +653,53 @@ const AssessmentResult = () => {
           </CardContent>
           <CardFooter>
             <div className="flex justify-end">
-              {isEditing ? (
+              {caseData?.status !== true && (
                 <>
-                  <Button
-                    size="sm"
-                    className="bg-primary hover:bg-primary/80 mr-2"
-                    disabled={updateSuggestionMutation.isPending}
-                    onClick={() => {
-                      handleSaveSuggestion(suggestions["all"] || '');
-                    }}
-                  >
-                    {updateSuggestionMutation.isPending ? (
-                      <>
-                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        Save
-                      </>
-                    )}
-                  </Button>
-                  <Button variant="outline" size="sm" disabled={updateSuggestionMutation.isPending} onClick={() => setIsEditing(false)}>
-                    Cancel
-                  </Button>
+                  {isEditing ? (
+                    <>
+                      <Button
+                        size="sm"
+                        className="bg-primary hover:bg-primary/80 mr-2"
+                        disabled={updateSuggestionMutation.isPending}
+                        onClick={() => {
+                          handleSaveSuggestion(suggestions["all"] || '');
+                        }}
+                      >
+                        {updateSuggestionMutation.isPending ? (
+                          <>
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            Save
+                          </>
+                        )}
+                      </Button>
+                      <Button variant="outline" size="sm" disabled={updateSuggestionMutation.isPending} onClick={() => setIsEditing(false)}>
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // Fill textarea with either saved suggestion or bullet points
+                        if (!suggestions["all"]) {
+                          const defaultText = getUnselectedCriteria()
+                            .map((criteria) => `• TRL ${criteria.level}: ${criteria.question}`)
+                            .join("\n");
+                          setSuggestions(prev => ({ ...prev, "all": defaultText }));
+                        }
+                        setIsEditing(true);
+                      }}
+                      className="text-primary border-primary hover:bg-primary/10"
+                    >
+                      Edit Suggestions
+                    </Button>
+                  )}
                 </>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    // Fill textarea with either saved suggestion or bullet points
-                    if (!suggestions["all"]) {
-                      const defaultText = getUnselectedCriteria()
-                        .map((criteria) => `• TRL ${criteria.level}: ${criteria.question}`)
-                        .join("\n");
-                      setSuggestions(prev => ({ ...prev, "all": defaultText }));
-                    }
-                    setIsEditing(true);
-                  }}
-                  className="text-primary border-primary hover:bg-primary/10"
-                >
-                  Edit Suggestions
-                </Button>
               )}
             </div>
           </CardFooter>
