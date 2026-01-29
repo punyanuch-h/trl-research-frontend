@@ -31,7 +31,6 @@ export default function IntellectualProperty({
   formData,
   handleInputChange,
 }: IntellectualPropertyProps) {
-  // ใช้ค่าเริ่มต้นจาก formData.ipForms ถ้ามี (สำหรับกรณี user กลับมาจาก step 5)
   const [forms, setForms] = useState<IpFormState[]>(() => {
     if (formData.ipForms && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
       return formData.ipForms;
@@ -39,15 +38,12 @@ export default function IntellectualProperty({
     return [{ ipStatus: "", ipTypes: [], requestNumbers: {}, noIp: false, file: null }];
   });
 
-  // เมื่อ formData.ipForms เปลี่ยน (เช่น กรณี user กลับมาจาก step 5) ให้ sync state forms ด้วย
   useEffect(() => {
     if (formData.ipForms && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
       setForms(formData.ipForms);
     }
-    // eslint-disable-next-line
   }, [formData.ipForms]);
 
-  // Sync forms to parent (formData) on every change - แต่ไม่ sync เมื่อ component เพิ่ง mount
   const [isInitialized, setIsInitialized] = useState(false);
   useEffect(() => {
     if (isInitialized) {
@@ -55,10 +51,8 @@ export default function IntellectualProperty({
     } else {
       setIsInitialized(true);
     }
-    // eslint-disable-next-line
   }, [forms]);
 
-  // เมื่อเลือก "มี"/"ไม่มี"
   const handleNoIpToggle = (formIndex: number, checked: boolean) => {
     setForms((currentForms) => {
       const updated = [...currentForms];
@@ -71,7 +65,6 @@ export default function IntellectualProperty({
       return updated;
     });
 
-    // sync กลับไป parent
     handleInputChange("ipHas", !checked);
     if (checked) {
       handleInputChange("ipProtectionStatus", "");
@@ -80,7 +73,6 @@ export default function IntellectualProperty({
     }
   };
 
-  // เมื่อเลือกสถานะ
   const handleFormStatusChange = (formIndex: number, value: string) => {
     setForms((currentForms) => {
       const updatedForms = [...currentForms];
@@ -91,14 +83,12 @@ export default function IntellectualProperty({
       return updatedForms;
     });
 
-    // sync กลับไป parent
     handleInputChange("ipProtectionStatus", value);
     if (value !== "ได้เลขที่คำขอแล้ว") {
       handleInputChange("ipRequestNumber", "");
     }
   };
 
-  // เมื่อเลือกประเภท
   const handleFormTypeChange = (formIndex: number, newIpType: string) => {
     setForms((currentForms) => {
       const updatedForms = [...currentForms];
@@ -107,12 +97,10 @@ export default function IntellectualProperty({
       return updatedForms;
     });
 
-    // sync กลับไป parent
     handleInputChange("ipTypes", [newIpType]);
     handleInputChange("ipRequestNumber", "");
   };
 
-  // เมื่อกรอกเลขที่คำขอ
   const handleFormRequestNumberChange = (
     formIndex: number,
     ipType: string,
@@ -124,7 +112,6 @@ export default function IntellectualProperty({
       return updatedForms;
     });
 
-    // sync กลับไป parent
     handleInputChange("ipRequestNumber", value);
   };
 
@@ -172,17 +159,6 @@ export default function IntellectualProperty({
             )}
           </div>
 
-          {/* <div className="flex items-center space-x-2">
-            <RadioGroupItem
-              id={`noIp-${formIndex}`}
-              checked={form.noIp}
-              onValueChange={(value) =>
-                handleNoIpToggle(formIndex, value as boolean)
-              }
-            />
-            <Label htmlFor={`noIp-${formIndex}`}>ไม่มี</Label>
-          </div> */}
-
           <RadioGroup
             value={form.noIp ? "ไม่มี" : "มี"}
             onValueChange={(value) =>
@@ -201,7 +177,6 @@ export default function IntellectualProperty({
             </div>
           </RadioGroup>
 
-          {/* If "ไม่มี" checked → hide everything */}
           {!form.noIp && (
             <>
               {/* Radio inside each card */}
