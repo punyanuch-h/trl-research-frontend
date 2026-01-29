@@ -5,16 +5,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route } from "react-router-dom";
 
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
+import LoginPage from "./pages/account/LoginPage.tsx";
+import SignupPage from "./pages/account/SignupPage.tsx";
 import ProfilePage from "./pages/account/ProfilePage.tsx";
 import CreateAccountPage from "./pages/account/CreateAccountPage.tsx";
 import ResetPasswordPage from "./pages/account/ResetPassword.tsx";
-import ForgetPassword from "./pages/ForgetPassword";
+import ForgetPassword from "./pages/account/ForgetPassword.tsx";
 import AdminHomePage from "./pages/homepage/AdminHomePage.tsx";
 import CaseDetial from "./pages/caseDetial/CaseDetial";
 import ResearcherForm from "./pages/researchForm/ResearcherForm";
-import TrlScore from "./pages/deposit-May-be-used/TrlScore.tsx";
 import DifyChatIframe from "@/components/chat/DifyChatIFrame.tsx";
 import ResearcherHomePage from "./pages/homepage/ResearcherHomePage.tsx";
 import ResearcherDetailResearcher from "./pages/homepage/ResearcherHomePage.tsx";
@@ -45,7 +44,6 @@ const App: React.FC = () => {
           <Route path="/reset-password" element={<PrivateRoute><ResetPasswordPage /></PrivateRoute>} />
           <Route path="/researcher-detail-researcher" element={<PrivateRoute><ResearcherDetailResearcher /></PrivateRoute>} />
           <Route path="/researcher-form" element={<PrivateRoute><ResearcherForm /></PrivateRoute>} />
-          <Route path="/trl-score" element={<PrivateRoute><TrlScore /></PrivateRoute>} />
           <Route path="/assessment/:id" element={<PrivateRoute><AssessmentResult /></PrivateRoute>} />
           {/* Catch-all route */}
           <Route path="*" element={<PublicRoute><LoginPage /></PublicRoute>} />
