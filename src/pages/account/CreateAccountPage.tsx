@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,8 @@ import {
   Phone,
   Building,
   ArrowLeft,
+  EyeOff,
+  Eye,
 } from "lucide-react";
 import { usePostAdmin } from "@/hooks/admin/post/usePostAdmin";
 import Header from "@/components/Header";
@@ -67,6 +70,7 @@ export default function CreateAccountPage() {
 
   const password = watch("password");
   const academicPosition = watch("academic_position");
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data: CreateAccountFormValues) => {
     const academicPosition =
@@ -221,6 +225,7 @@ export default function CreateAccountPage() {
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
+                    placeholder="ชื่อ"
                     className="pl-10"
                     {...register("first_name", { required: "กรุณากรอกชื่อ" })}
                   />
@@ -239,6 +244,7 @@ export default function CreateAccountPage() {
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
+                    placeholder="นามสกุล"
                     className="pl-10"
                     {...register("last_name", { required: "กรุณากรอกนามสกุล" })}
                   />
@@ -257,6 +263,7 @@ export default function CreateAccountPage() {
                   <Building className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
+                    placeholder="เช่น ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์"
                     className="pl-10"
                     {...register("department", { required: "กรุณากรอกภาควิชา / สถาน / หน่วยงาน" })}
                   />
@@ -276,6 +283,7 @@ export default function CreateAccountPage() {
                     <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="tel"
+                      placeholder="0XXXXXXXXX"
                       className="pl-10"
                       {...register("phone_number", {
                         required: "กรุณากรอกเบอร์โทรศัพท์",
@@ -300,6 +308,7 @@ export default function CreateAccountPage() {
                     <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="email"
+                      placeholder="example@email.com"
                       className="pl-10"
                       {...register("email", {
                         required: "กรุณากรอกอีเมล",
@@ -324,13 +333,14 @@ export default function CreateAccountPage() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••••"
                     className="pl-10"
                     {...register("password", {
                       required: "กรุณากรอกรหัสผ่าน",
                       minLength: {
-                        value: 6,
-                        message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
+                        value: 8,
+                        message: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
                       },
                       pattern: {
                         value: /^(?=.*[A-Z])(?=.*\d).+$/,
@@ -339,6 +349,13 @@ export default function CreateAccountPage() {
                       },
                     })}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                   {errors.password && (
                     <p className="text-sm text-destructive">
                       {errors.password.message}
@@ -353,7 +370,8 @@ export default function CreateAccountPage() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••••"
                     className="pl-10"
                     {...register("confirmPassword", {
                       required: "กรุณายืนยันรหัสผ่าน",
@@ -361,6 +379,13 @@ export default function CreateAccountPage() {
                         value === password || "รหัสผ่านไม่ตรงกัน",
                     })}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                   {errors.confirmPassword && (
                     <p className="text-sm text-destructive">
                       {errors.confirmPassword.message}

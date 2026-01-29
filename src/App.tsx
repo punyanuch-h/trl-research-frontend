@@ -7,8 +7,10 @@ import { Routes, Route } from "react-router-dom";
 
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import ProfilePage from "./pages/account/ProfilePage.tsx";
+import CreateAccountPage from "./pages/account/CreateAccountPage.tsx";
+import ResetPasswordPage from "./pages/account/ResetPassword.tsx";
 import ForgetPassword from "./pages/ForgetPassword";
-import Profile from "./pages/profile/ProfilePage.tsx";
 import AdminHomePage from "./pages/homepage/AdminHomePage.tsx";
 import CaseDetial from "./pages/caseDetial/CaseDetial";
 import ResearcherForm from "./pages/researchForm/ResearcherForm";
@@ -19,7 +21,6 @@ import ResearcherDetailResearcher from "./pages/homepage/ResearcherHomePage.tsx"
 import AssessmentResult from "./pages/evaluate/assessmentResult.tsx";
 import PublicRoute from "./routers/PublicRoute.tsx";
 import PrivateRoute from "./routers/PrivateRoute.tsx";
-import CreateAccountPage from "./pages/CreateAccountPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -36,13 +37,12 @@ const App: React.FC = () => {
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
           <Route path="/forget-password" element={<PublicRoute><ForgetPassword /></PublicRoute>} />
-          <Route path="/admin/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route path="/admin/create-admin" element={<PrivateRoute><CreateAccountPage /></PrivateRoute>} />
           <Route path="/admin/homepage" element={<PrivateRoute><AdminHomePage /></PrivateRoute>} />
           <Route path="/researcher/homepage" element={<PrivateRoute><ResearcherHomePage /></PrivateRoute>} />
           <Route path="/case-detail/:id" element={<PrivateRoute><CaseDetial /></PrivateRoute>} />
-          
-          {/* <Route path="/appointment-detail" element={<AppointmentDetail />} /> */}
+          <Route path="/reset-password" element={<PrivateRoute><ResetPasswordPage /></PrivateRoute>} />
           <Route path="/researcher-detail-researcher" element={<PrivateRoute><ResearcherDetailResearcher /></PrivateRoute>} />
           <Route path="/researcher-form" element={<PrivateRoute><ResearcherForm /></PrivateRoute>} />
           <Route path="/trl-score" element={<PrivateRoute><TrlScore /></PrivateRoute>} />

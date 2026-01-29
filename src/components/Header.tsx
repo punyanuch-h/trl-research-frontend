@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -65,10 +65,18 @@ export default function Header({ disabled = false }: HeaderProps) {
                 <Button
                   variant="ghost"
                   className="justify-start text-sm w-full focus-visible:ring-0 focus-visible:ring-offset-0"
-                  onClick={() => navigate("/admin/profile")}
+                  onClick={() => navigate("/profile")}
                 >
                   <User className="w-4 h-4 mr-2" />
-                  My Profile
+                  ข้อมูลบัญชีผู้ใช้
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="justify-start text-sm w-full focus-visible:ring-0 focus-visible:ring-offset-0"
+                  onClick={() => navigate("/reset-password")}
+                >
+                  <Key className="w-4 h-4 mr-2" />
+                  เปลี่ยนรหัสผ่าน
                 </Button>
                 {role === "admin" && (
                   <Button
@@ -77,7 +85,7 @@ export default function Header({ disabled = false }: HeaderProps) {
                     onClick={() => navigate("/admin/create-admin")}
                   >
                     <User className="w-4 h-4 mr-2" />
-                    Add Admin account
+                    เพิ่มบัญชีผู้ดูแลระบบ
                   </Button>
                 )}
                 <Button
@@ -86,7 +94,7 @@ export default function Header({ disabled = false }: HeaderProps) {
                   onClick={handleLogout}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Logout
+                  ออกจากระบบ
                 </Button>
               </div>
             </PopoverContent>
