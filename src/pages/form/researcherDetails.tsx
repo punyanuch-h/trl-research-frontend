@@ -35,7 +35,8 @@ export default function ResearcherDetails({
         let errorMessage = "";
         if (field === "headPhoneNumber" || field === "coordinatorPhoneNumber") {
             const phoneRegex = /^[0-9]{10}$/;
-            if (!phoneRegex.test(value)) {
+            const normalized = value.replace(/\D/g, "");
+            if (!phoneRegex.test(normalized)) {
                 errorMessage = "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)";
             }
         } else if (field === "headEmail" || field === "coordinatorEmail") {

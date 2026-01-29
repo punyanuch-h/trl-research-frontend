@@ -1,8 +1,14 @@
 import { Input } from "@/components/ui/input";
 import { Phone } from "lucide-react";
 import { forwardRef } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 
-interface PhoneInputProps {
+type PhoneInputBaseProps = Omit<
+  ComponentPropsWithoutRef<typeof Input>,
+  "value" | "onChange"
+>;
+
+interface PhoneInputProps extends PhoneInputBaseProps {
   value?: string;
   onChange?: (value: string) => void;
   error?: string;
@@ -18,18 +24,19 @@ const formatPhone = (value: string) => {
 };
 
 export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
-  ({ value = "", onChange, error }, ref) => {
+  ({ value = "", onChange, error, className, ...inputProps }, ref) => {
     return (
       <div className="relative">
         <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
         <Input
           ref={ref}
           type="tel"
-          className="pl-10"
+          className={`pl-10 ${className ?? ""}`}
           placeholder="0XX-XXX-XXXX"
           value={formatPhone(value)}
+          {...inputProps}
           onChange={(e) => {
-            const raw = e.target.value.replace(/\D/g, "");
+            const raw = e.target.value.replace(/\D/g, "").slice(0, 10);
             onChange?.(raw);
           }}
         />

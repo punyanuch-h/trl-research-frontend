@@ -276,7 +276,7 @@ export default function IntellectualProperty({
                   />
                 </div>
               )}
-              {form.error && (
+              {form.ipStatus === "ได้เลขที่คำขอแล้ว" && form.error && (
                 <p className="text-red-500 text-sm mt-1">{form.error}</p>
               )}
               {/* File upload */}

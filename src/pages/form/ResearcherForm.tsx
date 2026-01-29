@@ -260,10 +260,12 @@ export default function ResearcherForm() {
         }
       }
       const phoneRegex = /^[0-9]{10}$/;
-        if (!phoneRegex.test(formData.headPhoneNumber)) {
+        const headPhone = formData.headPhoneNumber.replace(/\D/g, "");
+        if (!phoneRegex.test(headPhone)) {
             return { valid: false, firstField: "headPhoneNumber", errorMessage: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)" };
         }
-        if (!phoneRegex.test(formData.coordinatorPhoneNumber)) {
+        const coordinatorPhone = formData.coordinatorPhoneNumber.replace(/\D/g, "");
+        if (!phoneRegex.test(coordinatorPhone)) {
             return { valid: false, firstField: "coordinatorPhoneNumber", errorMessage: "กรุณากรอกเบอร์โทรศัพท์ของผู้ประสานงานให้ถูกต้อง (10 หลัก)" };
         }
 
