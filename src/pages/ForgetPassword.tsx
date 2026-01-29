@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import { Loader2, User, ArrowLeft, Mail } from "lucide-react";
+import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useForgetPassword } from "@/hooks/useForgetPassword";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -21,6 +21,7 @@ export default function ForgotPasswordPage() {
     register,
     handleSubmit,
     setError,
+    clearErrors,
     formState: { errors },
   } = useForm<ForgotPasswordFormData>({
     mode: "onSubmit",
@@ -55,6 +56,7 @@ export default function ForgotPasswordPage() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setSuccessMessage(null);
+    clearErrors("root");
     resetMutation();
     mutate(data.email);
   };
@@ -105,7 +107,7 @@ export default function ForgotPasswordPage() {
                 <div className="space-y-2">
                   <Label htmlFor="email">อีเมล</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Input
                       id="email"
                       type="email"

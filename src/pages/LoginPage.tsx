@@ -163,12 +163,13 @@ export default function LoginPage() {
                 )}
                 {/* forget password */}
                 <div className="text-right text-sm text-muted-foreground">
-                  <div
+                  <button
+                    type="button"
                     onClick={() => navigate("/forget-password")}
                     className="text-primary hover:underline font-medium"
                   >
                     ลืมรหัสผ่าน
-                  </div>
+                  </button>
                 </div>
               </div>
 
