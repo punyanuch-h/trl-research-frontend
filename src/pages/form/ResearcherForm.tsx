@@ -259,6 +259,22 @@ export default function ResearcherForm() {
           return { valid: false, firstField: field, errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน" };
         }
       }
+      const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(formData.headPhoneNumber)) {
+            return { valid: false, firstField: "headPhoneNumber", errorMessage: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)" };
+        }
+        if (!phoneRegex.test(formData.coordinatorPhoneNumber)) {
+            return { valid: false, firstField: "coordinatorPhoneNumber", errorMessage: "กรุณากรอกเบอร์โทรศัพท์ของผู้ประสานงานให้ถูกต้อง (10 หลัก)" };
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.headEmail)) {
+            return { valid: false, firstField: "headEmail", errorMessage: "กรุณากรอกอีเมลให้ถูกต้อง" };
+        }
+        if (!emailRegex.test(formData.coordinatorEmail)) {
+            return { valid: false, firstField: "coordinatorEmail", errorMessage: "กรุณากรอกอีเมลของผู้ประสานงานให้ถูกต้อง" };
+        }
+
       if (formData.isUrgent && !formData.urgentReason.trim()) {
         return { valid: false, firstField: "urgentReason", errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน" };
       }
