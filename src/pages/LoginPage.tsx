@@ -21,6 +21,7 @@ export default function LoginPage() {
     register,
     handleSubmit,
     setError,
+    clearErrors,
     formState: { errors },
   } = useForm<LoginFormData>({
     mode: "onSubmit", // Validate on submit
@@ -57,6 +58,7 @@ export default function LoginPage() {
   }, [loginError, setError]);
 
   const onSubmit = async (data: LoginFormData) => {
+    clearErrors("root");
     resetMutation(); // Clear previous errors
     mutate({
       email: data.email,
@@ -101,9 +103,13 @@ export default function LoginPage() {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                         message: "รูปแบบอีเมลไม่ถูกต้อง",
                       },
+                      onChange: () => {
+                        clearErrors("root");
+                      },
                     })}
-                    className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
-                    aria-invalid={errors.email ? "true" : "false"}
+                    className={`pl-10 ${errors.email || errors.root ? "border-destructive" : ""
+                      }`}
+                    aria-invalid={errors.email || errors.root ? "true" : "false"}
                   />
                 </div>
                 {errors.email && (
@@ -129,11 +135,13 @@ export default function LoginPage() {
                         value: 6,
                         message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
                       },
+                      onChange: () => {
+                        clearErrors("root");
+                      },
                     })}
-                    className={`pl-10 pr-10 ${
-                      errors.password ? "border-destructive" : ""
-                    }`}
-                    aria-invalid={errors.password ? "true" : "false"}
+                    className={`pl-10 pr-10 ${errors.password || errors.root ? "border-destructive" : ""
+                      }`}
+                    aria-invalid={errors.password || errors.root ? "true" : "false"}
                   />
                   <button
                     type="button"
