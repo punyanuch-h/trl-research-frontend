@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import React from "react";
 import {useGetUserProfile} from "@/hooks/user/get/useGetUserProfile";
+import { PhoneInput } from "@/components/format/PhoneInput";
 
 interface ResearcherDetailsProps {
     formData: any;
@@ -216,14 +217,9 @@ export default function ResearcherDetails({
 
                 <div>
                     <Label htmlFor="headPhoneNumber">เบอร์โทรศัพท์<span className="text-red-500">*</span></Label>
-                    <Input
-                        id="headPhoneNumber"
+                    <PhoneInput
                         value={formData.headPhoneNumber}
-                        onChange={(e) =>
-                            handleInputChange("headPhoneNumber", e.target.value)
-                        }
-                        placeholder="0XXXXXXXXX"
-                        required
+                        onChange={(value) => handleInputChange("headPhoneNumber", value)}
                         ref={refs?.headPhoneNumber}
                     />
                 </div>
@@ -383,14 +379,9 @@ export default function ResearcherDetails({
 
                 <div>
                     <Label htmlFor="coordinatorPhoneNumber">เบอร์โทรศัพท์<span className="text-red-500">*</span></Label>
-                    <Input
-                        id="coordinatorPhoneNumber"
+                    <PhoneInput
                         value={formData.coordinatorPhoneNumber}
-                        onChange={(e) =>
-                            handleInputChange("coordinatorPhoneNumber", e.target.value)
-                        }
-                        placeholder="0XX-XXX-XXXX"
-                        required
+                        onChange={(value) => handleInputChange("coordinatorPhoneNumber", value)}
                         ref={refs?.coordinatorPhoneNumber}
                     />
                 </div>
