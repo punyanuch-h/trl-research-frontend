@@ -23,7 +23,7 @@ export function usePostAdmin(onSuccess: () => void) {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      const response = await fetch(`${BACKEND_HOST}/admin`, {
+      const response = await fetch(`${BACKEND_HOST}/trl/admin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
