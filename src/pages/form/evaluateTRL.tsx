@@ -193,13 +193,14 @@ export default function EvaluateTRL({
   };
 
   const [levelMessage, setLevelMessage] = useState("");
-
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    if (!isHydrated) return;
     handleInputChange("radioAnswers", radioAnswers);
     handleInputChange("checkboxSteps", checkboxSteps);
     handleInputChange("radioFiles", radioFiles);
-  }, [radioAnswers, checkboxSteps, radioFiles, handleInputChange]);
+  }, [radioAnswers, checkboxSteps, radioFiles, handleInputChange, isHydrated]);
 
   useEffect(() => {
     if (formData.radioAnswers) {
@@ -218,8 +219,11 @@ export default function EvaluateTRL({
     if (formData.radioAnswers?.length) {
       const last = formData.radioAnswers[formData.radioAnswers.length - 1];
       setRadioIndex(last.index);
-      setPhase("radio");
+      if (!formData.checkboxSteps?.length) {
+        setPhase("radio");
+      }
     }
+    setIsHydrated(true);
   }, []);
 
 
