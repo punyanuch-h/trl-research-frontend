@@ -86,9 +86,9 @@ export default function LoginPage() {
             <CardTitle className="text-center text-2xl">เข้าสู่ระบบ</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
               {/* Email */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="email">อีเมล</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
@@ -161,6 +161,15 @@ export default function LoginPage() {
                     {errors.password.message}
                   </p>
                 )}
+                {/* forget password */}
+                <div className="text-right text-sm text-muted-foreground">
+                  <div
+                    onClick={() => navigate("/forget-password")}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    ลืมรหัสผ่าน
+                  </div>
+                </div>
               </div>
 
               {/* Login Error message */}

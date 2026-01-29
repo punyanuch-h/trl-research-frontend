@@ -370,4 +370,9 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async useForgetPassword(email: string) {
+    const response = await this.axiosInstance.post(`/auth/forget-password`, { email });
+    return response.data;
+  }
+
 }
