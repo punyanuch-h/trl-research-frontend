@@ -15,11 +15,11 @@ import { useSubmitResearcherForm } from "@/hooks/case/post/useSubmitResearcherFo
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 
 // Import components
-import ResearcherDetails from '@/pages/researchForm/researcherDetails';
-import ResearchDetails from '@/pages/researchForm/researchDetails';
-import EvaluateTRL from '@/pages/researchForm/evaluateTRL';
-import IntellectualProperty from '@/pages/researchForm/intellectualProperty';
-import Supporter from '@/pages/researchForm/Supportment';
+import ResearcherDetails from '@/pages/form/researcherDetails';
+import ResearchDetails from '@/pages/form/researchDetails';
+import EvaluateTRL from '@/pages/form/evaluateTRL';
+import IntellectualProperty from '@/pages/form/intellectualProperty';
+import Supporter from '@/pages/form/Supportment';
 
 interface IpForm {
   noIp?: boolean;

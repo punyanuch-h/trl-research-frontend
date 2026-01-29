@@ -13,7 +13,7 @@ import ResetPasswordPage from "./pages/account/ResetPassword.tsx";
 import ForgetPassword from "./pages/account/ForgetPassword.tsx";
 import AdminHomePage from "./pages/homepage/AdminHomePage.tsx";
 import CaseDetial from "./pages/caseDetial/CaseDetial";
-import ResearcherForm from "./pages/researchForm/ResearcherForm";
+import ResearcherForm from "./pages/form/ResearcherForm";
 import DifyChatIframe from "@/components/chat/DifyChatIFrame.tsx";
 import ResearcherHomePage from "./pages/homepage/ResearcherHomePage.tsx";
 import ResearcherDetailResearcher from "./pages/homepage/ResearcherHomePage.tsx";
