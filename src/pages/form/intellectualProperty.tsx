@@ -11,6 +11,7 @@ interface IpFormState {
   requestNumbers: { [key: string]: string };
   noIp: boolean;
   file?: File | null;
+  error?: string;
 }
 
 interface IntellectualPropertyProps {
@@ -106,13 +107,28 @@ export default function IntellectualProperty({
     ipType: string,
     value: string
   ) => {
-    setForms((currentForms) => {
-      const updatedForms = [...currentForms];
-      updatedForms[formIndex].requestNumbers[ipType] = value;
-      return updatedForms;
-    });
+    const regexMap: { [key: string]: RegExp } = {
+    patent: /^\d{7}$/,
+    pettyPatent: /^2\d{6}$/,
+    designPatent: /^[Dd]\d{6}$/,
+    copyright: /^[A-Za-z0-9\-\/]{5,30}$/,
+    trademark: /^\d{7,8}$/,
+    tradeSecret: /^.{1,100}$/,
+  };
 
-    handleInputChange("ipRequestNumber", value);
+  const regex = regexMap[ipType];
+  const errorMessage = regex && !regex.test(value)
+    ? `หมายเลขคำขอสำหรับ ${ipTypesList.find((item) => item.id === ipType)?.label} ไม่ถูกต้อง`
+    : "";
+
+  setForms((currentForms) => {
+    const updatedForms = [...currentForms];
+    updatedForms[formIndex].requestNumbers[ipType] = value;
+    updatedForms[formIndex].error = errorMessage; // Add error message to the form
+    return updatedForms;
+  });
+
+  handleInputChange("ipRequestNumber", value);
   };
 
   const handleAddForm = () => {
@@ -260,7 +276,9 @@ export default function IntellectualProperty({
                   />
                 </div>
               )}
-
+              {form.error && (
+                <p className="text-red-500 text-sm mt-1">{form.error}</p>
+              )}
               {/* File upload */}
               <div>
                 <h3 className="font-semibold text-primary">เอกสารเพิ่มเติม (แนบ file)</h3>
