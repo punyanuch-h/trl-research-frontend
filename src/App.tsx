@@ -10,11 +10,11 @@ import SignupPage from "./pages/SignupPage";
 import ProfilePage from "./pages/account/ProfilePage.tsx";
 import CreateAccountPage from "./pages/account/CreateAccountPage.tsx";
 import ResetPasswordPage from "./pages/account/ResetPassword.tsx";
+import ForgetPassword from "./pages/ForgetPassword";
 import AdminHomePage from "./pages/homepage/AdminHomePage.tsx";
 import CaseDetial from "./pages/caseDetial/CaseDetial";
 import ResearcherForm from "./pages/researchForm/ResearcherForm";
 import TrlScore from "./pages/deposit-May-be-used/TrlScore.tsx";
-import NotFound from "./pages/NotFound";
 import DifyChatIframe from "@/components/chat/DifyChatIFrame.tsx";
 import ResearcherHomePage from "./pages/homepage/ResearcherHomePage.tsx";
 import ResearcherDetailResearcher from "./pages/homepage/ResearcherHomePage.tsx";
@@ -36,6 +36,7 @@ const App: React.FC = () => {
           <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
+          <Route path="/forget-password" element={<PublicRoute><ForgetPassword /></PublicRoute>} />
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route path="/admin/create-admin" element={<PrivateRoute><CreateAccountPage /></PrivateRoute>} />
           <Route path="/admin/homepage" element={<PrivateRoute><AdminHomePage /></PrivateRoute>} />
@@ -47,7 +48,7 @@ const App: React.FC = () => {
           <Route path="/trl-score" element={<PrivateRoute><TrlScore /></PrivateRoute>} />
           <Route path="/assessment/:id" element={<PrivateRoute><AssessmentResult /></PrivateRoute>} />
           {/* Catch-all route */}
-          <Route path="*" element={<PublicRoute><NotFound /></PublicRoute>} />
+          <Route path="*" element={<PublicRoute><LoginPage /></PublicRoute>} />
         </Routes>
       </TooltipProvider>
     </QueryClientProvider>
