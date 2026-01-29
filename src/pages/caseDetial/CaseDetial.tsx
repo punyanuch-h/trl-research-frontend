@@ -232,7 +232,7 @@ export default function CaseDetail() {
                     </>
                   )}
 
-                  {role === "researcher" && caseData.status == true && (
+                  {role === "researcher" && caseData.status === true && caseData.trl_score !== null && (
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold">TRL Level</h3>
                       <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
