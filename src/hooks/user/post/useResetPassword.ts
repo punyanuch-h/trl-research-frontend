@@ -13,7 +13,7 @@ export function usePostResetPassword(onSuccess: () => void) {
   const postResetPassword = async (data: PostResetPasswordData) => {
     setLoading(true);
     try {
-      const response = await fetch(`${BACKEND_HOST}/auth/reset-password`, {
+      const response = await fetch(`${BACKEND_HOST}/trl/auth/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
