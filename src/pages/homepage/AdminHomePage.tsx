@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "@/hooks/client/type";
+import type { CaseResponse, AppointmentResponse, ResearcherResponse, AssessmentResponse } from "@/hooks/client/type";
 
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminManagement from "../../components/admin/AdminManagement";
@@ -14,15 +14,18 @@ import { CaseReportPDF } from "@/components/modal/report/report";
 import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
+import { useGetAllAssessments } from "@/hooks/case/get/useGetAllAssessments";
 
 // Merge Case + Appointment + Researcher
 function mergeCasesData(
   cases: CaseResponse[],
   appointments: AppointmentResponse[],
-  researchers: ResearcherResponse[]
+  researchers: ResearcherResponse[],
+  assessmentData?: AssessmentResponse[]
 ) {
   return cases.map((c) => {
     const researcher = researchers.find((r) => r.id === c.researcher_id);
+    const assessment = assessmentData ? assessmentData.find((a) => a.case_id === c.id) : null;
     const caseAppointments = appointments
       .filter((a) => a.case_id === c.id)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // ล่าสุดก่อน
@@ -31,6 +34,7 @@ function mergeCasesData(
       researcherInfo: researcher || null,
       appointments: caseAppointments,
       latestAppointment: caseAppointments[0] || null,
+      trl_estimate: assessment ? assessment.trl_estimate : null,
     };
   });
 }
@@ -44,8 +48,9 @@ export default function AdminHomePage() {
   const { data: researcherData = [] } = useGetAllResearcher();
   const { data: caseData = [] } = useGetAllCases();
   const { data: appointmentData = [] } = useGetAllAppointments();
+  const { data: assessmentData = [] } = useGetAllAssessments();
 
-  const [cases, setCases] = useState<(CaseResponse & { appointments: AppointmentResponse[], researcherInfo: ResearcherResponse | null, latestAppointment: AppointmentResponse | null })[]>([]);
+  const [cases, setCases] = useState<(CaseResponse & { appointments: AppointmentResponse[], researcherInfo: ResearcherResponse | null, latestAppointment: AppointmentResponse | null, trl_estimate: number | null })[]>([]);
   const [loading, setLoading] = useState(true);
 
   // --- Filter state ---
@@ -66,12 +71,12 @@ export default function AdminHomePage() {
 
   // Merge data when loaded
   useEffect(() => {
-    if (caseData.length && researcherData.length && appointmentData.length >= 0) {
-      const merged = mergeCasesData(caseData, appointmentData, researcherData);
+    if (caseData.length && researcherData.length && appointmentData.length >= 0 && assessmentData.length >= 0) {
+      const merged = mergeCasesData(caseData, appointmentData, researcherData, assessmentData);
       setCases(merged);
       setLoading(false);
     }
-  }, [caseData, researcherData, appointmentData]);
+  }, [caseData, researcherData, appointmentData, assessmentData]);
 
   // --- Sorting ---
   function sortCases(projects: typeof cases) {

@@ -43,6 +43,11 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async useGetAllAssessments(): Promise<AssessmentResponse[]> {
+    const response = await this.axiosInstance.get<AssessmentResponse[]>(`/trl/assessments`);
+    return response.data;
+  }
+
   async useGetAssessmentById(caseId: string): Promise<AssessmentResponse> {
     const response = await this.axiosInstance.get<AssessmentResponse>(`/trl/assessment/case/${caseId}`);
     return response.data;
