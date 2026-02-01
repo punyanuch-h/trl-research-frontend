@@ -16,6 +16,7 @@ import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../.
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
   researcherInfo?: ResearcherResponse;
+  trl_estimate?: number;
 }
 interface Props {
   projects: Project[];
@@ -48,6 +49,7 @@ export default function AdminManagement({
     { key: "createdBy", label: "Create By" },
     { key: "researchTitle", label: "Name" },
     { key: "researchType", label: "Type" },
+    { key: "trl_estimate", label: "TRL Estimate" },
     { key: "trlScore", label: "TRL Score" },
     { key: "status", label: "Status" },
   ];
@@ -177,6 +179,13 @@ export default function AdminManagement({
                         )}
                       </TableCell>
                       <TableCell>{project.type}</TableCell>
+                      <TableCell className="min-w-[120px] px-2 text-center align-middle">
+                        {project.trl_estimate != null ? (
+                          <Badge variant="outline">TRL {project.trl_estimate}</Badge>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
                       <TableCell className="min-w-[120px] px-2 text-center align-middle">
                         {project.status === true ? (
                           <Badge variant="outline">TRL {project.trl_score}</Badge>
