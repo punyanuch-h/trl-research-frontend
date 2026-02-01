@@ -8,7 +8,7 @@ interface AddAppointmentData {
   date: string;
   status: "pending";
   location?: string;
-  note?: string;
+  detail?: string;
 }
 
 export function useAddAppointment(onSuccess: () => void, onClose: () => void) {
