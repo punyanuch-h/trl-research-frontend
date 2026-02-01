@@ -71,7 +71,7 @@ export default function AdminHomePage() {
 
   // Merge data when loaded
   useEffect(() => {
-    const isLoadingAny =casesLoading || researchersLoading || appointmentsLoading || assessmentsLoading;
+    const isLoadingAny = casesLoading || researchersLoading || appointmentsLoading || assessmentsLoading;
     if (isLoadingAny) {
       setLoading(true);
       return;

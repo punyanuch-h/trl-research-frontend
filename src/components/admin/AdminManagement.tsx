@@ -49,7 +49,7 @@ export default function AdminManagement({
     { key: "createdBy", label: "Create By" },
     { key: "researchTitle", label: "Name" },
     { key: "researchType", label: "Type" },
-    { key: "trlEstimate", label: "TRL Estimate" },
+    { key: "trl_estimate", label: "TRL Estimate" },
     { key: "trlScore", label: "TRL Score" },
     { key: "status", label: "Status" },
   ];
