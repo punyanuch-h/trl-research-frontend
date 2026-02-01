@@ -32,7 +32,7 @@ export function AddAppointmentModal({
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [location, setLocation] = useState<string>("");
-  const [note, setNote] = useState<string>("");
+  const [detail, setDetail] = useState<string>("");
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
   
@@ -46,7 +46,7 @@ export function AddAppointmentModal({
       setSelectedDate("");
       setSelectedTime("");
       setLocation("");
-      setNote("");
+      setDetail("");
     },
     onClose
   );
@@ -67,7 +67,7 @@ export function AddAppointmentModal({
       case_id: selectedProjectId,
       date: isoDateString,
       location,
-      note: note,
+      detail: detail,
     };
 
     try {
@@ -147,14 +147,14 @@ export function AddAppointmentModal({
           />
         </div>
 
-        {/* Notes */}
+        {/* Details */}
         <div className="mb-3">
-          <Label>Notes</Label>
+          <Label>Details</Label>
           <Textarea
-            placeholder="Enter notes"
+            placeholder="Enter details"
             rows={3}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
+            value={detail}
+            onChange={(e) => setDetail(e.target.value)}
           />
         </div>
 
