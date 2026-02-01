@@ -45,10 +45,10 @@ export default function AdminHomePage() {
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
   const [activeView, setActiveView] = useState<"management" | "dashboard" | "appointments">("management");
-  const { data: researcherData = [] } = useGetAllResearcher();
-  const { data: caseData = [] } = useGetAllCases();
-  const { data: appointmentData = [] } = useGetAllAppointments();
-  const { data: assessmentData = [] } = useGetAllAssessments();
+  const { data: researcherData = [], isLoading: researchersLoading } = useGetAllResearcher();
+  const { data: caseData = [], isLoading: casesLoading } = useGetAllCases();
+  const { data: appointmentData = [], isLoading: appointmentsLoading } = useGetAllAppointments();
+  const { data: assessmentData = [], isLoading: assessmentsLoading } = useGetAllAssessments();
 
   const [cases, setCases] = useState<(CaseResponse & { appointments: AppointmentResponse[], researcherInfo: ResearcherResponse | null, latestAppointment: AppointmentResponse | null, trl_estimate: number | null })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,12 +71,23 @@ export default function AdminHomePage() {
 
   // Merge data when loaded
   useEffect(() => {
-    if (caseData.length && researcherData.length && appointmentData.length >= 0 && assessmentData.length >= 0) {
-      const merged = mergeCasesData(caseData, appointmentData, researcherData, assessmentData);
-      setCases(merged);
-      setLoading(false);
+    const isLoadingAny =casesLoading || researchersLoading || appointmentsLoading || assessmentsLoading;
+    if (isLoadingAny) {
+      setLoading(true);
+      return;
     }
-  }, [caseData, researcherData, appointmentData, assessmentData]);
+    setCases(mergeCasesData(caseData, appointmentData, researcherData, assessmentData));
+    setLoading(false);
+  }, [
+    caseData,
+    researcherData,
+    appointmentData,
+    assessmentData,
+    casesLoading,
+    researchersLoading,
+    appointmentsLoading,
+    assessmentsLoading,
+  ]);
 
   // --- Sorting ---
   function sortCases(projects: typeof cases) {

@@ -180,7 +180,7 @@ export default function AdminManagement({
                       </TableCell>
                       <TableCell>{project.type}</TableCell>
                       <TableCell className="min-w-[120px] px-2 text-center align-middle">
-                        {project.trl_estimate ? (
+                        {project.trl_estimate != null ? (
                           <Badge variant="outline">TRL {project.trl_estimate}</Badge>
                         ) : (
                           <span className="text-muted-foreground">-</span>
