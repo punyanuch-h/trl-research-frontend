@@ -41,9 +41,6 @@ export function useUploadFile(onSuccess: () => void, onClose?: () => void) {
       // --------------------------
       const uploadResult = await fetch(upload_url, {
         method: "PUT",
-        headers: {
-          "Content-Type": file.type,
-        },
         body: file,
       });
 
@@ -61,10 +58,8 @@ export function useUploadFile(onSuccess: () => void, onClose?: () => void) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          file_name: file.name,
-          object_path,
-          content_type: file.type,
-          belongs_to_case_id: case_id ?? "",
+          case_id: case_id ?? "",
+          cases_attachments: [object_path],
         }),
       });
 

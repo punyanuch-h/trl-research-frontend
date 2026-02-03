@@ -71,24 +71,7 @@ type FormState = {
 
   // Assessment_trl
   trlLevelResult: number | null;
-  assessmentFiles: {
-    rq1?: File | null;
-    rq2?: File | null;
-    rq3?: File | null;
-    rq4?: File | null;
-    rq5?: File | null;
-    rq6?: File | null;
-    rq7?: File | null;
-    cq1?: File | null;
-    cq2?: File | null;
-    cq3?: File | null;
-    cq4?: File | null;
-    cq5?: File | null;
-    cq6?: File | null;
-    cq7?: File | null;
-    cq8?: File | null;
-    cq9?: File | null;
-  };
+  assessmentFiles: Record<string, File | null>;
   // Research Questions (RQ)
   rq1_answer: boolean;
   rq2_answer: boolean;
@@ -260,22 +243,22 @@ export default function ResearcherForm() {
         }
       }
       const phoneRegex = /^[0-9]{10}$/;
-        const headPhone = formData.headPhoneNumber.replace(/\D/g, "");
-        if (!phoneRegex.test(headPhone)) {
-            return { valid: false, firstField: "headPhoneNumber", errorMessage: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)" };
-        }
-        const coordinatorPhone = formData.coordinatorPhoneNumber.replace(/\D/g, "");
-        if (!phoneRegex.test(coordinatorPhone)) {
-            return { valid: false, firstField: "coordinatorPhoneNumber", errorMessage: "กรุณากรอกเบอร์โทรศัพท์ของผู้ประสานงานให้ถูกต้อง (10 หลัก)" };
-        }
+      const headPhone = formData.headPhoneNumber.replace(/\D/g, "");
+      if (!phoneRegex.test(headPhone)) {
+        return { valid: false, firstField: "headPhoneNumber", errorMessage: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)" };
+      }
+      const coordinatorPhone = formData.coordinatorPhoneNumber.replace(/\D/g, "");
+      if (!phoneRegex.test(coordinatorPhone)) {
+        return { valid: false, firstField: "coordinatorPhoneNumber", errorMessage: "กรุณากรอกเบอร์โทรศัพท์ของผู้ประสานงานให้ถูกต้อง (10 หลัก)" };
+      }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.headEmail)) {
-            return { valid: false, firstField: "headEmail", errorMessage: "กรุณากรอกอีเมลให้ถูกต้อง" };
-        }
-        if (!emailRegex.test(formData.coordinatorEmail)) {
-            return { valid: false, firstField: "coordinatorEmail", errorMessage: "กรุณากรอกอีเมลของผู้ประสานงานให้ถูกต้อง" };
-        }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.headEmail)) {
+        return { valid: false, firstField: "headEmail", errorMessage: "กรุณากรอกอีเมลให้ถูกต้อง" };
+      }
+      if (!emailRegex.test(formData.coordinatorEmail)) {
+        return { valid: false, firstField: "coordinatorEmail", errorMessage: "กรุณากรอกอีเมลของผู้ประสานงานให้ถูกต้อง" };
+      }
 
       if (formData.isUrgent && !formData.urgentReason.trim()) {
         return { valid: false, firstField: "urgentReason", errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน" };
@@ -315,28 +298,28 @@ export default function ResearcherForm() {
           noIp: !formData.ipHas,
         },
       ];
-      
+
       // If all forms have noIp = true, it's valid
       const allNoIp = ipForms.every(form => form.noIp === true);
       if (allNoIp) {
         return { valid: true };
       }
-      
+
       // Otherwise, validate each form that has IP
       for (let i = 0; i < ipForms.length; i++) {
         const form = ipForms[i];
         if (form.noIp) continue; // Skip forms with no IP
-        
+
         if (!form.ipStatus || !form.ipStatus.trim()) {
-          return { 
-            valid: false, 
+          return {
+            valid: false,
             firstField: "ipProtectionStatus",
             errorMessage: `กรุณาเลือกสถานะการคุ้มครองทรัพย์สินทางปัญญา (ใบที่ ${i + 1})`
           };
         }
         if (!form.ipTypes || form.ipTypes.length === 0) {
-          return { 
-            valid: false, 
+          return {
+            valid: false,
             firstField: "ipTypes",
             errorMessage: `กรุณาระบุประเภททรัพย์สินทางปัญญา (ใบที่ ${i + 1})`
           };
@@ -344,8 +327,8 @@ export default function ResearcherForm() {
         if (form.ipStatus === "ได้เลขที่คำขอแล้ว") {
           const requestNumber = form.requestNumbers?.[form.ipTypes[0]];
           if (!requestNumber || !requestNumber.trim()) {
-            return { 
-              valid: false, 
+            return {
+              valid: false,
               firstField: "ipRequestNumber",
               errorMessage: `กรุณาระบุเลขที่คำขอ (ใบที่ ${i + 1})`
             };
@@ -361,16 +344,16 @@ export default function ResearcherForm() {
       ) {
         // Check if "อื่น ๆ" is selected but otherSupportMarket is empty
         if (formData.supportMarketNeeded.includes("อื่น ๆ") && (!formData.otherSupportMarket || !formData.otherSupportMarket.trim())) {
-          return { 
-            valid: false, 
+          return {
+            valid: false,
             firstField: "otherSupportMarket",
             errorMessage: "กรุณาระบุความช่วยเหลืออื่น ๆ"
           };
         }
         return { valid: true };
       }
-      return { 
-        valid: false, 
+      return {
+        valid: false,
         firstField: !Array.isArray(formData.supportDevNeeded) || formData.supportDevNeeded.length === 0 ? "supportDevNeeded" : "supportMarketNeeded",
         errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน"
       };
@@ -471,7 +454,7 @@ export default function ResearcherForm() {
               setFormData((prev) => ({ ...prev, trlLevelResult: level }));
             }}
             setTrlCompleted={setTrlCompleted}
-            setIsEvaluated={setIsEvaluated} 
+            setIsEvaluated={setIsEvaluated}
           />
         );
       case 4:
