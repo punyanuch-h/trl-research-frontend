@@ -32,14 +32,9 @@ export class ApiBaseClient {
 
     this.axiosInstance.interceptors.response.use(
       (response) => {
-        // Do something before request is sent
-        //  e.g. add authorization header
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return response;
       },
       (error) => {
-        // Check if error.response exists before accessing its properties
-        // Network errors (like connection refused) don't have a response object
         if (error.response?.status === 498) {
           localStorage.removeItem("token");
           window.location.href = "/login";

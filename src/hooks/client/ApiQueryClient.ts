@@ -157,15 +157,15 @@ export class ApiQueryClient extends ApiBaseClient {
       phone_number: formData.coordinatorPhoneNumber,
     };
     const coordinatorResponse = await this.axiosInstance.post(`/trl/coordinator`, coordinatorPayload);
-    // 0. Handle Case File Uploads via Signed URL
+    // Handle Case File Uploads via Signed URL
     let casesAttachments: string[] = [];
     if (formData.researchDetailsFiles && formData.researchDetailsFiles.length > 0) {
       console.log('📎 Uploading files for case...');
       for (const file of formData.researchDetailsFiles) {
         console.log(`Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`);
         try {
-          const { upload_url, object_path } = await this.usePresignUpload(file);
-          await this.useUploadToSignedUrl(upload_url, file);
+          const { upload_url, object_path } = await this.presignUpload(file);
+          await this.uploadToSignedUrl(upload_url, file);
           casesAttachments.push(object_path);
           console.log(`✅ Uploaded file: ${file.name}`);
         } catch (error) {
@@ -175,7 +175,7 @@ export class ApiQueryClient extends ApiBaseClient {
       }
     }
 
-    // 2. Create Case
+    // Create Case
     const casePayload: any = {
       researcher_id: formData.id ?? "",
       coordinator_id: coordinatorResponse.data.id,
@@ -194,12 +194,12 @@ export class ApiQueryClient extends ApiBaseClient {
       casePayload.cases_attachments = casesAttachments;
     }
 
-    // 2. Create Case (Always JSON)
+    // Create Case (Always JSON)
     const caseResponse = await this.axiosInstance.post(`/trl/case`, casePayload);
     const caseId = caseResponse.data.id;
 
 
-    // 3. Create Assessment
+    // Create Assessment
     const assessmentAttachmentsRecord: Record<string, string[]> = {};
     const rqKeys = ['rq1', 'rq2', 'rq3', 'rq4', 'rq5', 'rq6', 'rq7'];
     const cqKeys = ['cq1', 'cq2', 'cq3', 'cq4', 'cq5', 'cq6', 'cq7', 'cq8', 'cq9'];
@@ -214,8 +214,8 @@ export class ApiQueryClient extends ApiBaseClient {
       for (const [key, file] of Object.entries(formData.assessmentFiles)) {
         if (file) {
           try {
-            const { upload_url, object_path } = await this.usePresignUpload(file as File);
-            await this.useUploadToSignedUrl(upload_url, file as File);
+            const { upload_url, object_path } = await this.presignUpload(file as File);
+            await this.uploadToSignedUrl(upload_url, file as File);
 
             // Determine which field this goes to
             let attachmentField = '';
@@ -278,8 +278,8 @@ export class ApiQueryClient extends ApiBaseClient {
         if (ipForm.file) {
           try {
             console.log(`📎 Uploading IP file: ${ipForm.file.name}`);
-            const { upload_url, object_path } = await this.usePresignUpload(ipForm.file);
-            await this.useUploadToSignedUrl(upload_url, ipForm.file);
+            const { upload_url, object_path } = await this.presignUpload(ipForm.file);
+            await this.uploadToSignedUrl(upload_url, ipForm.file);
             ipAttachments.push(object_path);
             console.log(`✅ Uploaded IP file: ${ipForm.file.name}`);
           } catch (error) {
@@ -351,15 +351,15 @@ export class ApiQueryClient extends ApiBaseClient {
     }
   }
 
-  async usePresignUpload(file: File) {
+  async presignUpload(file: File) {
     const response = await this.axiosInstance.post("/trl/presign/upload", {
-      name: file.name,
+      file_name: file.name,
       content_type: file.type,
     });
     return response.data;
   }
 
-  async useUploadToSignedUrl(uploadUrl: string, file: File | Blob) {
+  async uploadToSignedUrl(uploadUrl: string, file: File | Blob) {
     const response = await fetch(uploadUrl, {
       method: "PUT",
       body: file,
