@@ -157,8 +157,26 @@ export class ApiQueryClient extends ApiBaseClient {
       phone_number: formData.coordinatorPhoneNumber,
     };
     const coordinatorResponse = await this.axiosInstance.post(`/trl/coordinator`, coordinatorPayload);
-    // 2. Create Case
-    const casePayload = {
+    // Handle Case File Uploads via Signed URL
+    let casesAttachments: string[] = [];
+    if (formData.researchDetailsFiles && formData.researchDetailsFiles.length > 0) {
+      console.log('📎 Uploading files for case...');
+      for (const file of formData.researchDetailsFiles) {
+        console.log(`Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`);
+        try {
+          const { upload_url, object_path } = await this.presignUpload(file);
+          await this.uploadToSignedUrl(upload_url, file);
+          casesAttachments.push(object_path);
+          console.log(`✅ Uploaded file: ${file.name}`);
+        } catch (error) {
+          console.error(`❌ Failed to upload file ${file.name}:`, error);
+          throw error;
+        }
+      }
+    }
+
+    // Create Case
+    const casePayload: any = {
       researcher_id: formData.id ?? "",
       coordinator_id: coordinatorResponse.data.id,
       trl_score: formData.trlScore ?? null,
@@ -172,43 +190,57 @@ export class ApiQueryClient extends ApiBaseClient {
       status: formData.status ?? false,
     };
 
-    let caseResponse;
-    if (formData.researchDetailsFiles && formData.researchDetailsFiles.length > 0) {
-      console.log('📎 Attaching files to case:', formData.researchDetailsFiles.length, 'files');
-      const caseFormData = new FormData();
-      Object.keys(casePayload).forEach(key => {
-        const value = (casePayload as any)[key];
-        if (value !== null && value !== undefined) {
-          caseFormData.append(key, String(value));
-        }
-      });
-      // Append all files with the field name the backend expects
-      formData.researchDetailsFiles.forEach((file) => {
-        console.log('📎 Appending file:', file.name, 'size:', file.size);
-        caseFormData.append('attachments', file);
-      });
-      console.log('📤 Sending FormData to /trl/case');
-      console.log("caseFormData entries:", Array.from(caseFormData.entries()).map(([key, value]) => ({
-        key,
-        value: value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value
-      })));
-
-      try {
-        caseResponse = await this.axiosInstance.post(`/trl/case`, caseFormData);
-        console.log("✅ Case created successfully:", caseResponse.data);
-      } catch (error) {
-        console.error("❌ Error creating case with files:", error);
-        throw error;
-      }
-    } else {
-      console.log('📤 Sending JSON to /trl/case (no files)');
-      caseResponse = await this.axiosInstance.post(`/trl/case`, casePayload);
+    if (casesAttachments.length > 0) {
+      casePayload.cases_attachments = casesAttachments;
     }
+
+    // Create Case (Always JSON)
+    const caseResponse = await this.axiosInstance.post(`/trl/case`, casePayload);
     const caseId = caseResponse.data.id;
 
 
-    // 3. Create Assessment
-    const assessmentPayload = {
+    // Create Assessment
+    const assessmentAttachmentsRecord: Record<string, string[]> = {};
+    const rqKeys = ['rq1', 'rq2', 'rq3', 'rq4', 'rq5', 'rq6', 'rq7'];
+    const cqKeys = ['cq1', 'cq2', 'cq3', 'cq4', 'cq5', 'cq6', 'cq7', 'cq8', 'cq9'];
+
+    // Initialize with empty arrays as requested
+    [...rqKeys, ...cqKeys].forEach(key => {
+      assessmentAttachmentsRecord[`${key}_attachments`] = [];
+    });
+
+    if (formData.assessmentFiles) {
+      for (const [key, file] of Object.entries(formData.assessmentFiles)) {
+        if (file instanceof File) {
+          try {
+            const { upload_url, object_path } = await this.presignUpload(file);
+            await this.uploadToSignedUrl(upload_url, file);
+
+            // Determine which field this goes to
+            let attachmentField = '';
+            if (key.startsWith('rq')) {
+              attachmentField = `${key}_attachments`;
+            } else if (key.startsWith('cq')) {
+              // Extract cqX from cqX-Y (e.g., cq1-1 -> cq1)
+              const match = key.match(/^(cq\d+)/);
+              if (match) {
+                attachmentField = `${match[1]}_attachments`;
+              }
+            }
+
+            if (attachmentField && assessmentAttachmentsRecord[attachmentField] !== undefined) {
+              assessmentAttachmentsRecord[attachmentField].push(object_path);
+              console.log(`✅ Uploaded assessment file for ${key}: ${(file as File).name}`);
+            }
+          } catch (error) {
+            console.error(`❌ Failed to upload assessment file for ${key}:`, error);
+            throw error;
+          }
+        }
+      }
+    }
+
+    const assessmentPayload: any = {
       case_id: caseId,
       trl_estimate: formData.trlLevelResult,
       rq1_answer: formData.rq1_answer,
@@ -227,35 +259,11 @@ export class ApiQueryClient extends ApiBaseClient {
       cq7_answer: formData.cq7_answer || [],
       cq8_answer: formData.cq8_answer || [],
       cq9_answer: formData.cq9_answer || [],
+      ...assessmentAttachmentsRecord,
       improvement_suggestion: "",
     };
 
-    let assessmentResponse;
-    const hasAssessmentFiles = formData.assessmentFiles && Object.values(formData.assessmentFiles).some(file => file !== null && file !== undefined);
-
-    if (hasAssessmentFiles) {
-      const assessmentFormData = new FormData();
-      Object.keys(assessmentPayload).forEach(key => {
-        const value = (assessmentPayload as any)[key];
-        if (value !== null && value !== undefined) {
-          if (Array.isArray(value)) {
-            assessmentFormData.append(key, JSON.stringify(value));
-          } else {
-            assessmentFormData.append(key, String(value));
-          }
-        }
-      });
-      // Append files with their question keys matching backend field names
-      Object.entries(formData.assessmentFiles).forEach(([key, file]) => {
-        if (file) {
-          // Backend expects field names like 'rq1_attachments', 'cq1_attachments', etc.
-          assessmentFormData.append(`${key}_attachments`, file as File);
-        }
-      });
-      assessmentResponse = await this.axiosInstance.post(`/trl/assessment`, assessmentFormData);
-    } else {
-      assessmentResponse = await this.axiosInstance.post(`/trl/assessment`, assessmentPayload);
-    }
+    const assessmentResponse = await this.axiosInstance.post(`/trl/assessment`, assessmentPayload);
 
     // 4. Create IP records (if applicable)
     if (formData.ipHas && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
@@ -265,27 +273,32 @@ export class ApiQueryClient extends ApiBaseClient {
           continue;
         }
 
-        const ipPayload = {
+        let ipAttachments: string[] = [];
+        if (ipForm.file) {
+          try {
+            console.log(`📎 Uploading IP file: ${ipForm.file.name}`);
+            const { upload_url, object_path } = await this.presignUpload(ipForm.file);
+            await this.uploadToSignedUrl(upload_url, ipForm.file);
+            ipAttachments.push(object_path);
+            console.log(`✅ Uploaded IP file: ${ipForm.file.name}`);
+          } catch (error) {
+            console.error(`❌ Failed to upload IP file:`, error);
+            throw error;
+          }
+        }
+
+        const ipPayload: any = {
           case_id: caseId,
-          types: ipForm.ipTypes[0] || "",
+          types: ipForm.ipTypes?.[0] || "",
           protection_status: ipForm.ipStatus || "",
-          request_number: ipForm.requestNumbers?.[ipForm.ipTypes[0]] || "",
+          request_number: ipForm.requestNumbers?.[ipForm.ipTypes?.[0]] || "",
         };
 
-        if (ipForm.file) {
-          const ipFormData = new FormData();
-          Object.keys(ipPayload).forEach(key => {
-            const value = (ipPayload as any)[key];
-            if (value !== null && value !== undefined) {
-              ipFormData.append(key, String(value));
-            }
-          });
-          // Backend expects field name 'attachments'
-          ipFormData.append('attachments', ipForm.file);
-          await this.axiosInstance.post(`/trl/ip`, ipFormData);
-        } else {
-          await this.axiosInstance.post(`/trl/ip`, ipPayload);
+        if (ipAttachments.length > 0) {
+          ipPayload.ips_attachments = ipAttachments;
         }
+
+        await this.axiosInstance.post(`/trl/ip`, ipPayload);
       }
     }
 
@@ -337,21 +350,36 @@ export class ApiQueryClient extends ApiBaseClient {
     }
   }
 
-  async usePresignUpload(file: File) {
+  async presignUpload(file: File) {
     const response = await this.axiosInstance.post("/trl/presign/upload", {
-      name: file.name,
+      file_name: file.name,
       content_type: file.type,
     });
     return response.data;
   }
 
+  async uploadToSignedUrl(uploadUrl: string, file: File | Blob) {
+    const response = await fetch(uploadUrl, {
+      method: "PUT",
+      body: file,
+    });
+
+    if (!response.ok) {
+      const errorDetails = await response.text();
+      throw new Error(
+        `Upload failed with status: ${response.status}, Body: ${errorDetails}`
+      );
+    }
+  }
+
   async useNotifyUploaded(payload: {
     case_id: string;
-    name: string;
-    object_path: string;
-    content_type: string;
+    cases_attachments: string[];
   }) {
-    const response = await this.axiosInstance.post("/trl/files/uploaded", payload);
+    const response = await this.axiosInstance.post("/trl/files/uploaded", {
+      case_id: payload.case_id,
+      cases_attachments: payload.cases_attachments,
+    });
     return response.data;
   }
 
@@ -375,9 +403,33 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async useResetPassword(data: { old_password: string; new_password: string }) {
+    const response = await this.axiosInstance.post(`/trl/auth/reset-password`, data);
+    return response.data;
+  }
+
   async useForgetPassword(email: string) {
     const response = await this.axiosInstance.post(`/auth/forget-password`, { email });
     return response.data;
   }
 
+  async usePostResearcher(data: any) {
+    const response = await this.axiosInstance.post(`/trl/researcher`, data);
+    return response.data;
+  }
+
+  async useAddAppointment(data: any) {
+    const response = await this.axiosInstance.post(`/trl/appointment`, data);
+    return response.data;
+  }
+
+  async useEditAppointment(id: string, data: any) {
+    const response = await this.axiosInstance.patch(`/trl/appointment/${id}`, data);
+    return response.data;
+  }
+
+  async usePostAdmin(data: any) {
+    const response = await this.axiosInstance.post(`/trl/admin`, data);
+    return response.data;
+  }
 }

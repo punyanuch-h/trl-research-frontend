@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { BACKEND_HOST } from "@/constant/constants";
+import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
 export interface PostAdminData {
   prefix: string;
@@ -16,26 +16,12 @@ export interface PostAdminData {
 export function usePostAdmin(onSuccess: () => void) {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
+  const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
   const postAdmin = async (data: PostAdminData) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Not authenticated");
-
-      const response = await fetch(`${BACKEND_HOST}/trl/admin`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || "สร้างบัญชีผู้ใช้ไม่สำเร็จ");
-      }
+      await apiQueryClient.usePostAdmin(data);
 
       await queryClient.invalidateQueries({ queryKey: ["getAllAdmins"] });
 

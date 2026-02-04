@@ -18,28 +18,16 @@ export class ApiBaseClient {
       (config) => {
         const token = localStorage.getItem("token");
         if (token) {
-          config.headers = {
-            ...(config.headers as Record<string, string> | undefined),
-            Authorization: `Bearer ${token}`,
-          } as never;
+          config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
     this.axiosInstance.interceptors.response.use(
-      (response) => {
-        // Do something before request is sent
-        //  e.g. add authorization header
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return response;
-      },
+      (response) => response,
       (error) => {
-        // Check if error.response exists before accessing its properties
-        // Network errors (like connection refused) don't have a response object
         if (error.response?.status === 498) {
           localStorage.removeItem("token");
           window.location.href = "/login";
@@ -47,12 +35,5 @@ export class ApiBaseClient {
         return Promise.reject(error);
       }
     );
-    this.axiosInstance.interceptors.request.use((config) => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
   }
 }

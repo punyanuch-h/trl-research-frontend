@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
-import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { usePostResetPassword } from "@/hooks/user/post/useResetPassword";
 
 interface ResetPasswordData {
@@ -19,7 +18,6 @@ interface ResetPasswordData {
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
-  const { data: userProfile } = useGetUserProfile();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -39,7 +37,6 @@ export default function ResetPasswordPage() {
   const onSubmit = async (data: ResetPasswordData) => {
     try {
       await postResetPassword({
-        email: userProfile?.email || "",
         old_password: data.oldPassword,
         new_password: data.newPassword,
       });

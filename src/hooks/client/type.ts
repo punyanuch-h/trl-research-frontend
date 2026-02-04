@@ -33,6 +33,13 @@ export type AssessmentResponse = {
     rq5_answer: boolean;
     rq6_answer: boolean;
     rq7_answer: boolean;
+    rq1_attachments: string[];
+    rq2_attachments: string[];
+    rq3_attachments: string[];
+    rq4_attachments: string[];
+    rq5_attachments: string[];
+    rq6_attachments: string[];
+    rq7_attachments: string[];
     cq1_answer: string[];
     cq2_answer: string[];
     cq3_answer: string[];
@@ -42,6 +49,15 @@ export type AssessmentResponse = {
     cq7_answer: string[];
     cq8_answer: string[];
     cq9_answer: string[];
+    cq1_attachments: string[];
+    cq2_attachments: string[];
+    cq3_attachments: string[];
+    cq4_attachments: string[];
+    cq5_attachments: string[];
+    cq6_attachments: string[];
+    cq7_attachments: string[];
+    cq8_attachments: string[];
+    cq9_attachments: string[];
     improvement_suggestion: string;
     created_at: string; // ISO date string
     updated_at: string; // ISO date string

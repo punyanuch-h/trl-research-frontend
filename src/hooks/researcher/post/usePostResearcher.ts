@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { BACKEND_HOST } from "@/constant/constants";
+import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
 export interface PostResearcherData {
   prefix: string;
@@ -16,22 +16,12 @@ export interface PostResearcherData {
 export function usePostResearcher(onSuccess: () => void) {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
+  const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
   const postResearcher = async (data: PostResearcherData) => {
     setLoading(true);
     try {
-      const response = await fetch(`${BACKEND_HOST}/trl/researcher`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || "สมัครสมาชิกไม่สำเร็จ");
-      }
+      await apiQueryClient.usePostResearcher(data);
 
       await queryClient.invalidateQueries({ queryKey: ["getAllResearchers"] });
 

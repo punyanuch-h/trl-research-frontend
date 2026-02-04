@@ -27,7 +27,7 @@ interface FormState {
   coordinatorAcademicPosition: string;
   coordinatorFirstName: string;
   coordinatorLastName: string;
-  coordinatorDepartment: string;  
+  coordinatorDepartment: string;
   coordinatorPhoneNumber: string;
   coordinatorEmail: string;
   // caseDetails
@@ -53,24 +53,7 @@ interface FormState {
 
   // Assessment_trl
   trlLevelResult: number | null;
-  assessmentFiles: {
-    rq1?: File | null;
-    rq2?: File | null;
-    rq3?: File | null;
-    rq4?: File | null;
-    rq5?: File | null;
-    rq6?: File | null;
-    rq7?: File | null;
-    cq1?: File | null;
-    cq2?: File | null;
-    cq3?: File | null;
-    cq4?: File | null;
-    cq5?: File | null;
-    cq6?: File | null;
-    cq7?: File | null;
-    cq8?: File | null;
-    cq9?: File | null;
-  };
+  assessmentFiles: Record<string, File | null>;
   // Research Questions (RQ)
   rq1_answer: boolean;
   rq2_answer: boolean;
