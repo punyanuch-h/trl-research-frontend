@@ -403,9 +403,33 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
+  async useResetPassword(data: { old_password: string; new_password: string }) {
+    const response = await this.axiosInstance.post(`/trl/auth/reset-password`, data);
+    return response.data;
+  }
+
   async useForgetPassword(email: string) {
     const response = await this.axiosInstance.post(`/auth/forget-password`, { email });
     return response.data;
   }
 
+  async usePostResearcher(data: any) {
+    const response = await this.axiosInstance.post(`/trl/researcher`, data);
+    return response.data;
+  }
+
+  async useAddAppointment(data: any) {
+    const response = await this.axiosInstance.post(`/trl/appointment`, data);
+    return response.data;
+  }
+
+  async useEditAppointment(id: string, data: any) {
+    const response = await this.axiosInstance.patch(`/trl/appointment/${id}`, data);
+    return response.data;
+  }
+
+  async usePostAdmin(data: any) {
+    const response = await this.axiosInstance.post(`/trl/admin`, data);
+    return response.data;
+  }
 }

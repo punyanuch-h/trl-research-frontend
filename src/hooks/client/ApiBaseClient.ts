@@ -18,22 +18,15 @@ export class ApiBaseClient {
       (config) => {
         const token = localStorage.getItem("token");
         if (token) {
-          config.headers = {
-            ...(config.headers as Record<string, string> | undefined),
-            Authorization: `Bearer ${token}`,
-          } as never;
+          config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
     this.axiosInstance.interceptors.response.use(
-      (response) => {
-        return response;
-      },
+      (response) => response,
       (error) => {
         if (error.response?.status === 498) {
           localStorage.removeItem("token");
@@ -42,12 +35,5 @@ export class ApiBaseClient {
         return Promise.reject(error);
       }
     );
-    this.axiosInstance.interceptors.request.use((config) => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
   }
 }
