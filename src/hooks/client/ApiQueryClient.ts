@@ -210,12 +210,11 @@ export class ApiQueryClient extends ApiBaseClient {
     });
 
     if (formData.assessmentFiles) {
-      console.log('📎 Uploading files for assessment...');
       for (const [key, file] of Object.entries(formData.assessmentFiles)) {
-        if (file) {
+        if (file instanceof File) {
           try {
-            const { upload_url, object_path } = await this.presignUpload(file as File);
-            await this.uploadToSignedUrl(upload_url, file as File);
+            const { upload_url, object_path } = await this.presignUpload(file);
+            await this.uploadToSignedUrl(upload_url, file);
 
             // Determine which field this goes to
             let attachmentField = '';
@@ -290,9 +289,9 @@ export class ApiQueryClient extends ApiBaseClient {
 
         const ipPayload: any = {
           case_id: caseId,
-          types: ipForm.ipTypes[0] || "",
+          types: ipForm.ipTypes?.[0] || "",
           protection_status: ipForm.ipStatus || "",
-          request_number: ipForm.requestNumbers?.[ipForm.ipTypes[0]] || "",
+          request_number: ipForm.requestNumbers?.[ipForm.ipTypes?.[0]] || "",
         };
 
         if (ipAttachments.length > 0) {
@@ -375,11 +374,11 @@ export class ApiQueryClient extends ApiBaseClient {
 
   async useNotifyUploaded(payload: {
     case_id: string;
-    object_path: string;
+    cases_attachments: string[];
   }) {
     const response = await this.axiosInstance.post("/trl/files/uploaded", {
       case_id: payload.case_id,
-      cases_attachments: [payload.object_path],
+      cases_attachments: payload.cases_attachments,
     });
     return response.data;
   }
