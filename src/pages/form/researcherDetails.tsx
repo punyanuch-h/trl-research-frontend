@@ -18,6 +18,26 @@ interface ResearcherDetailsProps {
     refs?: any;
 }
 
+const ACADEMIC_POSITION_OPTIONS = ["none", "อ.", "ผศ.", "รศ.", "ศ."] as const;
+type AcademicPosition = typeof ACADEMIC_POSITION_OPTIONS[number] | "other";
+
+function normalizeAcademicPosition(
+  value?: string
+): { position: AcademicPosition; other?: string } {
+  if (!value) {
+    return { position: "none" };
+  }
+
+  if (ACADEMIC_POSITION_OPTIONS.includes(value as any)) {
+    return { position: value as AcademicPosition };
+  }
+
+  return {
+    position: "other",
+    other: value,
+  };
+}
+
 export default function ResearcherDetails({
     formData,
     handleInputChange,
@@ -48,34 +68,59 @@ export default function ResearcherDetails({
         setErrors((prev) => ({ ...prev, [field]: errorMessage }));
     };
 
+    const hasAutoFilled = React.useRef(false);
     useEffect(() => {
-        if (userProfile) {
+        if (userProfile && !hasAutoFilled.current) {
+            hasAutoFilled.current = true;
+
+            const normalizedHead = normalizeAcademicPosition(
+            userProfile.academic_position
+            );
+
             handleInputChange("headPrefix", userProfile.prefix || "");
-            handleInputChange("headAcademicPosition", userProfile.academic_position || "none");
+            handleInputChange("headAcademicPosition", normalizedHead.position);
+            handleInputChange(
+            "headAcademicPositionOther",
+            normalizedHead.other || ""
+            );
+
             handleInputChange("headFirstName", userProfile.first_name || "");
             handleInputChange("headLastName", userProfile.last_name || "");
             handleInputChange("headDepartment", userProfile.department || "");
             handleInputChange("headPhoneNumber", userProfile.phone_number || "");
             handleInputChange("headEmail", userProfile.email || "");
         }
-    }, [userProfile]);
+        }, [userProfile, handleInputChange]);
+
 
     // ✅ ฟังก์ชันเมื่อคลิก checkbox
     const handleSameAsHeadChange = (checked: boolean) => {
         handleInputChange("sameAsHead", checked);
         if (checked) {
-            // คัดลอกข้อมูลจากหัวหน้าโครงการ
+            const normalized = normalizeAcademicPosition(
+            formData.headAcademicPositionOther ||
+            formData.headAcademicPosition
+            );
+
             handleInputChange("coordinatorPrefix", formData.headPrefix || "");
-            handleInputChange("coordinatorAcademicPosition", formData.headAcademicPosition || "");
+            handleInputChange(
+            "coordinatorAcademicPosition",
+            normalized.position
+            );
+            handleInputChange(
+            "coordinatorAcademicPositionOther",
+            normalized.other || ""
+            );
+
             handleInputChange("coordinatorFirstName", formData.headFirstName || "");
             handleInputChange("coordinatorLastName", formData.headLastName || "");
             handleInputChange("coordinatorDepartment", formData.headDepartment || "");
             handleInputChange("coordinatorPhoneNumber", formData.headPhoneNumber || "");
             handleInputChange("coordinatorEmail", formData.headEmail || "");
         } else {
-            // ล้างข้อมูลเมื่อยกเลิก
             handleInputChange("coordinatorPrefix", "");
             handleInputChange("coordinatorAcademicPosition", "");
+            handleInputChange("coordinatorAcademicPositionOther", "");
             handleInputChange("coordinatorFirstName", "");
             handleInputChange("coordinatorLastName", "");
             handleInputChange("coordinatorDepartment", "");
@@ -83,6 +128,7 @@ export default function ResearcherDetails({
             handleInputChange("coordinatorEmail", "");
         }
     };
+
 
     return (
         <div className="space-y-6 text-gray-600">
@@ -110,15 +156,32 @@ export default function ResearcherDetails({
 
                     <div className="col-span-2">
                         <Label htmlFor="headAcademicPosition">ตำแหน่งวิชาการ</Label>
-                        <Input
+
+                        <div
+                            className={`grid gap-2 ${
+                            formData.headAcademicPosition === "other"
+                                ? "grid-cols-2"
+                                : "grid-cols-1"
+                            }`}
+                        >
+                            <Input
                             disabled
-                            id="headAcademicPosition"
-                            value={formData.headAcademicPosition === "none" ? "ไม่มี" : formData.headAcademicPosition}
-                            onChange={(e) =>
-                                handleInputChange("headAcademicPosition", e.target.value)
+                            value={
+                                formData.headAcademicPosition === "none"
+                                ? "ไม่มี"
+                                : formData.headAcademicPosition === "other"
+                                ? "อื่นๆ"
+                                : formData.headAcademicPosition
                             }
-                            required
-                        />
+                            />
+                            {formData.headAcademicPosition === "other" && (
+                            <Input
+                                disabled
+                                value={formData.headAcademicPositionOther || ""}
+                                placeholder="ตำแหน่ง"
+                            />
+                            )}
+                        </div>
                     </div>
 
                     <div className="col-span-3">
@@ -263,9 +326,12 @@ export default function ResearcherDetails({
                             }`}
                         >
                             <Select
-                            onValueChange={(value) =>
-                                handleInputChange("coordinatorAcademicPosition", value)
-                            }
+                            onValueChange={(value) => {
+                                handleInputChange("coordinatorAcademicPosition", value);
+                                if (value !== "other") {
+                                handleInputChange("coordinatorAcademicPositionOther", "");
+                                }
+                            }}
                             value={formData.coordinatorAcademicPosition}
                             required
                             >
