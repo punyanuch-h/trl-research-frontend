@@ -217,7 +217,7 @@ export default function ResearcherDetails({
 
                 <div>
                     <Label htmlFor="headDepartment">
-                        ภาควิชา / สถาน / หน่วยงาน ของผู้ประสานงาน<span className="text-red-500">*</span>
+                        ภาควิชา / สถาน / หน่วยงาน ของหัวหน้าโครงการ<span className="text-red-500">*</span>
                     </Label>
                     <p className="text-xs text-muted-foreground mb-1">
                         (รวมหน่วยงานที่เทียบเท่าภาควิชา)
@@ -395,7 +395,7 @@ export default function ResearcherDetails({
 
                 <div>
                     <Label htmlFor="coordinatorDepartment">
-                        ภาควิชา / สถาน / หน่วยงาน ของหัวหน้าโครงการ<span className="text-red-500">*</span>
+                        ภาควิชา / สถาน / หน่วยงาน ของผู้ประสานงานโครงการ<span className="text-red-500">*</span>
                     </Label>
                     <p className="text-xs text-muted-foreground mb-1">
                         (รวมหน่วยงานที่เทียบเท่าภาควิชา)
