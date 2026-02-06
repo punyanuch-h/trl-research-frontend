@@ -385,9 +385,9 @@ export default function CaseDetail() {
               <div className="text-center text-sm text-destructive py-6">
                 เกิดข้อผิดพลาดในการโหลดข้อมูลทรัพย์สินทางปัญญา
               </div>
-            ) : ipData ? (
+            ) : Array.isArray(ipData) && ipData.length > 0 ? (
               <div className="space-y-6">
-                {(Array.isArray(ipData) ? ipData : [ipData]).map((ip, index) => (
+                {ipData.map((ip, index) => (
                   <div
                     key={ip.id || index}
                     className="border p-4 rounded-2xl shadow-sm bg-gray-50"
