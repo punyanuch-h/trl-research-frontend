@@ -148,8 +148,8 @@ export class ApiQueryClient extends ApiBaseClient {
 
     // 1. Create Coordinator
     const coordinatorPayload = {
-      academic_position: formData.coordinatorAcademicPosition,
       prefix: formData.coordinatorPrefix,
+      academic_position: formData.coordinatorAcademicPosition === "other" ? formData.coordinatorAcademicPositionOther : formData.coordinatorAcademicPosition,
       department: formData.coordinatorDepartment,
       email: formData.coordinatorEmail,
       first_name: formData.coordinatorFirstName,
