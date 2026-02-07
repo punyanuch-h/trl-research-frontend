@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { getUserRole } from "@/lib/auth";
 
 import { Home } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 
 interface HeaderProps {

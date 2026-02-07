@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { CaseResponse, AppointmentResponse, ResearcherResponse} from '@/hooks/client/type.ts';
+import { CaseResponse, AppointmentResponse, ResearcherResponse } from '@/types/type';
 
 import { useAddAppointment } from "@/hooks/case/post/useAddAppointment";
 
@@ -35,7 +35,7 @@ export function AddAppointmentModal({
   const [detail, setDetail] = useState<string>("");
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
-  
+
   // 🔄 ใช้ hook ใหม่ที่มี query invalidation
   const { addAppointment, loading } = useAddAppointment(
     () => {

@@ -143,3 +143,9 @@ export type UserProfileResponse = {
     email: string;
 };
 
+export interface FileResponse {
+    id: string;
+    file_name: string;
+    file_path?: string;
+    created_at?: string;
+}

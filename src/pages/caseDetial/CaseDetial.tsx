@@ -16,6 +16,7 @@ import { useGetIPByCaseId } from "@/hooks/case/get/useGetIPByCaseId";
 import { useGetSupporterByCaseId } from "@/hooks/case/get/useGetSupporterByCaseId";
 import { useGetResearcherById } from "@/hooks/researcher/get/useGetResearcherById";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AppointmentResponse, ResearcherResponse } from "@/types/type";
 
 export default function CaseDetail() {
   const navigate = useNavigate();
@@ -40,14 +41,14 @@ export default function CaseDetail() {
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState<any | null>(null);
+  const [editingAppointment, setEditingAppointment] = useState<AppointmentResponse | null>(null);
 
-  const handleEditAppointment = (appointment: any) => {
+  const handleEditAppointment = (appointment: AppointmentResponse) => {
     setEditingAppointment(appointment);
     setEditModalOpen(true);
   };
 
-  const handleSaveEdit = (updatedAppointment: any) => {
+  const handleSaveEdit = (updatedAppointment: AppointmentResponse) => {
     setEditModalOpen(false);
     setEditingAppointment(null);
   };
@@ -544,7 +545,7 @@ export default function CaseDetail() {
           onClose={() => setEditModalOpen(false)}
           projects={caseData ? [{
             ...caseData,
-            researcherInfo: researcherData as any
+            researcherInfo: researcherData ?? undefined
           }] : []}
           appointment={editingAppointment}
           getFullNameByResearcherID={getFullNameByResearcherID}

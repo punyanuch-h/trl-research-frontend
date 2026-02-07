@@ -77,7 +77,8 @@ export default function SignupPage() {
         email: data.email,
         password: data.password,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      console.error(err);
       setError("root", {
         message: "ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง หรือ ติดต่อเจ้าหน้าที่",
       });
@@ -171,7 +172,7 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              
+
               {/* First Name */}
               <div>
                 <Label>ชื่อ</Label><span className="text-red-500">*</span>

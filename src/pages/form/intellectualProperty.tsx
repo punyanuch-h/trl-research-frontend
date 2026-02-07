@@ -14,9 +14,17 @@ interface IpFormState {
   error?: string;
 }
 
+interface IntellectualPropertyFormData {
+  ipForms?: IpFormState[];
+  ipHas?: boolean;
+  ipProtectionStatus?: string;
+  ipTypes?: string[];
+  ipRequestNumber?: string;
+}
+
 interface IntellectualPropertyProps {
-  formData: any;
-  handleInputChange: (field: string, value: any) => void;
+  formData: IntellectualPropertyFormData;
+  handleInputChange: (field: keyof IntellectualPropertyFormData, value: unknown) => void;
 }
 
 const ipTypesList = [
@@ -52,7 +60,7 @@ export default function IntellectualProperty({
     } else {
       setIsInitialized(true);
     }
-  }, [forms]);
+  }, [forms, isInitialized, handleInputChange]);
 
   const handleNoIpToggle = (formIndex: number, checked: boolean) => {
     setForms((currentForms) => {
@@ -111,7 +119,7 @@ export default function IntellectualProperty({
     patent: /^\d{7}$/,
     pettyPatent: /^2\d{6}$/,
     designPatent: /^[Dd]\d{6}$/,
-    copyright: /^[A-Za-z0-9\-\/]{5,30}$/,
+    copyright: /^[A-Za-z0-9\-/]{5,30}$/,
     trademark: /^\d{7,8}$/,
     tradeSecret: /^.{1,100}$/,
   };

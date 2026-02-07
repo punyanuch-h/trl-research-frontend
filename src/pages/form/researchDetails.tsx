@@ -4,10 +4,25 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
+export interface ResearchFormData {
+    researchTitle: string;
+    researchType: string;
+    description: string;
+    keywords: string;
+    researchDetailsFiles: File[];
+}
+
+type ResearchFormRefs = {
+    researchTitle?: React.RefObject<HTMLInputElement>;
+    researchType?: React.RefObject<HTMLDivElement>;
+    description?: React.RefObject<HTMLTextAreaElement>;
+    keywords?: React.RefObject<HTMLInputElement>;
+};
+
 interface ResearchDetailsProps {
-    formData: any;
-    handleInputChange: (field: string, value: any) => void;
-    refs?: any;
+    formData: ResearchFormData;
+    handleInputChange: (field: keyof ResearchFormData, value: string | File[]) => void;
+    refs?: ResearchFormRefs;
 }
 
 export default function ResearchDetails({ formData, handleInputChange, refs }: ResearchDetailsProps) {
@@ -105,7 +120,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                             <h4 className="text-sm text-gray-600">
                                 <span>ไฟล์ที่เลือก ({formData.researchDetailsFiles.length} ไฟล์):</span>
                             </h4>
-                            {formData.researchDetailsFiles.map((file, index) => (
+                            {formData.researchDetailsFiles.map((file: File, index: number) => (
                                 <span key={index} className="text-sm text-primary ml-2">
                                     {index + 1}. {file.name}
                                 </span>

@@ -10,12 +10,12 @@ const PrivateRoute: React.FC<Props> = ({ children }) => {
   const localToken = localStorage.getItem("token");
   const sessionToken = sessionStorage.getItem("token");
   const token = localToken || sessionToken;
+  const { data, isLoading, isError } = useGetUserProfile();
   if (!token) {
     console.log("No token found");
     return <Navigate to="/login" />;
   }
 
-  const { data, isLoading, isError } = useGetUserProfile();
   if (isLoading) return null;
   if (isError) {
     console.log("Error fetching user profile");

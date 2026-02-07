@@ -22,7 +22,7 @@ import IntellectualProperty from '@/pages/form/intellectualProperty';
 import Supporter from '@/pages/form/Supportment';
 
 interface IpForm {
-  noIp?: boolean;
+  noIp: boolean;
   ipTypes: string[];
   ipStatus: string;
   requestNumbers: Record<string, string>;
@@ -34,6 +34,7 @@ type FormState = {
   id: string;
   headPrefix: string;
   headAcademicPosition: string;
+  headAcademicPositionOther: string;
   headFirstName: string;
   headLastName: string;
   headDepartment: string;
@@ -43,6 +44,7 @@ type FormState = {
   sameAsHead: boolean;
   coordinatorPrefix: string;
   coordinatorAcademicPosition: string;
+  coordinatorAcademicPositionOther: string;
   coordinatorFirstName: string;
   coordinatorLastName: string;
   coordinatorDepartment: string;
@@ -119,6 +121,7 @@ export default function ResearcherForm() {
     id: userProfile?.id ?? "",
     headPrefix: "",
     headAcademicPosition: "",
+    headAcademicPositionOther: "",
     headFirstName: "",
     headLastName: "",
     headDepartment: "",
@@ -128,6 +131,7 @@ export default function ResearcherForm() {
     sameAsHead: false,
     coordinatorPrefix: "",
     coordinatorAcademicPosition: "",
+    coordinatorAcademicPositionOther: "",
     coordinatorFirstName: "",
     coordinatorLastName: "",
     coordinatorDepartment: "",
@@ -219,12 +223,12 @@ export default function ResearcherForm() {
     keywords: useRef<HTMLInputElement>(null),
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = <K extends keyof FormState>(
+    field: K,
+    value: FormState[K]
+  ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (stepError) {
-      setStepError("");
-    }
+    if (stepError) setStepError("");
   };
 
   // Validation - pure function that doesn't call setStepError
@@ -235,11 +239,14 @@ export default function ResearcherForm() {
         "headDepartment", "headPhoneNumber", "headEmail",
         "coordinatorPrefix", "coordinatorAcademicPosition", "coordinatorFirstName", "coordinatorLastName", "coordinatorDepartment", "coordinatorPhoneNumber", "coordinatorEmail"
       ];
-      for (const field of required) {
-        // @ts-ignore dynamic access
+      for (const field of required as (keyof FormState)[]) {
         const value = formData[field];
         if (!value || (typeof value === "string" && !value.trim())) {
-          return { valid: false, firstField: field, errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน" };
+          return {
+            valid: false,
+            firstField: field,
+            errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน"
+          };
         }
       }
       const phoneRegex = /^[0-9]{10}$/;
@@ -267,11 +274,14 @@ export default function ResearcherForm() {
     }
     if (step === 2) {
       const required = ["researchTitle", "researchType", "description"];
-      for (const field of required) {
-        // @ts-ignore dynamic access
+      for (const field of required as (keyof FormState)[]) {
         const value = formData[field];
         if (!value || (typeof value === "string" && !value.trim())) {
-          return { valid: false, firstField: field, errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน" };
+          return {
+            valid: false,
+            firstField: field,
+            errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน"
+          };
         }
       }
       return { valid: true };
@@ -363,7 +373,7 @@ export default function ResearcherForm() {
 
   function scrollToField(field?: string) {
     if (!field) return;
-    const ref = (refs as any)[field];
+    const ref = refs[field as keyof typeof refs];
     if (ref && ref.current) {
       ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
       if (typeof ref.current.focus === "function") ref.current.focus();
@@ -422,19 +432,23 @@ export default function ResearcherForm() {
     submitFormMutation.mutate(formData);
   };
 
-  const handleCheckboxChange = (field: string, value: string, checked: boolean) => {
+  const handleCheckboxChange = (
+    field: keyof FormState,
+    value: string,
+    checked: boolean
+  ) => {
     setFormData(prev => {
-      const currentValues = ((prev as any)[field] as string[]) || [];
+      const currentValues = (prev[field] as string[]) || [];
+
       if (checked) {
-        return { ...(prev as any), [field]: [...currentValues, value] } as FormState;
+        return { ...prev, [field]: [...currentValues, value] };
       } else {
-        return { ...(prev as any), [field]: currentValues.filter(item => item !== value) } as FormState;
+        return {
+          ...prev,
+          [field]: currentValues.filter(item => item !== value),
+        };
       }
     });
-  };
-
-  const handleFileChange = (file: File | null) => {
-    setFormData(prev => ({ ...prev, additionalDocuments: file }));
   };
 
   const renderFormStep = () => {

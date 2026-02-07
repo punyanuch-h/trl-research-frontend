@@ -1,6 +1,7 @@
 import { useDownloadFile } from "@/hooks/file/useDownloadFile";
+import type { FileResponse } from "@/types/type";
 
-export function FileRow({ file }: { file: any }) {
+export function FileRow({ file }: { file: FileResponse }) {
   const { downloadFile, loading } = useDownloadFile();
 
   return (

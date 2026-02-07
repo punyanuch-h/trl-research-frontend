@@ -4,7 +4,7 @@ import { Download, Eye, Filter, Plus } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import type { CaseResponse, AppointmentResponse } from "@/hooks/client/type";
+import type { CaseResponse, AppointmentResponse } from "@/types/type";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,11 +43,11 @@ export default function ResearcherHomePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
-  
+
   const { data: userProfile } = useGetUserProfile();
   const { data: caseData = [] } = useGetAllCasesByID(userProfile?.id) as { data: CaseResponse[] | undefined };
   const { data: appointmentData = [] } = useGetAllAppointments();
-  
+
   // --- State ---
   const [cases, setCases] = useState<(CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,31 +79,64 @@ export default function ResearcherHomePage() {
   }, [caseData, appointmentData]);
 
   // --- Sorting ---
-  function sortResearch(researchList: (CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null })[]) {
+  const sortKeyMap = {
+    case_id: "id",
+    case_title: "title",
+    case_type: "type",
+    trl_score: "trl_score",
+    status: "status",
+  } as const;
+
+  type ResearchCase = CaseResponse & {
+    appointments: AppointmentResponse[];
+    latestAppointment: AppointmentResponse | null;
+  };
+
+  function sortResearch(researchList: ResearchCase[]) {
     const sorted = [...researchList].sort((a, b) => {
       const { key, direction } = sortConfig;
-      let aValue: any = (a as any)[key];
-      let bValue: any = (b as any)[key];
 
-      if (key === "trl_score") {
-        aValue = a.trl_score ?? "";
-        bValue = b.trl_score ?? "";
+      // 👇 แปลง key table → key จริง
+      const realKey = sortKeyMap[key as keyof typeof sortKeyMap];
+
+      if (!realKey) return 0;
+
+      let aValue = a[realKey];
+      let bValue = b[realKey];
+
+      // ---- special case ----
+      if (realKey === "trl_score") {
+        aValue = a.trl_score ?? 0;
+        bValue = b.trl_score ?? 0;
       }
-      if (key === "status") {
-        aValue = a.status ?? "";
-        bValue = b.status ?? "";
+
+      if (realKey === "status") {
+        aValue = a.status ? "Approve" : "In process";
+        bValue = b.status ? "Approve" : "In process";
       }
-      
-      if (aValue < bValue) return direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return direction === "asc" ? 1 : -1;
+
+      // ---- number compare ----
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return direction === "asc" ? aValue - bValue : bValue - aValue;
+      }
+
+      // ---- string compare ----
+      const aStr = String(aValue ?? "").toLowerCase();
+      const bStr = String(bValue ?? "").toLowerCase();
+
+      if (aStr < bStr) return direction === "asc" ? -1 : 1;
+      if (aStr > bStr) return direction === "asc" ? 1 : -1;
       return 0;
     });
 
-    return sorted.sort((a, b) => (a.is_urgent === b.is_urgent ? 0 : a.is_urgent ? -1 : 1));
+    // urgent ขึ้นบนเสมอ
+    return sorted.sort((a, b) =>
+      a.is_urgent === b.is_urgent ? 0 : a.is_urgent ? -1 : 1
+    );
   }
 
   const sortedCases = sortResearch(cases);
-  
+
   // --- Filtering ---
   const filteredCases = sortedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
@@ -141,7 +174,7 @@ export default function ResearcherHomePage() {
         : { key, direction: "asc" }
     );
   };
-  
+
   useEffect(() => {
     setCurrentPage(1);
   }, [customFilters, rowsPerPage]);
@@ -192,7 +225,7 @@ export default function ResearcherHomePage() {
         ipData = await queryClient.fetchQuery({
           queryKey: ["useGetIPByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetIPByCaseId(caseInfo.id); 
+            return await apiQueryClient.useGetIPByCaseId(caseInfo.id);
           },
         });
       } catch (err) {
@@ -238,8 +271,8 @@ export default function ResearcherHomePage() {
       link.href = url;
       const rawTitle = caseInfo.title || caseInfo.id;
       const sanitizedTitle = rawTitle.toString()
-          .replace(/[<>:"/\\|?*]/g, '_')
-          .trim();
+        .replace(/[<>:"/\\|?*]/g, '_')
+        .trim();
       link.download = `result_${sanitizedTitle}.pdf`;
 
       document.body.appendChild(link);
@@ -252,7 +285,7 @@ export default function ResearcherHomePage() {
       alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -295,7 +328,7 @@ export default function ResearcherHomePage() {
               </Button>
             </div>
           </div>
-          
+
           {/* --- Modal Filter --- */}
           <FilterPopup
             open={showFilterModal}
@@ -307,7 +340,7 @@ export default function ResearcherHomePage() {
             columnOptions={columnOptions}
           />
         </div>
-        
+
         {/* --- Table --- */}
         <Card>
           <CardHeader>
@@ -405,15 +438,15 @@ export default function ResearcherHomePage() {
                             </>
                           ) : (
                             <div className="flex flex-col items-start gap-1 min-w-[200px]">
-                                <div>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleViewCase(c.id)}
-                                  >
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    View
-                                  </Button>
+                              <div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleViewCase(c.id)}
+                                >
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  View
+                                </Button>
                               </div>
                               {(() => {
                                 const caseAppointments = appointmentData

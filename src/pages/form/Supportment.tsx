@@ -1,20 +1,29 @@
-// supportment.tsx
-
 import React from 'react';
 
 interface FormData {
-  supportDevNeeded: string[]; // Change to string[] to support multiple selections
-  supportMarketNeeded: string[]; // Change to string[]
+  supportDevNeeded: string[];
+  supportMarketNeeded: string[];
   businessPartner: string;
   readyForShowcase: string;
   consent: string;
-  otherSupportMarket: string; // Add a field for the "other" text input
+  otherSupportMarket: string;
 }
+
+type SupportFormKeys = keyof FormData;
 
 interface SupporterProps {
   formData: FormData;
-  handleInputChange: (field: string, value: any) => void;
-  handleCheckboxChange: (field: string, value: string, checked: boolean) => void;
+
+  handleInputChange: (
+    field: SupportFormKeys,
+    value: FormData[SupportFormKeys]
+  ) => void;
+
+  handleCheckboxChange: (
+    field: SupportFormKeys,
+    value: string,
+    checked: boolean
+  ) => void;
 }
 
 const Supporter: React.FC<SupporterProps> = ({

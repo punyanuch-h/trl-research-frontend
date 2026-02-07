@@ -12,11 +12,11 @@ const PublicRoute: React.FC<Props> = ({ children }) => {
     const sessionToken = sessionStorage.getItem("token");
     const token = localToken || sessionToken;
     const role = getUserRole();
+    const { data, isLoading, isError } = useGetUserProfile();
     if (role === "admin") return <Navigate to="/admin/homepage" />;
     else if (role === "researcher") return <Navigate to="/researcher/homepage" />;
     if (!token) return <>{children}</>;
 
-    const { data, isLoading, isError } = useGetUserProfile();
     if (isLoading) return null;
     if (isError) return <>{children}</>;
 

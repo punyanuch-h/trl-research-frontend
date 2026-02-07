@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { CaseResponse, AppointmentResponse,  ResearcherResponse} from '@/hooks/client/type.ts';
+import { CaseResponse, AppointmentResponse, ResearcherResponse } from '@/types/type';
 import { useEditAppointment } from "@/hooks/case/patch/useEditAppointment";
 
 interface Project extends CaseResponse {
@@ -54,13 +54,19 @@ export default function EditAppointmentModal({
 
   if (!form) return null;
 
-  const handleChange = (field: keyof AppointmentResponse, value: any) => {
+  const handleChange = <K extends keyof AppointmentResponse>(
+    field: K,
+    value: AppointmentResponse[K]
+  ) => {
     if (field === "date") {
-      // Convert datetime-local format to ISO string
-      const dateValue = value ? new Date(value).toISOString() : value;
-      setForm({ ...form, [field]: dateValue });
+      const dateValue =
+        typeof value === "string" && value
+          ? new Date(value).toISOString()
+          : value;
+
+      setForm(prev => prev ? { ...prev, [field]: dateValue } : prev);
     } else {
-      setForm({ ...form, [field]: value });
+      setForm(prev => prev ? { ...prev, [field]: value } : prev);
     }
   };
 

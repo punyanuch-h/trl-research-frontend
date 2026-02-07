@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import type { AppointmentResponse } from "@/hooks/client/type";
+import type { AppointmentResponse } from "@/types/type";
 
 export function useEditAppointment(onSave: (updated: AppointmentResponse) => void, onClose: () => void) {
   const [loading, setLoading] = useState(false);

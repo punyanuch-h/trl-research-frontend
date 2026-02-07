@@ -90,7 +90,8 @@ export default function CreateAccountPage() {
         email: data.email,
         password: data.password,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      console.error(err);
       setError("root", {
         message: "ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง หรือ ติดต่อเจ้าหน้าที่",
       });
