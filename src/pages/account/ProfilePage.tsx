@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit, Save } from "lucide-react";
+import { ArrowLeft, Edit, Save, X } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,6 +61,11 @@ export default function ProfilePage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleCancel = () => {
+    if (userProfile) setForm(userProfile);
+    setIsEditing(false);
+  };
+
   const handleSave = async () => {
     try {
       await updateUserProfile.mutateAsync(form);
@@ -100,7 +105,18 @@ export default function ProfilePage() {
             ข้อมูลบัญชีผู้ใช้
           </h2>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            {isEditing && !updateUserProfile.isPending && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCancel}
+                className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive"
+              >
+                <X className="w-4 h-4" />
+                ยกเลิก
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
