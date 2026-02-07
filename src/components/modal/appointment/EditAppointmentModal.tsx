@@ -59,10 +59,11 @@ export default function EditAppointmentModal({
     value: AppointmentResponse[K]
   ) => {
     if (field === "date") {
-      const dateValue =
-        typeof value === "string" && value
-          ? new Date(value).toISOString()
-          : value;
+      let dateValue = value;
+        if (typeof value === "string" && value) {
+          const parsed = new Date(value);
+          dateValue = isNaN(parsed.getTime()) ? value : parsed.toISOString();
+        }
 
       setForm(prev => prev ? { ...prev, [field]: dateValue } : prev);
     } else {

@@ -275,41 +275,43 @@ export default function AdminManagement({
                   </TableRow>
                 ))
               )}
-              {/* Confirm Dialog */}
-              <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>ยืนยันการยกเลิก</DialogTitle>
-                  </DialogHeader>
-                  <p>คุณแน่ใจหรือไม่ว่าจะยกเลิก urgent case?</p>
-
-                  <textarea
-                    className="w-full border rounded p-2 mt-2"
-                    placeholder="ระบุเหตุผล..."
-                    value={cancelReason}
-                    onChange={(e) => setCancelReason(e.target.value)}
-                  />
-
-                  <DialogFooter>
-                    <Button
-                      variant="ghost"
-                      onClick={() => setConfirmOpen(false)}
-                      disabled={updateUrgentStatus.isPending}
-                    >
-                      ยกเลิก
-                    </Button>
-                    <Button
-                      onClick={() => handleConfirm(targetId, cancelReason)}
-                      variant="destructive"
-                      disabled={updateUrgentStatus.isPending}
-                    >
-                      {updateUrgentStatus.isPending ? "กำลังประมวลผล..." : "ยืนยัน"}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
             </TableBody>
           </Table>
+
+          {/* Confirm Dialog */}
+          <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>ยืนยันการยกเลิก</DialogTitle>
+              </DialogHeader>
+              <p>คุณแน่ใจหรือไม่ว่าจะยกเลิก urgent case?</p>
+
+              <textarea
+                className="w-full border rounded p-2 mt-2"
+                placeholder="ระบุเหตุผล..."
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+              />
+
+              <DialogFooter>
+                <Button
+                  variant="ghost"
+                  onClick={() => setConfirmOpen(false)}
+                  disabled={updateUrgentStatus.isPending}
+                >
+                  ยกเลิก
+                </Button>
+                <Button
+                  onClick={() => handleConfirm(targetId, cancelReason)}
+                  variant="destructive"
+                  disabled={updateUrgentStatus.isPending}
+                >
+                  {updateUrgentStatus.isPending ? "กำลังประมวลผล..." : "ยืนยัน"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <TablePagination
             totalPages={totalPages}
             currentPage={currentPage}
