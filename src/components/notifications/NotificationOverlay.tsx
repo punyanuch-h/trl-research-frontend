@@ -1,6 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AppointmentResponse } from "@/hooks/client/type";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { th } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +67,10 @@ export function NotificationOverlay({
 
                                 <div className="flex flex-col gap-1 mt-1">
                                     <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
-                                        📅 {format(new Date(notif.date), "dd MMM yyyy - HH:mm", { locale: th })}
+                                        📅 {(() => {
+                                            const d = new Date(notif.date);
+                                            return isValid(d) ? format(d, "dd MMM yyyy - HH:mm", { locale: th }) : "ไม่ระบุวันที่";
+                                        })()}
                                     </span>
                                     {notif.location && (
                                         <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">

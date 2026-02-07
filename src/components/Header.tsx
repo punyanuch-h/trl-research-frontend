@@ -49,7 +49,7 @@ export default function Header({ disabled = false }: HeaderProps) {
             <div className="flex items-center gap-2">
               <Avatar className="w-8 h-8">
                 <AvatarImage src="" alt="User" />
-                <AvatarFallback>{userProfile?.first_name.slice(0, 1)}{userProfile?.last_name.slice(0, 1)}</AvatarFallback>
+                <AvatarFallback>{userProfile?.first_name?.slice(0, 1)}{userProfile?.last_name.slice(0, 1)}</AvatarFallback>
               </Avatar>
               <span className="text-sm font-medium">{userProfile?.first_name} {userProfile?.last_name}</span>
             </div>

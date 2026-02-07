@@ -6,7 +6,7 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { AppointmentResponse } from "@/hooks/client/type";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { th } from "date-fns/locale";
 import { Calendar, MapPin, FileText } from "lucide-react";
 
@@ -41,7 +41,9 @@ export function AppointmentModal({
                         <div>
                             <p className="text-sm font-semibold">วันและเวลา</p>
                             <p className="text-sm">
-                                {format(new Date(appointment.date), "PPP p", { locale: th })}
+                                {isValid(new Date(appointment.date))
+                                    ? format(new Date(appointment.date), "PPP p", { locale: th })
+                                    : "ไม่ระบุ"}
                             </p>
                         </div>
                     </div>
