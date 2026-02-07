@@ -2,7 +2,7 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
-
+import type { CaseResponse, CoordinatorResponse, AppointmentResponse, IntellectualPropertyResponse, SupportmentResponse, AssessmentResponse } from '@/types/type';
 // Register Fonts
 try {
   Font.register({
@@ -20,11 +20,11 @@ try {
 
 const fixThaiEndLine = (text: string | undefined | null) => {
   if (!text) return '-';
-  
+
   return text.split('\n').map(line => {
     const lastThree = line.slice(-3);
     const hasThai = /[\u0E00-\u0E7F]/.test(lastThree);
-    
+
     return hasThai ? line + "  " : line;
   }).join('\n');
 };
@@ -52,10 +52,10 @@ const fixThaiEndLine = (text: string | undefined | null) => {
 //     if (typeof Intl !== 'undefined' && (Intl as any).Segmenter) {
 //       const segmenter = new (Intl as any).Segmenter('th', { granularity: 'word' });
 //       const segments = Array.from(segmenter.segment(word));
-      
+
 //       segments.forEach(({ segment }: { segment: string }) => {
 //         const characters = segment.split("");
-        
+
 //         characters.forEach((char) => {
 //           if (/^[\u0E30-\u0E3A\u0E47-\u0E4E\u0E31]/.test(char) && results.length > 0) {
 //             results[results.length - 1] += char;
@@ -64,13 +64,13 @@ const fixThaiEndLine = (text: string | undefined | null) => {
 //           }
 //         });
 //       });
-      
+
 //       return results.filter(s => s !== "");
 //     }
 //   } catch (e) {
 //     console.error("Segmenter error:", e);
 //   }
-  
+
 //   return word.split(""); 
 // });
 
@@ -84,7 +84,7 @@ const fixThaiEndLine = (text: string | undefined | null) => {
 //       const segmenter = new (Intl as any).Segmenter('th', { granularity: 'word' });
 //       const segments = Array.from(segmenter.segment(word));
 //       const words = segments.map((x: any) => x.segment);
-      
+
 //       // รวมสระบน-ล่าง วรรณยุกต์ และสระจมทั้งหมด
 //       const isThaiVowelOrTone = /^[\u0E30-\u0E3A\u0E47-\u0E4E\u0E31]/;
 
@@ -108,13 +108,13 @@ const fixThaiEndLine = (text: string | undefined | null) => {
 //           results.push(w);
 //         }
 //       });
-      
+
 //       return results.filter(s => s !== "");
 //     }
 //   } catch (e) {
 //     console.error("Segmenter error:", e);
 //   }
-  
+
 //   return word.split(""); 
 // });
 
@@ -128,7 +128,7 @@ const fixThaiEndLine = (text: string | undefined | null) => {
 //     if (typeof Intl !== 'undefined' && (Intl as any).Segmenter) {
 //       const segmenter = new (Intl as any).Segmenter('th', { granularity: 'word' });
 //       const words = Array.from(segmenter.segment(word)).map((x: any) => x.segment);
-      
+
 //       // words.forEach((w) => {
 //       //   if (results.length > 0 && isThaiVowelOrTone.test(w)) {
 //       //     let currentFragment = w;
@@ -157,7 +157,7 @@ const fixThaiEndLine = (text: string | undefined | null) => {
 //             const lastChar = lastWord.slice(-1); // ดึงตัวท้ายจากก้อนก่อนหน้า
 //             currentFragment = lastChar + currentFragment; // เอามาแปะหน้า
 //             lastWord = lastWord.slice(0, -1); // ตัดออกจากก้อนเดิม
-            
+
 //             // Log ดูว่ามันดึงกี่รอบ
 //             console.log(`Looping: Pulling "${lastChar}" to join, Now fragment is: "${currentFragment}"`);
 //           }
@@ -178,15 +178,20 @@ const fixThaiEndLine = (text: string | undefined | null) => {
 Font.registerHyphenationCallback(word => {
   if (word.length < 2) return [word];
 
-  let results: string[] = [];
+  const results: string[] = [];
   // Regex ครอบคลุมสระบน-ล่าง วรรณยุกต์ และตัวการันต์ไทยทั้งหมด
-  const isThaiVowelOrTone = /^[ะาำิีึืุู็่้๊๋์ั]/;
+  const isThaiVowelOrTone = /^[\u0E00-\u0E7F]/;
 
   try {
-    if (typeof Intl !== 'undefined' && (Intl as any).Segmenter) {
-      const segmenter = new (Intl as any).Segmenter('th', { granularity: 'word' });
+    const Segmenter = (Intl as unknown as {
+      Segmenter: new (locale: string, opts: { granularity: string }) => {
+        segment: (input: string) => Iterable<{ segment: string }>;
+      };
+    }).Segmenter;
+    if (typeof Intl !== 'undefined' && Segmenter) {
+      const segmenter = new Segmenter('th', { granularity: 'word' });
       const segments = Array.from(segmenter.segment(word));
-      
+
       segments.forEach(({ segment }) => {
         // ย่อยคำออกมาเป็นตัวอักษร เพื่อให้ PDF สามารถตัดบรรทัดได้ทุกตำแหน่งที่เป็นพยัญชนะ
         const chars = segment.split("");
@@ -200,33 +205,33 @@ Font.registerHyphenationCallback(word => {
           }
         });
       });
-      
+
       return results.filter(s => s !== "");
     }
   } catch (e) {
     console.error("Segmenter error:", e);
   }
-  
-  return word.split(""); 
+
+  return word.split("");
 });
 
-  // const results = [];
-  // let currentBuffer = "";
-  
-  // for (let i = 0; i < word.length; i++) {
-  //   const char = word[i];
-  //   const isUpperLower = /[\u0E30-\u0E3A\u0E47-\u0E4E\u0E31]/.test(char);
+// const results = [];
+// let currentBuffer = "";
 
-  //   if (isUpperLower) {
-  //     currentBuffer += char;
-  //   } else {
-  //     if (currentBuffer) results.push(currentBuffer);
-  //     currentBuffer = char;
-  //   }
-  // }
-  // if (currentBuffer) results.push(currentBuffer);
-  
-  // return results;
+// for (let i = 0; i < word.length; i++) {
+//   const char = word[i];
+//   const isUpperLower = /[\u0E30-\u0E3A\u0E47-\u0E4E\u0E31]/.test(char);
+
+//   if (isUpperLower) {
+//     currentBuffer += char;
+//   } else {
+//     if (currentBuffer) results.push(currentBuffer);
+//     currentBuffer = char;
+//   }
+// }
+// if (currentBuffer) results.push(currentBuffer);
+
+// return results;
 
 
 const formatDate = (dateString: string | Date | undefined, withTime: boolean = false) => {
@@ -306,19 +311,19 @@ const styles = StyleSheet.create({
 });
 
 interface Props {
-  c: any;
-  coordinatorData?: any;
-  appointments?: any[];
-  ipList?: any[];
-  supportmentData?: any;
-  assessmentData?: any;
+  c: CaseResponse;
+  coordinatorData?: CoordinatorResponse;
+  appointments?: AppointmentResponse[];
+  ipList?: IntellectualPropertyResponse[];
+  supportmentData?: SupportmentResponse;
+  assessmentData?: AssessmentResponse;
 }
 
-export const CaseReportPDF: React.FC<Props> = ({ 
-  c, 
-  coordinatorData, 
-  appointments = [], 
-  ipList = [], 
+export const CaseReportPDF: React.FC<Props> = ({
+  c,
+  coordinatorData,
+  appointments = [],
+  ipList = [],
   supportmentData,
   assessmentData,
 }) => {
@@ -335,7 +340,7 @@ export const CaseReportPDF: React.FC<Props> = ({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.reportTitle}>{c.title || 'N/A'}</Text>
@@ -366,9 +371,9 @@ export const CaseReportPDF: React.FC<Props> = ({
           </View>
           <View>
             <Text style={[styles.label, { width: '100%', marginTop: 5, marginBottom: 3 }]}>Project Description:</Text>
-            <Text style={{ 
-              fontSize: 10, 
-              textAlign: 'justify', 
+            <Text style={{
+              fontSize: 10,
+              textAlign: 'justify',
               lineHeight: 1.5,
               textIndent: 20,
               marginTop: 3,
@@ -425,9 +430,9 @@ export const CaseReportPDF: React.FC<Props> = ({
                 </View>
                 <View>
                   <Text style={[styles.label, { width: '100%', marginTop: 5, marginBottom: 3 }]}>Summary:</Text>
-                  <Text style={{ 
-                    fontSize: 10, 
-                    textAlign: 'justify', 
+                  <Text style={{
+                    fontSize: 10,
+                    textAlign: 'justify',
                     lineHeight: 1.5,
                     textIndent: 20,
                     marginTop: 3,
@@ -438,9 +443,9 @@ export const CaseReportPDF: React.FC<Props> = ({
                 </View>
                 <View>
                   <Text style={[styles.label, { width: '100%', marginTop: 5, marginBottom: 3 }]}>Details:</Text>
-                  <Text style={{ 
-                    fontSize: 10, 
-                    textAlign: 'justify', 
+                  <Text style={{
+                    fontSize: 10,
+                    textAlign: 'justify',
                     lineHeight: 1.5,
                     textIndent: 20,
                     marginTop: 3,
@@ -449,7 +454,7 @@ export const CaseReportPDF: React.FC<Props> = ({
                     {fixThaiEndLine(a.detail) || '-'}
                   </Text>
                 </View>
-                {i < appointments.length - 1 && <View style={styles.entryDivider}/>}
+                {i < appointments.length - 1 && <View style={styles.entryDivider} />}
               </React.Fragment>
             ))}
           </View>
@@ -480,7 +485,7 @@ export const CaseReportPDF: React.FC<Props> = ({
                 </View>
                 <View style={styles.row} wrap={false}>
                   <Text style={styles.label}>Status:</Text>
-                  <Text style={{ ...styles.value}}>{ip.protection_status || '-'}  </Text>
+                  <Text style={{ ...styles.value }}>{ip.protection_status || '-'}  </Text>
                 </View>
                 {i < ipList.length - 1 && <View style={styles.entryDivider} />}
               </React.Fragment>
@@ -499,29 +504,29 @@ export const CaseReportPDF: React.FC<Props> = ({
                 <Text style={[styles.label, { width: '100%', marginTop: 3, marginBottom: 3 }]}>Existing Support:</Text>
 
                 {(supportmentData.support_research || supportmentData.support_vdc || supportmentData.support_sieic) ? (
-                
-                <View style={{ marginLeft: 20 }}>
-                  {supportmentData.support_research && <Text style={styles.value}>• ฝ่ายวิจัย (Research Division)  </Text>}
-                  {supportmentData.support_vdc && <Text style={styles.value}>• ศูนย์ขับเคลื่อนคุณค่าการบริการ (VDC)  </Text>}
-                  {supportmentData.support_sieic && <Text style={styles.value}>• ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (SiEIC)  </Text>}
-                </View>
-                
-              ) : (
-                <Text style={[styles.value, { marginLeft: 20 }]}>ไม่มีหน่วยงานสนับสนุนนวัตกรรม  </Text>
-              )}
+
+                  <View style={{ marginLeft: 20 }}>
+                    {supportmentData.support_research && <Text style={styles.value}>• ฝ่ายวิจัย (Research Division)  </Text>}
+                    {supportmentData.support_vdc && <Text style={styles.value}>• ศูนย์ขับเคลื่อนคุณค่าการบริการ (VDC)  </Text>}
+                    {supportmentData.support_sieic && <Text style={styles.value}>• ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (SiEIC)  </Text>}
+                  </View>
+
+                ) : (
+                  <Text style={[styles.value, { marginLeft: 20 }]}>ไม่มีหน่วยงานสนับสนุนนวัตกรรม  </Text>
+                )}
               </View>
             </View>
 
             {/* ความช่วยเหลือที่ต้องการ */}
             <View style={{ flexWrap: 'wrap' }}>
               <Text style={[styles.label, { width: '100%', marginTop: 3, marginBottom: 3 }]}>Requirements & Assistance Needed:</Text>
-              
+
               {/* ตรวจสอบว่ามีความต้องการไหม */}
-              {(supportmentData.need_protect_intellectual_property || supportmentData.need_co_developers || 
-                supportmentData.need_activities || supportmentData.need_test || supportmentData.need_capital || 
-                supportmentData.need_partners || supportmentData.need_guidelines || 
+              {(supportmentData.need_protect_intellectual_property || supportmentData.need_co_developers ||
+                supportmentData.need_activities || supportmentData.need_test || supportmentData.need_capital ||
+                supportmentData.need_partners || supportmentData.need_guidelines ||
                 supportmentData.need_certification || supportmentData.need_account) ? (
-                
+
                 <View style={{ marginLeft: 20 }}>
                   {supportmentData.need_protect_intellectual_property && <Text style={styles.value}>• การคุ้มครองทรัพย์สินทางปัญญา  </Text>}
                   {supportmentData.need_co_developers && <Text style={styles.value}>• หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม  </Text>}
@@ -533,7 +538,7 @@ export const CaseReportPDF: React.FC<Props> = ({
                   {supportmentData.need_certification && <Text style={styles.value}>• การขอรับรองมาตรฐานหรือคุณภาพ  </Text>}
                   {supportmentData.need_account && <Text style={styles.value}>• บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม  </Text>}
                 </View>
-                
+
               ) : (
                 <Text style={[styles.value, { marginLeft: 20 }]}>ไม่ต้องการความช่วยเหลือเพิ่มเติม  </Text>
               )}
@@ -544,9 +549,9 @@ export const CaseReportPDF: React.FC<Props> = ({
               <View>
                 <View minPresenceAhead={80}>
                   <Text style={[styles.label, { width: '100%', marginTop: 5, marginBottom: 3 }]}>Additional Requirements:</Text>
-                  <Text style={{ 
-                    fontSize: 10, 
-                    textAlign: 'justify', 
+                  <Text style={{
+                    fontSize: 10,
+                    textAlign: 'justify',
                     lineHeight: 1.5,
                     textIndent: 20,
                     marginTop: 3,
@@ -564,9 +569,9 @@ export const CaseReportPDF: React.FC<Props> = ({
         {assessmentData && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle} wrap={false}>Improvement Suggestions</Text>
-            <Text style={{ 
-              fontSize: 10, 
-              textAlign: 'justify', 
+            <Text style={{
+              fontSize: 10,
+              textAlign: 'justify',
               lineHeight: 1.6,
               textIndent: 20,
               marginRight: 10,
@@ -575,7 +580,7 @@ export const CaseReportPDF: React.FC<Props> = ({
               {assessmentData.improvement_suggestion ? (
                 fixThaiEndLine(assessmentData.improvement_suggestion)
               ) : (
-                "Excellent Progress: All evaluated Technology Readiness Level (TRL) criteria have been addressed. No further technical adjustments are recommended at this stage."                )}
+                "Excellent Progress: All evaluated Technology Readiness Level (TRL) criteria have been addressed. No further technical adjustments are recommended at this stage.")}
             </Text>
           </View>
         )}

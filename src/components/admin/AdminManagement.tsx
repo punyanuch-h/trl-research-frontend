@@ -11,7 +11,7 @@ import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useUpdateUrgentStatus } from "@/hooks/case/patch/useUpdateUrgentStatus";
 
-import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../hooks/client/type";
+import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../types/type";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
@@ -45,10 +45,10 @@ export default function AdminManagement({
   getFullNameByResearcherID,
 }: Props) {
   const tableColumns = [
-    { key: "createdAt", label: "Create Date" },
+    { key: "created_at", label: "Create Date" },
     { key: "createdBy", label: "Create By" },
-    { key: "researchTitle", label: "Name" },
-    { key: "researchType", label: "Type" },
+    { key: "title", label: "Name" },
+    { key: "type", label: "Type" },
     { key: "trl_estimate", label: "TRL Estimate" },
     { key: "trlScore", label: "TRL Score" },
     { key: "status", label: "Status" },
@@ -109,98 +109,129 @@ export default function AdminManagement({
   return (
     <>
       <Card>
-          <CardHeader>
-            <CardTitle>Research Submissions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
+        <CardHeader>
+          <CardTitle>Research Submissions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {tableColumns.map(col => (
+                  <TableHead
+                    key={col.key}
+                    className="cursor-pointer select-none"
+                    onClick={() => onSort(col.key)}
+                  >
+                    {col.label}
+                    {sortConfig.key === col.key ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
+                  </TableHead>
+                ))}
+                <TableHead>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedProjects.length === 0 ? (
                 <TableRow>
-                  {tableColumns.map(col => (
-                    <TableHead
-                      key={col.key}
-                      className="cursor-pointer select-none"
-                      onClick={() => onSort(col.key)}
-                    >
-                      {col.label}
-                      {sortConfig.key === col.key ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
-                    </TableHead>
-                  ))}
-                  <TableHead>Action</TableHead>
+                  <TableCell colSpan={tableColumns.length + 1} className="text-center text-muted-foreground">
+                    ไม่พบข้อมูลงานวิจัย
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedProjects.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={tableColumns.length + 1} className="text-center text-muted-foreground">
-                      ไม่พบข้อมูลงานวิจัย
+              ) : (
+                paginatedProjects.map(project => (
+                  <TableRow key={project.id}>
+                    <TableCell className="min-w-[140px] px-2 text-center align-middle">
+                      {new Date(project.created_at).toLocaleDateString()}
                     </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedProjects.map(project => (
-                    <TableRow key={project.id}>
-                      <TableCell className="min-w-[140px] px-2 text-center align-middle">
-                        {new Date(project.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="min-w-[120px] px-2 items-center">
-                        {getFullNameByResearcherID(project.researcher_id)}
-                      </TableCell>
-                      <TableCell className="min-w-[180px] px-2 items-center">
-                        <div className="flex flex-col">
-                          <span
-                            className={`relative group ${project.is_urgent ? "text-red-600 font-semibold" : ""}`}
-                          >
-                            {project.title}
+                    <TableCell className="min-w-[120px] px-2 items-center">
+                      {getFullNameByResearcherID(project.researcher_id)}
+                    </TableCell>
+                    <TableCell className="min-w-[180px] px-2 items-center">
+                      <div className="flex flex-col">
+                        <span
+                          className={`relative group ${project.is_urgent ? "text-red-600 font-semibold" : ""}`}
+                        >
+                          {project.title}
 
-                            {project.is_urgent && (
-                              <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
+                          {project.is_urgent && (
+                            <span className="absolute left-1/2 -translate-x-1/2 ml-10 mt-2 hidden group-hover:block 
                                               border border-red-600 bg-white text-black text-xs font-normal
                                               px-4 py-2 rounded-lg shadow-lg z-10 w-64 text-center">
-                                {project.urgent_reason}
-                              </span>
-                            )}
-                          </span>
-
-                          {project.urgent_feedback && (
-                            <span className="text-xs text-gray-500 mt-1">
-                              {project.urgent_feedback}
+                              {project.urgent_reason}
                             </span>
                           )}
-                        </div>
+                        </span>
 
-                        {project.is_urgent && (
-                          <button
-                            onClick={() => handleAskConfirm(project.id)}
-                            className="text-red-500 hover:text-red-700"
-                            title="Mark as not urgent"
+                        {project.urgent_feedback && (
+                          <span className="text-xs text-gray-500 mt-1">
+                            {project.urgent_feedback}
+                          </span>
+                        )}
+                      </div>
+
+                      {project.is_urgent && (
+                        <button
+                          onClick={() => handleAskConfirm(project.id)}
+                          className="text-red-500 hover:text-red-700"
+                          title="Mark as not urgent"
+                        >
+                          <AlertTriangle className="w-4 h-4" />
+                        </button>
+                      )}
+                    </TableCell>
+                    <TableCell>{project.type}</TableCell>
+                    <TableCell className="min-w-[120px] px-2 text-center align-middle">
+                      {project.trl_estimate != null ? (
+                        <Badge variant="outline">TRL {project.trl_estimate}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="min-w-[120px] px-2 text-center align-middle">
+                      {project.status === true ? (
+                        <Badge variant="outline">TRL {project.trl_score}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground"></span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center align-middle">
+                      <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(project.status === true ? "Approve" : "In process")}`}>
+                        {project.status === true ? "Approve" : "In process"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="w-[250px] flex gap-2">
+                      {project.status === true ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewResearch(project.id)}
                           >
-                            <AlertTriangle className="w-4 h-4" />
-                          </button>
-                        )}
-                      </TableCell>
-                      <TableCell>{project.type}</TableCell>
-                      <TableCell className="min-w-[120px] px-2 text-center align-middle">
-                        {project.trl_estimate != null ? (
-                          <Badge variant="outline">TRL {project.trl_estimate}</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="min-w-[120px] px-2 text-center align-middle">
-                        {project.status === true ? (
-                          <Badge variant="outline">TRL {project.trl_score}</Badge>
-                        ) : (
-                          <span className="text-muted-foreground"></span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center align-middle">
-                        <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(project.status === true ? "Approve" : "In process")}`}>
-                          {project.status === true ? "Approve" : "In process"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="w-[250px] flex gap-2">
-                        {project.status === true ? (
-                          <>
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                          {project.trl_score ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onDownload(project)}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Result
+                            </Button>
+                          ) : (
+                            <div className="invisible">
+                              <Button variant="outline" size="sm">
+                                <Download className="w-4 h-4 mr-2" />
+                                Result
+                              </Button>
+                            </div>
+                          )}
+
+
+                        </>
+                      ) : project.status === false ? (
+                        <div className="flex flex-col items-start gap-1">
+                          <div className="flex gap-2">
                             <Button
                               variant="outline"
                               size="sm"
@@ -209,38 +240,7 @@ export default function AdminManagement({
                               <Eye className="w-4 h-4 mr-1" />
                               View
                             </Button>
-                            {project.trl_score ? (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => onDownload(project)}
-                              >
-                                <Download className="w-4 h-4 mr-2" />
-                                Result
-                              </Button>
-                            ) : (
-                              <div className="invisible">
-                                <Button variant="outline" size="sm">
-                                  <Download className="w-4 h-4 mr-2" />
-                                  Result
-                                </Button>
-                              </div>
-                            )}
-
-                            
-                          </>
-                        ) : project.status === false ? (
-                          <div className="flex flex-col items-start gap-1">
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleViewResearch(project.id)}
-                              >
-                                <Eye className="w-4 h-4 mr-1" />
-                                View
-                              </Button>
-                              {/* <Button
+                            {/* <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => onAIEstimate(project)}
@@ -248,77 +248,79 @@ export default function AdminManagement({
                                 <Sparkles className="w-4 h-4 mr-1" />
                                 AI Estimate
                               </Button> */}
-                            </div>
-                            {project.appointments && project.appointments.length > 0 ? (
-                              <Badge variant="outline" className="text-xs">
-                                Appointment:{" "}
-                                {format(
-                                  new Date(
-                                    project.appointments[project.appointments.length - 1].date
-                                  ),
-                                  "dd/MM/yyyy HH:mm",
-                                  { locale: th }
-                                )}
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-xs text-gray-400">
-                                Appointment: -
-                              </Badge>
-                            )}
                           </div>
-                        ) : (
-                          // กรณี status อื่นๆ ไม่แสดงปุ่มเลย หรือแสดงอะไรตามต้องการ
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
+                          {project.appointments && project.appointments.length > 0 ? (
+                            <Badge variant="outline" className="text-xs">
+                              Appointment:{" "}
+                              {format(
+                                new Date(
+                                  project.appointments[project.appointments.length - 1].date
+                                ),
+                                "dd/MM/yyyy HH:mm",
+                                { locale: th }
+                              )}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs text-gray-400">
+                              Appointment: -
+                            </Badge>
+                          )}
+                        </div>
+                      ) : (
+                        // กรณี status อื่นๆ ไม่แสดงปุ่มเลย หรือแสดงอะไรตามต้องการ
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
 
-                    </TableRow>
+                  </TableRow>
                 ))
-                )}
-                {/* Confirm Dialog */}
-                <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>ยืนยันการยกเลิก</DialogTitle>
-                    </DialogHeader>
-                    <p>คุณแน่ใจหรือไม่ว่าจะยกเลิก urgent case?</p>
+              )}
+            </TableBody>
+          </Table>
 
-                    <textarea
-                      className="w-full border rounded p-2 mt-2"
-                      placeholder="ระบุเหตุผล..."
-                      value={cancelReason}
-                      onChange={(e) => setCancelReason(e.target.value)}
-                    />
+          {/* Confirm Dialog */}
+          <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>ยืนยันการยกเลิก</DialogTitle>
+              </DialogHeader>
+              <p>คุณแน่ใจหรือไม่ว่าจะยกเลิก urgent case?</p>
 
-                    <DialogFooter>
-                      <Button 
-                        variant="ghost" 
-                        onClick={() => setConfirmOpen(false)}
-                        disabled={updateUrgentStatus.isPending}
-                      >
-                        ยกเลิก
-                      </Button>
-                      <Button 
-                        onClick={() => handleConfirm(targetId, cancelReason)} 
-                        variant="destructive"
-                        disabled={updateUrgentStatus.isPending}
-                      >
-                        {updateUrgentStatus.isPending ? "กำลังประมวลผล..." : "ยืนยัน"}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </TableBody>
-            </Table>
-            <TablePagination
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={setRowsPerPage}
-            />
-          </CardContent>
-        </Card>
+              <textarea
+                className="w-full border rounded p-2 mt-2"
+                placeholder="ระบุเหตุผล..."
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+              />
+
+              <DialogFooter>
+                <Button
+                  variant="ghost"
+                  onClick={() => setConfirmOpen(false)}
+                  disabled={updateUrgentStatus.isPending}
+                >
+                  ยกเลิก
+                </Button>
+                <Button
+                  onClick={() => handleConfirm(targetId, cancelReason)}
+                  variant="destructive"
+                  disabled={updateUrgentStatus.isPending}
+                >
+                  {updateUrgentStatus.isPending ? "กำลังประมวลผล..." : "ยืนยัน"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <TablePagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={setRowsPerPage}
+          />
+        </CardContent>
+      </Card>
     </>
   );
 }

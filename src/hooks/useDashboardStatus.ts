@@ -28,7 +28,7 @@ interface IntellectualProperty {
 }
 
 interface Supportment {
-  [key: string]: any;
+  [key: string]: boolean | string | number | null | undefined;
 }
 
 interface UseDashboardStatsProps {
@@ -119,14 +119,14 @@ export function useDashboardStats({
     const agencyData = Object.entries(agencyLabels)
       .map(([key, label]) => ({
         name: label,
-        value: allSupportments.filter((s: any) => s[key] === true).length,
+        value: allSupportments.filter((s) => s[key] === true).length,
       }))
       .sort((a, b) => b.value - a.value);
 
     const neededSupportData = Object.entries(needLabels)
       .map(([key, label]) => ({
         name: label,
-        value: allSupportments.filter((s: any) => s[key] === true).length,
+        value: allSupportments.filter((s) => s[key] === true).length,
       }))
       .sort((a, b) => b.value - a.value);
 

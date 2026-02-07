@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import type { CaseResponse, AppointmentResponse, ResearcherResponse, AssessmentResponse } from "@/hooks/client/type";
+import type { CaseResponse, AppointmentResponse, ResearcherResponse, AssessmentResponse } from "@/types/type";
 
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminManagement from "../../components/admin/AdminManagement";
@@ -50,7 +50,6 @@ export default function AdminHomePage() {
   const { data: appointmentData = [], isLoading: appointmentsLoading } = useGetAllAppointments();
   const { data: assessmentData = [], isLoading: assessmentsLoading } = useGetAllAssessments();
 
-  const [cases, setCases] = useState<(CaseResponse & { appointments: AppointmentResponse[], researcherInfo: ResearcherResponse | null, latestAppointment: AppointmentResponse | null, trl_estimate: number | null })[]>([]);
   const [loading, setLoading] = useState(true);
 
   // --- Filter state ---
@@ -90,31 +89,67 @@ export default function AdminHomePage() {
   ]);
 
   // --- Sorting ---
-  function sortCases(projects: typeof cases) {
+  type AdminCase = CaseResponse & {
+    appointments: AppointmentResponse[];
+    researcherInfo: ResearcherResponse | null;
+    latestAppointment: AppointmentResponse | null;
+    trl_estimate: number | null;
+  };
+  const [cases, setCases] = useState<AdminCase[]>([]);
+
+  function sortCases(projects: AdminCase[]) {
     const sorted = [...projects].sort((a, b) => {
       const { key, direction } = sortConfig;
-      let aValue: any = (a as any)[key];
-      let bValue: any = (b as any)[key];
+
+      const aRecord = a as Record<string, unknown>;
+      const bRecord = b as Record<string, unknown>;
+
+      let aValue = aRecord[key];
+      let bValue = bRecord[key];
+
+      if (key === "createdBy") {
+        const getName = (id: string) => {
+          const r = researcherData.find(x => x.id === id);
+          return r ? `${r.first_name} ${r.last_name}`.toLowerCase() : "";
+        };
+
+        aValue = getName(a.researcher_id);
+        bValue = getName(b.researcher_id);
+      }
 
       if (key === "trlScore") {
-        aValue = a.trl_score ?? "";
-        bValue = b.trl_score ?? "";
+        aValue = a.trl_score ?? 0;
+        bValue = b.trl_score ?? 0;
       }
+
       if (key === "status") {
-        aValue = a.status ?? "";
-        bValue = b.status ?? "";
+        aValue = a.status ? "Approve" : "In process";
+        bValue = b.status ? "Approve" : "In process";
       }
+
       if (key === "createdAt") {
         aValue = new Date(a.created_at).getTime();
         bValue = new Date(b.created_at).getTime();
       }
 
-      if (aValue < bValue) return direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return direction === "asc" ? 1 : -1;
+      // number compare
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return direction === "asc" ? aValue - bValue : bValue - aValue;
+      }
+
+      // string compare
+      const aStr = String(aValue ?? "").toLowerCase();
+      const bStr = String(bValue ?? "").toLowerCase();
+
+      if (aStr < bStr) return direction === "asc" ? -1 : 1;
+      if (aStr > bStr) return direction === "asc" ? 1 : -1;
       return 0;
     });
 
-    return sorted.sort((a, b) => (a.is_urgent === b.is_urgent ? 0 : a.is_urgent ? -1 : 1));
+    // urgent always top
+    return sorted.sort((a, b) =>
+      a.is_urgent === b.is_urgent ? 0 : a.is_urgent ? -1 : 1
+    );
   }
 
   const sortedCases = sortCases(cases);
@@ -152,89 +187,89 @@ export default function AdminHomePage() {
     navigate(`/trl-1?research=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}`);
   }
 
-  function handleAIEstimate(project: any) {
+  function handleAIEstimate(project: AdminCase) {
     navigate("/trl-score", { state: { project } });
   }
 
   const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null }) => {
+    try {
+      console.log("Generating PDF for:", caseInfo.title);
+
+      let coordinatorData = null;
       try {
-        console.log("Generating PDF for:", caseInfo.title);
-  
-        let coordinatorData = null;
-        try {
-          coordinatorData = await queryClient.fetchQuery({
-            queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
-            queryFn: async () => {
-              return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.id);
-            },
-          });
-        } catch (err) {
-          console.warn("No coordinator data found or error fetching", err);
-        }
-  
-        let ipData = [];
-        try {
-          ipData = await queryClient.fetchQuery({
-            queryKey: ["useGetIPByCaseId", caseInfo.id],
-            queryFn: async () => {
-              return await apiQueryClient.useGetIPByCaseId(caseInfo.id); 
-            },
-          });
-        } catch (err) {
-          console.warn("No IP data found", err);
-        }
-
-        let supportmentData = null;
-        try {
-          supportmentData = await queryClient.fetchQuery({
-            queryKey: ["useGetSupporterByCaseId", caseInfo.id],
-            queryFn: async () => {
-              return await apiQueryClient.useGetSupporterByCaseId(caseInfo.id);
-            },
-          });
-        } catch (err) {
-          console.warn("No supportment data found", err);
-        }
-
-        let assessmentData = null;
-        try {
-          assessmentData = await queryClient.fetchQuery({
-            queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
-            queryFn: async () => {
-              return await apiQueryClient.useGetAssessmentById(caseInfo.id);
-            },
-          });
-        } catch (err) {
-          console.warn("No assessment data found", err);
-        }
-  
-        const pdfProps = {
-          c: caseInfo,
-          appointments: caseInfo.appointments || [],
-          coordinatorData: coordinatorData,
-          ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
-          supportmentData: supportmentData,
-          assessmentData: assessmentData,
-        };
-  
-        const blob = await pdf(<CaseReportPDF {...pdfProps} />).toBlob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        const rawTitle = caseInfo.title || caseInfo.id;
-        const sanitizedTitle = rawTitle.toString().replace(/[<>:"/\\|?*]/g, "_").trim();
-        link.download = `result_${sanitizedTitle}.pdf`;
-       
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-  
-      } catch (error) {
-        console.error("Error generating PDF:", error);
-        alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+        coordinatorData = await queryClient.fetchQuery({
+          queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
+          queryFn: async () => {
+            return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.id);
+          },
+        });
+      } catch (err) {
+        console.warn("No coordinator data found or error fetching", err);
       }
-    };
+
+      let ipData = [];
+      try {
+        ipData = await queryClient.fetchQuery({
+          queryKey: ["useGetIPByCaseId", caseInfo.id],
+          queryFn: async () => {
+            return await apiQueryClient.useGetIPByCaseId(caseInfo.id);
+          },
+        });
+      } catch (err) {
+        console.warn("No IP data found", err);
+      }
+
+      let supportmentData = null;
+      try {
+        supportmentData = await queryClient.fetchQuery({
+          queryKey: ["useGetSupporterByCaseId", caseInfo.id],
+          queryFn: async () => {
+            return await apiQueryClient.useGetSupporterByCaseId(caseInfo.id);
+          },
+        });
+      } catch (err) {
+        console.warn("No supportment data found", err);
+      }
+
+      let assessmentData = null;
+      try {
+        assessmentData = await queryClient.fetchQuery({
+          queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
+          queryFn: async () => {
+            return await apiQueryClient.useGetAssessmentById(caseInfo.id);
+          },
+        });
+      } catch (err) {
+        console.warn("No assessment data found", err);
+      }
+
+      const pdfProps = {
+        c: caseInfo,
+        appointments: caseInfo.appointments || [],
+        coordinatorData: coordinatorData,
+        ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
+        supportmentData: supportmentData,
+        assessmentData: assessmentData,
+      };
+
+      const blob = await pdf(<CaseReportPDF {...pdfProps} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      const rawTitle = caseInfo.title || caseInfo.id;
+      const sanitizedTitle = rawTitle.toString().replace(/[<>:"/\\|?*]/g, "_").trim();
+      link.download = `result_${sanitizedTitle}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+    }
+  };
 
   function handleSort(key: string) {
     setSortConfig((prev) => {

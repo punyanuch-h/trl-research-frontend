@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { ApiQueryClient } from "../../client/ApiQueryClient";
+import axios, { AxiosError } from "axios";
 import { da } from "date-fns/locale";
+import { SubmitResearcherFormRequest } from "@/types/request";
 
 interface IpForm {
   noIp?: boolean;
@@ -93,16 +95,8 @@ export function useSubmitResearcherForm() {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: async (formData: FormState) => {
-      try {
-        const results = await Promise.all([
-          apiClient.useSubmitResearcherForm(formData),
-        ]);
-        return results;
-      } catch (error) {
-        throw error;
-      }
-    },
+    mutationFn: (form: SubmitResearcherFormRequest) =>
+      apiClient.useSubmitResearcherForm(form),
     onSuccess: () => {
       // Invalidate related queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["getAllCases"] });
@@ -116,15 +110,21 @@ export function useSubmitResearcherForm() {
       localStorage.removeItem("researcherFormData");
       navigate('/researcher-homepage');
     },
-    onError: (error) => {
-      console.error("❌ Error submitting form:", error);
-      console.error("❌ Error details:", {
-        message: (error as any)?.message,
-        response: (error as any)?.response?.data,
-        status: (error as any)?.response?.status,
-        statusText: (error as any)?.response?.statusText,
-      });
-      alert("เกิดข้อผิดพลาดในการส่งข้อมูล: " + (error as any)?.message);
+    onError: (error: unknown) => {
+      console.error("submit error:", error);
+
+      if (axios.isAxiosError(error)) {
+        const err = error as AxiosError<{ message?: string }>;
+        alert(err.response?.data?.message || err.message);
+        return;
+      }
+
+      if (error instanceof Error) {
+        alert(error.message);
+        return;
+      }
+
+      alert("unknown error");
     },
   });
 }

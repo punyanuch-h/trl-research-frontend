@@ -11,7 +11,7 @@ import EditAppointmentModal from "../modal/appointment/EditAppointmentModal";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../hooks/client/type";
+import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../types/type";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
@@ -32,6 +32,7 @@ interface Props {
   onAssessment: (id: number, name: string, type: string) => void;
   userRole?: "admin" | "researcher";
 }
+type RangeType = "all" | "1w" | "1m" | "3m" | "1y";
 
 export default function AdminAppointment({
   projects,
@@ -45,7 +46,7 @@ export default function AdminAppointment({
 }: Props) {
   const navigate = useNavigate();
 
-  const [range, setRange] = useState<"all" | "1w" | "1m" | "3m" | "1y">("1w");
+  const [range, setRange] = useState<RangeType>("1w");
   const [statusFilter, setStatusFilter] = useState<"all" | "attended" | "absent" | "pending">("all");
   const today = new Date();
 
@@ -145,7 +146,7 @@ export default function AdminAppointment({
             </Select>
 
             {/* Filter by range */}
-            <Select value={range} onValueChange={(v) => setRange(v as any)}>
+            <Select value={range} onValueChange={(v: RangeType) => setRange(v)}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Range" />
               </SelectTrigger>

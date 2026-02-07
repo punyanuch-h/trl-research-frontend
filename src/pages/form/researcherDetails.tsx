@@ -9,33 +9,70 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {useGetUserProfile} from "@/hooks/user/get/useGetUserProfile";
+import FormState from "@/pages/form/ResearcherForm";
+import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { PhoneInput } from "@/components/format/PhoneInput";
 
+interface ResearcherFormData {
+    headPrefix: string;
+    headAcademicPosition: string;
+    headAcademicPositionOther?: string;
+    headFirstName: string;
+    headLastName: string;
+    headDepartment: string;
+    headPhoneNumber: string;
+    headEmail: string;
+
+    coordinatorPrefix: string;
+    coordinatorAcademicPosition: string;
+    coordinatorAcademicPositionOther?: string;
+    coordinatorFirstName: string;
+    coordinatorLastName: string;
+    coordinatorDepartment: string;
+    coordinatorPhoneNumber: string;
+    coordinatorEmail: string;
+
+    sameAsHead?: boolean;
+    isUrgent?: boolean;
+    urgentReason?: string;
+}
+
 interface ResearcherDetailsProps {
-    formData: any;
-    handleInputChange: (field: string, value: any) => void;
-    refs?: any;
+    formData: ResearcherFormData;
+    handleInputChange: (field: keyof ResearcherFormData, value: string | boolean) => void;
+    refs?: {
+        headFirstName?: React.RefObject<HTMLInputElement>;
+        headLastName?: React.RefObject<HTMLInputElement>;
+        headDepartment?: React.RefObject<HTMLInputElement>;
+        headPhoneNumber?: React.RefObject<HTMLInputElement>;
+        headEmail?: React.RefObject<HTMLInputElement>;
+        coordinatorFirstName?: React.RefObject<HTMLInputElement>;
+        coordinatorLastName?: React.RefObject<HTMLInputElement>;
+        coordinatorDepartment?: React.RefObject<HTMLInputElement>;
+        coordinatorPhoneNumber?: React.RefObject<HTMLInputElement>;
+        coordinatorEmail?: React.RefObject<HTMLInputElement>;
+        urgentReason?: React.RefObject<HTMLTextAreaElement>;
+    };
 }
 
 const ACADEMIC_POSITION_OPTIONS = ["none", "อ.", "ผศ.", "รศ.", "ศ."] as const;
 type AcademicPosition = typeof ACADEMIC_POSITION_OPTIONS[number] | "other";
 
 function normalizeAcademicPosition(
-  value?: string
+    value?: string
 ): { position: AcademicPosition; other?: string } {
-  if (!value) {
-    return { position: "none" };
-  }
+    if (!value) {
+        return { position: "none" };
+    }
 
-  if (ACADEMIC_POSITION_OPTIONS.includes(value as any)) {
-    return { position: value as AcademicPosition };
-  }
+    if (ACADEMIC_POSITION_OPTIONS.includes(value as typeof ACADEMIC_POSITION_OPTIONS[number])) {
+        return { position: value as AcademicPosition };
+    }
 
-  return {
-    position: "other",
-    other: value,
-  };
+    return {
+        position: "other",
+        other: value,
+    };
 }
 
 export default function ResearcherDetails({
@@ -74,14 +111,14 @@ export default function ResearcherDetails({
             hasAutoFilled.current = true;
 
             const normalizedHead = normalizeAcademicPosition(
-            userProfile.academic_position
+                userProfile.academic_position
             );
 
             handleInputChange("headPrefix", userProfile.prefix || "");
             handleInputChange("headAcademicPosition", normalizedHead.position);
             handleInputChange(
-            "headAcademicPositionOther",
-            normalizedHead.other || ""
+                "headAcademicPositionOther",
+                normalizedHead.other || ""
             );
 
             handleInputChange("headFirstName", userProfile.first_name || "");
@@ -90,7 +127,7 @@ export default function ResearcherDetails({
             handleInputChange("headPhoneNumber", userProfile.phone_number || "");
             handleInputChange("headEmail", userProfile.email || "");
         }
-        }, [userProfile, handleInputChange]);
+    }, [userProfile, handleInputChange]);
 
 
     // ✅ ฟังก์ชันเมื่อคลิก checkbox
@@ -98,18 +135,18 @@ export default function ResearcherDetails({
         handleInputChange("sameAsHead", checked);
         if (checked) {
             const normalized = normalizeAcademicPosition(
-            formData.headAcademicPositionOther ||
-            formData.headAcademicPosition
+                formData.headAcademicPositionOther ||
+                formData.headAcademicPosition
             );
 
             handleInputChange("coordinatorPrefix", formData.headPrefix || "");
             handleInputChange(
-            "coordinatorAcademicPosition",
-            normalized.position
+                "coordinatorAcademicPosition",
+                normalized.position
             );
             handleInputChange(
-            "coordinatorAcademicPositionOther",
-            normalized.other || ""
+                "coordinatorAcademicPositionOther",
+                normalized.other || ""
             );
 
             handleInputChange("coordinatorFirstName", formData.headFirstName || "");
@@ -158,28 +195,27 @@ export default function ResearcherDetails({
                         <Label htmlFor="headAcademicPosition">ตำแหน่งวิชาการ</Label>
 
                         <div
-                            className={`grid gap-2 ${
-                            formData.headAcademicPosition === "other"
-                                ? "grid-cols-2"
-                                : "grid-cols-1"
-                            }`}
+                            className={`grid gap-2 ${formData.headAcademicPosition === "other"
+                                    ? "grid-cols-2"
+                                    : "grid-cols-1"
+                                }`}
                         >
                             <Input
-                            disabled
-                            value={
-                                formData.headAcademicPosition === "none"
-                                ? "ไม่มี"
-                                : formData.headAcademicPosition === "other"
-                                ? "อื่นๆ"
-                                : formData.headAcademicPosition
-                            }
+                                disabled
+                                value={
+                                    formData.headAcademicPosition === "none"
+                                        ? "ไม่มี"
+                                        : formData.headAcademicPosition === "other"
+                                            ? "อื่นๆ"
+                                            : formData.headAcademicPosition
+                                }
                             />
                             {formData.headAcademicPosition === "other" && (
-                            <Input
-                                disabled
-                                value={formData.headAcademicPositionOther || ""}
-                                placeholder="ตำแหน่ง"
-                            />
+                                <Input
+                                    disabled
+                                    value={formData.headAcademicPositionOther || ""}
+                                    placeholder="ตำแหน่ง"
+                                />
                             )}
                         </div>
                     </div>
@@ -316,50 +352,49 @@ export default function ResearcherDetails({
                     <div className="col-span-2">
                         <Label htmlFor="coordinatorAcademicPosition">ตำแหน่งวิชาการ
                             {formData.coordinatorAcademicPosition === "other" && (
-                            <span className="text-red-500">*</span>
-                        )}</Label>
+                                <span className="text-red-500">*</span>
+                            )}</Label>
                         <div
-                            className={`grid gap-2 ${
-                            formData.coordinatorAcademicPosition === "other"
-                                ? "grid-cols-2"
-                                : "grid-cols-1"
-                            }`}
+                            className={`grid gap-2 ${formData.coordinatorAcademicPosition === "other"
+                                    ? "grid-cols-2"
+                                    : "grid-cols-1"
+                                }`}
                         >
                             <Select
-                            onValueChange={(value) => {
-                                handleInputChange("coordinatorAcademicPosition", value);
-                                if (value !== "other") {
-                                handleInputChange("coordinatorAcademicPositionOther", "");
-                                }
-                            }}
-                            value={formData.coordinatorAcademicPosition}
-                            required
+                                onValueChange={(value) => {
+                                    handleInputChange("coordinatorAcademicPosition", value);
+                                    if (value !== "other") {
+                                        handleInputChange("coordinatorAcademicPositionOther", "");
+                                    }
+                                }}
+                                value={formData.coordinatorAcademicPosition}
+                                required
                             >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="เลือก" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">ไม่มี</SelectItem>
-                                <SelectItem value="อ.">อ.</SelectItem>
-                                <SelectItem value="ผศ.">ผศ.</SelectItem>
-                                <SelectItem value="รศ.">รศ.</SelectItem>
-                                <SelectItem value="ศ.">ศ.</SelectItem>
-                                <SelectItem value="other">อื่นๆ</SelectItem>
-                            </SelectContent>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="เลือก" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">ไม่มี</SelectItem>
+                                    <SelectItem value="อ.">อ.</SelectItem>
+                                    <SelectItem value="ผศ.">ผศ.</SelectItem>
+                                    <SelectItem value="รศ.">รศ.</SelectItem>
+                                    <SelectItem value="ศ.">ศ.</SelectItem>
+                                    <SelectItem value="other">อื่นๆ</SelectItem>
+                                </SelectContent>
                             </Select>
 
                             {/* Custom input for "other" */}
                             {formData.coordinatorAcademicPosition === "other" && (
-                            <input
-                                type="text"
-                                placeholder="ตำแหน่ง"
-                                className="w-full border rounded px-3 py-2 text-sm"
-                                onChange={(e) =>
-                                    handleInputChange("coordinatorAcademicPositionOther", e.target.value)
-                                }
-                                value={formData.coordinatorAcademicPositionOther || ""}
-                                required
-                            />
+                                <input
+                                    type="text"
+                                    placeholder="ตำแหน่ง"
+                                    className="w-full border rounded px-3 py-2 text-sm"
+                                    onChange={(e) =>
+                                        handleInputChange("coordinatorAcademicPositionOther", e.target.value)
+                                    }
+                                    value={formData.coordinatorAcademicPositionOther || ""}
+                                    required
+                                />
                             )}
                         </div>
                     </div>

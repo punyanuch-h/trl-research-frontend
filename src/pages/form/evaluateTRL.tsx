@@ -3,9 +3,20 @@ import RadioQuestion from "@/components/evaluate/RadioQuestion";
 import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
 import { checkboxQuestionList } from "@/data/checkboxQuestionList";
 
+export interface EvaluateTRLFormData {
+  radioAnswers?: { index: number; value: string }[];
+  checkboxSteps?: { level: number; value: number[] }[];
+  radioFiles?: Record<string, File | null>;
+  assessmentFiles?: Record<string, File | null>;
+  [key: string]: unknown;
+}
+
 interface EvaluateTRLProps {
-  formData: any;
-  handleInputChange: (field: string, value: any) => void;
+  formData: EvaluateTRLFormData;
+  handleInputChange: (
+    field: string,
+    value: unknown
+  ) => void;
   setTrlLevel?: (level: number | null) => void;
   setTrlCompleted: (completed: boolean) => void;
   setIsEvaluated: (evaluated: boolean) => void;
@@ -62,7 +73,7 @@ export default function EvaluateTRL({
       setTrlLevel(0);
     }
   };
-  
+
   const handleRadioChange = (index: number, value: number) => {
     const answerText = value === 1 ? "ใช่" : "ไม่ใช่";
     const answerBool = value === 1;
@@ -151,7 +162,7 @@ export default function EvaluateTRL({
           const removedCqField = `cq${removedStep.level}_answer`;
           handleInputChange(removedCqField, []);
         });
-        
+
         updated.splice(stepIndex + 1);
         setPhase("checkbox");
         setMaxLevel(null);
@@ -164,8 +175,6 @@ export default function EvaluateTRL({
     });
   };
 
-  
-  
   const currentStepIndex = checkboxSteps.length - 1;
   const currentStep = checkboxSteps[currentStepIndex];
 
@@ -224,6 +233,7 @@ export default function EvaluateTRL({
       }
     }
     setIsHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 

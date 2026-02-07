@@ -14,7 +14,7 @@ import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
 import { useUpdateAssessment } from '@/hooks/case/patch/useUpdateAssessment';
 import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImprovementSuggestion';
 import { useUpdateTrlScore } from '@/hooks/case/patch/useUpdateTrlScore';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const AssessmentResult = () => {
@@ -137,12 +137,14 @@ const AssessmentResult = () => {
       }
       setIsEditingTrl(false);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update. Please try again.';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to update. Please try again.";
       toast.error(errorMessage);
 
-      // Final attempt to sync state from server if everything fails
       refetchCase();
     } finally {
       setIsUpdatingTrl(false);

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "../../client/ApiQueryClient";
-import type { UserProfileResponse } from "@/hooks/client/type.ts";
+import type { UserProfileResponse } from "@/types/type";
 
 export const useUpdateUserProfile = () => {
   const apiClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);

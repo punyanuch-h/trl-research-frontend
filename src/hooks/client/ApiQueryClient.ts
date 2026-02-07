@@ -9,9 +9,9 @@ import type {
   SupportmentResponse,
   ResearcherResponse,
   UserProfileResponse,
-  NotificationListResponse,
-} from "@/hooks/client/type";
+} from "@/types/type";
 import { getUserRole } from "@/lib/auth";
+import { SubmitResearcherFormRequest, SubmitResearcherFormResponse } from "@/types/request";
 
 export class ApiQueryClient extends ApiBaseClient {
   // Authentication
@@ -145,7 +145,13 @@ export class ApiQueryClient extends ApiBaseClient {
   }
 
   // Submit researcher form
-  async useSubmitResearcherForm(formData: any): Promise<any> {
+  async useSubmitResearcherForm(
+    formData: SubmitResearcherFormRequest
+  ): Promise<SubmitResearcherFormResponse> {
+    const getStringArray = (value: unknown): string[] => {
+      if (Array.isArray(value)) return value as string[];
+      return [];
+    };
 
     // 1. Create Coordinator
     const coordinatorPayload = {
@@ -159,25 +165,32 @@ export class ApiQueryClient extends ApiBaseClient {
     };
     const coordinatorResponse = await this.axiosInstance.post(`/trl/coordinator`, coordinatorPayload);
     // Handle Case File Uploads via Signed URL
-    let casesAttachments: string[] = [];
-    if (formData.researchDetailsFiles && formData.researchDetailsFiles.length > 0) {
-      console.log('📎 Uploading files for case...');
-      for (const file of formData.researchDetailsFiles) {
-        console.log(`Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`);
-        try {
-          const { upload_url, object_path } = await this.presignUpload(file);
-          await this.uploadToSignedUrl(upload_url, file);
-          casesAttachments.push(object_path);
-          console.log(`✅ Uploaded file: ${file.name}`);
-        } catch (error) {
-          console.error(`❌ Failed to upload file ${file.name}:`, error);
-          throw error;
+    const casesAttachments: string[] = [];
+    const researchFiles = formData.researchDetailsFiles as File[] | undefined;
+
+    if (researchFiles && researchFiles.length > 0) {
+      for (const file of researchFiles) {
+        console.log('📎 Uploading files for case...');
+        const assessmentFiles = formData.assessmentFiles as Record<string, File>;
+        if (assessmentFiles) {
+          for (const [key, file] of Object.entries(assessmentFiles)) {
+            console.log(`Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`);
+            try {
+              const { upload_url, object_path } = await this.presignUpload(file);
+              await this.uploadToSignedUrl(upload_url, file);
+              casesAttachments.push(object_path);
+              console.log(`✅ Uploaded file: ${file.name}`);
+            } catch (error) {
+              console.error(`❌ Failed to upload file ${file.name}:`, error);
+              throw error;
+            }
+          }
         }
       }
     }
 
     // Create Case
-    const casePayload: any = {
+    const casePayload: Record<string, unknown> = {
       researcher_id: formData.id ?? "",
       coordinator_id: coordinatorResponse.data.id,
       trl_score: formData.trlScore ?? null,
@@ -241,7 +254,7 @@ export class ApiQueryClient extends ApiBaseClient {
       }
     }
 
-    const assessmentPayload: any = {
+    const assessmentPayload: Record<string, unknown> = {
       case_id: caseId,
       trl_estimate: formData.trlLevelResult,
       rq1_answer: formData.rq1_answer,
@@ -274,7 +287,7 @@ export class ApiQueryClient extends ApiBaseClient {
           continue;
         }
 
-        let ipAttachments: string[] = [];
+        const ipAttachments: string[] = [];
         if (ipForm.file) {
           try {
             console.log(`📎 Uploading IP file: ${ipForm.file.name}`);
@@ -288,7 +301,7 @@ export class ApiQueryClient extends ApiBaseClient {
           }
         }
 
-        const ipPayload: any = {
+        const ipPayload: Record<string, unknown> = {
           case_id: caseId,
           types: ipForm.ipTypes?.[0] || "",
           protection_status: ipForm.ipStatus || "",
@@ -304,30 +317,30 @@ export class ApiQueryClient extends ApiBaseClient {
     }
 
     // 5. Create Supportment
-    const supportmentPayload: any = {
+    const supportmentPayload: Record<string, unknown> = {
       case_id: caseId,
-      support_research: (formData.supportDevNeeded || []).includes("ฝ่ายวิจัย"),
-      support_vdc: (formData.supportDevNeeded || []).includes("ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)"),
-      support_sieic: (formData.supportDevNeeded || []).includes("ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (Siriraj Excellent Innovation Center: SiEIC)"),
-      need_protect_intellectual_property: (formData.supportMarketNeeded || []).includes("การคุ้มครองทรัพย์สินทางปัญญา"),
-      need_co_developers: (formData.supportMarketNeeded || []).includes("หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม"),
-      need_activities: (formData.supportMarketNeeded || []).includes("การจัดกิจกรรมร่วมกับผู้ร่วมพัฒนานวัตกรรม"),
-      need_test: (formData.supportMarketNeeded || []).includes("หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม"),
-      need_capital: (formData.supportMarketNeeded || []).includes("หาแหล่งทุน"),
-      need_partners: (formData.supportMarketNeeded || []).includes("หาคู่ค้าทางธุรกิจ"),
-      need_guidelines: (formData.supportMarketNeeded || []).includes("แนะนำแนวทางการเริ่มธุรกิจ"),
-      need_certification: (formData.supportMarketNeeded || []).includes("การขอรับรองมาตรฐานหรือคุณภาพ"),
-      need_account: (formData.supportMarketNeeded || []).includes("บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม"),
+      support_research: getStringArray(formData.supportDevNeeded).includes("ฝ่ายวิจัย"),
+      support_vdc: getStringArray(formData.supportDevNeeded).includes("ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)"),
+      support_sieic: getStringArray(formData.supportDevNeeded).includes("ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (Siriraj Excellent Innovation Center: SiEIC)"),
+      need_protect_intellectual_property: getStringArray(formData.supportMarketNeeded).includes("การคุ้มครองทรัพย์สินทางปัญญา"),
+      need_co_developers: getStringArray(formData.supportMarketNeeded).includes("หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม"),
+      need_activities: getStringArray(formData.supportMarketNeeded).includes("การจัดกิจกรรมร่วมกับผู้ร่วมพัฒนานวัตกรรม"),
+      need_test: getStringArray(formData.supportMarketNeeded).includes("หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม"),
+      need_capital: getStringArray(formData.supportMarketNeeded).includes("หาแหล่งทุน"),
+      need_partners: getStringArray(formData.supportMarketNeeded).includes("หาคู่ค้าทางธุรกิจ"),
+      need_guidelines: getStringArray(formData.supportMarketNeeded).includes("แนะนำแนวทางการเริ่มธุรกิจ"),
+      need_certification: getStringArray(formData.supportMarketNeeded).includes("การขอรับรองมาตรฐานหรือคุณภาพ"),
+      need_account: getStringArray(formData.supportMarketNeeded).includes("บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม"),
       need: formData.otherSupportMarket || "",
     };
 
     const supportmentResponse = await this.axiosInstance.post(`/trl/supportment`, supportmentPayload);
 
     return {
-      caseId,
-      coordinatorId: coordinatorResponse.data.id,
-      assessmentId: assessmentResponse.data.id,
-      supportmentId: supportmentResponse.data.id,
+      case: caseResponse.data,
+      coordinator: coordinatorResponse.data,
+      assessment: assessmentResponse.data,
+      supportment: supportmentResponse.data,
     };
   }
 
@@ -414,22 +427,22 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async usePostResearcher(data: any) {
+  async usePostResearcher(data: Record<string, unknown>) {
     const response = await this.axiosInstance.post(`/trl/researcher`, data);
     return response.data;
   }
 
-  async useAddAppointment(data: any) {
+  async useAddAppointment(data: Record<string, unknown>) {
     const response = await this.axiosInstance.post(`/trl/appointment`, data);
     return response.data;
   }
 
-  async useEditAppointment(id: string, data: any) {
+  async useEditAppointment(id: string, data: Record<string, unknown>) {
     const response = await this.axiosInstance.patch(`/trl/appointment/${id}`, data);
     return response.data;
   }
 
-  async usePostAdmin(data: any) {
+  async usePostAdmin(data: Record<string, unknown>) {
     const response = await this.axiosInstance.post(`/trl/admin`, data);
     return response.data;
   }
