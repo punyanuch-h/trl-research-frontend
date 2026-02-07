@@ -115,7 +115,7 @@ const AssessmentResult = () => {
 
     setIsUpdatingTrl(true);
     try {
-      const previousTrl = caseData?.trl_score ?? assessmentData?.trl_estimate;
+      const previousTrl = Number(caseData?.trl_score ?? assessmentData?.trl_estimate);
       try {
         // Update Case TRL Score
         await updateTrlScoreMutation.mutateAsync({
