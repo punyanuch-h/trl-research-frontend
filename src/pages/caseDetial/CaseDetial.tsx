@@ -59,6 +59,22 @@ export default function CaseDetail() {
     return `${researcherData.first_name} ${researcherData.last_name}`;
   };
 
+  const ipTypesList = [
+    { id: "patent", label: "สิทธิบัตร" },
+    { id: "pettyPatent", label: "อนุสิทธิบัตร" },
+    { id: "designPatent", label: "สิทธิบัตรออกแบบผลิตภัณฑ์" },
+    { id: "copyright", label: "ลิขสิทธิ์" },
+    { id: "trademark", label: "เครื่องหมายการค้า" },
+    { id: "tradeSecret", label: "ความลับทางการค้า" },
+  ];
+
+  const getIPTypeLabel = (type) => {
+    if (!type) return "ไม่ระบุประเภทสิทธิ์";
+
+    const found = ipTypesList.find((item) => item.id === type);
+    return found ? found.label : type;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation Bar */}
@@ -73,22 +89,22 @@ export default function CaseDetail() {
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                ย้อนกลับ
               </Button>
               <div className="h-6 w-px bg-gray-300"></div>
               <h1 className="text-xl font-semibold text-gray-900">
-                Research Details
+                รายละเอียดข้อมูลงานวิจัย
               </h1>
             </div>
 
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-sm">
-                Case ID: {caseData?.id || 'Loading...'}
+                รหัส: {caseData?.id || 'Loading...'}
               </Badge>
               {role === "admin" && (
                 <Button onClick={() => navigate(`/assessment/${id}`)} >
                   <Sparkles className="w-4 h-4 mr-1" />
-                  Assessment
+                  ประเมินงานวิจัย
                 </Button>
               )}
             </div>
@@ -129,15 +145,15 @@ export default function CaseDetail() {
           ) : isCaseError ? (
             <CardHeader>
               <div className="text-destructive">
-                <h2 className="text-xl font-bold">Error Loading Case</h2>
-                <p className="text-sm">Unable to load case details</p>
+                <h2 className="text-xl font-bold">เกิดข้อผิดพลาดในการโหลดข้อมูล</h2>
+                <p className="text-sm">ไม่สามารถโหลดรายละเอียดข้อมูลได้ กรุณาลองใหม่อีกครั้ง</p>
               </div>
             </CardHeader>
           ) : !caseData ? (
             <CardHeader>
               <div className="text-muted-foreground">
-                <h2 className="text-xl font-bold">Case Not Found</h2>
-                <p className="text-sm">The requested case could not be found</p>
+                <h2 className="text-xl font-bold">ไม่พบข้อมูล</h2>
+                <p className="text-sm">ไม่พบข้อมูลงานวิจัยตามที่คุณร้องขอ</p>
               </div>
             </CardHeader>
           ) : (
@@ -151,25 +167,25 @@ export default function CaseDetail() {
                     <div className="flex gap-2 mb-2">
                       <Badge variant="outline">{caseData.type}</Badge>
                       <Badge variant={caseData.is_urgent ? "destructive" : "secondary"}>
-                        {caseData.is_urgent ? "Urgent" : "Not Urgent"}
+                        {caseData.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน"}
                       </Badge>
                     </div>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
-                    <p>Case ID: {caseData.id}</p>
-                    <p>Submitted at: {new Date(caseData.created_at).toLocaleDateString()}</p>
+                    <p>รหัส: {caseData.id}</p>
+                    <p>ส่งงานวิจัยเมื่อ: {new Date(caseData.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold mb-2">Description</h3>
+                    <h3 className="font-semibold mb-2">คำอธิบายโดยย่อของนวัตกรรม</h3>
                     <p className="text-sm leading-relaxed">{caseData.description}</p>
                   </div>
 
                   <div>
-                    <h3 className="font-semibold mb-2">Keywords</h3>
+                    <h3 className="font-semibold mb-2">คำสำคัญ (Keywords)</h3>
                     <p className="text-sm text-muted-foreground">{caseData.keywords}</p>
                   </div>
 
@@ -182,7 +198,7 @@ export default function CaseDetail() {
                   ) : researcherData ? (
                     <div className="space-y-4">
                       <div>
-                        <h3 className="font-semibold mb-2">Researcher</h3>
+                        <h3 className="font-semibold mb-2">ข้อมูลนักวิจัย/ข้อมูลหัวหน้าโครงการ</h3>
                         <p className="text-sm text-muted-foreground">{researcherData.first_name} {researcherData.last_name}</p>
                         <p className="text-sm text-muted-foreground">{researcherData.email}</p>
                         <p className="text-sm text-muted-foreground">{researcherData.phone_number}</p>
@@ -199,7 +215,7 @@ export default function CaseDetail() {
                   ) : coordinatorData ? (
                     <div className="space-y-4">
                       <div>
-                        <h3 className="font-semibold mb-2">Coordinator</h3>
+                        <h3 className="font-semibold mb-2">ข้อมูลผู้ประสานงานโครงการ</h3>
                         <p className="text-sm text-muted-foreground">{coordinatorData.first_name} {coordinatorData.last_name}</p>
                         <p className="text-sm text-muted-foreground">{coordinatorData.email}</p>
                         <p className="text-sm text-muted-foreground">{coordinatorData.phone_number}</p>
@@ -217,15 +233,15 @@ export default function CaseDetail() {
                       {role === "admin" && assessmentData?.trl_estimate !== undefined && assessmentData?.trl_estimate !== null && (
                         <>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">Estimated TRL Level</h3>
+                            <h3 className="font-semibold">คาดว่ามีระดับความพร้อม</h3>
                             <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                              Level {assessmentData.trl_estimate}
+                              TRL {assessmentData.trl_estimate}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">Final TRL Level</h3>
+                            <h3 className="font-semibold">ระดับความพร้อม</h3>
                             <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                              Level {caseData.trl_score ?? assessmentData.trl_estimate}
+                              TRL {caseData.trl_score ?? assessmentData.trl_estimate}
                             </Badge>
                           </div>
                         </>
@@ -235,9 +251,9 @@ export default function CaseDetail() {
 
                   {role === "researcher" && caseData.status === true && caseData.trl_score !== null && (
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">TRL Level</h3>
+                      <h3 className="font-semibold">ระดับความพร้อม</h3>
                       <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                        Level {caseData.trl_score}
+                        TRL {caseData.trl_score}
                       </Badge>
                     </div>
                   )}
@@ -252,7 +268,7 @@ export default function CaseDetail() {
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
               <CardTitle className="text-2xl font-bold text-primary mb-1">
-                Appointments
+                รายการนัดหมาย
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 รายการนัดหมายทั้งหมดที่เกี่ยวข้องกับเคสนี้
@@ -268,7 +284,7 @@ export default function CaseDetail() {
                 onClick={() => setShowAddModal(true)}
               >
                 <CalendarPlus className="w-4 h-4 mr-2" />
-                Add Appointment
+                เพิ่มรายการการนัดหมาย
               </Button>
             )}
           </CardHeader>
@@ -325,7 +341,7 @@ export default function CaseDetail() {
                             className="flex items-center"
                           >
                             <Edit2 className="w-4 h-4 mr-1" />
-                            Edit
+                            แก้ไข
                           </Button>
                         )}
                       </div>
@@ -372,7 +388,7 @@ export default function CaseDetail() {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
-              Intellectual Property
+              ข้อมูลทรัพย์สินทางปัญญา
             </CardTitle>
           </CardHeader>
 
@@ -394,7 +410,7 @@ export default function CaseDetail() {
                     className="border p-4 rounded-2xl shadow-sm bg-gray-50"
                   >
                     <h3 className="font-semibold text-lg mb-1">
-                      {ip.types || "ไม่ระบุประเภทสิทธิ์"}
+                      {getIPTypeLabel(ip.types)}
                     </h3>
 
                     <div className="flex items-center gap-2 mb-1">
@@ -436,7 +452,7 @@ export default function CaseDetail() {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
-              Supporter Information
+              ข้อมูลการสนับสนุนที่ต้องการ
             </CardTitle>
           </CardHeader>
 

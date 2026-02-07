@@ -38,7 +38,7 @@ export default function Header({ disabled = false }: HeaderProps) {
           onClick={disabled ? undefined : () => navigate("/")}
         >
           <Home className="w-5 h-5" />
-          <span>TRL Assessment Platform</span>
+          <span>ระบบประเมินระดับความพร้อมทางเทคโนโลยี</span>
         </h1>
 
 

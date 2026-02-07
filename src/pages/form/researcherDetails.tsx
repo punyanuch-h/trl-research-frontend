@@ -9,7 +9,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import FormState from "@/pages/form/ResearcherForm";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { PhoneInput } from "@/components/format/PhoneInput";
 
@@ -490,7 +489,7 @@ export default function ResearcherDetails({
                             handleInputChange("isUrgent", e.target.checked)
                         }
                     />
-                    <Label htmlFor="isUrgent">Mark as Urgent</Label>
+                    <Label htmlFor="isUrgent">ต้องการการประเมินอย่างเร่งด่วน</Label>
                 </div>
 
                 {formData.isUrgent && (

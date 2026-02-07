@@ -117,7 +117,7 @@ export default function FilterPopup({
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium">Filter Research</h3>
+        <h3 className="text-sm font-medium">ตัวกรองการค้นหา</h3>
         <button
           aria-label="close"
           onClick={() => onOpenChange(false)}
@@ -170,13 +170,13 @@ export default function FilterPopup({
           onClick={resetFilters}
           className="px-3 py-1 rounded text-sm bg-gray-200 hover:bg-gray-300"
         >
-          Reset
+          ล้างตัวกรอง
         </button>
         <button
           onClick={applyFilters}
           className="px-3 py-1 rounded text-sm bg-primary text-white"
         >
-          Apply
+          กรองข้อมูล
         </button>
       </div>
     </div>

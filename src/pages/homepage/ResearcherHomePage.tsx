@@ -140,31 +140,34 @@ export default function ResearcherHomePage() {
   // --- Filtering ---
   const filteredCases = sortedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
-      if (column === "Type") return c.type === value;
-      if (column === "Score") return c.trl_score?.toString() === value;
-      if (column === "Status") return (c.status ? "Approve" : "In process") === value;
-      if (column === "Urgent") return String(c.is_urgent) === value;
-      if (column === "Name") return c.title === value;
+      if (column === "ประเภทงานวิจัย") return c.type === value;
+      if (column === "ระดับความพร้อม") return c.trl_score?.toString() === value;
+      if (column === "สถานะ") return (c.status ? "Approve" : "In process") === value;
+      if (column === "ความเร่งด่วน") {
+        const urgentText = c.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน";
+        return urgentText === value;
+      }
+      if (column === "ชื่องานวิจัย") return c.title === value;
       return true;
     })
   );
 
   // --- Columns ---
   const columns = [
-    { key: "case_id", label: "ID" },
-    { key: "case_title", label: "Name" },
-    { key: "case_type", label: "Type" },
-    { key: "trl_score", label: "TRL Score" },
-    { key: "status", label: "Status" },
+    { key: "case_id", label: "รหัส" },
+    { key: "case_title", label: "ชื่องานวิจัย" },
+    { key: "case_type", label: "ประเภทงานวิจัย" },
+    { key: "trl_score", label: "ระดับความพร้อม" },
+    { key: "status", label: "สถานะ" },
   ];
 
   // --- Filter options ---
   const columnOptions: Record<string, string[]> = {
-    Type: [...new Set(cases.map((c) => c.type))],
-    Score: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    Status: ["Approve", "In process"],
-    Urgent: ["true", "false"],
-    Name: [...new Set(cases.map((c) => c.title))],
+    ประเภทงานวิจัย: [...new Set(cases.map((c) => c.type))],
+    ระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    สถานะ: ["Approve", "In process"],
+    ความเร่งด่วน: ["เร่งด่วน", "ไม่เร่งด่วน"],
+    ชื่องานวิจัย: [...new Set(cases.map((c) => c.title))],
   };
 
   const handleSort = (key: string) => {
@@ -294,11 +297,11 @@ export default function ResearcherHomePage() {
           <div className="flex items-center space-x-4">
             <Button onClick={() => navigate("/researcher-form")}>
               <Plus className="w-4 h-4 mr-2" />
-              New
+              เพิ่มวิจัย
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">My Research</h1>
-              <p className="text-muted-foreground">View your research submission status</p>
+              <h1 className="text-3xl font-bold text-foreground">งานวิจัยของฉัน</h1>
+              <p className="text-muted-foreground">ดูสถานะการส่งงานวิจัยของคุณ</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -324,7 +327,7 @@ export default function ResearcherHomePage() {
             <div ref={filterBtnRef} className="inline-block">
               <Button onClick={() => setShowFilterModal(true)} variant="outline">
                 <Filter className="h-4 w-4" />
-                Filter
+                ตัวกรอง
               </Button>
             </div>
           </div>
@@ -344,7 +347,7 @@ export default function ResearcherHomePage() {
         {/* --- Table --- */}
         <Card>
           <CardHeader>
-            <CardTitle>Research Submissions</CardTitle>
+            <CardTitle>งานวิจัยที่ส่ง</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -364,8 +367,8 @@ export default function ResearcherHomePage() {
                         : ""}
                     </TableHead>
                   ))}
-                  <TableHead>Action</TableHead>
-                  <TableHead>For Next Step</TableHead>
+                  <TableHead>การดำเนินการ</TableHead>
+                  <TableHead>คำแนะนำสำหรับกสนพัฒนา</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -402,7 +405,7 @@ export default function ResearcherHomePage() {
                         </div>
                       </TableCell>
                       <TableCell className="min-w-[120px]">{c.type}</TableCell>
-                      <TableCell className="min-w-[100px] text-center">
+                      <TableCell className="min-w-[140px] text-center">
                         {c.status === true ? (
                           <Badge variant="outline">TRL {c.trl_score}</Badge>
                         ) : (
@@ -425,7 +428,7 @@ export default function ResearcherHomePage() {
                                 onClick={() => handleViewCase(c.id)}
                               >
                                 <Eye className="w-4 h-4 mr-2" />
-                                View
+                                ดูรายละเอียด
                               </Button>
                               <Button
                                 variant="outline"
@@ -433,7 +436,7 @@ export default function ResearcherHomePage() {
                                 onClick={() => handleDownloadResult(c)}
                               >
                                 <Download className="w-4 h-4 mr-2" />
-                                Result
+                                ผลการประเมิน
                               </Button>
                             </>
                           ) : (
@@ -445,7 +448,7 @@ export default function ResearcherHomePage() {
                                   onClick={() => handleViewCase(c.id)}
                                 >
                                   <Eye className="w-4 h-4 mr-2" />
-                                  View
+                                  ดูรายละเอียด
                                 </Button>
                               </div>
                               {(() => {
@@ -457,14 +460,14 @@ export default function ResearcherHomePage() {
 
                                 return latestAppointment ? (
                                   <Badge variant="outline" className="text-xs">
-                                    Appointment:{" "}
+                                    การนัดหมาย:{" "}
                                     {format(new Date(latestAppointment.date), "dd/MM/yyyy HH:mm", {
                                       locale: th,
                                     })}
                                   </Badge>
                                 ) : (
                                   <Badge variant="outline" className="text-xs text-gray-400">
-                                    Appointment: -
+                                    การนัดหมาย: -
                                   </Badge>
                                 );
                               })()}
