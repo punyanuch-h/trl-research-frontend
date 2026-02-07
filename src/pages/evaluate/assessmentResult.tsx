@@ -115,6 +115,7 @@ const AssessmentResult = () => {
 
     setIsUpdatingTrl(true);
     try {
+      const previousTrl = caseData?.trl_score ?? assessmentData?.trl_estimate;
       try {
         // Update Case TRL Score
         await updateTrlScoreMutation.mutateAsync({
@@ -131,7 +132,9 @@ const AssessmentResult = () => {
         refetchCase(),
       ]);
 
-      toast.success(`TRL Level updated to ${manualTrl} successfully`);
+      if (manualTrl !== previousTrl) {
+        toast.success(`TRL Level updated to ${manualTrl} successfully`);
+      }
       setIsEditingTrl(false);
 
     } catch (error: any) {
