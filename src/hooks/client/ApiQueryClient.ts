@@ -9,6 +9,7 @@ import type {
   SupportmentResponse,
   ResearcherResponse,
   UserProfileResponse,
+  NotificationListResponse,
 } from "@/hooks/client/type";
 import { getUserRole } from "@/lib/auth";
 
@@ -431,5 +432,18 @@ export class ApiQueryClient extends ApiBaseClient {
   async usePostAdmin(data: any) {
     const response = await this.axiosInstance.post(`/trl/admin`, data);
     return response.data;
+  }
+
+  async useGetNotificationAppointments(): Promise<NotificationListResponse> {
+    const response = await this.axiosInstance.get<NotificationListResponse>(`/trl/notifications/appointments`);
+    return response.data;
+  }
+
+  async useMarkAppointmentAsRead(id: string): Promise<void> {
+    await this.axiosInstance.patch(`/trl/notifications/appointments/${id}/read`);
+  }
+
+  async useMarkAllAppointmentsAsRead(): Promise<void> {
+    await this.axiosInstance.patch(`/trl/notifications/appointments/read-all`);
   }
 }
