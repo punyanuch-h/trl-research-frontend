@@ -66,11 +66,14 @@ export type AssessmentResponse = {
 export type AppointmentResponse = {
     id: string;
     case_id: string;
+    case?: CaseResponse;
     date: string;
     status: string;
     location: string;
-    detail: string;
+    details: string;
     summary: string;
+    is_read: boolean;
+    is_notify: boolean;
     created_at: string;
     updated_at: string;
 };
