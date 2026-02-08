@@ -151,7 +151,7 @@ export function AddAppointmentModal({
         <div className="mb-3">
           <Label>รายละเอียดการนัดหมาย</Label>
           <Textarea
-            placeholder="Enter details"
+            placeholder="กรอกรายละเอียด"
             rows={3}
             value={detail}
             onChange={(e) => setDetail(e.target.value)}
@@ -163,7 +163,7 @@ export function AddAppointmentModal({
             ยกเลิก
           </Button>
           <Button onClick={handleAdd} disabled={loading}>
-            {loading ? "กำลังบันทึก..." : "เพิ่ม"}
+            {loading ? "กำลังบันทึก..." : "บันทึก"}
           </Button>
         </div>
       </div>

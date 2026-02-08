@@ -74,7 +74,7 @@ export default function LoginPage() {
             ระบบประเมินระดับความพร้อมทางเทคโนโลยี
           </h1>
           <p className="text-xl text-muted-foreground">
-            Technology Readiness Level(TRL) Evaluation System
+            Technology Readiness Level (TRL) Evaluation System
           </p>
         </div>
 

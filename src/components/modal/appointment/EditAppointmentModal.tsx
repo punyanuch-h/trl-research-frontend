@@ -129,7 +129,7 @@ export default function EditAppointmentModal({
                 onValueChange={(v: "attended" | "absent" | "pending") => handleChange("status", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder="เลือกสถานะ" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="attended">เข้าร่วมแล้ว</SelectItem>
@@ -154,7 +154,7 @@ export default function EditAppointmentModal({
             <Textarea
               value={form.detail || ""}
               onChange={(e) => handleChange("detail", e.target.value)}
-              placeholder="Enter details"
+              placeholder="กรอกรายละเอียด"
               rows={3}
             />
           </div>
@@ -164,7 +164,7 @@ export default function EditAppointmentModal({
             <Textarea
               value={form.summary || ""}
               onChange={(e) => handleChange("summary", e.target.value)}
-              placeholder="Enter summary"
+              placeholder="กรอกสรุปการประชุม"
               rows={3}
             />
           </div>
@@ -176,7 +176,7 @@ export default function EditAppointmentModal({
             ยกเลิก
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "กำลังบันทึก..." : "เพิ่ม"}
+            {loading ? "กำลังบันทึก..." : "บันทึก"}
           </Button>
         </DialogFooter>
       </DialogContent>

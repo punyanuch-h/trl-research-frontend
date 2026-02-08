@@ -68,7 +68,7 @@ export default function CaseDetail() {
     { id: "tradeSecret", label: "ความลับทางการค้า" },
   ];
 
-  const getIPTypeLabel = (type) => {
+  const getIPTypeLabel = (type: string | undefined | null) => {
     if (!type) return "ไม่ระบุประเภทสิทธิ์";
 
     const found = ipTypesList.find((item) => item.id === type);
@@ -99,7 +99,7 @@ export default function CaseDetail() {
 
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-sm">
-                รหัสงานวิจัย: {caseData?.id || 'Loading...'}
+                รหัสงานวิจัย: {caseData?.id || 'กำลังโหลด...'}
               </Badge>
               {role === "admin" && (
                 <Button onClick={() => navigate(`/assessment/${id}`)} >
