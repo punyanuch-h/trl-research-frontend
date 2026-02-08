@@ -16,19 +16,19 @@ export function AppointmentsCard({ success, fail, upcoming }: AppointmentsCardPr
   return (
     <div className="bg-white p-5 border border-gray-100 rounded-lg">
       <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-        <Calendar className="w-4 h-4 text-gray-400" /> Appointments
+        <Calendar className="w-4 h-4 text-gray-400" /> การนัดหมาย
       </h3>
       <div className="text-sm mb-3">
         <p>
-          ✅ Success:{" "}
+          ✅ เข้าร่วม:{" "}
           <span className="font-semibold text-green-600">{success}</span>
         </p>
         <p>
-          ❌ Failed:{" "}
+          ❌ ขาดนัด:{" "}
           <span className="font-semibold text-red-500">{fail}</span>
         </p>
         <p>
-          📅 Upcoming:{" "}
+          📅 รอดำเนินการ:{" "}
           <span className="font-semibold text-blue-600">{upcoming.length}</span>
         </p>
       </div>

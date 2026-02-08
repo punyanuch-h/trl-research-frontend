@@ -11,7 +11,7 @@ interface TopResearchersCardProps {
 export function TopResearchersCard({ researchers }: TopResearchersCardProps) {
   return (
     <div className="bg-white p-5 border border-gray-100 rounded-lg">
-      <h3 className="font-semibold mb-3 text-sm">Top Researchers</h3>
+      <h3 className="font-semibold mb-3 text-sm">จำนวนการส่งงานวิจัย</h3>
       {researchers.length > 0 ? (
         <ul className="text-sm space-y-2">
           {researchers.map((r) => (

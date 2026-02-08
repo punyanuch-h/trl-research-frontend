@@ -83,17 +83,17 @@ export function AddAppointmentModal({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
       <div className="bg-white p-6 rounded shadow-lg w-[420px]">
-        <h3 className="text-lg font-medium mb-4">Add Appointment</h3>
+        <h3 className="text-lg font-medium mb-4">เพิ่มรายการการนัดหมาย</h3>
 
         {/* Project select */}
         <div className="mb-3">
-          <Label>Research Title</Label>
+          <Label>ชื่องานวิจัย</Label>
           <Select
             value={selectedProjectId?.toString() || ""}
             onValueChange={(v: string) => setSelectedProjectId(String(v))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select Research" />
+              <SelectValue placeholder="เลือกงานวิจัย" />
             </SelectTrigger>
             <SelectContent>
               {projects.map((p) => (
@@ -107,7 +107,7 @@ export function AddAppointmentModal({
 
         {/* Researcher Name */}
         <div className="mb-3">
-          <Label>Researcher</Label>
+          <Label>ชื่อนักวิจัย/หัวหน้าโครงการ</Label>
           <Input
             type="text"
             value={selectedProject ? getFullNameByResearcherID(selectedProject.researcher_id) : ""}
@@ -118,7 +118,7 @@ export function AddAppointmentModal({
 
         {/* Date input */}
         <div className="mb-3">
-          <Label>Date</Label>
+          <Label>วันที่นัดหมาย</Label>
           <Input
             type="date"
             value={selectedDate}
@@ -128,7 +128,7 @@ export function AddAppointmentModal({
 
         {/* Time input */}
         <div className="mb-3">
-          <Label>Time</Label>
+          <Label>เวลา</Label>
           <Input
             type="time"
             value={selectedTime}
@@ -138,7 +138,7 @@ export function AddAppointmentModal({
 
         {/* Location */}
         <div className="mb-3">
-          <Label>Location</Label>
+          <Label>สถานที่</Label>
           <Input
             type="text"
             value={location}
@@ -149,7 +149,7 @@ export function AddAppointmentModal({
 
         {/* Details */}
         <div className="mb-3">
-          <Label>Details</Label>
+          <Label>รายละเอียดการนัดหมาย</Label>
           <Textarea
             placeholder="Enter details"
             rows={3}
@@ -160,10 +160,10 @@ export function AddAppointmentModal({
 
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            ยกเลิก
           </Button>
           <Button onClick={handleAdd} disabled={loading}>
-            {loading ? "Saving..." : "Add"}
+            {loading ? "กำลังบันทึก..." : "เพิ่ม"}
           </Button>
         </div>
       </div>

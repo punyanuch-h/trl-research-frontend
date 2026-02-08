@@ -22,7 +22,7 @@ export function SupportmentCharts({ agencyData, neededSupportData, baseColor }: 
             <BarChart data={agencyData} layout="vertical" margin={{ left: 20, right: 30 }}>
               <XAxis type="number" hide />
               <YAxis dataKey="name" type="category" fontSize={10} width={100} />
-              <Tooltip />
+              <Tooltip formatter={(value: number) => [`${value}`, "จำนวน"]} />
               <Bar dataKey="value" fill={baseColor} radius={[0, 4, 4, 0]} barSize={20} />
             </BarChart>
           </ResponsiveContainer>
@@ -37,7 +37,7 @@ export function SupportmentCharts({ agencyData, neededSupportData, baseColor }: 
             <BarChart data={neededSupportData} layout="vertical" margin={{ left: 20, right: 30 }}>
               <XAxis type="number" hide />
               <YAxis dataKey="name" type="category" fontSize={10} width={100} />
-              <Tooltip />
+              <Tooltip formatter={(value: number) => [`${value}`, "จำนวน"]} />
               <Bar dataKey="value" fill={baseColor} radius={[0, 4, 4, 0]} barSize={20} />
             </BarChart>
           </ResponsiveContainer>

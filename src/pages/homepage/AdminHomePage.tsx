@@ -162,25 +162,28 @@ export default function AdminHomePage() {
 
   const filteredCases = sortedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
-      if (column === "Type") return c.type === value;
-      if (column === "Score") return c.trl_score?.toString() === value;
-      if (column === "Status") return (c.status ? "Approve" : "In process") === value;
-      if (column === "createdBy") return getFullNameByResearcherID(c.researcher_id) === value;
-      if (column === "Urgent") return String(c.is_urgent) === value;
-      if (column === "Name") return c.title === value;
-      if (column === "Date") return new Date(c.created_at).toISOString().slice(0, 10) === value;
+      if (column === "ประเภทงานวิจัย") return c.type === value;
+      if (column === "ระดับความพร้อม") return c.trl_score?.toString() === value;
+      if (column === "สถานะ") return (c.status ? "ผ่านการประเมิน" : "กำลังประเมิน") === value;
+      if (column === "สร้างโดย") return getFullNameByResearcherID(c.researcher_id) === value;
+      if (column === "ความเร่งด่วน") {
+        const urgentText = c.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน";
+        return urgentText === value;
+      }
+      if (column === "ชื่องานวิจัย") return c.title === value;
+      if (column === "วันที่สร้าง") return new Date(c.created_at).toISOString().slice(0, 10) === value;
       return true;
     })
   );
 
   const columnOptions: Record<string, string[]> = {
-    Type: [...new Set(cases.map((c) => c.type))],
-    Score: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    Status: ["Approve", "In process"],
-    createdBy: researcherData.map(r => getFullNameByResearcherID(r.id)),
-    Urgent: ["true", "false"],
-    Name: [...new Set(cases.map((c) => c.title))],
-    Date: [...new Set(cases.map((c) => new Date(c.created_at).toISOString().slice(0, 10)))].sort().reverse(),
+    ประเภทงานวิจัย: [...new Set(cases.map((c) => c.type))],
+    ระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    สถานะ: ["ผ่านการประเมิน", "กำลังประเมิน"],
+    สร้างโดย: researcherData.map(r => getFullNameByResearcherID(r.id)),
+    ความเร่งด่วน: ["เร่งด่วน", "ไม่เร่งด่วน"],
+    ชื่องานวิจัย: [...new Set(cases.map((c) => c.title))],
+    วันที่สร้าง: [...new Set(cases.map((c) => new Date(c.created_at).toISOString().slice(0, 10)))].sort().reverse(),
   };
 
   function handleResearchClick(id: number, name: string, type: string) {

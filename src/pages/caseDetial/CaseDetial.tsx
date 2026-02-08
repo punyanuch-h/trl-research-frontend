@@ -99,7 +99,7 @@ export default function CaseDetail() {
 
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-sm">
-                รหัส: {caseData?.id || 'Loading...'}
+                รหัสงานวิจัย: {caseData?.id || 'Loading...'}
               </Badge>
               {role === "admin" && (
                 <Button onClick={() => navigate(`/assessment/${id}`)} >
@@ -172,8 +172,8 @@ export default function CaseDetail() {
                     </div>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
-                    <p>รหัส: {caseData.id}</p>
-                    <p>ส่งงานวิจัยเมื่อ: {new Date(caseData.created_at).toLocaleDateString()}</p>
+                    <p>รหัสงานวิจัย: {caseData.id}</p>
+                    <p>วันที่สร้าง: {new Date(caseData.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
               </CardHeader>
@@ -195,6 +195,11 @@ export default function CaseDetail() {
                       <Skeleton className="h-4 w-48" />
                       <Skeleton className="h-4 w-40" />
                     </div>
+                  ) : isResearcherError ? (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    <h3 className="font-semibold">ไม่สามารถโหลดข้อมูลนักวิจัยได้</h3>
+                    <p className="text-sm">กรุณาลองรีเฟรชหน้าเว็บหรือติดต่อฝ่ายสนับสนุน</p>
+                  </div>
                   ) : researcherData ? (
                     <div className="space-y-4">
                       <div>
@@ -212,6 +217,11 @@ export default function CaseDetail() {
                       <Skeleton className="h-4 w-48" />
                       <Skeleton className="h-4 w-40" />
                     </div>
+                  ) : isCoordinatorError ? (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    <h3 className="font-semibold">ไม่สามารถโหลดข้อมูลผู้ประสานงานได้</h3>
+                    <p className="text-sm">กรุณาลองรีเฟรชหน้าเว็บหรือติดต่อฝ่ายสนับสนุน</p>
+                  </div>
                   ) : coordinatorData ? (
                     <div className="space-y-4">
                       <div>

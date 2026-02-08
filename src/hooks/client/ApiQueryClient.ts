@@ -428,7 +428,7 @@ export class ApiQueryClient extends ApiBaseClient {
   }
 
   async usePostResearcher(data: Record<string, unknown>) {
-    const response = await this.axiosInstance.post(`/trl/researcher`, data);
+    const response = await this.axiosInstance.post(`/researcher`, data);
     return response.data;
   }
 

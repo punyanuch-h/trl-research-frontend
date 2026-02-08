@@ -85,12 +85,12 @@ export default function EditAppointmentModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Appointment</DialogTitle>
+          <DialogTitle>แก้ไขรายการนัดหมาย</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div>
-            <Label>Project</Label>
+            <Label>ชื่องานวิจัย</Label>
             <Input
               type="text"
               value={projects.find(p => p.id === form.case_id)?.title || ""}
@@ -100,7 +100,7 @@ export default function EditAppointmentModal({
           </div>
 
           <div>
-            <Label>Researcher</Label>
+            <Label>ชื่อนักวิจัย/หัวหน้าโครงการ</Label>
             <Input
               type="text"
               value={
@@ -115,7 +115,7 @@ export default function EditAppointmentModal({
 
           <div className="flex gap-4">
             <div className="flex-1">
-              <Label>Date & Time</Label>
+              <Label>วันที่เวลานัดหมาย</Label>
               <Input
                 type="datetime-local"
                 value={format(new Date(form.date), "yyyy-MM-dd'T'HH:mm")}
@@ -123,7 +123,7 @@ export default function EditAppointmentModal({
               />
             </div>
             <div className="flex-1">
-              <Label>Status</Label>
+              <Label>สถานะ</Label>
               <Select
                 value={form.status}
                 onValueChange={(v: "attended" | "absent" | "pending") => handleChange("status", v)}
@@ -132,16 +132,16 @@ export default function EditAppointmentModal({
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="attended">Attended</SelectItem>
-                  <SelectItem value="absent">Absent</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="attended">เข้าร่วมแล้ว</SelectItem>
+                  <SelectItem value="absent">ขาดนัด</SelectItem>
+                  <SelectItem value="pending">รอดำเนินการ</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div>
-            <Label>Location</Label>
+            <Label>สถานที่</Label>
             <Input
               type="text"
               value={form.location || ""}
@@ -150,7 +150,17 @@ export default function EditAppointmentModal({
           </div>
 
           <div>
-            <Label>Summary</Label>
+            <Label>รายละเอียดการนัดหมาย</Label>
+            <Textarea
+              value={form.detail || ""}
+              onChange={(e) => handleChange("detail", e.target.value)}
+              placeholder="Enter details"
+              rows={3}
+            />
+          </div>
+          
+          <div>
+            <Label>สรุปการประชุม</Label>
             <Textarea
               value={form.summary || ""}
               onChange={(e) => handleChange("summary", e.target.value)}
@@ -159,23 +169,14 @@ export default function EditAppointmentModal({
             />
           </div>
 
-          <div>
-            <Label>Details</Label>
-            <Textarea
-              value={form.detail || ""}
-              onChange={(e) => handleChange("detail", e.target.value)}
-              placeholder="Enter details"
-              rows={3}
-            />
-          </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            ยกเลิก
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Saving..." : "Save"}
+            {loading ? "กำลังบันทึก..." : "เพิ่ม"}
           </Button>
         </DialogFooter>
       </DialogContent>

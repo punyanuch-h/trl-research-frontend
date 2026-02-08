@@ -142,7 +142,7 @@ export default function ResearcherHomePage() {
     customFilters.every(({ column, value }) => {
       if (column === "ประเภทงานวิจัย") return c.type === value;
       if (column === "ระดับความพร้อม") return c.trl_score?.toString() === value;
-      if (column === "สถานะ") return (c.status ? "Approve" : "In process") === value;
+      if (column === "สถานะ") return (c.status ? "ผ่านการประเมิน" : "กำลังประเมิน") === value;
       if (column === "ความเร่งด่วน") {
         const urgentText = c.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน";
         return urgentText === value;
@@ -154,7 +154,7 @@ export default function ResearcherHomePage() {
 
   // --- Columns ---
   const columns = [
-    { key: "case_id", label: "รหัส" },
+    { key: "case_id", label: "รหัสงานวิจัย" },
     { key: "case_title", label: "ชื่องานวิจัย" },
     { key: "case_type", label: "ประเภทงานวิจัย" },
     { key: "trl_score", label: "ระดับความพร้อม" },
@@ -165,7 +165,7 @@ export default function ResearcherHomePage() {
   const columnOptions: Record<string, string[]> = {
     ประเภทงานวิจัย: [...new Set(cases.map((c) => c.type))],
     ระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    สถานะ: ["Approve", "In process"],
+    สถานะ: ["ผ่านการประเมิน", "กำลังประเมิน"],
     ความเร่งด่วน: ["เร่งด่วน", "ไม่เร่งด่วน"],
     ชื่องานวิจัย: [...new Set(cases.map((c) => c.title))],
   };
@@ -368,7 +368,7 @@ export default function ResearcherHomePage() {
                     </TableHead>
                   ))}
                   <TableHead>การดำเนินการ</TableHead>
-                  <TableHead>คำแนะนำสำหรับกสนพัฒนา</TableHead>
+                  <TableHead>คำแนะนำสำหรับการพัฒนา</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -414,7 +414,7 @@ export default function ResearcherHomePage() {
                       </TableCell>
                       <TableCell className="min-w-[90px] text-center">
                         <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(c.status === true ? "Approve" : "In process")}`}>
-                          {c.status === true ? "Approve" : "In process"}
+                          {c.status === true ? "ผ่านการประเมิน" : "กำลังประเมิน"}
                         </Badge>
                       </TableCell>
 
