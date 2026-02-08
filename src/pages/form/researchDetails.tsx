@@ -40,7 +40,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 />
             </div>
             <div>
-                <h3 className="font-semibold text-primary">TRL Type<span className="text-red-500">*</span></h3>
+                <h3 className="font-semibold text-primary">ประเภทงานวิจัย<span className="text-red-500">*</span></h3>
                 <RadioGroup
                     id="researchType"
                     value={formData.researchType}
@@ -83,7 +83,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 />
             </div>
             <div>
-                <h3 className="font-semibold text-primary">Keywords<span className="text-red-500">*</span></h3>
+                <h3 className="font-semibold text-primary">คำสำคัญ (Keywords)<span className="text-red-500">*</span></h3>
                 <Input
                     id="keywords"
                     value={formData.keywords}
@@ -94,14 +94,14 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 />
             </div>
             <div>
-                <h3 className="font-semibold text-primary">เอกสารเพิ่มเติม (แนบ file - เลือกได้หลายไฟล์)</h3>
+                <h3 className="font-semibold text-primary">เอกสารเพิ่มเติม (แนบไฟล์ - เลือกได้หลายไฟล์)</h3>
                 <div className="flex gap-2 items-center mt-2">
                     <button
                         type="button"
                         onClick={() => document.getElementById('researchDetailsFiles')?.click()}
                         className="w-30 sm:w-auto px-2 py-1 bg-gray-100/50 border border-gray-200 text-gray-400 rounded-lg hover:bg-primary hover:border-primary hover:text-white transition-colors duration-300 focus:outline-none focus:bg-primary focus:text-white"
                     >
-                        Choose Files
+                        เลือกไฟล์
                     </button>
                     <input
                         type="file"

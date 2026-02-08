@@ -43,10 +43,10 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50 px-6 py-8 rounded-lg">
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <KPICard icon={FileText} label="Total Cases" value={stats.total} />
-        <KPICard icon={Zap} label="Pending" value={stats.pending} />
-        <KPICard icon={AlertCircle} label="Urgent" value={stats.urgent} />
-        <KPICard icon={Users} label="Researchers" value={allResearchers.length} />
+        <KPICard icon={FileText} label="จำนวนงานวิจัย" value={stats.total} />
+        <KPICard icon={Zap} label="กำลังประเมิน" value={stats.pending} />
+        <KPICard icon={AlertCircle} label="งานวิจัยที่เร่งด่วน" value={stats.urgent} />
+        <KPICard icon={Users} label="จำนวนนักวิจัย" value={allResearchers.length} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -485,11 +485,11 @@ export default function ResearcherForm() {
   };
 
   const formSteps = [
-    { id: 1, title: "Researcher Details" },
-    { id: 2, title: "Research Details" },
-    { id: 3, title: "Research Assessment TRL" },
-    { id: 4, title: "Intellectual Property" },
-    { id: 5, title: "Supportment" }
+    { id: 1, title: "ข้อมูลนักวิจัย" },
+    { id: 2, title: "ข้อมูลผลงานวิจัย" },
+    { id: 3, title: "การประเมินระดับความพร้อมเทคโนโลยี (TRL)" },
+    { id: 4, title: "ทรัพย์สินทางปัญญา" },
+    { id: 5, title: "การสนับสนุนที่ต้องการ" }
   ];
 
   const handlePrev = () => {
@@ -512,18 +512,18 @@ export default function ResearcherForm() {
             ย้อนกลับ
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Research Form</h1>
-            <p className="text-muted-foreground">Step {currentFormStep} of 5: {formSteps[currentFormStep - 1].title}</p>
+            <h1 className="text-3xl font-bold text-foreground">แบบฟอร์มประเมินงานวิจัย</h1>
+            <p className="text-muted-foreground">ขั้นตอนที่ {currentFormStep} จาก 5: {formSteps[currentFormStep - 1].title}</p>
           </div>
         </div>
 
         {/* Progress indicator */}
         <div className="mb-8">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             {formSteps.map((step, index) => (
               <div key={step.id} className="flex items-center">
-                <div className="text-sm font-medium mr-2">
-                  Step
+                <div className="text-sm font-medium mr-2 whitespace-nowrap">
+                  ขั้นตอนที่
                 </div>
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${step.id === currentFormStep
                   ? "bg-primary text-primary-foreground"
@@ -544,7 +544,7 @@ export default function ResearcherForm() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Step {currentFormStep}: {formSteps[currentFormStep - 1].title}</CardTitle>
+            <CardTitle>ขั้นตอนที่ {currentFormStep}: {formSteps[currentFormStep - 1].title}</CardTitle>
           </CardHeader>
           <CardContent>
             {renderFormStep()}
@@ -560,17 +560,17 @@ export default function ResearcherForm() {
                 disabled={currentFormStep === 1}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Previous
+                ขั้นตอนก่อนหน้า
               </Button>
               <div className="flex gap-3">
                 {currentFormStep === 5 ? (
                   <Button onClick={handleSubmit} disabled={submitFormMutation.isPending || !isStepValid()}>
-                    Submit
+                    บันทึก
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
                   <Button onClick={handleNext} disabled={!isStepValid()}>
-                    Next
+                    ขั้นตอนถัดไป
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 )}
@@ -583,17 +583,17 @@ export default function ResearcherForm() {
         <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Confirm Submission</DialogTitle>
+              <DialogTitle>ยืนยันการส่งข้อมูล</DialogTitle>
               <DialogDescription>
-                Once you confirm, the data will be submitted to the system for review.
+                เมื่อคุณยืนยันแล้ว ข้อมูลจะถูกส่งเข้าสู่ระบบเพื่อพิจารณาและตรวจสอบ
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
-                Cancel
+                ยกเลิก
               </Button>
               <Button onClick={handleConfirmSubmit} disabled={submitFormMutation.isPending}>
-                Confirm and Submit
+                ยืนยันและส่งข้อมูล
               </Button>
             </DialogFooter>
           </DialogContent>

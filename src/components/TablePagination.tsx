@@ -35,7 +35,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
     <div className="flex flex-col md:flex-row items-center justify-between border-t pt-4 mt-4 gap-4">
       {/* Rows per page selector */}
       <div className="flex items-center space-x-2 text-sm">
-        <span className="text-muted-foreground">Rows per page:</span>
+        <span className="text-muted-foreground">จำนวนแถวต่อหน้า:</span>
         <Select
           value={rowsPerPage.toString()}
           onValueChange={(value) => onRowsPerPageChange(Number(value))}
@@ -56,7 +56,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
       {/* Page navigation */}
       <div className="flex items-center space-x-3">
         <span className="text-sm text-muted-foreground">
-          Page <strong>{currentPage}</strong> of <strong>{Math.max(totalPages, 1)}</strong>
+          หน้า <strong>{currentPage}</strong> จาก <strong>{Math.max(totalPages, 1)}</strong>
         </span>
         <div className="flex items-center space-x-2">
           <Button
@@ -66,7 +66,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
             onClick={handlePrevious}
             disabled={currentPage === 1}
           >
-            Prev
+            ก่อนหน้า
           </Button>
           <Button
             size="sm"
@@ -75,7 +75,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
             onClick={handleNext}
             disabled={currentPage === totalPages || totalPages === 0}
           >
-            Next
+            ถัดไป
           </Button>
         </div>
       </div>

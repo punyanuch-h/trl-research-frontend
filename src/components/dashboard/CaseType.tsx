@@ -14,7 +14,7 @@ interface CaseTypeStatusChartProps {
 export function CaseTypeStatusChart({ statusData, caseTypeData, colors }: CaseTypeStatusChartProps) {
   return (
     <div className="bg-white p-5 border border-gray-100 rounded-lg">
-      <h3 className="font-semibold mb-3 text-sm">Case Type & Status</h3>
+      <h3 className="font-semibold mb-3 text-sm">ประเภทและสถานะงานวิจัย</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Status Pie */}
         <div className="flex justify-center">

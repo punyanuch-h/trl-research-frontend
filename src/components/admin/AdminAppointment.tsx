@@ -127,7 +127,7 @@ export default function AdminAppointment({
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>📅 Appointment</CardTitle>
+          <CardTitle>📅 รายการการนัดหมาย</CardTitle>
           <div className="flex gap-3">
             {/* Filter by status */}
             <Select
@@ -138,10 +138,10 @@ export default function AdminAppointment({
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="pending">⏳ Pending</SelectItem>
-                <SelectItem value="attended">✅ Attended</SelectItem>
-                <SelectItem value="absent">❌ Absent</SelectItem>
+                <SelectItem value="all">ทั้งหมด</SelectItem>
+                <SelectItem value="pending">⏳ รอดำเนินการ</SelectItem>
+                <SelectItem value="attended">✅ เข้าร่วมแล้ว</SelectItem>
+                <SelectItem value="absent">❌ ขาดนัด</SelectItem>
               </SelectContent>
             </Select>
 
@@ -151,18 +151,18 @@ export default function AdminAppointment({
                 <SelectValue placeholder="Range" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="1w">1 Week</SelectItem>
-                <SelectItem value="1m">1 Month</SelectItem>
-                <SelectItem value="3m">3 Months</SelectItem>
-                <SelectItem value="1y">1 Year</SelectItem>
+                <SelectItem value="all">ทั้งหมด</SelectItem>
+                <SelectItem value="1w">1 สัปดาห์</SelectItem>
+                <SelectItem value="1m">1 เดือน</SelectItem>
+                <SelectItem value="3m">3 เดือน</SelectItem>
+                <SelectItem value="1y">1 ปี</SelectItem>
               </SelectContent>
             </Select>
 
             {userRole === "admin" && (
               <Button variant="default" size="sm" onClick={() => setShowModal(true)}>
                 <CalendarPlus className="w-4 h-4 mr-1" />
-                Add Appointment
+                เพิ่มรายการการนัดหมาย
               </Button>
             )}
           </div>
@@ -203,7 +203,7 @@ export default function AdminAppointment({
                         handleEditAppointment(a);
                       }}
                     >
-                      <Edit2 className="w-4 h-4 mr-1" /> Edit
+                      <Edit2 className="w-4 h-4 mr-1" /> แก้ไข
                     </Button>
                   )}
                 </div>

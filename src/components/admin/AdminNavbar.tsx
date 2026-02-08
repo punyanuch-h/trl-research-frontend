@@ -41,8 +41,8 @@ export default function AdminNavbar({
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Research Management</h1>
-              <p className="text-muted-foreground">Manage your TRL assessment projects</p>
+              <h1 className="text-3xl font-bold text-foreground">ระบบจัดการงานวิจัย</h1>
+              <p className="text-muted-foreground">จัดการประเมินระดับความพร้อมทางเทคโนโลยี</p>
             </div>
           </div>
           {activeView !== 'dashboard' && (
@@ -69,7 +69,7 @@ export default function AdminNavbar({
               <div ref={filterBtnRef} className="inline-block">
                 <Button onClick={() => setShowFilterModal(true)} variant="outline">
                   <Filter className="h-4 w-4 mr-2" />
-                  Filter
+                  ตัวกรอง
                 </Button>
               </div>
             </div>
@@ -93,7 +93,7 @@ export default function AdminNavbar({
             className="flex items-center space-x-2"
           >
             <List className="w-4 h-4" />
-            <span>Management</span>
+            <span>จัดการงานวิจัย</span>
           </Button>
           <Button
             variant={activeView === 'dashboard' ? 'default' : 'outline'}
@@ -101,7 +101,7 @@ export default function AdminNavbar({
             className="flex items-center space-x-2"
           >
             <ChartArea className="w-4 h-4" />
-            <span>Dashboard</span>
+            <span>ภาพรวมงานวิจัย</span>
           </Button>
           <Button
             variant={activeView === 'appointments' ? 'default' : 'outline'}
@@ -109,7 +109,7 @@ export default function AdminNavbar({
             className="flex items-center space-x-2"
           >
             <CalendarRange className="w-4 h-4" />
-            <span>Appointments</span>
+            <span>การนัดหมาย</span>
           </Button>
         </div>
         {/* Content */}

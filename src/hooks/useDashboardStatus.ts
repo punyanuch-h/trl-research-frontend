@@ -82,9 +82,9 @@ export function useDashboardStats({
       .sort((a, b) => b.value - a.value);
 
     const statusData = [
-      { name: "Pending", value: pending },
-      { name: "Active", value: total - pending },
-      { name: "Urgent", value: urgent },
+      { name: "กำลังประเมิน", value: pending },
+      { name: "ผ่านการประเมิน", value: total - pending },
+      { name: "เร่งด่วน", value: urgent },
     ];
 
     // Intellectual Property
@@ -99,21 +99,21 @@ export function useDashboardStats({
 
     // Supportment data with labels defined here
     const agencyLabels: Record<string, string> = {
-      support_research: "Research Dept",
+      support_research: "ฝ่ายวิจัย",
       support_vdc: "VDC",
       support_sieic: "SiEIC",
     };
 
     const needLabels: Record<string, string> = {
-      need_protect_intellectual_property: "IP Protection",
-      need_co_developers: "Co-developers",
-      need_activities: "Activities",
-      need_test: "Testing",
-      need_capital: "Capital",
-      need_partners: "Partners",
-      need_guidelines: "Guidelines",
-      need_certification: "Certification",
-      need_account: "Benefit Account",
+      need_protect_intellectual_property: "การคุ้มครองทรัพย์สินทางปัญญา",
+      need_co_developers: "ผู้ร่วมพัฒนา",
+      need_activities: "กิจกรรมสนับสนุน",
+      need_test: "การทดสอบ",
+      need_capital: "เงินทุนสนับสนุน",
+      need_partners: "พันธมิตร",
+      need_guidelines: "แนวทาง/คำปรึกษา",
+      need_certification: "การรับรองมาตรฐาน",
+      need_account: "บัญชีผลประโยชน์",
     };
 
     const agencyData = Object.entries(agencyLabels)

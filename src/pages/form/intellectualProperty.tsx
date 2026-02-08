@@ -289,14 +289,14 @@ export default function IntellectualProperty({
               )}
               {/* File upload */}
               <div>
-                <h3 className="font-semibold text-primary">เอกสารเพิ่มเติม (แนบ file)</h3>
+                <h3 className="font-semibold text-primary">เอกสารเพิ่มเติม (แนบไฟล์)</h3>
                 <div className="flex gap-2 items-center mt-2">
                   <button
                     type="button"
                     onClick={() => document.getElementById(`ipFile-${formIndex}`)?.click()}
                     className="w-30 sm:w-auto px-2 py-1 bg-gray-100/50 border border-gray-200 text-gray-400 rounded-lg hover:bg-primary hover:border-primary hover:text-white transition-colors duration-300 focus:outline-none focus:bg-primary focus:text-white"
                   >
-                    Choose File
+                    เลือกไฟล์
                   </button>
                   <input
                     type="file"
@@ -324,7 +324,7 @@ export default function IntellectualProperty({
           onClick={handleAddForm}
           className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
         >
-          <Plus className="w-4 h-4" /> add
+          <Plus className="w-4 h-4" /> เพิ่มใบทรัพย์สินทางปัญญา
         </button>
       </div>
     </div>

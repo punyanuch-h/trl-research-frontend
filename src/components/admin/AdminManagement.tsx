@@ -45,13 +45,13 @@ export default function AdminManagement({
   getFullNameByResearcherID,
 }: Props) {
   const tableColumns = [
-    { key: "created_at", label: "Create Date" },
-    { key: "createdBy", label: "Create By" },
-    { key: "title", label: "Name" },
-    { key: "type", label: "Type" },
-    { key: "trl_estimate", label: "TRL Estimate" },
-    { key: "trlScore", label: "TRL Score" },
-    { key: "status", label: "Status" },
+    { key: "created_at", label: "วันที่สร้าง" },
+    { key: "createdBy", label: "สร้างโดย" },
+    { key: "title", label: "ชื่องานวิจัย" },
+    { key: "type", label: "ประเภทงานวิจัย" },
+    { key: "trl_estimate", label: "คาดว่ามีระดับความพร้อม" },
+    { key: "trlScore", label: "ระดับความพร้อม" },
+    { key: "status", label: "สถานะ" },
   ];
   const navigate = useNavigate();
   const updateUrgentStatus = useUpdateUrgentStatus();
@@ -110,7 +110,7 @@ export default function AdminManagement({
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Research Submissions</CardTitle>
+          <CardTitle>รายการงานวิจัย</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -126,7 +126,7 @@ export default function AdminManagement({
                     {sortConfig.key === col.key ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
                   </TableHead>
                 ))}
-                <TableHead>Action</TableHead>
+                <TableHead>การดำเนินการ</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -139,7 +139,7 @@ export default function AdminManagement({
               ) : (
                 paginatedProjects.map(project => (
                   <TableRow key={project.id}>
-                    <TableCell className="min-w-[140px] px-2 text-center align-middle">
+                    <TableCell className="min-w-[140px] px-2 align-middle">
                       {new Date(project.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="min-w-[120px] px-2 items-center">
@@ -186,7 +186,7 @@ export default function AdminManagement({
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
-                    <TableCell className="min-w-[120px] px-2 text-center align-middle">
+                    <TableCell className="min-w-[140px] px-2 text-center align-middle">
                       {project.status === true ? (
                         <Badge variant="outline">TRL {project.trl_score}</Badge>
                       ) : (
@@ -195,7 +195,7 @@ export default function AdminManagement({
                     </TableCell>
                     <TableCell className="text-center align-middle">
                       <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(project.status === true ? "Approve" : "In process")}`}>
-                        {project.status === true ? "Approve" : "In process"}
+                        {project.status === true ? "ผ่านการประเมิน" : "กำลังประเมิน"}
                       </Badge>
                     </TableCell>
                     <TableCell className="w-[250px] flex gap-2">
@@ -207,7 +207,7 @@ export default function AdminManagement({
                             onClick={() => handleViewResearch(project.id)}
                           >
                             <Eye className="w-4 h-4 mr-1" />
-                            View
+                            ดูรายละเอียด
                           </Button>
                           {project.trl_score ? (
                             <Button
@@ -216,13 +216,13 @@ export default function AdminManagement({
                               onClick={() => onDownload(project)}
                             >
                               <Download className="w-4 h-4 mr-2" />
-                              Result
+                              ผลการประเมิน
                             </Button>
                           ) : (
                             <div className="invisible">
                               <Button variant="outline" size="sm">
                                 <Download className="w-4 h-4 mr-2" />
-                                Result
+                                ผลการประเมิน
                               </Button>
                             </div>
                           )}
@@ -238,20 +238,12 @@ export default function AdminManagement({
                               onClick={() => handleViewResearch(project.id)}
                             >
                               <Eye className="w-4 h-4 mr-1" />
-                              View
+                              ดูรายละเอียด
                             </Button>
-                            {/* <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => onAIEstimate(project)}
-                              >
-                                <Sparkles className="w-4 h-4 mr-1" />
-                                AI Estimate
-                              </Button> */}
                           </div>
                           {project.appointments && project.appointments.length > 0 ? (
                             <Badge variant="outline" className="text-xs">
-                              Appointment:{" "}
+                              การนัดหมาย:{" "}
                               {format(
                                 new Date(
                                   project.appointments[project.appointments.length - 1].date
@@ -262,7 +254,7 @@ export default function AdminManagement({
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="text-xs text-gray-400">
-                              Appointment: -
+                              การนัดหมาย: -
                             </Badge>
                           )}
                         </div>
@@ -284,7 +276,7 @@ export default function AdminManagement({
               <DialogHeader>
                 <DialogTitle>ยืนยันการยกเลิก</DialogTitle>
               </DialogHeader>
-              <p>คุณแน่ใจหรือไม่ว่าจะยกเลิก urgent case?</p>
+              <p>คุณแน่ใจหรือไม่ว่าจะยกเลิกสถานะ "เร่งด่วน"?</p>
 
               <textarea
                 className="w-full border rounded p-2 mt-2"

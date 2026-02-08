@@ -24,7 +24,7 @@ const AssessmentResult = () => {
   const { data: researcherData, isPending: isResearcherPending, isError: isResearcherError } = useGetResearcherById(caseData?.researcher_id || '');
   const { data: coordinatorData, isPending: isCoordinatorPending, isError: isCoordinatorError } = useGetCoordinatorByCaseId(id || '');
   const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentById(id || '');
-  
+
   const updateAssessmentMutation = useUpdateAssessment(caseData?.id || '');
   const updateSuggestionMutation = useUpdateImprovementSuggestion();
   const updateTrlScoreMutation = useUpdateTrlScore();
@@ -76,7 +76,7 @@ const AssessmentResult = () => {
         const defaultSuggestion = getUnselectedCriteria()
           .map((criteria) => `• TRL ${criteria.level}: ${criteria.question}`)
           .join("\n");
-        
+
         if (defaultSuggestion) {
           await updateSuggestionMutation.mutateAsync({
             assessmentId: assessmentId,
@@ -231,37 +231,36 @@ const AssessmentResult = () => {
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Case Detail
+                ย้อนกลับ
               </Button>
               <div className="h-6 w-px bg-gray-300"></div>
               <h1 className="text-xl font-semibold text-gray-900">
-                Assessment Result
+                การประเมินงานวิจัย
               </h1>
             </div>
 
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-sm">
-                Case ID: {caseData?.id || 'Loading...'}
+                รหัสงานวิจัย: {caseData?.id || 'กำลังโหลด...'}
               </Badge>
               <Button
                 onClick={handleApproveAssessment}
                 disabled={!caseData?.id || updateAssessmentMutation.isPending || caseData?.status === true}
-                className={`flex items-center gap-2 ${
-                  caseData?.status === true 
+                className={`flex items-center gap-2 ${caseData?.status === true
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-green-600 hover:bg-green-700"
-                }`}
+                  }`}
               >
                 {updateAssessmentMutation.isPending ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                 ) : (
                   caseData?.status === true ? <Check className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />
                 )}
-                
-                {caseData?.status === true 
-                  ? "Approved" 
-                  : (updateAssessmentMutation.isPending ? "Approving..." : "Approve Assessment")
-                }              
+
+                {caseData?.status === true
+                  ? "ผ่านการประเมินแล้ว"
+                  : (updateAssessmentMutation.isPending ? "กำลังยืนยันการประเมิน..." : "ยืนยันการประเมิน")
+                }
               </Button>
             </div>
           </div>
@@ -276,17 +275,17 @@ const AssessmentResult = () => {
             {isCasePending ? (
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                <span className="text-muted-foreground">Loading case details...</span>
+                <span className="text-muted-foreground">กำลังโหลดรายละเอียดงานวิจัย...</span>
               </div>
             ) : isCaseError ? (
               <div className="text-destructive">
-                <h2 className="text-xl font-bold">Error Loading Case</h2>
-                <p className="text-sm">Unable to load case details</p>
+                <h2 className="text-xl font-bold">เกิดข้อผิดพลาดในการโหลดข้อมูลงานวิจัย</h2>
+                <p className="text-sm">ไม่สามารถโหลดรายละเอียดงานวิจัยได้</p>
               </div>
             ) : !caseData ? (
               <div className="text-muted-foreground">
-                <h2 className="text-xl font-bold">Case Not Found</h2>
-                <p className="text-sm">The requested case could not be found</p>
+                <h2 className="text-xl font-bold">ไม่พบงานวิจัย</h2>
+                <p className="text-sm">ไม่สามารถค้นหาข้อมูลงานวิจัยที่ต้องการได้</p>
               </div>
             ) : (
               <div className="flex justify-between items-start">
@@ -297,13 +296,13 @@ const AssessmentResult = () => {
                   <div className="flex gap-2 mb-2">
                     <Badge variant="outline">{caseData.type}</Badge>
                     <Badge variant={caseData.is_urgent ? "destructive" : "secondary"}>
-                      {caseData.is_urgent ? "Urgent" : "Not Urgent"}
+                      {caseData.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน"}
                     </Badge>
                   </div>
                 </div>
                 <div className="text-right text-sm text-muted-foreground">
-                  <p>Case ID: {caseData.id}</p>
-                  <p>Submitted at: {new Date(caseData.created_at).toLocaleDateString()}</p>
+                  <p>รหัสงานวิจัย: {caseData.id}</p>
+                  <p>วันที่สร้าง: {new Date(caseData.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
             )}
@@ -313,12 +312,12 @@ const AssessmentResult = () => {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-2">Description</h3>
+                  <h3 className="font-semibold mb-2">รายละเอียดข้อมูลงานวิจัย</h3>
                   <p className="text-sm leading-relaxed">{caseData.description}</p>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-2">Keywords</h3>
+                  <h3 className="font-semibold mb-2">คำสำคัญ (Keywords)</h3>
                   <p className="text-sm text-muted-foreground">{caseData.keywords}</p>
                 </div>
 
@@ -330,13 +329,13 @@ const AssessmentResult = () => {
                   </div>
                 ) : isResearcherError ? (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                    <h3 className="font-semibold">Failed to load researcher</h3>
-                    <p className="text-sm">Please try refreshing the page or contact support.</p>
+                    <h3 className="font-semibold">ไม่สามารถโหลดข้อมูลนักวิจัยได้</h3>
+                    <p className="text-sm">กรุณาลองรีเฟรชหน้าเว็บหรือติดต่อฝ่ายสนับสนุน</p>
                   </div>
                 ) : researcherData ? (
                   <div className="space-y-4">
                     <div>
-                      <h3 className="font-semibold mb-2">Researcher</h3>
+                      <h3 className="font-semibold mb-2">ข้อมูลนักวิจัย/ข้อมูลหัวหน้าโครงการ</h3>
                       <p className="text-sm text-muted-foreground">{researcherData.first_name} {researcherData.last_name}</p>
                       <p className="text-sm text-muted-foreground">{researcherData.email}</p>
                       <p className="text-sm text-muted-foreground">{researcherData.phone_number}</p>
@@ -352,13 +351,13 @@ const AssessmentResult = () => {
                   </div>
                 ) : isCoordinatorError ? (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                    <h3 className="font-semibold">Failed to load coordinator</h3>
-                    <p className="text-sm">Unable to retrieve coordinator information for this case.</p>
+                    <h3 className="font-semibold">ไม่สามารถโหลดข้อมูลผู้ประสานงานได้</h3>
+                    <p className="text-sm">กรุณาลองรีเฟรชหน้าเว็บหรือติดต่อฝ่ายสนับสนุน</p>
                   </div>
                 ) : coordinatorData ? (
                   <div className="space-y-4">
                     <div>
-                      <h3 className="font-semibold mb-2">Coordinator</h3>
+                      <h3 className="font-semibold mb-2">ข้อมูลผู้ประสานงานโครงการ</h3>
                       <p className="text-sm text-muted-foreground">{coordinatorData.first_name} {coordinatorData.last_name}</p>
                       <p className="text-sm text-muted-foreground">{coordinatorData.email}</p>
                       <p className="text-sm text-muted-foreground">{coordinatorData.phone_number}</p>
@@ -375,14 +374,14 @@ const AssessmentResult = () => {
                 ) : assessmentData && caseData ? (
                   <div className="space-y-4 pt-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">Estimated TRL Level</h3>
+                      <h3 className="font-semibold">คาดว่ามีระดับความพร้อม</h3>
                       <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                        Level {assessmentData.trl_estimate}
+                        TRL {assessmentData.trl_estimate}
                       </Badge>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">Final TRL Level</h3>
+                      <h3 className="font-semibold">ระดับความพร้อม</h3>
                       {isEditingTrl ? (
                         <div className="flex items-center gap-2">
                           <select
@@ -392,7 +391,7 @@ const AssessmentResult = () => {
                           >
                             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
                               <option key={level} value={level}>
-                                Level {level}
+                                TRL {level}
                               </option>
                             ))}
                           </select>
@@ -422,7 +421,7 @@ const AssessmentResult = () => {
                       ) : (
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
-                            Level {caseData.trl_score ?? assessmentData.trl_estimate}
+                            TRL {caseData.trl_score ?? assessmentData.trl_estimate}
                           </Badge>
                           {caseData.status !== true && (
                             <Button
@@ -452,10 +451,10 @@ const AssessmentResult = () => {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
-              General Assessment Questions
+              คำถามประเมินทั่วไป
             </CardTitle>
             <p className="text-muted-foreground text-sm">
-              Basic questions to evaluate your research progress
+              คำถามพื้นฐานเพื่อประเมินความก้าวหน้าของงานวิจัย
             </p>
           </CardHeader>
           <CardContent>
@@ -497,8 +496,8 @@ const AssessmentResult = () => {
 
         {/* TRL Evaluation Criteria Section - Always visible */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary mb-2">TRL Evaluation Criteria</h1>
-          <p className="text-muted-foreground">Technology Readiness Level Assessment Questions</p>
+          <h1 className="text-3xl font-bold text-primary mb-2">เกณฑ์การประเมินระดับความพร้อมของเทคโนโลยี (TRL)</h1>
+          <p className="text-muted-foreground">ชุดคำถามสำหรับการประเมินระดับความพร้อมเทคโนโลยี</p>
         </div>
 
         <div className="grid gap-6">
@@ -514,12 +513,12 @@ const AssessmentResult = () => {
                 >
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-xl font-semibold text-primary">
-                      TRL Level {index + 1}
+                      ระดับ TRL {index + 1}
                     </CardTitle>
                     <div className="flex items-center gap-2">
                       {cqAnswers && cqAnswers.length > 0 && (
                         <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
-                          {cqAnswers.length} selected
+                          {cqAnswers.length} เกณฑ์ที่เลือก
                         </Badge>
                       )}
                       <Button
@@ -574,7 +573,7 @@ const AssessmentResult = () => {
                         <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                           <div className="flex items-center gap-2">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                            <span className="text-sm text-muted-foreground">Loading assessment results...</span>
+                            <span className="text-sm text-muted-foreground">กำลังโหลดผลการประเมิน...</span>
                           </div>
                         </div>
                       ) : cqAnswers && cqAnswers.length > 0 ? (
@@ -582,7 +581,7 @@ const AssessmentResult = () => {
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                             <span className="text-sm text-green-700 font-medium">
-                              {cqAnswers.length} criteria selected for this level
+                              มีการเลือกเกณฑ์จำนวน {cqAnswers.length} ข้อ สำหรับระดับนี้
                             </span>
                           </div>
                         </div>
@@ -590,7 +589,7 @@ const AssessmentResult = () => {
                         <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                            <span className="text-sm text-muted-foreground">No criteria selected for this level</span>
+                            <span className="text-sm text-muted-foreground">ยังไม่ได้เลือกเกณฑ์สำหรับระดับนี้</span>
                           </div>
                         </div>
                       )}
@@ -606,7 +605,7 @@ const AssessmentResult = () => {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
-              Improvement Suggestions
+              ข้อเสนอแนะในการพัฒนางานวิจัย
             </CardTitle>
           </CardHeader>
 
@@ -614,7 +613,7 @@ const AssessmentResult = () => {
             {isAssessmentPending ? (
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                <span className="text-muted-foreground">Loading suggestions...</span>
+                <span className="text-muted-foreground">กำลังโหลดข้อเสนอแนะในการพัฒนางานวิจัย...</span>
               </div>
             ) : getUnselectedCriteria().length > 0 ? (
               <div className="space-y-4">
@@ -649,9 +648,9 @@ const AssessmentResult = () => {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl text-green-600">✓</span>
                 </div>
-                <h3 className="text-lg font-semibold text-green-800 mb-2">Excellent Progress!</h3>
+                <h3 className="text-lg font-semibold text-green-800 mb-2">ความก้าวหน้าดีเยี่ยม !</h3>
                 <p className="text-muted-foreground">
-                  All TRL criteria have been addressed. Your research appears to be well-developed.
+                  งานวิจัยของท่านผ่านเกณฑ์ TRL ครบถ้วน และมีการพัฒนาอย่างสมบูรณ์
                 </p>
               </div>
             )}
@@ -673,16 +672,16 @@ const AssessmentResult = () => {
                         {updateSuggestionMutation.isPending ? (
                           <>
                             <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                            Saving...
+                            กำลังบันทึก...
                           </>
                         ) : (
                           <>
-                            Save
+                            บันทึก
                           </>
                         )}
                       </Button>
                       <Button variant="outline" size="sm" disabled={updateSuggestionMutation.isPending} onClick={() => setIsEditing(false)}>
-                        Cancel
+                        ยกเลิก
                       </Button>
                     </>
                   ) : (
@@ -701,7 +700,7 @@ const AssessmentResult = () => {
                       }}
                       className="text-primary border-primary hover:bg-primary/10"
                     >
-                      Edit Suggestions
+                      แก้ไขข้อเสนอแนะ
                     </Button>
                   )}
                 </>

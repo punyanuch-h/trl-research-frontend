@@ -66,14 +66,14 @@ export default function ForgotPasswordPage() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            TRL Assessment
+            ระบบประเมินระดับความพร้อมทางเทคโนโลยี
           </h1>
           <p className="text-xl text-muted-foreground">
-            Technology Readiness Level Evaluation System
+            Technology Readiness Level (TRL) Evaluation System
           </p>
         </div>
 
-        <Card className="w-full max-w-md shadow-md">
+        <Card className="w-full max-w-md shadow-md mx-auto">
           <CardHeader>
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Mail className="w-8 h-8 text-primary" />
