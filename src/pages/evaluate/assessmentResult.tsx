@@ -533,7 +533,7 @@ const AssessmentResult = () => {
               {/* IP Files */}
               <div>
                 <h3 className="text-base font-semibold text-primary mb-3 ml-1">ทรัพย์สินทางปัญญา (IP)</h3>
-                {ipData && (Array.isArray(ipData) ? ipData : [ipData]).length > 0 ? (
+                {ipData && ipData.length > 0 ? (
                   <div className="space-y-4">
                     {(Array.isArray(ipData) ? ipData : [ipData]).map((ip: IntellectualPropertyResponse, index: number) => {
                       const thaiLabel = ipTypesList.find(t => t.id === ip.types)?.label || ip.types;
@@ -563,7 +563,7 @@ const AssessmentResult = () => {
 
                       return (
                         <div key={`ip-${index}`}>
-                          {hasFiles ? (
+                          {hasFiles && ip.attachments ? (
                             renderFileList(CustomTitle, ip.attachments)
                           ) : (
                             <div className="border rounded-lg p-3 bg-white shadow-sm transition-colors">

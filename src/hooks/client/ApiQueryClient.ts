@@ -111,8 +111,8 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async useGetIPByCaseId(caseId: string): Promise<IntellectualPropertyResponse> {
-    const response = await this.axiosInstance.get<IntellectualPropertyResponse>(`/trl/ip/case/${caseId}`);
+  async useGetIPByCaseId(caseId: string): Promise<IntellectualPropertyResponse[]> {
+    const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ip/case/${caseId}`);
     return response.data;
   }
 
