@@ -51,7 +51,6 @@ export default function Dashboard() {
     allAssessments,
     colors: COLORS,
   });
-  console.log(stats);
 
   const safePendingRatio = stats.total ? (stats.pending / stats.total) * 100 : 0;
   const safeUrgentRatio = stats.total ? (stats.urgent / stats.total) * 100 : 0;

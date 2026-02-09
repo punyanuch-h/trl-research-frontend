@@ -9,7 +9,7 @@ interface AddAppointmentData {
   status: "pending";
   location?: string;
   detail?: string;
-  [key: string]: any;
+  [key: string]: string | boolean | number | undefined;
 }
 
 export function useAddAppointment(onSuccess: () => void, onClose: () => void) {

@@ -53,7 +53,7 @@ export function CaseTypeStatusChart({ statusData, caseTypeData, colors }: CaseTy
         {/* Info Lists */}
         <div className="space-y-6">
           <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-semibold">รายการประเภทงานวิจัย</p>
-          <div className="max-h-[120px] pr-2">
+          <div className="pr-2">
             {caseTypeData.map((t, i) => (
               <div key={`type-list-${i}`} className="flex items-center justify-between text-xs py-1.5 border-b border-gray-50 last:border-0">
                 <div className="flex items-center gap-2 truncate">
