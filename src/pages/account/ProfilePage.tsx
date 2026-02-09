@@ -125,7 +125,7 @@ export default function ProfilePage() {
               className="flex items-center gap-2"
             >
               {updateUserProfile.isPending ? (
-                "Saving..."
+                "กำลีงบันทึก..."
               ) : isEditing ? (
                 <>
                   <Save className="w-4 h-4" />

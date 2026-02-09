@@ -55,7 +55,7 @@ export function AddAppointmentModal({
 
   const handleAdd = async () => {
     if (!selectedProjectId || !selectedDate || !selectedTime) {
-      alert("⚠️ กรุณากรอกข้อมูลให้ครบ");
+      alert("⚠️ กรุณากรอกข้อมูลชื่องานวิจัย เพื่อเพิ่มการนัดหมาย");
       return;
     }
 
