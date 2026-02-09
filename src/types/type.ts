@@ -70,7 +70,7 @@ export type AppointmentResponse = {
     date: string;
     status: string;
     location: string;
-    details: string;
+    detail: string;
     summary: string;
     is_read: boolean;
     is_notify: boolean;
