@@ -13,40 +13,57 @@ interface CaseTypeStatusChartProps {
 
 export function CaseTypeStatusChart({ statusData, caseTypeData, colors }: CaseTypeStatusChartProps) {
   return (
-    <div className="bg-white p-5 border border-gray-100 rounded-lg">
-      <h3 className="font-semibold mb-3 text-sm">ประเภทและสถานะงานวิจัย</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Status Pie */}
-        <div className="flex justify-center">
-          <ResponsiveContainer width="90%" height={180}>
+    <div className="bg-white p-6 border border-gray-100 rounded-xl shadow-sm">
+      <h3 className="font-bold mb-4 text-gray-800 text-base">ประเภทและสถานะงานวิจัย</h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        {/* Type Distribution Pie (Donut) */}
+        <div className="h-[220px] flex flex-col items-center">
+          <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-semibold">สัดส่วนประเภทงานวิจัย</p>
+          <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={70}>
-                {statusData.map((entry, index) => (
-                  <Cell key={`status-${index}`} fill={colors[index % colors.length]} />
+              <Pie
+                data={caseTypeData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={85}
+                paddingAngle={2}
+                animationBegin={0}
+                animationDuration={1500}
+              >
+                {caseTypeData.map((_, index) => (
+                  <Cell
+                    key={`type-${index}`}
+                    fill={colors[index % colors.length]}
+                    stroke="rgba(255,255,255,0.2)"
+                    strokeWidth={2}
+                  />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Case Type List */}
-        <div className="space-y-2 max-h-48 overflow-y-auto">
-          {caseTypeData.map((t, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between text-sm border-b border-gray-100 pb-1"
-            >
-              <div className="flex items-center gap-2 w-full">
-                <div
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: colors[i % colors.length] }}
-                />
-                <span className="flex-1 truncate">{t.name}</span>
-                <span className="text-gray-500">{t.value}</span>
+        {/* Info Lists */}
+        <div className="space-y-6">
+          <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-semibold">รายการประเภทงานวิจัย</p>
+          <div className="max-h-[120px] pr-2">
+            {caseTypeData.map((t, i) => (
+              <div key={`type-list-${i}`} className="flex items-center justify-between text-xs py-1.5 border-b border-gray-50 last:border-0">
+                <div className="flex items-center gap-2 truncate">
+                  <div className="h-2 w-2 rounded-sm" style={{ backgroundColor: colors[i % colors.length] }} />
+                  <span className="text-gray-600 truncate">{t.name}</span>
+                </div>
+                <span className="text-gray-400 tabular-nums">{t.value}</span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

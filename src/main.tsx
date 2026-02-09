@@ -4,7 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
-  <HashRouter>
+  <HashRouter future={{ v7_relativeSplatPath: true }}>
     <App />
   </HashRouter>
 );

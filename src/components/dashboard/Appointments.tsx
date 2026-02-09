@@ -7,12 +7,12 @@ interface Appointment {
 }
 
 interface AppointmentsCardProps {
-  success: number;
-  fail: number;
+  attended: number;
+  absent: number;
   upcoming: Appointment[];
 }
 
-export function AppointmentsCard({ success, fail, upcoming }: AppointmentsCardProps) {
+export function AppointmentsCard({ attended, absent, upcoming }: AppointmentsCardProps) {
   return (
     <div className="bg-white p-5 border border-gray-100 rounded-lg">
       <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
@@ -20,15 +20,15 @@ export function AppointmentsCard({ success, fail, upcoming }: AppointmentsCardPr
       </h3>
       <div className="text-sm mb-3">
         <p>
-          ✅ เข้าร่วม:{" "}
-          <span className="font-semibold text-green-600">{success}</span>
+          ✅ เข้าพบแล้ว:{" "}
+          <span className="font-semibold text-green-600">{attended}</span>
         </p>
         <p>
-          ❌ ขาดนัด:{" "}
-          <span className="font-semibold text-red-500">{fail}</span>
+          ❌ ไม่มาตามนัด:{" "}
+          <span className="font-semibold text-red-500">{absent}</span>
         </p>
         <p>
-          📅 รอดำเนินการ:{" "}
+          📅 รอการเข้าพบ:{" "}
           <span className="font-semibold text-blue-600">{upcoming.length}</span>
         </p>
       </div>
@@ -45,7 +45,7 @@ export function AppointmentsCard({ success, fail, upcoming }: AppointmentsCardPr
           ))}
         </ul>
       ) : (
-        <p className="text-gray-400 text-sm">No upcoming appointments</p>
+        <p className="text-gray-400 text-sm">ไม่มีการนัดหมายที่กำลังจะมาถึง</p>
       )}
     </div>
   );
