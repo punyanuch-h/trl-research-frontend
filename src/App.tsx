@@ -19,7 +19,7 @@ import ResearcherHomePage from "./pages/homepage/ResearcherHomePage.tsx";
 import AssessmentResult from "./pages/evaluate/assessmentResult.tsx";
 import PublicRoute from "./routers/PublicRoute.tsx";
 import PrivateRoute from "./routers/PrivateRoute.tsx";
-import NotFound from "./pages/notFound/UnauthorizedPage.tsx";
+import Unauthorized from "./pages/notFound/UnauthorizedPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -47,7 +47,7 @@ const App: React.FC = () => {
           <Route path="/researcher/homepage" element={<PrivateRoute allowRoles={["researcher"]}><ResearcherHomePage /></PrivateRoute>} />
           <Route path="/researcher-form" element={<PrivateRoute allowRoles={["researcher"]}><ResearcherForm /></PrivateRoute>} />
 
-          <Route path="/unauthorized" element={<PrivateRoute><NotFound /></PrivateRoute>} />
+          <Route path="/unauthorized" element={<PrivateRoute><Unauthorized /></PrivateRoute>} />
           {/* Catch-all route */}
           <Route path="*" element={<PublicRoute><LoginPage /></PublicRoute>} />
         </Routes>

@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 
 const Unauthorized = () => {
@@ -16,9 +16,9 @@ const Unauthorized = () => {
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-4">ขออภัย คุณไม่มีสิทธิ์เข้าถึงหน้านี้</h1>
         <p className="text-xl text-gray-600 mb-4">หากต้องการเข้าถึง กรุณาติดต่อเจ้าหน้าที่ที่เกี่ยวข้อง</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
+        <Link to="/" className="text-blue-500 hover:text-blue-700 underline">
           กลับสู่หน้าหลัก
-        </a>
+        </Link>
       </div>
     </div>
   );
