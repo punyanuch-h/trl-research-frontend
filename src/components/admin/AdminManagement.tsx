@@ -140,7 +140,7 @@ export default function AdminManagement({
                 paginatedProjects.map(project => (
                   <TableRow key={project.id}>
                     <TableCell className="min-w-[140px] px-2 align-middle">
-                      {new Date(project.created_at).toLocaleDateString()}
+                      {format(new Date(project.created_at), "dd/MM/yyyy")}
                     </TableCell>
                     <TableCell className="min-w-[120px] px-2 items-center">
                       {getFullNameByResearcherID(project.researcher_id)}

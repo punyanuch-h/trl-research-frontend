@@ -16,10 +16,10 @@ import CaseDetial from "./pages/caseDetial/CaseDetial";
 import ResearcherForm from "./pages/form/ResearcherForm";
 import DifyChatIframe from "@/components/chat/DifyChatIFrame.tsx";
 import ResearcherHomePage from "./pages/homepage/ResearcherHomePage.tsx";
-import ResearcherDetailResearcher from "./pages/homepage/ResearcherHomePage.tsx";
 import AssessmentResult from "./pages/evaluate/assessmentResult.tsx";
 import PublicRoute from "./routers/PublicRoute.tsx";
 import PrivateRoute from "./routers/PrivateRoute.tsx";
+import Unauthorized from "./pages/notFound/UnauthorizedPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -37,14 +37,17 @@ const App: React.FC = () => {
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
           <Route path="/forget-password" element={<PublicRoute><ForgetPassword /></PublicRoute>} />
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-          <Route path="/admin/create-admin" element={<PrivateRoute><CreateAccountPage /></PrivateRoute>} />
-          <Route path="/admin/homepage" element={<PrivateRoute><AdminHomePage /></PrivateRoute>} />
-          <Route path="/researcher/homepage" element={<PrivateRoute><ResearcherHomePage /></PrivateRoute>} />
           <Route path="/case-detail/:id" element={<PrivateRoute><CaseDetial /></PrivateRoute>} />
-          <Route path="/reset-password" element={<PrivateRoute><ResetPasswordPage /></PrivateRoute>} />
-          <Route path="/researcher-detail-researcher" element={<PrivateRoute><ResearcherDetailResearcher /></PrivateRoute>} />
-          <Route path="/researcher-form" element={<PrivateRoute><ResearcherForm /></PrivateRoute>} />
-          <Route path="/assessment/:id" element={<PrivateRoute><AssessmentResult /></PrivateRoute>} />
+          <Route path="/reset-password" element={<PrivateRoute><ResetPasswordPage /></PrivateRoute>} />  
+          {/* Admin */}
+          <Route path="/admin/create-admin" element={<PrivateRoute allowRoles={["admin"]}><CreateAccountPage /></PrivateRoute>} />
+          <Route path="/admin/homepage" element={<PrivateRoute allowRoles={["admin"]}><AdminHomePage /></PrivateRoute>} />
+          <Route path="/assessment/:id" element={<PrivateRoute allowRoles={["admin"]}><AssessmentResult /></PrivateRoute>} />
+          {/* Researcher */}
+          <Route path="/researcher/homepage" element={<PrivateRoute allowRoles={["researcher"]}><ResearcherHomePage /></PrivateRoute>} />
+          <Route path="/researcher-form" element={<PrivateRoute allowRoles={["researcher"]}><ResearcherForm /></PrivateRoute>} />
+
+          <Route path="/unauthorized" element={<PrivateRoute><Unauthorized /></PrivateRoute>} />
           {/* Catch-all route */}
           <Route path="*" element={<PublicRoute><LoginPage /></PublicRoute>} />
         </Routes>
