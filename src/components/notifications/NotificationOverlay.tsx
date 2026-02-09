@@ -59,9 +59,9 @@ export function NotificationOverlay({
                                     )}
                                 </div>
 
-                                {notif.details && (
+                                {notif.detail && (
                                     <span className="text-xs text-muted-foreground line-clamp-2">
-                                        {notif.details}
+                                        {notif.detail}
                                     </span>
                                 )}
 

@@ -5,7 +5,7 @@ import {
     DialogTitle,
     DialogDescription,
 } from "@/components/ui/dialog";
-import { AppointmentResponse } from "@/hooks/client/type";
+import { AppointmentResponse } from "@/types/type";
 import { format, isValid } from "date-fns";
 import { th } from "date-fns/locale";
 import { Calendar, MapPin, FileText } from "lucide-react";
@@ -61,7 +61,7 @@ export function AppointmentModal({
                         <div>
                             <p className="text-sm font-semibold">รายละเอียด</p>
                             <p className="text-sm whitespace-pre-wrap">
-                                {appointment.details || "ไม่มีรายละเอียดเพิ่มเติม"}
+                                {appointment.detail || "ไม่มีรายละเอียดเพิ่มเติม"}
                             </p>
                         </div>
                     </div>
