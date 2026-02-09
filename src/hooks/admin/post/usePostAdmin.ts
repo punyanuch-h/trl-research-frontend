@@ -1,17 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-
-export interface PostAdminData {
-  prefix: string;
-  academic_position: string | null;
-  first_name: string;
-  last_name: string;
-  department: string;
-  phone_number: string;
-  email: string;
-  password: string;
-}
+import { PostAdminData } from "@/types/type";
 
 export function usePostAdmin(onSuccess: () => void) {
   const [loading, setLoading] = useState(false);

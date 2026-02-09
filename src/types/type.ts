@@ -152,3 +152,39 @@ export interface FileResponse {
     file_path?: string;
     created_at?: string;
 }
+
+export type PostResearcherData = {
+    prefix: string;
+    academic_position: string | null;
+    first_name: string;
+    last_name: string;
+    department: string;
+    phone_number: string;
+    email: string;
+    password: string;
+};
+
+export type PostAdminData = {
+    prefix: string;
+    academic_position: string | null;
+    first_name: string;
+    last_name: string;
+    department: string;
+    phone_number: string;
+    email: string;
+    password: string;
+};
+
+export type AddAppointmentData = {
+    case_id: string;
+    date: string;
+    status: "pending" | string;
+    location?: string;
+    detail?: string;
+    [key: string]: string | boolean | number | undefined;
+};
+
+export type NotificationListResponse = {
+    data: AppointmentResponse[];
+    unread_count: number;
+};

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import { AppointmentResponse } from "@/hooks/client/type";
+import { AppointmentResponse } from "@/types/type";
 
 export const useMarkAsRead = () => {
     const apiQueryClient = new ApiQueryClient(
