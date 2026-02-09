@@ -9,6 +9,7 @@ import type {
   SupportmentResponse,
   ResearcherResponse,
   UserProfileResponse,
+  NotificationListResponse,
 } from "@/types/type";
 import { getUserRole } from "@/lib/auth";
 import { SubmitResearcherFormRequest, SubmitResearcherFormResponse } from "@/types/request";

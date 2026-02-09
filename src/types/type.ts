@@ -152,3 +152,18 @@ export interface FileResponse {
     file_path?: string;
     created_at?: string;
 }
+
+export type NotificationListResponse = {
+    id: string;
+    case_id: string;
+    case?: CaseResponse;
+    date: string;
+    status: string;
+    location: string;
+    detail: string;
+    summary: string;
+    is_read: boolean;
+    is_notify: boolean;
+    created_at: string;
+    updated_at: string;
+};
