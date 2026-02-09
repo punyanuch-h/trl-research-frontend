@@ -523,8 +523,8 @@ const AssessmentResult = () => {
               {/* Research Files */}
               <div>
                 <h3 className="text-base font-semibold text-primary mb-3 ml-1">เอกสารงานวิจัย</h3>
-                {caseData && (caseData as CaseResponse & { attachments?: string[] }).attachments?.length > 0 ? (
-                  renderFileList("เอกสารรายละเอียดงานวิจัย", (caseData as CaseResponse & { attachments?: string[] }).attachments)
+                {caseData && caseData.attachments && caseData.attachments.length > 0 ? (
+                  renderFileList("เอกสารรายละเอียดงานวิจัย", caseData.attachments)
                 ) : (
                   <div className="text-sm text-gray-400 italic pl-1">ไม่มีเอกสารแนบ</div>
                 )}
@@ -535,7 +535,7 @@ const AssessmentResult = () => {
                 <h3 className="text-base font-semibold text-primary mb-3 ml-1">ทรัพย์สินทางปัญญา (IP)</h3>
                 {ipData && (Array.isArray(ipData) ? ipData : [ipData]).length > 0 ? (
                   <div className="space-y-4">
-                    {(Array.isArray(ipData) ? ipData : [ipData]).map((ip: IntellectualPropertyResponse & { attachments?: string[] }, index: number) => {
+                    {(Array.isArray(ipData) ? ipData : [ipData]).map((ip: IntellectualPropertyResponse, index: number) => {
                       const thaiLabel = ipTypesList.find(t => t.id === ip.types)?.label || ip.types;
                       const hasFiles = ip.attachments && ip.attachments.length > 0;
 
@@ -694,8 +694,9 @@ const AssessmentResult = () => {
                       {questions.map((question, qIdx) => {
                         const isSelected = cqAnswers && cqAnswers.includes(question.label);
                         
-                        const specificFile = (attachments && attachments[qIdx] && attachments[qIdx] !== "") 
-                          ? [attachments[qIdx]] 
+                        const fileAtIdx = attachments?.[qIdx];
+                        const specificFile = (fileAtIdx && fileAtIdx !== "") 
+                         ? [fileAtIdx] 
                           : [];
 
                         return (

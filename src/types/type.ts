@@ -12,6 +12,7 @@ export type CaseResponse = {
     type: string;
     description: string;
     keywords: string;
+    attachments?: string[];
     trl_score: number;
     trl_suggestion: string;
     status: boolean;
@@ -84,6 +85,7 @@ export type IntellectualPropertyResponse = {
     types: string;
     protection_status: string;
     request_number: string;
+    attachments?: string[];
     created_at: string;
     updated_at: string;
 };
