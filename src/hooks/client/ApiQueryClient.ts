@@ -13,6 +13,7 @@ import type {
 } from "@/types/type";
 import { getUserRole } from "@/lib/auth";
 import { SubmitResearcherFormRequest, SubmitResearcherFormResponse } from "@/types/request";
+import { checkboxQuestionList } from "@/data/checkboxQuestionList";
 
 export class ApiQueryClient extends ApiBaseClient {
   // Authentication
@@ -171,21 +172,15 @@ export class ApiQueryClient extends ApiBaseClient {
 
     if (researchFiles && researchFiles.length > 0) {
       for (const file of researchFiles) {
-        console.log('📎 Uploading files for case...');
-        const assessmentFiles = formData.assessmentFiles as Record<string, File>;
-        if (assessmentFiles) {
-          for (const [key, file] of Object.entries(assessmentFiles)) {
-            console.log(`Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`);
-            try {
-              const { upload_url, object_path } = await this.presignUpload(file);
-              await this.uploadToSignedUrl(upload_url, file);
-              casesAttachments.push(object_path);
-              console.log(`✅ Uploaded file: ${file.name}`);
-            } catch (error) {
-              console.error(`❌ Failed to upload file ${file.name}:`, error);
-              throw error;
-            }
-          }
+        console.log(`📎 Uploading research file: ${file.name}`);
+        try {
+          const { upload_url, object_path } = await this.presignUpload(file);
+          await this.uploadToSignedUrl(upload_url, file);
+          casesAttachments.push(object_path);
+          console.log(`✅ Uploaded research file: ${file.name}`);
+        } catch (error) {
+          console.error(`❌ Failed to upload research file ${file.name}:`, error);
+          throw error;
         }
       }
     }
@@ -215,43 +210,48 @@ export class ApiQueryClient extends ApiBaseClient {
 
 
     // Create Assessment
-    const assessmentAttachmentsRecord: Record<string, string[]> = {};
-    const rqKeys = ['rq1', 'rq2', 'rq3', 'rq4', 'rq5', 'rq6', 'rq7'];
-    const cqKeys = ['cq1', 'cq2', 'cq3', 'cq4', 'cq5', 'cq6', 'cq7', 'cq8', 'cq9'];
-
-    // Initialize with empty arrays as requested
-    [...rqKeys, ...cqKeys].forEach(key => {
-      assessmentAttachmentsRecord[`${key}_attachments`] = [];
-    });
-
-    if (formData.assessmentFiles) {
-      for (const [key, file] of Object.entries(formData.assessmentFiles)) {
-        if (file instanceof File) {
-          try {
-            const { upload_url, object_path } = await this.presignUpload(file);
-            await this.uploadToSignedUrl(upload_url, file);
-
-            // Determine which field this goes to
-            let attachmentField = '';
-            if (key.startsWith('rq')) {
-              attachmentField = `${key}_attachments`;
-            } else if (key.startsWith('cq')) {
-              // Extract cqX from cqX-Y (e.g., cq1-1 -> cq1)
-              const match = key.match(/^(cq\d+)/);
-              if (match) {
-                attachmentField = `${match[1]}_attachments`;
-              }
-            }
-
-            if (attachmentField && assessmentAttachmentsRecord[attachmentField] !== undefined) {
-              assessmentAttachmentsRecord[attachmentField].push(object_path);
-              console.log(`✅ Uploaded assessment file for ${key}: ${(file as File).name}`);
-            }
-          } catch (error) {
-            console.error(`❌ Failed to upload assessment file for ${key}:`, error);
-            throw error;
-          }
+    const uploadOrBlank = async (file: unknown): Promise<string> => {
+      if (file instanceof File) {
+        try {
+          const { upload_url, object_path } = await this.presignUpload(file);
+          await this.uploadToSignedUrl(upload_url, file);
+          return object_path;
+        } catch (error) {
+          console.error(`❌ Upload failed:`, error);
+          throw error;
         }
+      }
+      return "";
+    };
+
+    const assessmentAttachmentsRecord: Record<string, string[]> = {};
+
+    const rqKeys = ['rq1', 'rq2', 'rq3', 'rq4', 'rq5', 'rq6', 'rq7'];
+    for (const key of rqKeys) {
+      const file = formData.assessmentFiles[key];
+      const path = await uploadOrBlank(file);
+      assessmentAttachmentsRecord[`${key}_attachments`] = path === "" ? [] : [path];
+    }
+
+    const cqLevelKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    for (const level of cqLevelKeys) {
+      const fieldName = `cq${level}_attachments`;
+      const questionsInLevel = checkboxQuestionList[level - 1] || [];
+      
+      const uploadPromises = questionsInLevel.map((_, i) => {
+        const fileKey = `cq${level}-${i + 1}`;
+        const file = formData.assessmentFiles[fileKey];
+        return uploadOrBlank(file);
+      });
+
+      const results = await Promise.all(uploadPromises);
+
+      const hasAnyFile = results.some(path => path !== "");
+
+      if (hasAnyFile) {
+        assessmentAttachmentsRecord[fieldName] = results;
+      } else {
+        assessmentAttachmentsRecord[fieldName] = [];
       }
     }
 
@@ -398,8 +398,10 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async useGetDownloadURL(fileId: string) {
-    const response = await this.axiosInstance.get(`/trl/file/download-url/${fileId}`);
+  async useGetDownloadUrl(path: string): Promise<{ download_url: string }> {
+    const response = await this.axiosInstance.get(`/trl/file/download`, {
+      params: { path },
+    });
     return response.data; // { download_url: "..." }
   }
 

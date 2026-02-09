@@ -134,6 +134,10 @@ export default function EvaluateTRL({
       step.value.forEach((oldVal, idx) => {
         if (oldVal === 1 && newValue[idx] === 0) {
           const fileKey = `cq${step.level}-${idx + 1}`;
+
+        const newFiles = { ...formData.assessmentFiles };
+        delete newFiles[fileKey];
+
           handleInputChange("assessmentFiles", {
             ...formData.assessmentFiles,
             [fileKey]: null,

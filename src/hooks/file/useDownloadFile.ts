@@ -1,24 +1,28 @@
 import { useState } from "react";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
-export function useDownloadFile() {
+export function useGetDownloadUrl() {
   const [loading, setLoading] = useState(false);
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
-  const downloadFile = async (fileId: string) => {
+  const openFile = async (path: string) => {
     setLoading(true);
     try {
-      const { download_url } = await apiQueryClient.useGetDownloadURL(fileId);
+      const response = await apiQueryClient.useGetDownloadUrl(path);
+      
+      if (response?.download_url) {
+        window.open(response.download_url, '_blank');
+      } else {
+        throw new Error("Invalid download URL");
+      }
 
-      // open in new tab
-      window.open(download_url, "_blank");
     } catch (error) {
-      console.error("❌ Download failed:", error);
+      console.error("❌ Failed to open file:", error);
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  return { downloadFile, loading };
+  return { openFile, loading };
 }

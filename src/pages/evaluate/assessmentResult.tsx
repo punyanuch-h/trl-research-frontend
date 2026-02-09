@@ -4,18 +4,29 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ChevronDown, ChevronUp, ArrowLeft, CheckCircle, Pencil, X, Check } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowLeft, CheckCircle, Pencil, X, Check, FileText, Paperclip, ExternalLink } from 'lucide-react';
 import { radioQuestionList } from '@/data/radioQuestionList';
 import { checkboxQuestionList } from '@/data/checkboxQuestionList';
 import { useGetCaseById } from '@/hooks/case/get/useGetCaseById';
 import { useGetResearcherById } from "@/hooks/researcher/get/useGetResearcherById";
 import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByCaseId";
 import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
+import { useGetIPByCaseId } from "@/hooks/case/get/useGetIPByCaseId";
+import { useGetDownloadUrl } from '@/hooks/file/useDownloadFile';
 import { useUpdateAssessment } from '@/hooks/case/patch/useUpdateAssessment';
 import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImprovementSuggestion';
 import { useUpdateTrlScore } from '@/hooks/case/patch/useUpdateTrlScore';
 import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const ipTypesList = [
+  { id: "patent", label: "สิทธิบัตร" },
+  { id: "pettyPatent", label: "อนุสิทธิบัตร" },
+  { id: "designPatent", label: "สิทธิบัตรออกแบบผลิตภัณฑ์" },
+  { id: "copyright", label: "ลิขสิทธิ์" },
+  { id: "trademark", label: "เครื่องหมายการค้า" },
+  { id: "tradeSecret", label: "ความลับทางการค้า" },
+];
 
 const AssessmentResult = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,10 +35,12 @@ const AssessmentResult = () => {
   const { data: researcherData, isPending: isResearcherPending, isError: isResearcherError } = useGetResearcherById(caseData?.researcher_id || '');
   const { data: coordinatorData, isPending: isCoordinatorPending, isError: isCoordinatorError } = useGetCoordinatorByCaseId(id || '');
   const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentById(id || '');
+  const { data: ipData } = useGetIPByCaseId(id || '');
 
   const updateAssessmentMutation = useUpdateAssessment(caseData?.id || '');
   const updateSuggestionMutation = useUpdateImprovementSuggestion();
   const updateTrlScoreMutation = useUpdateTrlScore();
+  const { openFile, loading: fileLoading } = useGetDownloadUrl();
 
   // State for editable suggestions
   const [suggestions, setSuggestions] = useState<{ [key: string]: string }>({});
@@ -215,6 +228,56 @@ const AssessmentResult = () => {
       console.error("Assessment ID missing in data:", assessmentData);
       toast.error("Error: Cannot find Assessment ID to save.");
     }
+  };
+
+  const handleFileClick = async (path: string) => {
+    try {
+      await openFile(path);
+    } catch (error) {
+      toast.error("ไม่สามารถเปิดเอกสารได้");
+    }
+  };
+
+  const renderFileList = (title: React.ReactNode, files: string[]) => {
+    if (!files || files.length === 0) return null;
+
+    return (
+      <div className="mb-4 last:mb-0 border rounded-lg p-3 bg-white shadow-sm">
+        <div className="mb-3 border-b pb-2">
+            {typeof title === 'string' ? (
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <Paperclip className="h-4 w-4 text-primary" />
+                    {title}
+                </h4>
+            ) : (
+                title
+            )}
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {files.map((file, idx) => (
+            <div 
+              key={idx} 
+              onClick={() => handleFileClick(file)}
+              className={`
+                flex items-center justify-between p-2 border rounded-md 
+                bg-gray-50 hover:bg-primary/5 hover:border-primary/50
+                transition-all cursor-pointer group
+                ${fileLoading ? 'opacity-50 pointer-events-none' : ''}
+              `}
+            >
+              <div className="flex items-center gap-2 truncate flex-1 mr-2">
+                <FileText className="h-4 w-4 text-primary flex-shrink-0 group-hover:text-primary/80" />
+                <span className="text-sm truncate text-gray-700 group-hover:text-primary group-hover:underline" title={file}>
+                  {file.split('/').pop()}
+                </span>
+              </div>
+              <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-primary" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -447,6 +510,77 @@ const AssessmentResult = () => {
           )}
         </Card>
 
+        {/* Attachments Section (Research & IP) */}
+        <Card className="w-full">
+          <CardHeader>
+              <CardTitle className="text-2xl font-bold text-primary mb-2 flex items-center gap-2">
+                  <FileText className="h-5 w-5" /> เอกสารประกอบงานวิจัยและทรัพย์สินทางปัญญา
+              </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Research Files */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-3 ml-1">เอกสารงานวิจัย</h3>
+                {caseData && (caseData as any).attachments?.length > 0 ? (
+                  renderFileList("เอกสารรายละเอียดงานวิจัย", (caseData as any).attachments)
+                ) : (
+                  <div className="text-sm text-gray-400 italic pl-1">ไม่มีเอกสารแนบ</div>
+                )}
+              </div>
+
+              {/* IP Files */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-3 ml-1">ทรัพย์สินทางปัญญา (IP)</h3>
+                {ipData && (Array.isArray(ipData) ? ipData : [ipData]).length > 0 ? (
+                  <div className="space-y-4">
+                    {(Array.isArray(ipData) ? ipData : [ipData]).map((ip: any, index: number) => {
+                      const thaiLabel = ipTypesList.find(t => t.id === ip.types)?.label || ip.types;
+                      const hasFiles = ip.attachments && ip.attachments.length > 0;
+
+                      const CustomTitle = (
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 w-full">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="outline" className="bg-blue-50 text-primary border-primary h-6">#{index + 1}</Badge>
+                            <span className="font-semibold text-sm">{thaiLabel}</span>
+                            <Badge variant="secondary" className="bg-gray-100 text-gray-700 font-medium text-xs h-5">
+                              {ip.protection_status || 'ไม่ระบุสถานะ'}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              เลขที่คำขอ: <span className="text-foreground">{ip.request_number || '-'}</span>
+                            </span>
+                          </div>
+
+                          {!hasFiles && (
+                            <div className="flex items-center gap-1.5 text-gray-400 bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                              <FileText className="h-3 w-3" />
+                              <span className="text-xs text-muted-foreground">ไม่มีเอกสารแนบ</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+
+                      return (
+                        <div key={`ip-${index}`}>
+                          {hasFiles ? (
+                            renderFileList(CustomTitle, ip.attachments)
+                          ) : (
+                            <div className="border rounded-lg p-3 bg-white shadow-sm transition-colors">
+                              {CustomTitle}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-400 italic pl-1">ไม่มีข้อมูลทรัพย์สินทางปัญญา</div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* General Questions */}
         <Card className="w-full">
           <CardHeader>
@@ -459,37 +593,43 @@ const AssessmentResult = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {radioQuestionList.map((question, index) => (
-                <div key={index} className="p-4 border rounded-lg bg-muted/30 flex justify-between items-center">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
-                      {index + 1}
+              {radioQuestionList.map((question, index) => {
+                  const attachmentsKey = `rq${index + 1}_attachments` as keyof typeof assessmentData;
+                  const attachments = assessmentData ? assessmentData[attachmentsKey] as string[] : [];
+                  return (
+                    <div key={index} className="flex flex-col gap-2 p-4 border rounded-lg bg-muted/30">
+                        <div className="flex justify-between items-start">
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
+                                  {index + 1}
+                                </div>
+                                <p className="text-sm leading-relaxed font-medium">{question}</p>
+                            </div>
+                            {/* Assessment Result Badge */}
+                            <div className="flex-shrink-0">
+                              {isAssessmentPending ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                              ) : getRQAnswer(index) !== null ? (
+                                <Badge
+                                  variant={getRQAnswer(index) ? "default" : "destructive"}
+                                  className={`flex items-center justify-center py-1 w-10 ${getRQAnswer(index)
+                                    ? "bg-green-500/20 hover:bg-green-200 text-green-500 rounded-sm"
+                                    : "bg-red-500/20 hover:bg-red-200 text-red-500 rounded-sm"
+                                    }`}
+                                >
+                                  {getRQAnswer(index) ? "ใช่" : "ไม่ใช่"}
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="py-1 w-12">
+                                  ไม่มีข้อมูล
+                                </Badge>
+                              )}
+                            </div>
+                        </div>
+                        {attachments && attachments.length > 0 && <div className="ml-9 mt-3">{renderFileList("หลักฐานประกอบ", attachments)}</div>}
                     </div>
-                    <p className="text-sm leading-relaxed font-medium">{question}</p>
-                  </div>
-
-                  {/* Assessment Result Badge */}
-                  <div className="flex-shrink-0">
-                    {isAssessmentPending ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    ) : getRQAnswer(index) !== null ? (
-                      <Badge
-                        variant={getRQAnswer(index) ? "default" : "destructive"}
-                        className={`flex items-center justify-center py-1 w-10 ${getRQAnswer(index)
-                          ? "bg-green-500/20 hover:bg-green-600 text-green-500 rounded-sm"
-                          : "bg-red-500/20 hover:bg-red-600 text-red-500 rounded-sm"
-                          }`}
-                      >
-                        {getRQAnswer(index) ? "ใช่" : "ไม่ใช่"}
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="py-1 w-12">
-                        ไม่มีข้อมูล
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
+                  )
+              })}
             </div>
           </CardContent>
         </Card>
@@ -504,6 +644,8 @@ const AssessmentResult = () => {
           {checkboxQuestionList.map((questions, index) => {
             const cqAnswers = getCQAnswer(index);
             const isCollapsed = collapsedLevels[index];
+            const attachmentsKey = `cq${index + 1}_attachments` as keyof typeof assessmentData;
+            const attachments = assessmentData ? assessmentData[attachmentsKey] as string[] : [];
 
             return (
               <Card key={index} className="w-full">
@@ -521,6 +663,12 @@ const AssessmentResult = () => {
                           {cqAnswers.length} เกณฑ์ที่เลือก
                         </Badge>
                       )}
+                      {attachments && attachments.filter(a => a !== "").length > 0 && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                          <Paperclip className="h-3 w-3" />
+                          {attachments.filter(a => a !== "").length} ไฟล์
+                        </div>
+                      )}                      
                       <Button
                         variant="ghost"
                         size="sm"
@@ -542,26 +690,36 @@ const AssessmentResult = () => {
                 {!isCollapsed && (
                   <CardContent>
                     <div className="space-y-3">
-                      {questions.map((question) => {
-                        // Check if this question is selected in the assessment
+                      {questions.map((question, qIdx) => {
                         const isSelected = cqAnswers && cqAnswers.includes(question.label);
+                        
+                        const specificFile = (attachments && attachments[qIdx] && attachments[qIdx] !== "") 
+                          ? [attachments[qIdx]] 
+                          : [];
 
                         return (
-                          <div
-                            key={question.id}
-                            className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50"
-                          >
-                            <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium bg-primary text-primary-foreground">
-                              {question.id}
+                          <div key={question.id} className="space-y-2">
+                            <div
+                              className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50"
+                            >
+                              <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium bg-primary text-primary-foreground">
+                                {question.id}
+                              </div>
+                              <p className={`text-sm leading-relaxed ${isSelected ? 'text-green-700' : 'text-muted-foreground'}`}>
+                                {question.label}
+                              </p>
+                              {isSelected && (
+                                <div className="ml-auto">
+                                  <Badge variant="outline" className="bg-green-500 text-white border-green-500 text-xs">
+                                    ✓
+                                  </Badge>
+                                </div>
+                              )}
                             </div>
-                            <p className={`text-sm leading-relaxed ${isSelected ? 'text-green-700' : 'text-muted-foreground'}`}>
-                              {question.label}
-                            </p>
-                            {isSelected && (
-                              <div className="ml-auto">
-                                <Badge variant="outline" className="bg-green-500 text-white border-green-500 text-xs">
-                                  ✓
-                                </Badge>
+
+                            {isSelected && specificFile.length > 0 && (
+                              <div className="ml-9 mb-4">
+                                {renderFileList("หลักฐานประกอบ", specificFile)}
                               </div>
                             )}
                           </div>
