@@ -18,6 +18,7 @@ import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImpr
 import { useUpdateTrlScore } from '@/hooks/case/patch/useUpdateTrlScore';
 import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CaseResponse, IntellectualPropertyResponse } from '@/types/type';
 
 const ipTypesList = [
   { id: "patent", label: "สิทธิบัตร" },
@@ -40,7 +41,7 @@ const AssessmentResult = () => {
   const updateAssessmentMutation = useUpdateAssessment(caseData?.id || '');
   const updateSuggestionMutation = useUpdateImprovementSuggestion();
   const updateTrlScoreMutation = useUpdateTrlScore();
-  const { openFile, loading: fileLoading } = useGetDownloadUrl();
+  const { openFile, isPathLoading } = useGetDownloadUrl();
 
   // State for editable suggestions
   const [suggestions, setSuggestions] = useState<{ [key: string]: string }>({});
@@ -263,7 +264,7 @@ const AssessmentResult = () => {
                 flex items-center justify-between p-2 border rounded-md 
                 bg-gray-50 hover:bg-primary/5 hover:border-primary/50
                 transition-all cursor-pointer group
-                ${fileLoading ? 'opacity-50 pointer-events-none' : ''}
+                ${isPathLoading(file) ? 'opacity-50 pointer-events-none' : ''}
               `}
             >
               <div className="flex items-center gap-2 truncate flex-1 mr-2">
@@ -522,8 +523,8 @@ const AssessmentResult = () => {
               {/* Research Files */}
               <div>
                 <h3 className="text-base font-semibold text-primary mb-3 ml-1">เอกสารงานวิจัย</h3>
-                {caseData && (caseData as any).attachments?.length > 0 ? (
-                  renderFileList("เอกสารรายละเอียดงานวิจัย", (caseData as any).attachments)
+                {caseData && (caseData as CaseResponse & { attachments?: string[] }).attachments?.length > 0 ? (
+                  renderFileList("เอกสารรายละเอียดงานวิจัย", (caseData as CaseResponse & { attachments?: string[] }).attachments)
                 ) : (
                   <div className="text-sm text-gray-400 italic pl-1">ไม่มีเอกสารแนบ</div>
                 )}
@@ -534,7 +535,7 @@ const AssessmentResult = () => {
                 <h3 className="text-base font-semibold text-primary mb-3 ml-1">ทรัพย์สินทางปัญญา (IP)</h3>
                 {ipData && (Array.isArray(ipData) ? ipData : [ipData]).length > 0 ? (
                   <div className="space-y-4">
-                    {(Array.isArray(ipData) ? ipData : [ipData]).map((ip: any, index: number) => {
+                    {(Array.isArray(ipData) ? ipData : [ipData]).map((ip: IntellectualPropertyResponse & { attachments?: string[] }, index: number) => {
                       const thaiLabel = ipTypesList.find(t => t.id === ip.types)?.label || ip.types;
                       const hasFiles = ip.attachments && ip.attachments.length > 0;
 

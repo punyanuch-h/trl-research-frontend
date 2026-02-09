@@ -2,11 +2,12 @@ import { useState } from "react";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
 export function useGetDownloadUrl() {
-  const [loading, setLoading] = useState(false);
+  const [processingPaths, setProcessingPaths] = useState<Set<string>>(new Set());
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
   const openFile = async (path: string) => {
-    setLoading(true);
+    setProcessingPaths(prev => new Set(prev).add(path));
+
     try {
       const response = await apiQueryClient.useGetDownloadUrl(path);
       
@@ -20,9 +21,17 @@ export function useGetDownloadUrl() {
       console.error("❌ Failed to open file:", error);
       throw error;
     } finally {
-      setLoading(false);
+      setProcessingPaths(prev => {
+        const next = new Set(prev);
+        next.delete(path);
+        return next;
+      });
     }
   };
 
-  return { openFile, loading };
+  return { 
+    openFile, 
+    processingPaths,
+    isPathLoading: (path: string) => processingPaths.has(path)
+  };
 }
