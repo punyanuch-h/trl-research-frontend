@@ -41,8 +41,8 @@ export default function LoginPage() {
       const { role, token } = response;
       if (role && token) {
         localStorage.setItem("token", token);
-        if (role === "admin") navigate("/admin-homepage");
-        else if (role === "researcher") navigate("/researcher-homepage");
+        if (role === "admin") navigate("/admin/homepage");
+        else if (role === "researcher") navigate("/researcher/homepage");
         else navigate("/login");
       }
     }

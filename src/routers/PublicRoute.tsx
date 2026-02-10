@@ -8,19 +8,27 @@ interface Props {
 }
 
 const PublicRoute: React.FC<Props> = ({ children }) => {
-    const localToken = localStorage.getItem("token");
-    const sessionToken = sessionStorage.getItem("token");
-    const token = localToken || sessionToken;
-    const role = getUserRole();
-    const { data, isLoading, isError } = useGetUserProfile();
-    if (role === "admin") return <Navigate to="/admin/homepage" />;
-    else if (role === "researcher") return <Navigate to="/researcher/homepage" />;
-    if (!token) return <>{children}</>;
+  const localToken = localStorage.getItem("token");
+  const sessionToken = sessionStorage.getItem("token");
+  const token = localToken || sessionToken;
+  const role = getUserRole();
+  const { data, isLoading, isError } = useGetUserProfile();
 
-    if (isLoading) return null;
-    if (isError) return <>{children}</>;
+  if (!token) return <>{children}</>;
 
-    return data ? <Navigate to={`/${role}/homepage`} /> : <>{children}</>;
+  if (isLoading) return null;
+
+  if (isError) {
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+    return <>{children}</>;
+  }
+
+  if (data && role) {
+    return <Navigate to={`/${role}/homepage`} replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default PublicRoute;
