@@ -240,7 +240,7 @@ export class ApiQueryClient extends ApiBaseClient {
     for (const level of cqLevelKeys) {
       const fieldName = `cq${level}_attachments`;
       const questionsInLevel = checkboxQuestionList[level - 1] || [];
-      
+
       const uploadPromises = questionsInLevel.map((_, i) => {
         const fileKey = `cq${level}-${i + 1}`;
         const file = formData.assessmentFiles[fileKey];
@@ -464,5 +464,12 @@ export class ApiQueryClient extends ApiBaseClient {
 
   async useMarkAllAppointmentsAsRead(): Promise<void> {
     await this.axiosInstance.patch(`/trl/notifications/appointments/read-all`);
+  }
+
+  async useGeneratePDF(html: string): Promise<Blob> {
+    const response = await this.axiosInstance.post(`/trl/generate-pdf`, { html }, {
+      responseType: 'blob'
+    });
+    return response.data;
   }
 }

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 import type { CaseResponse, AppointmentResponse, ResearcherResponse, AssessmentResponse } from "@/types/type";
@@ -9,7 +8,7 @@ import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminManagement from "../../components/admin/AdminManagement";
 import AdminDashboard from "../dashboard/Dashboard";
 import AdminAppointment from "../../components/admin/AdminAppointment";
-import { CaseReportPDF } from "@/components/modal/report/report";
+import { useDownloadPDF } from "@/hooks/case/useDownloadPDF";
 
 import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
@@ -194,84 +193,10 @@ export default function AdminHomePage() {
     navigate("/trl-score", { state: { project } });
   }
 
+  const { downloadPDF } = useDownloadPDF();
+
   const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null }) => {
-    try {
-      console.log("Generating PDF for:", caseInfo.title);
-
-      let coordinatorData = null;
-      try {
-        coordinatorData = await queryClient.fetchQuery({
-          queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No coordinator data found or error fetching", err);
-      }
-
-      let ipData = [];
-      try {
-        ipData = await queryClient.fetchQuery({
-          queryKey: ["useGetIPByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetIPByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No IP data found", err);
-      }
-
-      let supportmentData = null;
-      try {
-        supportmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetSupporterByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetSupporterByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No supportment data found", err);
-      }
-
-      let assessmentData = null;
-      try {
-        assessmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetAssessmentById(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No assessment data found", err);
-      }
-
-      const pdfProps = {
-        c: caseInfo,
-        appointments: caseInfo.appointments || [],
-        coordinatorData: coordinatorData,
-        ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
-        supportmentData: supportmentData,
-        assessmentData: assessmentData,
-      };
-
-      const blob = await pdf(<CaseReportPDF {...pdfProps} />).toBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      const rawTitle = caseInfo.title || caseInfo.id;
-      const sanitizedTitle = rawTitle.toString().replace(/[<>:"/\\|?*]/g, "_").trim();
-      link.download = `result_${sanitizedTitle}.pdf`;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
-    }
+    await downloadPDF(caseInfo);
   };
 
   function handleSort(key: string) {
