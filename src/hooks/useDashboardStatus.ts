@@ -31,12 +31,18 @@ interface Supportment {
   [key: string]: boolean | string | number | null | undefined;
 }
 
+interface Assessment {
+  id: string;
+  trl_estimate: number | string;
+}
+
 interface UseDashboardStatsProps {
   allCases: Case[];
   allResearchers: Researcher[];
   allAppointments: Appointment[];
   allIntellectualProperties: IntellectualProperty[];
   allSupportments: Supportment[];
+  allAssessments: Assessment[];
   colors: string[];
 }
 
@@ -46,6 +52,7 @@ export function useDashboardStats({
   allAppointments,
   allIntellectualProperties,
   allSupportments,
+  allAssessments,
   colors,
 }: UseDashboardStatsProps) {
   return useMemo(() => {
@@ -62,11 +69,20 @@ export function useDashboardStats({
         ? (trlScores.reduce((a, b) => a + b, 0) / trlScores.length).toFixed(1)
         : "0";
 
-    // TRL Distribution
-    const trlDistribution = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((level, index) => ({
+    // TRL Real Distribution (based on case trl_score)
+    const trlRealDistribution = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((level, index) => ({
       level: `TRL ${level}`,
       count: allCases.filter(
         (c) => Math.floor(parseFloat(String(c.trl_score))) === level
+      ).length,
+      fill: colors[index % colors.length],
+    }));
+
+    // TRL Estimate Distribution (based on assessment trl_estimate)
+    const trlEstimateDistribution = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((level, index) => ({
+      level: `TRL ${level}`,
+      count: allAssessments.filter(
+        (a) => Math.floor(parseFloat(String(a.trl_estimate))) === level
       ).length,
       fill: colors[index % colors.length],
     }));
@@ -154,21 +170,16 @@ export function useDashboardStats({
     // Appointments summary
     const today = new Date();
     const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const success = allAppointments.filter((a) => a.status === "completed").length;
-    const fail = allAppointments.filter(
-      (a) => a.status === "cancelled" || a.status === "failed"
-    ).length;
+    const attended = allAppointments.filter((a) => a.status === "attended").length;
+    const absent = allAppointments.filter((a) => a.status === "absent").length;
     const upcoming = allAppointments
-      .filter((a) => {
-        const d = new Date(a.date);
-        return d >= today && d <= nextWeek;
-      })
-      .slice(0, 3)
+      .filter((a) => a.status === "pending")
       .map((a) => {
-        const relatedCase = allCases.find((c) => c.id === a.case_id);
+        const c = allCases.find((caseItem) => caseItem.id === a.case_id);
         return {
-          ...a,
-          case_title: relatedCase?.title || "Case",
+          id: a.id,
+          case_title: c ? c.title || "Unknown Case" : "Unknown Case",
+          date: a.date,
         };
       });
 
@@ -177,16 +188,25 @@ export function useDashboardStats({
       pending,
       urgent,
       avgTRL,
-      trlDistribution,
+      trlRealDistribution,
+      trlEstimateDistribution,
       caseTypeData,
       statusData,
       ipData,
       agencyData,
       neededSupportData,
       topResearchers,
-      success,
-      fail,
+      attended,
+      absent,
       upcoming,
     };
-  }, [allCases, allResearchers, allAppointments, allIntellectualProperties, allSupportments, colors]);
+  }, [
+    allCases,
+    allResearchers,
+    allAppointments,
+    allIntellectualProperties,
+    allSupportments,
+    allAssessments,
+    colors,
+  ]);
 }

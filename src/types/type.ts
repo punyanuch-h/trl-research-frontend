@@ -155,17 +155,38 @@ export interface FileResponse {
     created_at?: string;
 }
 
-export type NotificationListResponse = {
-    id: string;
+export type PostResearcherData = {
+    prefix: string;
+    academic_position: string | null;
+    first_name: string;
+    last_name: string;
+    department: string;
+    phone_number: string;
+    email: string;
+    password: string;
+};
+
+export type PostAdminData = {
+    prefix: string;
+    academic_position: string | null;
+    first_name: string;
+    last_name: string;
+    department: string;
+    phone_number: string;
+    email: string;
+    password: string;
+};
+
+export type AddAppointmentData = {
     case_id: string;
-    case?: CaseResponse;
     date: string;
-    status: string;
-    location: string;
-    detail: string;
-    summary: string;
-    is_read: boolean;
-    is_notify: boolean;
-    created_at: string;
-    updated_at: string;
+    status: "pending" | string;
+    location?: string;
+    detail?: string;
+    [key: string]: string | boolean | number | undefined;
+};
+
+export type NotificationListResponse = {
+    data: AppointmentResponse[];
+    unread_count: number;
 };

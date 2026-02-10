@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface IPData {
   name: string;
@@ -7,10 +7,10 @@ interface IPData {
 
 interface IntellectualPropertyChartProps {
   data: IPData[];
-  baseColor: string;
+  colors: string[];
 }
 
-export function IntellectualPropertyChart({ data, baseColor }: IntellectualPropertyChartProps) {
+export function IntellectualPropertyChart({ data, colors = [] }: IntellectualPropertyChartProps) {
   return (
     <div className="bg-white p-5 border border-gray-100 rounded-lg">
       <h3 className="font-semibold mb-3 text-sm">ประเภททรัพย์สินทางปัญญา</h3>
@@ -26,7 +26,14 @@ export function IntellectualPropertyChart({ data, baseColor }: IntellectualPrope
             />
             <YAxis allowDecimals={false} fontSize={10} />
             <Tooltip formatter={(value: number) => [`${value}`, "จำนวน"]} />
-            <Bar dataKey="value" fill={baseColor} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+              {data.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={colors.length > 0 ? colors[index % colors.length] : "#63C8DA"}
+                />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>

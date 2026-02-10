@@ -2,14 +2,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-
-interface AddAppointmentData {
-  case_id: string;
-  date: string;
-  status: "pending";
-  location?: string;
-  detail?: string;
-}
+import { AddAppointmentData } from "@/types/type";
 
 export function useAddAppointment(onSuccess: () => void, onClose: () => void) {
   const [loading, setLoading] = useState(false);

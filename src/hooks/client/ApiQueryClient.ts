@@ -1,5 +1,5 @@
 import { ApiBaseClient } from "@/hooks/client/ApiBaseClient";
-import type {
+import {
   AppointmentResponse,
   AssessmentResponse,
   CaseResponse,
@@ -9,6 +9,9 @@ import type {
   SupportmentResponse,
   ResearcherResponse,
   UserProfileResponse,
+  PostResearcherData,
+  PostAdminData,
+  AddAppointmentData,
   NotificationListResponse,
 } from "@/types/type";
 import { getUserRole } from "@/lib/auth";
@@ -430,22 +433,22 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async usePostResearcher(data: Record<string, unknown>) {
+  async usePostResearcher(data: PostResearcherData) {
     const response = await this.axiosInstance.post(`/researcher`, data);
     return response.data;
   }
 
-  async useAddAppointment(data: Record<string, unknown>) {
+  async useAddAppointment(data: AddAppointmentData) {
     const response = await this.axiosInstance.post(`/trl/appointment`, data);
     return response.data;
   }
 
-  async useEditAppointment(id: string, data: Record<string, unknown>) {
+  async useEditAppointment(id: string, data: Partial<AddAppointmentData>) {
     const response = await this.axiosInstance.patch(`/trl/appointment/${id}`, data);
     return response.data;
   }
 
-  async usePostAdmin(data: Record<string, unknown>) {
+  async usePostAdmin(data: PostAdminData) {
     const response = await this.axiosInstance.post(`/trl/admin`, data);
     return response.data;
   }
