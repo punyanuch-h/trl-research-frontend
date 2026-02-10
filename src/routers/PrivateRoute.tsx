@@ -22,7 +22,9 @@ const PrivateRoute: React.FC<Props> = ({ children, allowRoles }) => {
   if (isLoading) return null;
   if (isError) {
     console.log("Error fetching user profile");
-    return <Navigate to="/login" />;
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+    return <Navigate to="/login" replace />;
   }
 
   if (allowRoles && (!role || !allowRoles.includes(role))) {
