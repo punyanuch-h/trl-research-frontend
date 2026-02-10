@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Download, Eye, Filter, Plus } from "lucide-react";
-import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 import type { CaseResponse, AppointmentResponse } from "@/types/type";
@@ -10,11 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { TablePagination } from "@/components/TablePagination";
 import FilterPopup from "@/components/modal/filtter/filtter";
 import Header from "@/components/Header";
-import { CaseReportPDF } from "@/components/modal/report/report";
+import { useDownloadPDF } from "@/hooks/case/useDownloadPDF";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -207,86 +205,10 @@ export default function ResearcherHomePage() {
     navigate(`/case-detail/${caseId}`, { state: { caseInfo: c } });
   };
 
+  const { downloadPDF } = useDownloadPDF();
+
   const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null }) => {
-    try {
-      console.log("Generating PDF for:", caseInfo.title);
-
-      let coordinatorData = null;
-      try {
-        coordinatorData = await queryClient.fetchQuery({
-          queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No coordinator data found or error fetching", err);
-      }
-
-      let ipData = [];
-      try {
-        ipData = await queryClient.fetchQuery({
-          queryKey: ["useGetIPByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetIPByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No IP data found", err);
-      }
-
-      let supportmentData = null;
-      try {
-        supportmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetSupporterByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetSupporterByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No supportment data found", err);
-      }
-
-      let assessmentData = null;
-      try {
-        assessmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetAssessmentById(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No assessment data found", err);
-      }
-
-      const pdfProps = {
-        c: caseInfo,
-        appointments: caseInfo.appointments || [],
-        coordinatorData: coordinatorData,
-        ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
-        supportmentData: supportmentData,
-        assessmentData: assessmentData,
-      };
-
-      const blob = await pdf(<CaseReportPDF {...pdfProps} />).toBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      const rawTitle = caseInfo.title || caseInfo.id;
-      const sanitizedTitle = rawTitle.toString()
-        .replace(/[<>:"/\\|?*]/g, '_')
-        .trim();
-      link.download = `result_${sanitizedTitle}.pdf`;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
-    }
+    await downloadPDF(caseInfo);
   };
 
   return (
