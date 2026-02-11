@@ -75,9 +75,9 @@ export default function CreateAccountPage() {
 
   const onSubmit = async (data: CreateAccountFormValues) => {
     const academicPosition =
-    data.academic_position === "other"
-      ? data.academic_position_other
-      : data.academic_position;
+      data.academic_position === "other"
+        ? data.academic_position_other
+        : data.academic_position;
 
     try {
       await postAdmin({
@@ -162,15 +162,13 @@ export default function CreateAccountPage() {
                 <div>
                   <Label>ตำแหน่งทางวิชาการ</Label>
                   <div
-                    className={`grid gap-2 ${
-                      academicPosition === "other" ? "grid-cols-3" : "grid-cols-1"
-                    }`}
+                    className={`grid gap-2 ${academicPosition === "other" ? "grid-cols-3" : "grid-cols-1"
+                      }`}
                   >
                     {/* Select */}
                     <div
-                      className={`relative ${
-                        academicPosition === "other" ? "col-span-1" : ""
-                      }`}
+                      className={`relative ${academicPosition === "other" ? "col-span-1" : ""
+                        }`}
                     >
                       <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
 
@@ -325,7 +323,7 @@ export default function CreateAccountPage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Password */}
               <div>
                 <Label>รหัสผ่าน</Label><span className="text-red-500">*</span>
@@ -403,7 +401,7 @@ export default function CreateAccountPage() {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    กำลังสร้างบัญชี...
+                    กำลังสร้างบัญชีผู้ใช้...
                   </>
                 ) : (
                   "สร้างบัญชีผู้ใช้"
