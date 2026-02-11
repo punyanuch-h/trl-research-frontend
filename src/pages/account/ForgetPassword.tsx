@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
   useEffect(() => {
     if (isSuccess && response) {
       setSuccessMessage(
-        "ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบอีเมล"
+        "ส่งอีเมลสำเร็จ กรุณาตรวจสอบอีเมลของท่าน"
       );
     }
   }, [isSuccess, response]);
@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
     if (forgotPasswordError) {
       setError("root", {
         type: "manual",
-        message: "ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีเมลอีกครั้ง",
+        message: "เกิดข้อผิดพลาดในการส่งอีเมล กรุณาลองใหม่อีกครั้ง",
       });
     }
   }, [forgotPasswordError, setError]);

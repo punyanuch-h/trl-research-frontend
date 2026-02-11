@@ -107,7 +107,7 @@ export default function ResetPasswordPage() {
                     type={showPassword ? "text" : "password"}
                     className="pl-10 pr-10"
                     {...register("newPassword", {
-                      required: "กรุณากรอกรหัสผ่าน",
+                      required: "กรุณากรอกรหัสผ่านใหม่",
                       minLength: {
                         value: 8,
                         message: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
