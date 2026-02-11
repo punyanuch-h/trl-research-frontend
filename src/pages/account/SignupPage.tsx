@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,8 @@ import {
   Mail,
   Phone,
   Building,
+  EyeOff,
+  Eye,
 } from "lucide-react";
 import { usePostResearcher } from "@/hooks/researcher/post/usePostResearcher";
 import { PhoneInput } from "@/components/format/PhoneInput";
@@ -37,6 +40,7 @@ type SignupFormValues = {
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
@@ -274,7 +278,7 @@ export default function SignupPage() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     className="pl-10"
                     {...register("password", {
                       required: "กรุณากรอกรหัสผ่าน",
@@ -289,6 +293,18 @@ export default function SignupPage() {
                       },
                     })}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                    aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
                   {errors.password && (
                     <p className="text-sm text-destructive">
                       {errors.password.message}
@@ -302,7 +318,7 @@ export default function SignupPage() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     className="pl-10"
                     {...register("confirmPassword", {
                       required: "กรุณายืนยันรหัสผ่าน",
@@ -310,12 +326,25 @@ export default function SignupPage() {
                         value === password || "รหัสผ่านไม่ตรงกัน",
                     })}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                    aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
                   {errors.confirmPassword && (
                     <p className="text-sm text-destructive">
                       {errors.confirmPassword.message}
                     </p>
                   )}
                 </div>
+
               </div>
 
               {errors.root && (
