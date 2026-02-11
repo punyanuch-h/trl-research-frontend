@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
             </div>
             <CardTitle className="text-center text-2xl">ลืมรหัสผ่าน</CardTitle>
             <CardDescription className="text-center">
-              กรอกอีเมลของคุณเพื่อรับลิงก์รีเซ็ตรหัสผ่าน
+              กรอกอีเมลของคุณเพื่อรับอีเมลรีเซ็ตรหัสผ่าน
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -147,10 +147,10 @@ export default function ForgotPasswordPage() {
                   {forgotPasswordPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      กำลังส่งลิงก์...
+                      กำลังส่งอีเมล...
                     </>
                   ) : (
-                    "ส่งลิงก์รีเซ็ตรหัสผ่าน"
+                    "ส่งอีเมลรีเซ็ตรหัสผ่าน"
                   )}
                 </Button>
 
