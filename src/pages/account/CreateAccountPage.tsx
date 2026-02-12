@@ -1,7 +1,8 @@
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +19,6 @@ import {
   User,
   Lock,
   Mail,
-  Phone,
   Building,
   ArrowLeft,
   EyeOff,
@@ -51,6 +51,7 @@ export default function CreateAccountPage() {
     watch,
     formState: { errors },
     setError,
+    clearErrors,
   } = useForm<CreateAccountFormValues>({
     defaultValues: {
       prefix: "",
@@ -64,6 +65,14 @@ export default function CreateAccountPage() {
       confirmPassword: "",
     },
   });
+
+  useEffect(() => {
+    const subscription = watch(() => {
+      if (errors.root) clearErrors("root");
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, clearErrors, errors.root]);
 
   const { postAdmin, loading } = usePostAdmin(() => {
     navigate("/admin/homepage");
