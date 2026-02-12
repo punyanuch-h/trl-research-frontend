@@ -58,5 +58,17 @@ This project is built with:
 - Tailwind CSS
 
 ## How can I deploy this project?
+# 1. Build and push to Google Artifact Registry
+gcloud artifacts repositories create trl-frontend --repository-format=docker --location=asia-southeast1   
 
-Simply open [Lovable](https://lovable.dev/projects/0cd489be-eee8-4788-b21b-fe3ad7d0f7d8) and click on Share -> Publish.
+gcloud builds submit \
+  --tag asia-southeast1-docker.pkg.dev/trl-research-frontend/trl-frontend/react-app \
+  -- \
+  --build-arg VITE_PUBLIC_API_URL=https://trl-research-backend-325350196988.asia-southeast1.run.app
+
+
+# 2. Deploy the image from the registry
+gcloud builds submit --config cloudbuild.yaml .
+
+# 3. Deploy the image to Cloud Run
+gcloud run deploy trl-research-frontend --image asia-southeast1-docker.pkg.dev/trl-research-frontend/trl-frontend/react-app --region asia-southeast1 --platform managed --allow-unauthenticated

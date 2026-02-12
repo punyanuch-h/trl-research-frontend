@@ -4,7 +4,6 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/trl-research-frontend/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

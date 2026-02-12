@@ -1,0 +1,14 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-southeast1-docker.pkg.dev/trl-research-frontend/trl-frontend/react-app",
+        "--build-arg",
+        "VITE_PUBLIC_API_URL=https://trl-research-backend-325350196988.asia-southeast1.run.app",
+        "."
+      ]
+
+images:
+  - "asia-southeast1-docker.pkg.dev/trl-research-frontend/trl-frontend/react-app"
