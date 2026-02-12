@@ -86,11 +86,21 @@ export default function EditAppointmentModal({
       onSave(formToSubmit);
       onClose();
 
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ||
-        "เกิดข้อผิดพลาดในการแก้ไขการนัดหมาย";
+    } catch (err: unknown) {
+      let msg = "เกิดข้อผิดพลาดในการแก้ไขการนัดหมาย";
 
+      if (err instanceof Error) {
+        msg = err.message;
+      }
+      if (typeof err === "object" && err !== null && "response" in err) {
+        const axiosErr = err as {
+          response?: { data?: { message?: string } };
+        };
+
+        if (axiosErr.response?.data?.message) {
+          msg = axiosErr.response.data.message;
+        }
+      }
       toast.error(msg);
     }
   };

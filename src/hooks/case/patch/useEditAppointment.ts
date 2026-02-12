@@ -28,8 +28,6 @@ export function useEditAppointment(onSave: (updated: AppointmentResponse) => voi
 
       onSave(updated);
       onClose();
-    } catch (err) {
-      throw err;
     } finally {
       setLoading(false);
     }

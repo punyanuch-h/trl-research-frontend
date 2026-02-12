@@ -232,9 +232,15 @@ const AssessmentResult = () => {
           setIsEditing(false);
           toast.success("บันทึกข้อเสนอแนะสำเร็จ");
         },
-        onError: (err: any) => {
+        onError: (err: unknown) => {
           console.error("Update suggestion error:", err);
-          toast.error("เกิดข้อผิดพลาดในการแก้ไขข้อแนะนำ");
+
+          const message =
+            err instanceof Error
+              ? err.message
+              : "เกิดข้อผิดพลาดในการแก้ไขข้อแนะนำ";
+
+          toast.error(message);
         },
       }
     );
