@@ -163,6 +163,7 @@ export default function AdminHomePage() {
   const filteredCases = sortedCases.filter((c) =>
     customFilters.every(({ column, value }) => {
       if (column === "ประเภทงานวิจัย") return c.type === value;
+      if (column === "คาดว่ามีระดับความพร้อม") return c.trl_estimate?.toString() === value;
       if (column === "ระดับความพร้อม") return c.trl_score?.toString() === value;
       if (column === "สถานะ") return (c.status ? "ผ่านการประเมิน" : "กำลังประเมิน") === value;
       if (column === "สร้างโดย") return getFullNameByResearcherID(c.researcher_id) === value;
@@ -178,6 +179,7 @@ export default function AdminHomePage() {
 
   const columnOptions: Record<string, string[]> = {
     ประเภทงานวิจัย: [...new Set(cases.map((c) => c.type))],
+    คาดว่ามีระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     ระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     สถานะ: ["ผ่านการประเมิน", "กำลังประเมิน"],
     สร้างโดย: researcherData.map(r => getFullNameByResearcherID(r.id)),
