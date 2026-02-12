@@ -47,10 +47,10 @@ export default function ProfileField({
             name={name}
             value={value}
             onChange={onChange}
-            className="text-base border-gray-300 pr-10 h-auto py-2"
+            className="text-sm w-full h-10 px-3 py-2 rounded-md transition-colors border-gray-300 pr-10 focus-visible:ring-1"
           />
         ) : (
-          <span className="text-base border border-gray-300 rounded-md p-2 w-full">
+          <span className="text-sm w-full h-10 px-3 py-2 rounded-md transition-colors border border-gray-200 bg-muted/5 text-foreground flex items-center">
             {displayValue || "-"}
           </span>
         )}
