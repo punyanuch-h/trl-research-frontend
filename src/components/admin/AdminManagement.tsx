@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Eye, AlertTriangle } from "lucide-react";
+import { Download, Eye, AlertTriangle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { th } from "date-fns/locale";
 import { useUpdateUrgentStatus } from "@/hooks/case/patch/useUpdateUrgentStatus";
 
 import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../types/type";
+import { toast } from "@/lib/toast";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
@@ -81,6 +82,7 @@ export default function AdminManagement({
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [targetId, setTargetId] = React.useState<string | null>(null);
   const [cancelReason, setCancelReason] = React.useState("");
+  const [downloadingId, setDownloadingId] = React.useState<string | null>(null);
 
   const handleAskConfirm = (id: string) => {
     setTargetId(id);
@@ -101,7 +103,7 @@ export default function AdminManagement({
         setCancelReason("");
       } catch (error) {
         console.error("Failed to update urgent status:", error);
-        alert("Failed to update urgent status. Please try again.");
+        toast.error("Failed to update urgent status. Please try again.");
       }
     }
   };
@@ -116,16 +118,29 @@ export default function AdminManagement({
           <Table>
             <TableHeader>
               <TableRow>
-                {tableColumns.map(col => (
-                  <TableHead
-                    key={col.key}
-                    className="cursor-pointer select-none"
-                    onClick={() => onSort(col.key)}
-                  >
-                    {col.label}
-                    {sortConfig.key === col.key ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
-                  </TableHead>
-                ))}
+                {tableColumns.map(col => {
+                  const isActive = sortConfig.key === col.key;
+                  const direction = sortConfig.direction;
+
+                  return (
+                    <TableHead
+                      key={col.key}
+                      className="cursor-pointer select-none"
+                      onClick={() => onSort(col.key)}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {col.label}
+                        <span className="text-xs">
+                          {isActive ? (
+                            direction === "asc" ? "↑" : "↓"
+                          ) : (
+                            <span className="opacity-30">↑↓</span>
+                          )}
+                        </span>
+                      </span>
+                    </TableHead>
+                  );
+                })}
                 <TableHead>การดำเนินการ</TableHead>
               </TableRow>
             </TableHeader>
@@ -213,11 +228,29 @@ export default function AdminManagement({
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => onDownload(project)}
+                              disabled={downloadingId === project.id}
+                              onClick={async () => {
+                                try {
+                                  setDownloadingId(project.id);
+                                  await onDownload(project);
+                                } finally {
+                                  setDownloadingId(null);
+                                }
+                              }}
                             >
-                              <Download className="w-4 h-4 mr-2" />
-                              ผลการประเมิน
+                              {downloadingId === project.id ? (
+                                <span className="flex items-center gap-2">
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  กำลังโหลดข้อมูล...
+                                </span>
+                              ) : (
+                                <>
+                                  <Download className="w-4 h-4 mr-2" />
+                                  ผลการประเมิน
+                                </>
+                              )}
                             </Button>
+
                           ) : (
                             <div className="invisible">
                               <Button variant="outline" size="sm">

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Eye, Filter, Plus } from "lucide-react";
+import { Download, Eye, Filter, Plus, Loader2 } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { TablePagination } from "@/components/TablePagination";
 import FilterPopup from "@/components/modal/filtter/filtter";
 import Header from "@/components/Header";
@@ -21,6 +20,7 @@ import { th } from "date-fns/locale";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { useGetAllCasesByID } from "@/hooks/case/get/useGetAllCasesByID";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
+import { toast } from "@/lib/toast";
 
 // Merge Case + Appointment
 function mergeCasesData(
@@ -55,9 +55,8 @@ export default function ResearcherHomePage() {
   // --- State ---
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
-  const [selectedColumn, setSelectedColumn] = React.useState("type");
-  const [selectedValue, setSelectedValue] = React.useState("");
   const filterBtnRef = React.useRef<HTMLDivElement | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   // --- Sorting state ---
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({
@@ -138,19 +137,44 @@ export default function ResearcherHomePage() {
   const sortedCases = sortResearch(cases);
 
   // --- Filtering ---
-  const filteredCases = sortedCases.filter((c) =>
-    customFilters.every(({ column, value }) => {
-      if (column === "ประเภทงานวิจัย") return c.type === value;
-      if (column === "ระดับความพร้อม") return c.trl_score?.toString() === value;
-      if (column === "สถานะ") return (c.status ? "ผ่านการประเมิน" : "กำลังประเมิน") === value;
+  const filteredCases = sortedCases.filter((c) => {
+    if (customFilters.length === 0) return true;
+
+    const grouped: Record<string, string[]> = {};
+
+    customFilters.forEach(({ column, value }) => {
+      if (!grouped[column]) grouped[column] = [];
+      grouped[column].push(value);
+    });
+
+    return Object.entries(grouped).every(([column, values]) => {
+
+      if (column === "ประเภทงานวิจัย") {
+        return values.includes(c.type);
+      }
+
+      if (column === "ระดับความพร้อม") {
+        return values.includes(c.trl_score?.toString() || "");
+      }
+
+      if (column === "สถานะ") {
+        const statusText = c.status ? "ผ่านการประเมิน" : "กำลังประเมิน";
+        return values.includes(statusText);
+      }
+
       if (column === "ความเร่งด่วน") {
         const urgentText = c.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน";
-        return urgentText === value;
+        return values.includes(urgentText);
       }
-      if (column === "ชื่องานวิจัย") return c.title === value;
+
+      if (column === "ชื่องานวิจัย") {
+        return values.includes(c.title);
+      }
+
       return true;
-    })
-  );
+    });
+  });
+
 
   // --- Columns ---
   const columns = [
@@ -209,6 +233,7 @@ export default function ResearcherHomePage() {
 
   const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null }) => {
     try {
+      setDownloadingId(caseInfo.id);
       console.log("Generating PDF for:", caseInfo.title);
 
       let coordinatorData = null;
@@ -285,7 +310,9 @@ export default function ResearcherHomePage() {
 
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+      toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -353,20 +380,27 @@ export default function ResearcherHomePage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {columns.map((col) => (
-                    <TableHead
-                      key={col.key}
-                      className="cursor-pointer select-none"
-                      onClick={() => handleSort(col.key)}
-                    >
-                      {col.label}
-                      {sortConfig.key === col.key
-                        ? sortConfig.direction === "asc"
-                          ? " ↑"
-                          : " ↓"
-                        : ""}
-                    </TableHead>
-                  ))}
+                  {columns.map((col) => {
+                    const isActive = sortConfig.key === col.key;
+                    return (
+                      <TableHead
+                        key={col.key}
+                        className="cursor-pointer select-none whitespace-nowrap"
+                        onClick={() => handleSort(col.key)}
+                      >
+                        <div className="flex items-center gap-1">
+                          {col.label}
+                          <span className="text-xs">
+                            {isActive ? (
+                              sortConfig.direction === "asc" ? "↑" : "↓"
+                            ) : (
+                              <span className="text-gray-300">↑↓</span>
+                            )}
+                          </span>
+                        </div>
+                      </TableHead>
+                    );
+                  })}
                   <TableHead>การดำเนินการ</TableHead>
                   <TableHead>คำแนะนำสำหรับการพัฒนา</TableHead>
                 </TableRow>
@@ -433,10 +467,20 @@ export default function ResearcherHomePage() {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                disabled={downloadingId === c.id}
                                 onClick={() => handleDownloadResult(c)}
                               >
-                                <Download className="w-4 h-4 mr-2" />
-                                ผลการประเมิน
+                                {downloadingId === c.id ? (
+                                  <span className="flex items-center gap-2">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    กำลังโหลดข้อมูล...
+                                  </span>
+                                ) : (
+                                  <>
+                                    <Download className="w-4 h-4 mr-2" />
+                                    ผลการประเมิน
+                                  </>
+                                )}
                               </Button>
                             </>
                           ) : (

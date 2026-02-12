@@ -6,7 +6,7 @@ export interface PostResetPasswordData {
   new_password: string;
 }
 
-export function usePostResetPassword(onSuccess: () => void) {
+export function usePostResetPassword() {
   const [loading, setLoading] = useState(false);
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
@@ -14,7 +14,7 @@ export function usePostResetPassword(onSuccess: () => void) {
     setLoading(true);
     try {
       await apiQueryClient.useResetPassword(data);
-      onSuccess();
+      return true;
     } catch (error) {
       console.error("❌ Failed to reset password:", error);
       throw error;

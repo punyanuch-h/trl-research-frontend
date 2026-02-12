@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,6 +15,7 @@ import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
 import { useGetAllAssessments } from "@/hooks/case/get/useGetAllAssessments";
+import { toast } from "@/lib/toast";
 
 // Merge Case + Appointment + Researcher
 function mergeCasesData(
@@ -154,36 +155,94 @@ export default function AdminHomePage() {
 
   const sortedCases = sortCases(cases);
 
+  const formatDateTH = (dateStr: string) => {
+    const d = new Date(dateStr);
+
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  };
+
   // --- Filtering ---
   function getFullNameByResearcherID(id: string): string {
     const researcher = researcherData.find((r) => r.id === id);
     return researcher ? `${researcher.first_name} ${researcher.last_name}` : "";
   }
 
-  const filteredCases = sortedCases.filter((c) =>
-    customFilters.every(({ column, value }) => {
-      if (column === "ประเภทงานวิจัย") return c.type === value;
-      if (column === "ระดับความพร้อม") return c.trl_score?.toString() === value;
-      if (column === "สถานะ") return (c.status ? "ผ่านการประเมิน" : "กำลังประเมิน") === value;
-      if (column === "สร้างโดย") return getFullNameByResearcherID(c.researcher_id) === value;
+  const filteredCases = sortedCases.filter((c) => {
+    if (customFilters.length === 0) return true;
+
+    const grouped: Record<string, string[]> = {};
+
+    customFilters.forEach(({ column, value }) => {
+      if (!grouped[column]) grouped[column] = [];
+      grouped[column].push(value);
+    });
+
+    return Object.entries(grouped).every(([column, values]) => {
+
+      if (column === "ประเภทงานวิจัย") {
+        return values.includes(c.type);
+      }
+
+      if (column === "คาดว่ามีระดับความพร้อม") {
+        return values.includes(c.trl_estimate?.toString() || "");
+      }
+
+      if (column === "ระดับความพร้อม") {
+        return values.includes(c.trl_score?.toString() || "");
+      }
+
+      if (column === "สถานะ") {
+        const statusText = c.status ? "ผ่านการประเมิน" : "กำลังประเมิน";
+        return values.includes(statusText);
+      }
+
+      if (column === "สร้างโดย") {
+        const name = getFullNameByResearcherID(c.researcher_id);
+        return values.includes(name);
+      }
+
       if (column === "ความเร่งด่วน") {
         const urgentText = c.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน";
-        return urgentText === value;
+        return values.includes(urgentText);
       }
-      if (column === "ชื่องานวิจัย") return c.title === value;
-      if (column === "วันที่สร้าง") return new Date(c.created_at).toISOString().slice(0, 10) === value;
+
+      if (column === "ชื่องานวิจัย") {
+        return values.includes(c.title);
+      }
+
+      if (column === "วันที่สร้าง") {
+        const date = formatDateTH(c.created_at);
+        return values.includes(date);
+      }
+
       return true;
-    })
-  );
+    });
+  });
+
 
   const columnOptions: Record<string, string[]> = {
     ประเภทงานวิจัย: [...new Set(cases.map((c) => c.type))],
+    คาดว่ามีระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     ระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     สถานะ: ["ผ่านการประเมิน", "กำลังประเมิน"],
     สร้างโดย: researcherData.map(r => getFullNameByResearcherID(r.id)),
     ความเร่งด่วน: ["เร่งด่วน", "ไม่เร่งด่วน"],
     ชื่องานวิจัย: [...new Set(cases.map((c) => c.title))],
-    วันที่สร้าง: [...new Set(cases.map((c) => new Date(c.created_at).toISOString().slice(0, 10)))].sort().reverse(),
+    วันที่สร้าง: [
+      ...new Set(cases.map((c) => formatDateTH(c.created_at))),
+    ].sort((a, b) => {
+      const [da, ma, ya] = a.split("/");
+      const [db, mb, yb] = b.split("/");
+
+      const dateA = new Date(`${ya}-${ma}-${da}`);
+      const dateB = new Date(`${yb}-${mb}-${db}`);
+
+      return dateB.getTime() - dateA.getTime();
+    }),
   };
 
   function handleResearchClick(id: number, name: string, type: string) {
@@ -270,7 +329,7 @@ export default function AdminHomePage() {
 
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+      toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
     }
   };
 

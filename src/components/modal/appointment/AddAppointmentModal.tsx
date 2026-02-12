@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +41,7 @@ export function AddAppointmentModal({
   const { addAppointment, loading } = useAddAppointment(
     () => {
       // Success callback
-      alert("✅ เพิ่มนัดหมายสำเร็จ");
+      toast.success("เพิ่มการนัดหมายสำเร็จ");
       // ล้างค่าฟอร์ม
       setSelectedProjectId(null);
       setSelectedDate("");
@@ -55,7 +56,7 @@ export function AddAppointmentModal({
 
   const handleAdd = async () => {
     if (!selectedProjectId || !selectedDate || !selectedTime) {
-      alert("⚠️ กรุณากรอกข้อมูลชื่องานวิจัยและวันเวลา เพื่อเพิ่มการนัดหมาย");
+      toast.warning("กรุณากรอกข้อมูลชื่องานวิจัยและวันเวลา เพื่อเพิ่มการนัดหมาย");
       return;
     }
 
@@ -71,12 +72,9 @@ export function AddAppointmentModal({
     };
 
     try {
-      // 🔄 ใช้ hook ใหม่ที่มี query invalidation
-      // ข้อมูลจะ refresh อัตโนมัติจาก server ผ่าน query invalidation
       await addAppointment({ ...appointmentData, status: "pending" });
     } catch (error) {
-      console.error("Error creating appointment:", error);
-      alert("❌ ไม่สามารถบันทึกนัดหมายได้");
+      toast.error("เกิดข้อผิดพลาดในการสร้างนัดหมาย");
     }
   };
 

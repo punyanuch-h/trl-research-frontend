@@ -1,4 +1,5 @@
-import { useState } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import { usePostResetPassword } from "@/hooks/user/post/useResetPassword";
+import { toast } from "@/lib/toast";
 
 interface ResetPasswordData {
   oldPassword: string;
@@ -25,14 +27,21 @@ export default function ResetPasswordPage() {
     handleSubmit,
     watch,
     setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordData>();
 
+  useEffect(() => {
+    const subscription = watch(() => {
+      clearErrors("root");
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, clearErrors]);
+
   const newPassword = watch("newPassword");
 
-  const { postResetPassword } = usePostResetPassword(() => {
-    navigate(-1);
-  });
+  const { postResetPassword } = usePostResetPassword();
 
   const onSubmit = async (data: ResetPasswordData) => {
     try {
@@ -40,7 +49,24 @@ export default function ResetPasswordPage() {
         old_password: data.oldPassword,
         new_password: data.newPassword,
       });
-    } catch {
+      toast.success("รีเซ็ตรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสใหม่อีกครั้ง");
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 1200);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          setError("root", {
+            message: "ขออภัยรหัสผ่านเดิมไม่ถูกต้อง",
+          });
+          return;
+        }
+      }
+
+      toast.error("เปลี่ยนรหัสผ่านไม่สำเร็จ");
+
       setError("root", {
         message: "ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง หรือ ติดต่อเจ้าหน้าที่",
       });

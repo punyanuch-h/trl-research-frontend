@@ -1,9 +1,10 @@
-// src/components/modal/appointment/EditAppointmentModal.tsx
-import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/lib/toast";
 import {
   Dialog,
   DialogContent,
@@ -60,10 +61,10 @@ export default function EditAppointmentModal({
   ) => {
     if (field === "date") {
       let dateValue = value;
-        if (typeof value === "string" && value) {
-          const parsed = new Date(value);
-          dateValue = isNaN(parsed.getTime()) ? value : parsed.toISOString();
-        }
+      if (typeof value === "string" && value) {
+        const parsed = new Date(value);
+        dateValue = isNaN(parsed.getTime()) ? value : parsed.toISOString();
+      }
 
       setForm(prev => prev ? { ...prev, [field]: dateValue } : prev);
     } else {
@@ -71,13 +72,26 @@ export default function EditAppointmentModal({
     }
   };
 
-  const handleSubmit = () => {
-    if (form) {
-      const formToSubmit = {
-        ...form,
-        date: new Date(form.date).toISOString()
-      };
-      editAppointment(formToSubmit);
+  const handleSubmit = async () => {
+    if (!form) return;
+
+    const formToSubmit = {
+      ...form,
+      date: new Date(form.date).toISOString(),
+    };
+
+    try {
+      await editAppointment(formToSubmit);
+
+      toast.success("แก้ไขการนัดหมายสำเร็จ");
+      onSave(formToSubmit);
+      onClose();
+
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err)
+        ? err.response?.data?.message
+        : undefined;
+      toast.error(msg || "เกิดข้อผิดพลาดในการแก้ไขการนัดหมาย");
     }
   };
 
@@ -158,7 +172,7 @@ export default function EditAppointmentModal({
               rows={3}
             />
           </div>
-          
+
           <div>
             <Label>สรุปการประชุม</Label>
             <Textarea

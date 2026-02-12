@@ -20,11 +20,13 @@ export default function ForgotPasswordPage() {
   const {
     register,
     handleSubmit,
+    watch,
     setError,
     clearErrors,
     formState: { errors },
   } = useForm<ForgotPasswordFormData>({
     mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: { email: "" },
   });
 
@@ -120,6 +122,7 @@ export default function ForgotPasswordPage() {
                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                           message: "รูปแบบอีเมลไม่ถูกต้อง",
                         },
+                        onChange: () => { clearErrors("root"); clearErrors("email"); },
                       })}
                       className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
                       aria-invalid={errors.email ? "true" : "false"}

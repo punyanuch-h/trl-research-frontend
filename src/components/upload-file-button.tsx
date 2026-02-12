@@ -1,14 +1,19 @@
 import { useUploadFile } from "@/hooks/file/useUploadFile";
+import { toast } from "@/lib/toast";
 
 export function UploadSection({ caseId }: { caseId: string }) {
   const { uploadFile, loading } = useUploadFile(
-    () => alert("Upload Success!"),
+    () => toast.success("Upload Success!"),
     () => console.log("Closed")
   );
 
   const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) uploadFile({ file, case_id: caseId });
+    if (file) {
+      uploadFile({ file, case_id: caseId }).catch((err) => {
+        toast.error("Upload failed");
+      });
+    }
   };
 
   return (
