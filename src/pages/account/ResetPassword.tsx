@@ -1,4 +1,5 @@
-import { useState } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
@@ -25,8 +26,17 @@ export default function ResetPasswordPage() {
     handleSubmit,
     watch,
     setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordData>();
+
+  useEffect(() => {
+    const subscription = watch(() => {
+      clearErrors("root");
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, clearErrors]);
 
   const newPassword = watch("newPassword");
 
@@ -40,7 +50,16 @@ export default function ResetPasswordPage() {
         old_password: data.oldPassword,
         new_password: data.newPassword,
       });
-    } catch {
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          setError("root", {
+            message: "ขออภัยรหัสผ่านเดิมไม่ถูกต้อง",
+          });
+          return;
+        }
+      }
+
       setError("root", {
         message: "ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง หรือ ติดต่อเจ้าหน้าที่",
       });
