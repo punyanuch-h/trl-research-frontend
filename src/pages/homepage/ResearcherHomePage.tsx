@@ -20,7 +20,7 @@ import { th } from "date-fns/locale";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { useGetAllCasesByID } from "@/hooks/case/get/useGetAllCasesByID";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 // Merge Case + Appointment
 function mergeCasesData(

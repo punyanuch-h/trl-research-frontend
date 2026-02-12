@@ -12,7 +12,7 @@ import { th } from "date-fns/locale";
 import { useUpdateUrgentStatus } from "@/hooks/case/patch/useUpdateUrgentStatus";
 
 import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../types/type";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];

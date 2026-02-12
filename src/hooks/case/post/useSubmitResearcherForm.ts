@@ -2,9 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { ApiQueryClient } from "../../client/ApiQueryClient";
 import axios, { AxiosError } from "axios";
-import { da } from "date-fns/locale";
 import { SubmitResearcherFormRequest } from "@/types/request";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 interface IpForm {
   noIp?: boolean;

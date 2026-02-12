@@ -1,5 +1,5 @@
 import { useUploadFile } from "@/hooks/file/useUploadFile";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export function UploadSection({ caseId }: { caseId: string }) {
   const { uploadFile, loading } = useUploadFile(
