@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import { usePostResetPassword } from "@/hooks/user/post/useResetPassword";
+import { toast } from "sonner";
 
 interface ResetPasswordData {
   oldPassword: string;
@@ -40,9 +41,7 @@ export default function ResetPasswordPage() {
 
   const newPassword = watch("newPassword");
 
-  const { postResetPassword } = usePostResetPassword(() => {
-    navigate(-1);
-  });
+  const { postResetPassword } = usePostResetPassword();
 
   const onSubmit = async (data: ResetPasswordData) => {
     try {
@@ -50,6 +49,12 @@ export default function ResetPasswordPage() {
         old_password: data.oldPassword,
         new_password: data.newPassword,
       });
+      toast.success("รีเซ็ตรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสใหม่อีกครั้ง");
+      localStorage.removeItem("token")
+      localStorage.removeItem("refreshToken");
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 1200);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
@@ -59,6 +64,8 @@ export default function ResetPasswordPage() {
           return;
         }
       }
+
+      toast.error("เปลี่ยนรหัสผ่านไม่สำเร็จ");
 
       setError("root", {
         message: "ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง หรือ ติดต่อเจ้าหน้าที่",
