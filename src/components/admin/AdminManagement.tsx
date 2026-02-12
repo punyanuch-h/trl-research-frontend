@@ -117,16 +117,29 @@ export default function AdminManagement({
           <Table>
             <TableHeader>
               <TableRow>
-                {tableColumns.map(col => (
-                  <TableHead
-                    key={col.key}
-                    className="cursor-pointer select-none"
-                    onClick={() => onSort(col.key)}
-                  >
-                    {col.label}
-                    {sortConfig.key === col.key ? (sortConfig.direction === "asc" ? " ↑" : " ↓") : ""}
-                  </TableHead>
-                ))}
+                {tableColumns.map(col => {
+                  const isActive = sortConfig.key === col.key;
+                  const direction = sortConfig.direction;
+
+                  return (
+                    <TableHead
+                      key={col.key}
+                      className="cursor-pointer select-none"
+                      onClick={() => onSort(col.key)}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {col.label}
+                        <span className="text-xs">
+                          {isActive ? (
+                            direction === "asc" ? "↑" : "↓"
+                          ) : (
+                            <span className="opacity-30">↑↓</span>
+                          )}
+                        </span>
+                      </span>
+                    </TableHead>
+                  );
+                })}
                 <TableHead>การดำเนินการ</TableHead>
               </TableRow>
             </TableHeader>

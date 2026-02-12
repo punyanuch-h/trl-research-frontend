@@ -357,20 +357,27 @@ export default function ResearcherHomePage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {columns.map((col) => (
-                    <TableHead
-                      key={col.key}
-                      className="cursor-pointer select-none"
-                      onClick={() => handleSort(col.key)}
-                    >
-                      {col.label}
-                      {sortConfig.key === col.key
-                        ? sortConfig.direction === "asc"
-                          ? " ↑"
-                          : " ↓"
-                        : ""}
-                    </TableHead>
-                  ))}
+                  {columns.map((col) => {
+                    const isActive = sortConfig.key === col.key;
+                    return (
+                      <TableHead
+                        key={col.key}
+                        className="cursor-pointer select-none whitespace-nowrap"
+                        onClick={() => handleSort(col.key)}
+                      >
+                        <div className="flex items-center gap-1">
+                          {col.label}
+                          <span className="text-xs">
+                            {isActive ? (
+                              sortConfig.direction === "asc" ? "↑" : "↓"
+                            ) : (
+                              <span className="text-gray-300">↑↓</span>
+                            )}
+                          </span>
+                        </div>
+                      </TableHead>
+                    );
+                  })}
                   <TableHead>การดำเนินการ</TableHead>
                   <TableHead>คำแนะนำสำหรับการพัฒนา</TableHead>
                 </TableRow>
