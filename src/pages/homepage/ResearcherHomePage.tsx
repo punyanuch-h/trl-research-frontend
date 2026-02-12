@@ -20,6 +20,7 @@ import { th } from "date-fns/locale";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { useGetAllCasesByID } from "@/hooks/case/get/useGetAllCasesByID";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
+import { toast } from "sonner";
 
 // Merge Case + Appointment
 function mergeCasesData(
@@ -309,7 +310,7 @@ export default function ResearcherHomePage() {
 
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+      toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
     } finally {
       setDownloadingId(null);
     }

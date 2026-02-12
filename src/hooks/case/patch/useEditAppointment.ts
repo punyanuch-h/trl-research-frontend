@@ -29,8 +29,7 @@ export function useEditAppointment(onSave: (updated: AppointmentResponse) => voi
       onSave(updated);
       onClose();
     } catch (err) {
-      console.error("❌ Failed to update appointment:", err);
-      alert("Failed to update appointment. Please try again.");
+      throw err;
     } finally {
       setLoading(false);
     }

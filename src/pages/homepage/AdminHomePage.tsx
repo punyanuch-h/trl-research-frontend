@@ -15,6 +15,7 @@ import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
 import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
 import { useGetAllAssessments } from "@/hooks/case/get/useGetAllAssessments";
+import { toast } from "sonner";
 
 // Merge Case + Appointment + Researcher
 function mergeCasesData(
@@ -308,7 +309,7 @@ export default function AdminHomePage() {
 
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+      toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
     }
   };
 

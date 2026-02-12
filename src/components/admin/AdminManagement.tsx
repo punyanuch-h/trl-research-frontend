@@ -12,6 +12,7 @@ import { th } from "date-fns/locale";
 import { useUpdateUrgentStatus } from "@/hooks/case/patch/useUpdateUrgentStatus";
 
 import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../types/type";
+import { toast } from "sonner";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
@@ -102,7 +103,7 @@ export default function AdminManagement({
         setCancelReason("");
       } catch (error) {
         console.error("Failed to update urgent status:", error);
-        alert("Failed to update urgent status. Please try again.");
+        toast.error("Failed to update urgent status. Please try again.");
       }
     }
   };

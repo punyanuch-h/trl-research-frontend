@@ -1,8 +1,9 @@
 import { useUploadFile } from "@/hooks/file/useUploadFile";
+import { toast } from "sonner";
 
 export function UploadSection({ caseId }: { caseId: string }) {
   const { uploadFile, loading } = useUploadFile(
-    () => alert("Upload Success!"),
+    () => toast.success("Upload Success!"),
     () => console.log("Closed")
   );
 

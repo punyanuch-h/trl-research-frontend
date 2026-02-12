@@ -138,7 +138,7 @@ const AssessmentResult = () => {
         });
       } catch (error) {
         console.error("Error updating TRL Score:", error);
-        throw new Error('Failed to update TRL Level on case. Please try again.');
+        throw new Error('เกิดข้อผิดพลาดในการแก้ไข trl score');
       }
 
       // Re-fetch both to ensure UI is in sync
@@ -216,19 +216,28 @@ const AssessmentResult = () => {
 
     const assessmentId = assessmentData?.id;
 
-    if (assessmentId) {
-      updateSuggestionMutation.mutate({
+    if (!assessmentId) {
+      console.error("Assessment ID missing:", assessmentData);
+      toast.error("เกิดข้อผิดพลาดในการแก้ไขข้อแนะนำ");
+      return;
+    }
+
+    updateSuggestionMutation.mutate(
+      {
         assessmentId: assessmentId,
-        suggestionData: { improvement_suggestion: text }
-      }, {
+        suggestionData: { improvement_suggestion: text },
+      },
+      {
         onSuccess: () => {
           setIsEditing(false);
-        }
-      });
-    } else {
-      console.error("Assessment ID missing in data:", assessmentData);
-      toast.error("Error: Cannot find Assessment ID to save.");
-    }
+          toast.success("บันทึกข้อเสนอแนะสำเร็จ");
+        },
+        onError: (err: any) => {
+          console.error("Update suggestion error:", err);
+          toast.error("เกิดข้อผิดพลาดในการแก้ไขข้อแนะนำ");
+        },
+      }
+    );
   };
 
   const handleFileClick = async (path: string) => {
@@ -245,20 +254,20 @@ const AssessmentResult = () => {
     return (
       <div className="mb-4 last:mb-0 border rounded-lg p-3 bg-white shadow-sm">
         <div className="mb-3 border-b pb-2">
-            {typeof title === 'string' ? (
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                    <Paperclip className="h-4 w-4 text-primary" />
-                    {title}
-                </h4>
-            ) : (
-                title
-            )}
+          {typeof title === 'string' ? (
+            <h4 className="text-sm font-semibold flex items-center gap-2">
+              <Paperclip className="h-4 w-4 text-primary" />
+              {title}
+            </h4>
+          ) : (
+            title
+          )}
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {files.map((file, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               onClick={() => handleFileClick(file)}
               className={`
                 flex items-center justify-between p-2 border rounded-md 
@@ -311,8 +320,8 @@ const AssessmentResult = () => {
                 onClick={handleApproveAssessment}
                 disabled={!caseData?.id || updateAssessmentMutation.isPending || caseData?.status === true}
                 className={`flex items-center gap-2 ${caseData?.status === true
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-green-600 hover:bg-green-700"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
                   }`}
               >
                 {updateAssessmentMutation.isPending ? (
@@ -514,9 +523,9 @@ const AssessmentResult = () => {
         {/* Attachments Section (Research & IP) */}
         <Card className="w-full">
           <CardHeader>
-              <CardTitle className="text-2xl font-bold text-primary mb-2 flex items-center gap-2">
-                  <FileText className="h-5 w-5" /> เอกสารประกอบงานวิจัยและทรัพย์สินทางปัญญา
-              </CardTitle>
+            <CardTitle className="text-2xl font-bold text-primary mb-2 flex items-center gap-2">
+              <FileText className="h-5 w-5" /> เอกสารประกอบงานวิจัยและทรัพย์สินทางปัญญา
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
@@ -595,41 +604,41 @@ const AssessmentResult = () => {
           <CardContent>
             <div className="space-y-4">
               {radioQuestionList.map((question, index) => {
-                  const attachmentsKey = `rq${index + 1}_attachments` as keyof typeof assessmentData;
-                  const attachments = assessmentData ? assessmentData[attachmentsKey] as string[] : [];
-                  return (
-                    <div key={index} className="flex flex-col gap-2 p-4 border rounded-lg bg-muted/30">
-                        <div className="flex justify-between items-start">
-                            <div className="flex items-start gap-3">
-                                <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
-                                  {index + 1}
-                                </div>
-                                <p className="text-sm leading-relaxed font-medium">{question}</p>
-                            </div>
-                            {/* Assessment Result Badge */}
-                            <div className="flex-shrink-0">
-                              {isAssessmentPending ? (
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                              ) : getRQAnswer(index) !== null ? (
-                                <Badge
-                                  variant={getRQAnswer(index) ? "default" : "destructive"}
-                                  className={`flex items-center justify-center py-1 w-10 ${getRQAnswer(index)
-                                    ? "bg-green-500/20 hover:bg-green-200 text-green-500 rounded-sm"
-                                    : "bg-red-500/20 hover:bg-red-200 text-red-500 rounded-sm"
-                                    }`}
-                                >
-                                  {getRQAnswer(index) ? "ใช่" : "ไม่ใช่"}
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="py-1 w-12">
-                                  ไม่มีข้อมูล
-                                </Badge>
-                              )}
-                            </div>
+                const attachmentsKey = `rq${index + 1}_attachments` as keyof typeof assessmentData;
+                const attachments = assessmentData ? assessmentData[attachmentsKey] as string[] : [];
+                return (
+                  <div key={index} className="flex flex-col gap-2 p-4 border rounded-lg bg-muted/30">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
+                          {index + 1}
                         </div>
-                        {attachments && attachments.length > 0 && <div className="ml-9 mt-3">{renderFileList("หลักฐานประกอบ", attachments)}</div>}
+                        <p className="text-sm leading-relaxed font-medium">{question}</p>
+                      </div>
+                      {/* Assessment Result Badge */}
+                      <div className="flex-shrink-0">
+                        {isAssessmentPending ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                        ) : getRQAnswer(index) !== null ? (
+                          <Badge
+                            variant={getRQAnswer(index) ? "default" : "destructive"}
+                            className={`flex items-center justify-center py-1 w-10 ${getRQAnswer(index)
+                              ? "bg-green-500/20 hover:bg-green-200 text-green-500 rounded-sm"
+                              : "bg-red-500/20 hover:bg-red-200 text-red-500 rounded-sm"
+                              }`}
+                          >
+                            {getRQAnswer(index) ? "ใช่" : "ไม่ใช่"}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="py-1 w-12">
+                            ไม่มีข้อมูล
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                  )
+                    {attachments && attachments.length > 0 && <div className="ml-9 mt-3">{renderFileList("หลักฐานประกอบ", attachments)}</div>}
+                  </div>
+                )
               })}
             </div>
           </CardContent>
@@ -669,7 +678,7 @@ const AssessmentResult = () => {
                           <Paperclip className="h-3 w-3" />
                           {attachments.filter(a => a !== "").length} ไฟล์
                         </div>
-                      )}                      
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -693,10 +702,10 @@ const AssessmentResult = () => {
                     <div className="space-y-3">
                       {questions.map((question, qIdx) => {
                         const isSelected = cqAnswers && cqAnswers.includes(question.label);
-                        
+
                         const fileAtIdx = attachments?.[qIdx];
-                        const specificFile = (fileAtIdx && fileAtIdx !== "") 
-                         ? [fileAtIdx] 
+                        const specificFile = (fileAtIdx && fileAtIdx !== "")
+                          ? [fileAtIdx]
                           : [];
 
                         return (
