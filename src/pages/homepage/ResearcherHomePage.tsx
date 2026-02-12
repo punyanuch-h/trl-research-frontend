@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Eye, Filter, Plus } from "lucide-react";
+import { Download, Eye, Filter, Plus, Loader2 } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
@@ -58,6 +58,7 @@ export default function ResearcherHomePage() {
   const [selectedColumn, setSelectedColumn] = React.useState("type");
   const [selectedValue, setSelectedValue] = React.useState("");
   const filterBtnRef = React.useRef<HTMLDivElement | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   // --- Sorting state ---
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({
@@ -209,6 +210,7 @@ export default function ResearcherHomePage() {
 
   const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null }) => {
     try {
+      setDownloadingId(caseInfo.id);
       console.log("Generating PDF for:", caseInfo.title);
 
       let coordinatorData = null;
@@ -286,6 +288,8 @@ export default function ResearcherHomePage() {
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -433,10 +437,20 @@ export default function ResearcherHomePage() {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                disabled={downloadingId === c.id}
                                 onClick={() => handleDownloadResult(c)}
                               >
-                                <Download className="w-4 h-4 mr-2" />
-                                ผลการประเมิน
+                                {downloadingId === c.id ? (
+                                  <span className="flex items-center gap-2">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    กำลังโหลดข้อมูล...
+                                  </span>
+                                ) : (
+                                  <>
+                                    <Download className="w-4 h-4 mr-2" />
+                                    ผลการประเมิน
+                                  </>
+                                )}
                               </Button>
                             </>
                           ) : (

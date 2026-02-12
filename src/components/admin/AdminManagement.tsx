@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Eye, AlertTriangle } from "lucide-react";
+import { Download, Eye, AlertTriangle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -81,6 +81,7 @@ export default function AdminManagement({
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [targetId, setTargetId] = React.useState<string | null>(null);
   const [cancelReason, setCancelReason] = React.useState("");
+  const [downloadingId, setDownloadingId] = React.useState<string | null>(null);
 
   const handleAskConfirm = (id: string) => {
     setTargetId(id);
@@ -213,11 +214,29 @@ export default function AdminManagement({
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => onDownload(project)}
+                              disabled={downloadingId === project.id}
+                              onClick={async () => {
+                                try {
+                                  setDownloadingId(project.id);
+                                  await onDownload(project);
+                                } finally {
+                                  setDownloadingId(null);
+                                }
+                              }}
                             >
-                              <Download className="w-4 h-4 mr-2" />
-                              ผลการประเมิน
+                              {downloadingId === project.id ? (
+                                <span className="flex items-center gap-2">
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  กำลังโหลดข้อมูล...
+                                </span>
+                              ) : (
+                                <>
+                                  <Download className="w-4 h-4 mr-2" />
+                                  ผลการประเมิน
+                                </>
+                              )}
                             </Button>
+
                           ) : (
                             <div className="invisible">
                               <Button variant="outline" size="sm">
