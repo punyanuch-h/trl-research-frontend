@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { TablePagination } from "@/components/TablePagination";
 import FilterPopup from "@/components/modal/filtter/filtter";
 import Header from "@/components/Header";
@@ -55,8 +54,6 @@ export default function ResearcherHomePage() {
   // --- State ---
   const [customFilters, setCustomFilters] = React.useState<{ column: string; value: string }[]>([]);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
-  const [selectedColumn, setSelectedColumn] = React.useState("type");
-  const [selectedValue, setSelectedValue] = React.useState("");
   const filterBtnRef = React.useRef<HTMLDivElement | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
@@ -139,19 +136,44 @@ export default function ResearcherHomePage() {
   const sortedCases = sortResearch(cases);
 
   // --- Filtering ---
-  const filteredCases = sortedCases.filter((c) =>
-    customFilters.every(({ column, value }) => {
-      if (column === "ประเภทงานวิจัย") return c.type === value;
-      if (column === "ระดับความพร้อม") return c.trl_score?.toString() === value;
-      if (column === "สถานะ") return (c.status ? "ผ่านการประเมิน" : "กำลังประเมิน") === value;
+  const filteredCases = sortedCases.filter((c) => {
+    if (customFilters.length === 0) return true;
+
+    const grouped: Record<string, string[]> = {};
+
+    customFilters.forEach(({ column, value }) => {
+      if (!grouped[column]) grouped[column] = [];
+      grouped[column].push(value);
+    });
+
+    return Object.entries(grouped).every(([column, values]) => {
+
+      if (column === "ประเภทงานวิจัย") {
+        return values.includes(c.type);
+      }
+
+      if (column === "ระดับความพร้อม") {
+        return values.includes(c.trl_score?.toString() || "");
+      }
+
+      if (column === "สถานะ") {
+        const statusText = c.status ? "ผ่านการประเมิน" : "กำลังประเมิน";
+        return values.includes(statusText);
+      }
+
       if (column === "ความเร่งด่วน") {
         const urgentText = c.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน";
-        return urgentText === value;
+        return values.includes(urgentText);
       }
-      if (column === "ชื่องานวิจัย") return c.title === value;
+
+      if (column === "ชื่องานวิจัย") {
+        return values.includes(c.title);
+      }
+
       return true;
-    })
-  );
+    });
+  });
+
 
   // --- Columns ---
   const columns = [
