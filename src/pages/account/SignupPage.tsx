@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,6 @@ import {
   User,
   Lock,
   Mail,
-  Phone,
   Building,
   EyeOff,
   Eye,
@@ -49,6 +48,7 @@ export default function SignupPage() {
     watch,
     formState: { errors },
     setError,
+    clearErrors,
   } = useForm<SignupFormValues>({
     defaultValues: {
       prefix: "",
@@ -62,6 +62,15 @@ export default function SignupPage() {
       confirmPassword: "",
     },
   });
+
+  useEffect(() => {
+    const subscription = watch(() => {
+      if (errors.root) clearErrors("root");
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, clearErrors, errors.root]);
+
 
   const { postResearcher, loading } = usePostResearcher(() => {
     navigate("/login");
