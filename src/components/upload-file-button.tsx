@@ -9,7 +9,11 @@ export function UploadSection({ caseId }: { caseId: string }) {
 
   const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) uploadFile({ file, case_id: caseId });
+    if (file) {
+      uploadFile({ file, case_id: caseId }).catch((err) => {
+        toast.error("Upload failed");
+      });
+    }
   };
 
   return (

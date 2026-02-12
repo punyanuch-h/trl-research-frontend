@@ -50,7 +50,7 @@ export default function ResetPasswordPage() {
         new_password: data.newPassword,
       });
       toast.success("รีเซ็ตรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสใหม่อีกครั้ง");
-      localStorage.removeItem("token")
+      localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       setTimeout(() => {
         navigate("/login", { replace: true });

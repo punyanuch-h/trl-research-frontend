@@ -155,6 +155,16 @@ export default function AdminHomePage() {
 
   const sortedCases = sortCases(cases);
 
+  const formatDateTH = (dateStr: string) => {
+    const d = new Date(dateStr);
+
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  };
+
   // --- Filtering ---
   function getFullNameByResearcherID(id: string): string {
     const researcher = researcherData.find((r) => r.id === id);
@@ -205,7 +215,7 @@ export default function AdminHomePage() {
       }
 
       if (column === "วันที่สร้าง") {
-        const date = new Date(c.created_at).toISOString().slice(0, 10);
+        const date = formatDateTH(c.created_at);
         return values.includes(date);
       }
 
@@ -222,7 +232,17 @@ export default function AdminHomePage() {
     สร้างโดย: researcherData.map(r => getFullNameByResearcherID(r.id)),
     ความเร่งด่วน: ["เร่งด่วน", "ไม่เร่งด่วน"],
     ชื่องานวิจัย: [...new Set(cases.map((c) => c.title))],
-    วันที่สร้าง: [...new Set(cases.map((c) => new Date(c.created_at).toISOString().slice(0, 10)))].sort().reverse(),
+    วันที่สร้าง: [
+      ...new Set(cases.map((c) => formatDateTH(c.created_at))),
+    ].sort((a, b) => {
+      const [da, ma, ya] = a.split("/");
+      const [db, mb, yb] = b.split("/");
+
+      const dateA = new Date(`${ya}-${ma}-${da}`);
+      const dateB = new Date(`${yb}-${mb}-${db}`);
+
+      return dateB.getTime() - dateA.getTime();
+    }),
   };
 
   function handleResearchClick(id: number, name: string, type: string) {

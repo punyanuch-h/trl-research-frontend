@@ -232,7 +232,7 @@ const AssessmentResult = () => {
           setIsEditing(false);
           toast.success("บันทึกข้อเสนอแนะสำเร็จ");
         },
-        onError: (err: unknown) => {
+        onError: (err: Error) => {
           console.error("Update suggestion error:", err);
 
           const message =

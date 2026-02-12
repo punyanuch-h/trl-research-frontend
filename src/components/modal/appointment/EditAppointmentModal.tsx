@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,21 +88,10 @@ export default function EditAppointmentModal({
       onClose();
 
     } catch (err: unknown) {
-      let msg = "เกิดข้อผิดพลาดในการแก้ไขการนัดหมาย";
-
-      if (err instanceof Error) {
-        msg = err.message;
-      }
-      if (typeof err === "object" && err !== null && "response" in err) {
-        const axiosErr = err as {
-          response?: { data?: { message?: string } };
-        };
-
-        if (axiosErr.response?.data?.message) {
-          msg = axiosErr.response.data.message;
-        }
-      }
-      toast.error(msg);
+      const msg = axios.isAxiosError(err)
+        ? err.response?.data?.message
+        : undefined;
+      toast.error(msg || "เกิดข้อผิดพลาดในการแก้ไขการนัดหมาย");
     }
   };
 
