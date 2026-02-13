@@ -4,7 +4,7 @@ title Sequence Diagram: Admin Add Appointments
 actor Admin
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Firebase)" as DB
+database "Database \n (Neon)" as DB
 
 Admin -> UI: Open 'Appointments Management' page
 UI -> API: POST /trl/appointment

@@ -4,7 +4,7 @@ title Sequence Diagram: Researcher Signs Up
 actor Researcher
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Firebase)" as DB
+database "Database \n (Neon)" as DB
 
 Researcher -> UI: Open 'Sign Up' page
 Researcher -> UI: Fill registration form\nand submit

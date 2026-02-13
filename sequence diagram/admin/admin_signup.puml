@@ -1,14 +1,15 @@
 @startuml
-title Sequence Diagram: Admin Edit Appointments
+title Sequence Diagram: Admin Signs Up
 
 actor Admin
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
 database "Database \n (Neon)" as DB
 
-Admin -> UI: Open 'Appointments Management' page
-UI -> API: PATCH /trl/appointment{id}
-API -> DB: Edit appointments data
+Admin -> UI: Open 'Create Admin Account' page
+Admin -> UI: Fill registration form and submit
+UI -> API: POST /trl/admin (Admin data)
+API -> DB: Create new Admin record
 DB --> API: Success/Failure response
 API --> UI: Return result (success/failure)
 UI --> Admin: Show confirmation or error
