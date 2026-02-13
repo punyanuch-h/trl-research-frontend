@@ -4,11 +4,14 @@ title Sequence Diagram: Admin Views Dashboard
 actor Admin
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Firebase)" as DB
+database "Database \n (Neon)" as DB
 
 Admin -> UI: Open 'Dashboard' page
 UI -> API: GET /trl/case/{id}
 UI -> API: GET /trl/researchers
+UI -> API: GET /trl/assessment
+UI -> API: GET /trl/ip
+UI -> API: GET /trl/supportment
 API -> DB: Fetch dashboard data
 DB --> API: Return dashboard data
 API --> UI: Return dashboard data

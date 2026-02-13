@@ -4,7 +4,7 @@ title Sequence Diagram: Researcher Logs In
 actor Researcher
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Firebase)" as DB
+database "Database \n (Neon)" as DB
 
 Researcher -> UI: Open 'Login' page
 Researcher -> UI: Fill login form and submit

@@ -4,7 +4,7 @@ title Sequence Diagram: Admin Views Research Details
 actor Admin
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Firebase)" as DB
+database "Database \n (Neon)" as DB
 
 Admin -> UI: Navigate to 'Research Details' page
 UI -> API: GET /trl/case/{id}

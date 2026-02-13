@@ -4,7 +4,7 @@ title Sequence Diagram: Researcher Views Research Details
 actor Researcher
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Firebase)" as DB
+database "Database \n (Neon)" as DB
 
 Researcher -> UI: Navigate to 'Research Details' page
 UI -> API: GET /trl/case/{id}
