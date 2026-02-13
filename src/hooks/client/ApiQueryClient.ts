@@ -240,7 +240,7 @@ export class ApiQueryClient extends ApiBaseClient {
     for (const level of cqLevelKeys) {
       const fieldName = `cq${level}_attachments`;
       const questionsInLevel = checkboxQuestionList[level - 1] || [];
-      
+
       const uploadPromises = questionsInLevel.map((_, i) => {
         const fileKey = `cq${level}-${i + 1}`;
         const file = formData.assessmentFiles[fileKey];
@@ -371,7 +371,7 @@ export class ApiQueryClient extends ApiBaseClient {
   async presignUpload(file: File) {
     const response = await this.axiosInstance.post("/trl/presign/upload", {
       file_name: file.name,
-      content_type: file.type,
+      content_type: file.type || "application/octet-stream",
     });
     return response.data;
   }
@@ -380,6 +380,9 @@ export class ApiQueryClient extends ApiBaseClient {
     const response = await fetch(uploadUrl, {
       method: "PUT",
       body: file,
+      headers: {
+        "Content-Type": file.type || "application/octet-stream",
+      },
     });
 
     if (!response.ok) {
