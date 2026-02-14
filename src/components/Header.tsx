@@ -21,7 +21,7 @@ export default function Header({ disabled = false }: HeaderProps) {
 
   const handleLogout = () => {
     if (!navigator.onLine) {
-      toast.error("Please Check Your internet");
+      toast.error("ไม่มีการเชื่อมต่ออินเทอร์เน็ต โปรดลองใหม่อีกครั้ง");
       localStorage.setItem("pendingLogout", "true");
       return;
     }
@@ -30,10 +30,10 @@ export default function Header({ disabled = false }: HeaderProps) {
       localStorage.removeItem("token");
       sessionStorage.removeItem("token");
       localStorage.removeItem("pendingLogout");
-      toast.success("Logged out successfully");
+      toast.success("ออกจากระบบสำเร็จ");
       navigate("/");
     } catch {
-      toast.error("Failed to logout. Please try again.");
+      toast.error("ออกจากระบบไม่สำเร็จ โปรดลองใหม่อีกครั้ง");
     }
   };
 

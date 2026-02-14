@@ -11,12 +11,11 @@ export const OfflineLogoutHandler = () => {
                 localStorage.removeItem("token");
                 sessionStorage.removeItem("token");
                 localStorage.removeItem("pendingLogout");
-                toast.success("Internet is back. Logged out successfully");
+                toast.success("ออกจากระบบสำเร็จ เนื่องจากการเชื่อมต่อกลับมาแล้ว");
                 navigate("/");
             }
         };
 
-        // Check on mount if we are online and have a pending logout
         if (navigator.onLine) {
             performLogout();
         }
