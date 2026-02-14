@@ -6,8 +6,10 @@ export const useGetNotifications = () => {
         import.meta.env.VITE_PUBLIC_API_URL
     );
 
+    const token = localStorage.getItem("token");
+
     return useQuery({
-        queryKey: ["notifications"],
+        queryKey: ["notifications", token],
         queryFn: async () => {
             const response = await apiQueryClient.useGetNotificationAppointments();
             // The API response is { data: AppointmentResponse[], unread_count: number }

@@ -12,12 +12,15 @@ import { toast } from "@/lib/toast";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { NotificationIcon } from "@/components/notifications/NotificationIcon";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 interface HeaderProps {
   disabled?: boolean;
 }
 
 export default function Header({ disabled = false }: HeaderProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { t } = useTranslation();
   const role = getUserRole();
   const { data: userProfile } = useGetUserProfile();
@@ -33,6 +36,7 @@ export default function Header({ disabled = false }: HeaderProps) {
       localStorage.removeItem("token");
       sessionStorage.removeItem("token");
       localStorage.removeItem("pendingLogout");
+      queryClient.clear();
       toast.success(t("auth.logoutSuccess"));
       navigate("/");
     } catch {
