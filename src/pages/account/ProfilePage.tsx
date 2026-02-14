@@ -69,7 +69,7 @@ export default function ProfilePage() {
     try {
       await updateUserProfile.mutateAsync(form);
       toast({
-        title: "Success",
+        title: t("common.success"),
         description: t("profile.updateSuccess"),
       });
       await refetch();

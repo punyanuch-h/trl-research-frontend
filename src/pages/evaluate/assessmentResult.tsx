@@ -552,11 +552,16 @@ const AssessmentResult = () => {
             <div className="space-y-6">
               {/* Research Files */}
               <div>
-                <h3 className="text-base font-semibold text-primary mb-3 ml-1">{t("assessment.research")}</h3>
+                <h3 className="text-base font-semibold text-primary mb-3 ml-1">
+                  {t("assessment.researchDoc")}
+                </h3>
+
                 {caseData && caseData.attachments && caseData.attachments.length > 0 ? (
-                  renderFileList("เอกสารรายละเอียดงานวิจัย", caseData.attachments)
+                  renderFileList(t("assessment.researchId"), caseData.attachments)
                 ) : (
-                  <div className="text-sm text-gray-400 italic pl-1">{t("assessment.noAttachments")}</div>
+                  <div className="text-sm text-gray-400 italic pl-1">
+                    {t("assessment.noAttachments")}
+                  </div>
                 )}
               </div>
 

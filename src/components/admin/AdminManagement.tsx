@@ -212,7 +212,7 @@ export default function AdminManagement({
                     </TableCell>
                     <TableCell className="text-center align-middle">
                       <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(project.status === true ? "Approve" : "In process")}`}>
-                        {project.status === true ? t("home.assessed") : t("home.inProcess")}
+                        {project.status === true ? t("home.approve") : t("home.inProcess")}
                       </Badge>
                     </TableCell>
                     <TableCell className="w-[250px] flex gap-2">

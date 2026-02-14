@@ -102,7 +102,7 @@ export function useDashboardStats({
 
     const statusData = [
       { name: t("dashboard.inProcess"), value: pending },
-      { name: t("dashboard.assessed"), value: total - pending },
+      { name: t("dashboard.approve"), value: total - pending },
       { name: t("home.urgent"), value: urgent },
     ];
 

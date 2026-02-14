@@ -198,7 +198,7 @@ export default function AdminHomePage() {
       }
 
       if (column === t("home.status")) {
-        const statusText = c.status ? t("home.assessed") : t("home.inProcess");
+        const statusText = c.status ? t("home.approve") : t("home.inProcess");
         return values.includes(statusText);
       }
 
@@ -230,7 +230,7 @@ export default function AdminHomePage() {
     [t("home.researchType")]: [...new Set(cases.map((c) => c.type))],
     [t("home.estimatedLevel")]: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     [t("home.readinessLevel")]: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    [t("home.status")]: [t("home.assessed"), t("home.inProcess")],
+    [t("home.status")]: [t("home.approve"), t("home.inProcess")],
     [t("home.createdBy")]: researcherData.map(r => getFullNameByResearcherID(r.id)),
     [t("home.urgency")]: [t("home.urgent"), t("home.notUrgent")],
     [t("home.researchTitle")]: [...new Set(cases.map((c) => c.title))],

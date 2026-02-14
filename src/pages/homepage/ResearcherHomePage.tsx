@@ -160,7 +160,7 @@ export default function ResearcherHomePage() {
       }
 
       if (column === t("home.status")) {
-        const statusText = c.status ? t("home.assessed") : t("home.inProcess");
+        const statusText = c.status ? t("home.approve") : t("home.inProcess");
         return values.includes(statusText);
       }
 
@@ -192,7 +192,7 @@ export default function ResearcherHomePage() {
   const columnOptions: Record<string, string[]> = {
     [t("home.researchType")]: [...new Set(cases.map((c) => c.type))],
     [t("home.readinessLevel")]: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    [t("home.status")]: [t("home.assessed"), t("home.inProcess")],
+    [t("home.status")]: [t("home.approve"), t("home.inProcess")],
     [t("home.urgency")]: [t("home.urgent"), t("home.notUrgent")],
     [t("home.researchTitle")]: [...new Set(cases.map((c) => c.title))],
   };
@@ -451,7 +451,7 @@ export default function ResearcherHomePage() {
                       </TableCell>
                       <TableCell className="min-w-[90px] text-center">
                         <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(c.status === true ? "Approve" : "In process")}`}>
-                          {c.status === true ? t("home.assessed") : t("home.inProcess")}
+                          {c.status === true ? t("home.approve") : t("home.inProcess")}
                         </Badge>
                       </TableCell>
 

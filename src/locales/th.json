@@ -14,6 +14,7 @@
     "save": "บันทึก",
     "cancel": "ยกเลิก",
     "submit": "ส่ง",
+    "success": "สำเร็จ",
     "loading": "กำลังโหลด...",
     "error": "ข้อผิดพลาด",
     "confirm": "ยืนยัน",
@@ -226,13 +227,13 @@
     "approveProcessError": "กระบวนการ Approve ขัดข้อง โปรดลองอีกครั้ง",
     "missingDataError": "Error: Missing Data IDs",
     "trlUpdateSuccess": "อัปเดตระดับ TRL เป็น {{level}} สำเร็จ",
-    "unknownError": " unknown error",
+    "unknownError": "unknown error",
     "editAppointmentSuccess": "แก้ไขการนัดหมายสำเร็จ",
     "editAppointmentError": "เกิดข้อผิดพลาดในการแก้ไขการนัดหมาย",
     "addAppointmentSuccess": "เพิ่มการนัดหมายสำเร็จ",
     "addAppointmentWarning": "กรุณากรอกข้อมูลชื่องานวิจัยและวันเวลา เพื่อเพิ่มการนัดหมาย",
     "addAppointmentError": "เกิดข้อผิดพลาดในการสร้างนัดหมาย",
-    "urgentStatusError": "Failed to update urgent status. Please try again."
+    "urgentStatusError": "ไม่สามารถอัปเดตสถานะเร่งด่วนได้ โปรดลองอีกครั้ง"
   },
   "home": {
     "caseId": "รหัสงานวิจัย",
@@ -305,7 +306,7 @@
     "trlLevel": "ระดับ TRL",
     "loadingAssessment": "กำลังโหลดผลการประเมิน...",
     "ipDoc": "เอกสารประกอบงานวิจัยและทรัพย์สินทางปัญญา",
-    "research": "เอกสารงานวิจัย",
+    "researchDoc": "เอกสารรายละเอียดงานวิจัย",
     "noAttachments": "No attachments.",
     "criteriaCountForLevel": "มีการเลือกเกณฑ์จำนวน {{count}} ข้อ สำหรับระดับนี้",
     "noCriteriaForLevel": "ยังไม่ได้เลือกเกณฑ์สำหรับระดับนี้",

@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
       toast.error(t("auth.resetPasswordError"));
 
       setError("root", {
-        message: t("auth.signupError"),
+        message: t("auth.resetPasswordError"),
       });
     }
   };
