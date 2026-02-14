@@ -23,8 +23,16 @@ export default function Header({ disabled = false }: HeaderProps) {
   const { data: userProfile } = useGetUserProfile();
 
   const handleLogout = () => {
+    if (!navigator.onLine) {
+      toast.error(t("auth.logoutInternetError"));
+      localStorage.setItem("pendingLogout", "true");
+      return;
+    }
+
     try {
       localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      localStorage.removeItem("pendingLogout");
       toast.success(t("auth.logoutSuccess"));
       navigate("/");
     } catch {

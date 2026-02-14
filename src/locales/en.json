@@ -36,6 +36,8 @@
     "signup": "Sign Up",
     "logoutSuccess": "Logged out successfully",
     "logoutError": "Failed to logout. Please try again.",
+    "logoutInternetSuccess": "Internet is back. Logged out successfully.",
+    "logoutInternetError": "Please Check Your internet.",
     "email": "Email",
     "password": "Password",
     "forgetPassword": "Forgot password?",
