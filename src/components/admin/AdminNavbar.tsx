@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Filter, ChartArea, List, CalendarRange } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ export default function AdminNavbar({
   selectedValue: _selectedValue, setSelectedValue: _setSelectedValue,
   columns: _columns, columnOptions
 }: AdminNavbarProps) {
+  const { t } = useTranslation();
   const filterBtnRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
@@ -41,8 +43,8 @@ export default function AdminNavbar({
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">ระบบจัดการงานวิจัย</h1>
-              <p className="text-muted-foreground">จัดการประเมินระดับความพร้อมทางเทคโนโลยี</p>
+              <h1 className="text-3xl font-bold text-foreground">{t("admin.researchManagement")}</h1>
+              <p className="text-muted-foreground">{t("admin.researchManagementDesc")}</p>
             </div>
           </div>
           {activeView !== 'dashboard' && (
@@ -69,7 +71,7 @@ export default function AdminNavbar({
               <div ref={filterBtnRef} className="inline-block">
                 <Button onClick={() => setShowFilterModal(true)} variant="outline">
                   <Filter className="h-4 w-4 mr-2" />
-                  ตัวกรอง
+                  {t("home.filter")}
                 </Button>
               </div>
             </div>
@@ -93,7 +95,7 @@ export default function AdminNavbar({
             className="flex items-center space-x-2"
           >
             <List className="w-4 h-4" />
-            <span>จัดการงานวิจัย</span>
+            <span>{t("admin.manageResearch")}</span>
           </Button>
           <Button
             variant={activeView === 'dashboard' ? 'default' : 'outline'}
@@ -101,7 +103,7 @@ export default function AdminNavbar({
             className="flex items-center space-x-2"
           >
             <ChartArea className="w-4 h-4" />
-            <span>ภาพรวมงานวิจัย</span>
+            <span>{t("admin.researchOverview")}</span>
           </Button>
           <Button
             variant={activeView === 'appointments' ? 'default' : 'outline'}
@@ -109,7 +111,7 @@ export default function AdminNavbar({
             className="flex items-center space-x-2"
           >
             <CalendarRange className="w-4 h-4" />
-            <span>การนัดหมาย</span>
+            <span>{t("home.appointment")}</span>
           </Button>
         </div>
         {/* Content */}

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2, Plus } from "lucide-react";
+
+const IP_TYPE_IDS = ["patent", "pettyPatent", "designPatent", "copyright", "trademark", "tradeSecret"] as const;
 
 interface IpFormState {
   ipStatus: string;
@@ -27,19 +29,13 @@ interface IntellectualPropertyProps {
   handleInputChange: (field: keyof IntellectualPropertyFormData, value: unknown) => void;
 }
 
-const ipTypesList = [
-  { id: "patent", label: "สิทธิบัตร" },
-  { id: "pettyPatent", label: "อนุสิทธิบัตร" },
-  { id: "designPatent", label: "สิทธิบัตรออกแบบผลิตภัณฑ์" },
-  { id: "copyright", label: "ลิขสิทธิ์" },
-  { id: "trademark", label: "เครื่องหมายการค้า" },
-  { id: "tradeSecret", label: "ความลับทางการค้า" },
-];
-
 export default function IntellectualProperty({
   formData,
   handleInputChange,
 }: IntellectualPropertyProps) {
+  const { t } = useTranslation();
+  const ipTypesList = IP_TYPE_IDS.map((id) => ({ id, label: t(`assessment.${id}`) }));
+
   const [forms, setForms] = useState<IpFormState[]>(() => {
     if (formData.ipForms && Array.isArray(formData.ipForms) && formData.ipForms.length > 0) {
       return formData.ipForms;
@@ -126,7 +122,7 @@ export default function IntellectualProperty({
 
   const regex = regexMap[ipType];
   const errorMessage = regex && !regex.test(value)
-    ? `หมายเลขคำขอสำหรับ ${ipTypesList.find((item) => item.id === ipType)?.label} ไม่ถูกต้อง`
+    ? t("form.requestNumberInvalid", { type: ipTypesList.find((item) => item.id === ipType)?.label || ipType })
     : "";
 
   setForms((currentForms) => {
@@ -171,7 +167,7 @@ export default function IntellectualProperty({
         >
           <div className="flex justify-between items-center">
             <h4 className="font-bold text-lg text-primary-80">
-              ใบที่ {formIndex + 1}
+              {t("form.ipFormNumber", { n: formIndex + 1 })}
             </h4>
             {forms.length > 1 && (
               <button
@@ -193,11 +189,11 @@ export default function IntellectualProperty({
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem id={`noIp-no-${formIndex}`} value="ไม่มี" />
-              <Label htmlFor={`noIp-no-${formIndex}`}>ไม่มี</Label>
+              <Label htmlFor={`noIp-no-${formIndex}`}>{t("form.noIp")}</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem id={`noIp-yes-${formIndex}`} value="มี" />
-              <Label htmlFor={`noIp-yes-${formIndex}`}>มี</Label>
+              <Label htmlFor={`noIp-yes-${formIndex}`}>{t("form.hasIp")}</Label>
             </div>
           </RadioGroup>
 
@@ -206,7 +202,7 @@ export default function IntellectualProperty({
               {/* Radio inside each card */}
               <div>
                 <h3 className="font-semibold text-primary">
-                  สถานะการคุ้มครองทรัพย์สินทางปัญญา<span className="text-red-500">*</span>
+                  {t("form.ipProtectionStatusLabel")}<span className="text-red-500">*</span>
                 </h3>
                 <RadioGroup
                   value={form.ipStatus}
@@ -222,7 +218,7 @@ export default function IntellectualProperty({
                       id={`hasNumber-${formIndex}`}
                     />
                     <Label htmlFor={`hasNumber-${formIndex}`}>
-                      ได้เลขที่คำขอแล้ว
+                      {t("form.gotRequestNumber")}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -231,7 +227,7 @@ export default function IntellectualProperty({
                       id={`inProgress-${formIndex}`}
                     />
                     <Label htmlFor={`inProgress-${formIndex}`}>
-                      กำลังดำเนินการ
+                      {t("form.inProgress")}
                     </Label>
                   </div>
                 </RadioGroup>
@@ -240,7 +236,7 @@ export default function IntellectualProperty({
               {/* Choose type */}
               {form.ipStatus && (
                 <div>
-                  <h3 className="font-semibold text-primary">ระบุประเภท<span className="text-red-500">*</span></h3>
+                  <h3 className="font-semibold text-primary">{t("form.ipTypeLabel")}<span className="text-red-500">*</span></h3>
                   <RadioGroup
                     value={form.ipTypes[0] || ""}
                     onValueChange={(value) =>
@@ -267,7 +263,7 @@ export default function IntellectualProperty({
               {/* Number input */}
               {form.ipStatus === "ได้เลขที่คำขอแล้ว" && form.ipTypes[0] && (
                 <div>
-                  <h3 className="font-semibold text-primary">ระบุเลขที่คำขอ<span className="text-red-500">*</span></h3>
+                  <h3 className="font-semibold text-primary">{t("form.requestNumberLabel")}<span className="text-red-500">*</span></h3>
                   <Input
                     type="text"
                     value={form.requestNumbers[form.ipTypes[0]] || ""}
@@ -278,7 +274,7 @@ export default function IntellectualProperty({
                         e.target.value
                       )
                     }
-                    placeholder="เช่น 123456789"
+                    placeholder={t("form.requestNumberPlaceholder")}
                     className="mt-1"
                     required
                   />
@@ -289,14 +285,14 @@ export default function IntellectualProperty({
               )}
               {/* File upload */}
               <div>
-                <h3 className="font-semibold text-primary">เอกสารเพิ่มเติม (แนบไฟล์)</h3>
+                <h3 className="font-semibold text-primary">{t("form.additionalDocsAttach")}</h3>
                 <div className="flex gap-2 items-center mt-2">
                   <button
                     type="button"
                     onClick={() => document.getElementById(`ipFile-${formIndex}`)?.click()}
                     className="w-30 sm:w-auto px-2 py-1 bg-gray-100/50 border border-gray-200 text-gray-400 rounded-lg hover:bg-primary hover:border-primary hover:text-white transition-colors duration-300 focus:outline-none focus:bg-primary focus:text-white"
                   >
-                    เลือกไฟล์
+                    {t("form.selectFile")}
                   </button>
                   <input
                     type="file"
@@ -308,7 +304,7 @@ export default function IntellectualProperty({
                   />
                   {form.file && (
                     <h4 className="text-sm text-gray-600 mt-1">
-                      <span>ไฟล์ที่เลือก:</span>
+                      <span>{t("form.filesSelected")}:</span>
                       <span className="text-primary ml-1">{form.file.name}</span>
                     </h4>
                   )}
@@ -324,7 +320,7 @@ export default function IntellectualProperty({
           onClick={handleAddForm}
           className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
         >
-          <Plus className="w-4 h-4" /> เพิ่มใบทรัพย์สินทางปัญญา
+          <Plus className="w-4 h-4" /> {t("form.addIpForm")}
         </button>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface TRLData {
@@ -12,15 +13,16 @@ interface TRLDistributionChartProps {
 }
 
 export function TRLRealScoreChart({ data, baseColor }: TRLDistributionChartProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-white p-5 border border-gray-100 rounded-lg">
-      <h3 className="font-semibold mb-3 text-sm">สัดส่วนระดับความพร้อมเทคโนโลยีที่ผ่านการประเมินแล้ว (Real Score)</h3>
+      <h3 className="font-semibold mb-3 text-sm">{t("dashboard.trlRealScore")}</h3>
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <XAxis dataKey="level" fontSize={10} />
             <YAxis allowDecimals={false} fontSize={10} />
-            <Tooltip formatter={(value: number) => [`${value}`, "จำนวน"]} />
+            <Tooltip formatter={(value: number) => [`${value}`, t("dashboard.count")]} />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}> 
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill || baseColor} />

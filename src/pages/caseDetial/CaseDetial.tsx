@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarPlus, Edit2, Sparkles } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AppointmentResponse, ResearcherResponse } from "@/types/type";
 
 export default function CaseDetail() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const role = getUserRole();
   const { id } = useParams<{ id: string }>();
@@ -59,20 +61,24 @@ export default function CaseDetail() {
     return `${researcherData.first_name} ${researcherData.last_name}`;
   };
 
-  const ipTypesList = [
-    { id: "patent", label: "สิทธิบัตร" },
-    { id: "pettyPatent", label: "อนุสิทธิบัตร" },
-    { id: "designPatent", label: "สิทธิบัตรออกแบบผลิตภัณฑ์" },
-    { id: "copyright", label: "ลิขสิทธิ์" },
-    { id: "trademark", label: "เครื่องหมายการค้า" },
-    { id: "tradeSecret", label: "ความลับทางการค้า" },
-  ];
+  const ipTypeIds = ["patent", "pettyPatent", "designPatent", "copyright", "trademark", "tradeSecret"] as const;
+  // API may return id ("patent") or Thai label ("สิทธิบัตร") - map Thai to id for correct i18n
+  const ipTypeThaiToId: Record<string, string> = {
+    "สิทธิบัตร": "patent",
+    "อนุสิทธิบัตร": "pettyPatent",
+    "สิทธิบัตรออกแบบผลิตภัณฑ์": "designPatent",
+    "ลิขสิทธิ์": "copyright",
+    "เครื่องหมายการค้า": "trademark",
+    "ความลับทางการค้า": "tradeSecret",
+  };
 
   const getIPTypeLabel = (type: string | undefined | null) => {
-    if (!type) return "ไม่ระบุประเภทสิทธิ์";
-
-    const found = ipTypesList.find((item) => item.id === type);
-    return found ? found.label : type;
+    if (!type) return t("caseDetail.ipTypeUnspecified");
+    const id = ipTypeThaiToId[type] ?? type;
+    if (ipTypeIds.includes(id as (typeof ipTypeIds)[number])) {
+      return t(`assessment.${id}`);
+    }
+    return type;
   };
 
   return (
@@ -89,22 +95,22 @@ export default function CaseDetail() {
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                ย้อนกลับ
+                {t("form.back")}
               </Button>
               <div className="h-6 w-px bg-gray-300"></div>
               <h1 className="text-xl font-semibold text-gray-900">
-                รายละเอียดข้อมูลงานวิจัย
+                {t("caseDetail.title")}
               </h1>
             </div>
 
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-sm">
-                รหัสงานวิจัย: {caseData?.id || 'กำลังโหลด...'}
+                {t("caseDetail.researchIdLabel")} {caseData?.id || t("common.loading")}
               </Badge>
               {role === "admin" && (
                 <Button onClick={() => navigate(`/assessment/${id}`)} >
                   <Sparkles className="w-4 h-4 mr-1" />
-                  ประเมินงานวิจัย
+                  {t("assessment.assessResearch")}
                 </Button>
               )}
             </div>
@@ -145,15 +151,15 @@ export default function CaseDetail() {
           ) : isCaseError ? (
             <CardHeader>
               <div className="text-destructive">
-                <h2 className="text-xl font-bold">เกิดข้อผิดพลาดในการโหลดข้อมูล</h2>
-                <p className="text-sm">ไม่สามารถโหลดรายละเอียดข้อมูลได้ กรุณาลองใหม่อีกครั้ง</p>
+                <h2 className="text-xl font-bold">{t("caseDetail.loadErrorTitle")}</h2>
+                <p className="text-sm">{t("caseDetail.loadErrorDesc")}</p>
               </div>
             </CardHeader>
           ) : !caseData ? (
             <CardHeader>
               <div className="text-muted-foreground">
-                <h2 className="text-xl font-bold">ไม่พบข้อมูล</h2>
-                <p className="text-sm">ไม่พบข้อมูลงานวิจัยตามที่คุณร้องขอ</p>
+                <h2 className="text-xl font-bold">{t("caseDetail.noDataTitle")}</h2>
+                <p className="text-sm">{t("caseDetail.noDataDesc")}</p>
               </div>
             </CardHeader>
           ) : (
@@ -167,25 +173,25 @@ export default function CaseDetail() {
                     <div className="flex gap-2 mb-2">
                       <Badge variant="outline">{caseData.type}</Badge>
                       <Badge variant={caseData.is_urgent ? "destructive" : "secondary"}>
-                        {caseData.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน"}
+                        {caseData.is_urgent ? t("home.urgent") : t("home.notUrgent")}
                       </Badge>
                     </div>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
-                    <p>รหัสงานวิจัย: {caseData.id}</p>
-                    <p>วันที่สร้าง: {new Date(caseData.created_at).toLocaleDateString()}</p>
+                    <p>{t("caseDetail.researchIdLabel")} {caseData.id}</p>
+                    <p>{t("admin.createdAt")}: {new Date(caseData.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold mb-2">คำอธิบายโดยย่อของนวัตกรรม</h3>
+                    <h3 className="font-semibold mb-2">{t("form.descriptionLabel")}</h3>
                     <p className="text-sm leading-relaxed">{caseData.description}</p>
                   </div>
 
                   <div>
-                    <h3 className="font-semibold mb-2">คำสำคัญ (Keywords)</h3>
+                    <h3 className="font-semibold mb-2">{t("form.keywordsLabel")}</h3>
                     <p className="text-sm text-muted-foreground">{caseData.keywords}</p>
                   </div>
 
@@ -197,13 +203,13 @@ export default function CaseDetail() {
                     </div>
                   ) : isResearcherError ? (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                    <h3 className="font-semibold">ไม่สามารถโหลดข้อมูลนักวิจัยได้</h3>
-                    <p className="text-sm">กรุณาลองรีเฟรชหน้าเว็บหรือติดต่อฝ่ายสนับสนุน</p>
+                    <h3 className="font-semibold">{t("caseDetail.researcherLoadError")}</h3>
+                    <p className="text-sm">{t("caseDetail.refreshOrContact")}</p>
                   </div>
                   ) : researcherData ? (
                     <div className="space-y-4">
                       <div>
-                        <h3 className="font-semibold mb-2">ข้อมูลนักวิจัย/ข้อมูลหัวหน้าโครงการ</h3>
+                        <h3 className="font-semibold mb-2">{t("caseDetail.researcherInfo")}</h3>
                         <p className="text-sm text-muted-foreground">{researcherData.first_name} {researcherData.last_name}</p>
                         <p className="text-sm text-muted-foreground">{researcherData.email}</p>
                         <p className="text-sm text-muted-foreground">{researcherData.phone_number}</p>
@@ -219,13 +225,13 @@ export default function CaseDetail() {
                     </div>
                   ) : isCoordinatorError ? (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                    <h3 className="font-semibold">ไม่สามารถโหลดข้อมูลผู้ประสานงานได้</h3>
-                    <p className="text-sm">กรุณาลองรีเฟรชหน้าเว็บหรือติดต่อฝ่ายสนับสนุน</p>
+                    <h3 className="font-semibold">{t("caseDetail.coordinatorLoadError")}</h3>
+                    <p className="text-sm">{t("caseDetail.refreshOrContact")}</p>
                   </div>
                   ) : coordinatorData ? (
                     <div className="space-y-4">
                       <div>
-                        <h3 className="font-semibold mb-2">ข้อมูลผู้ประสานงานโครงการ</h3>
+                        <h3 className="font-semibold mb-2">{t("caseDetail.coordinatorInfo")}</h3>
                         <p className="text-sm text-muted-foreground">{coordinatorData.first_name} {coordinatorData.last_name}</p>
                         <p className="text-sm text-muted-foreground">{coordinatorData.email}</p>
                         <p className="text-sm text-muted-foreground">{coordinatorData.phone_number}</p>
@@ -243,13 +249,13 @@ export default function CaseDetail() {
                       {role === "admin" && assessmentData?.trl_estimate !== undefined && assessmentData?.trl_estimate !== null && (
                         <>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">คาดว่ามีระดับความพร้อม</h3>
+                            <h3 className="font-semibold">{t("admin.estimatedLevel")}</h3>
                             <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
                               TRL {assessmentData.trl_estimate}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">ระดับความพร้อม</h3>
+                            <h3 className="font-semibold">{t("admin.readinessLevel")}</h3>
                             <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
                               TRL {caseData.trl_score ?? assessmentData.trl_estimate}
                             </Badge>
@@ -261,7 +267,7 @@ export default function CaseDetail() {
 
                   {role === "researcher" && caseData.status === true && caseData.trl_score !== null && (
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">ระดับความพร้อม</h3>
+                      <h3 className="font-semibold">{t("admin.readinessLevel")}</h3>
                       <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
                         TRL {caseData.trl_score}
                       </Badge>
@@ -278,10 +284,10 @@ export default function CaseDetail() {
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
               <CardTitle className="text-2xl font-bold text-primary mb-1">
-                รายการนัดหมาย
+                {t("caseDetail.appointmentListTitle")}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                รายการนัดหมายทั้งหมดที่เกี่ยวข้องกับเคสนี้
+                {t("caseDetail.appointmentListDesc")}
               </p>
             </div>
 
@@ -294,7 +300,7 @@ export default function CaseDetail() {
                 onClick={() => setShowAddModal(true)}
               >
                 <CalendarPlus className="w-4 h-4 mr-2" />
-                เพิ่มรายการการนัดหมาย
+                {t("form.addAppointmentTitle")}
               </Button>
             )}
           </CardHeader>
@@ -307,7 +313,7 @@ export default function CaseDetail() {
               </div>
             ) : isAppointmentError ? (
               <div className="text-center text-sm text-destructive py-6">
-                เกิดข้อผิดพลาดในการโหลดข้อมูลการนัดหมาย
+                {t("caseDetail.appointmentLoadError")}
               </div>
             ) : Array.isArray(appointmentData) && appointmentData.length > 0 ? (
               <div className="space-y-4">
@@ -318,16 +324,16 @@ export default function CaseDetail() {
                   switch (a.status) {
                     case "attended":
                       badgeClass = "bg-green-500 text-white";
-                      badgeLabel = "เข้าร่วมแล้ว";
+                      badgeLabel = t("form.statusAttended");
                       break;
                     case "absent":
                       badgeClass = "bg-red-500 text-white";
-                      badgeLabel = "ไม่เข้าร่วม";
+                      badgeLabel = t("caseDetail.absentShort");
                       break;
                     case "pending":
                     default:
                       badgeClass = "bg-yellow-400 text-black";
-                      badgeLabel = "รอดำเนินการ";
+                      badgeLabel = t("form.statusPending");
                       break;
                   }
 
@@ -351,15 +357,14 @@ export default function CaseDetail() {
                             className="flex items-center"
                           >
                             <Edit2 className="w-4 h-4 mr-1" />
-                            แก้ไข
+                            {t("profile.edit")}
                           </Button>
                         )}
                       </div>
 
-                      {/* รายละเอียดการนัดหมาย */}
                       <div className="text-sm text-muted-foreground space-y-2">
                         <p>
-                          <strong>วันที่นัดหมาย:</strong>{" "}
+                          <strong>{t("form.appointmentDate")}:</strong>{" "}
                           {new Date(a.date).toLocaleDateString("th-TH", {
                             year: "numeric",
                             month: "long",
@@ -369,16 +374,16 @@ export default function CaseDetail() {
                           })}
                         </p>
                         <p>
-                          <strong>สถานที่:</strong> {a.location || "-"}
+                          <strong>{t("form.location")}:</strong> {a.location || "-"}
                         </p>
                         {a.summary && (
                           <p>
-                            <strong>สรุปการประชุม:</strong> {a.summary}
+                            <strong>{t("form.meetingSummary")}:</strong> {a.summary}
                           </p>
                         )}
                         {a.note && (
                           <p>
-                            <strong>หมายเหตุ:</strong> {a.note}
+                            <strong>{t("caseDetail.noteLabel")}</strong> {a.note}
                           </p>
                         )}
                       </div>
@@ -388,7 +393,7 @@ export default function CaseDetail() {
               </div>
             ) : (
               <div className="text-center text-sm text-muted-foreground py-6">
-                ยังไม่มีการนัดหมาย โปรดติดตามการนัดหมายจากเจ้าหน้าที่
+                {t("caseDetail.noAppointments")}
               </div>
             )}
           </CardContent>
@@ -398,7 +403,7 @@ export default function CaseDetail() {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
-              ข้อมูลทรัพย์สินทางปัญญา
+              {t("caseDetail.ipDataTitle")}
             </CardTitle>
           </CardHeader>
 
@@ -410,7 +415,7 @@ export default function CaseDetail() {
               </div>
             ) : isIPError ? (
               <div className="text-center text-sm text-destructive py-6">
-                เกิดข้อผิดพลาดในการโหลดข้อมูลทรัพย์สินทางปัญญา
+                {t("caseDetail.ipLoadError")}
               </div>
             ) : Array.isArray(ipData) && ipData.length > 0 ? (
               <div className="space-y-6">
@@ -432,7 +437,7 @@ export default function CaseDetail() {
                             : "bg-yellow-400 text-black"
                         }
                       >
-                        {ip.protection_status || "สถานะไม่ระบุ"}
+                        {ip.protection_status || t("caseDetail.statusUnspecified")}
                       </Badge>
                       <span className="text-sm text-muted-foreground">
                         {ip.request_number || "-"}
@@ -440,7 +445,7 @@ export default function CaseDetail() {
                     </div>
 
                     <p className="text-xs text-muted-foreground">
-                      สร้างเมื่อ:{" "}
+                      {t("caseDetail.createdAtLabel")}{" "}
                       {new Date(ip.created_at).toLocaleDateString("th-TH", {
                         year: "numeric",
                         month: "long",
@@ -452,17 +457,16 @@ export default function CaseDetail() {
               </div>
             ) : (
               <div className="text-center text-sm text-muted-foreground py-6">
-                ยังไม่มีข้อมูลทรัพย์สินทางปัญญา
+                {t("caseDetail.noIpData")}
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Supportment Data */}
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
-              ข้อมูลการสนับสนุนที่ต้องการ
+              {t("caseDetail.supportDataTitle")}
             </CardTitle>
           </CardHeader>
 
@@ -483,31 +487,29 @@ export default function CaseDetail() {
               </div>
             ) : isSupporterError ? (
               <div className="text-center text-sm text-destructive py-6">
-                เกิดข้อผิดพลาดในการโหลดข้อมูลหน่วยงานสนับสนุน
+                {t("caseDetail.supporterLoadError")}
               </div>
             ) : supportmentData ? (
               <div className="space-y-6">
-                {/* หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม */}
                 <div>
-                  <h3 className="font-semibold mb-2">หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม</h3>
+                  <h3 className="font-semibold mb-2">{t("form.innovationSupportLabel")}</h3>
                   {(
                     supportmentData.support_research ||
                     supportmentData.support_vdc ||
                     supportmentData.support_sieic
                   ) ? (
                     <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                      {supportmentData.support_research && <li>ฝ่ายวิจัย (Research Division)</li>}
-                      {supportmentData.support_vdc && <li>ศูนย์ขับเคลื่อนคุณค่าการบริการ (VDC)</li>}
-                      {supportmentData.support_sieic && <li>ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (SiEIC)</li>}
+                      {supportmentData.support_research && <li>{t("form.innovationSupport1")}</li>}
+                      {supportmentData.support_vdc && <li>{t("form.innovationSupport2")}</li>}
+                      {supportmentData.support_sieic && <li>{t("form.innovationSupport3")}</li>}
                     </ul>
                   ) : (
-                    <p className="text-sm text-muted-foreground">ไม่มีหน่วยงานสนับสนุนนวัตกรรม</p>
+                    <p className="text-sm text-muted-foreground">{t("caseDetail.noAgencySupport")}</p>
                   )}
                 </div>
 
-                {/* ความช่วยเหลือที่ต้องการ */}
                 <div>
-                  <h3 className="font-semibold mb-2">ความช่วยเหลือที่ต้องการ</h3>
+                  <h3 className="font-semibold mb-2">{t("form.assistanceNeededLabel")}</h3>
                   {(
                     supportmentData.need_protect_intellectual_property ||
                     supportmentData.need_co_developers ||
@@ -520,39 +522,38 @@ export default function CaseDetail() {
                     supportmentData.need_account
                   ) ? (
                     <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                      {supportmentData.need_protect_intellectual_property && <li>การคุ้มครองทรัพย์สินทางปัญญา</li>}
-                      {supportmentData.need_co_developers && <li>หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม</li>}
-                      {supportmentData.need_activities && <li>จัดกิจกรรมร่วม เช่น Design Thinking, Prototype Testing</li>}
-                      {supportmentData.need_test && <li>หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม</li>}
-                      {supportmentData.need_capital && <li>หาแหล่งทุน</li>}
-                      {supportmentData.need_partners && <li>หาคู่ค้าทางธุรกิจ</li>}
-                      {supportmentData.need_guidelines && <li>แนะนำแนวทางการเริ่มธุรกิจ</li>}
-                      {supportmentData.need_certification && <li>การขอรับรองมาตรฐานหรือคุณภาพ</li>}
-                      {supportmentData.need_account && <li>บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม</li>}
+                      {supportmentData.need_protect_intellectual_property && <li>{t("form.assistance1")}</li>}
+                      {supportmentData.need_co_developers && <li>{t("form.assistance2")}</li>}
+                      {supportmentData.need_activities && <li>{t("form.assistance3")}</li>}
+                      {supportmentData.need_test && <li>{t("form.assistance4")}</li>}
+                      {supportmentData.need_capital && <li>{t("form.assistance5")}</li>}
+                      {supportmentData.need_partners && <li>{t("form.assistance6")}</li>}
+                      {supportmentData.need_guidelines && <li>{t("form.assistance7")}</li>}
+                      {supportmentData.need_certification && <li>{t("form.assistance8")}</li>}
+                      {supportmentData.need_account && <li>{t("form.assistance9")}</li>}
                     </ul>
                   ) : (
-                    <p className="text-sm text-muted-foreground">ไม่ต้องการความช่วยเหลือ</p>
+                    <p className="text-sm text-muted-foreground">{t("caseDetail.noAssistanceNeeded")}</p>
                   )}
                 </div>
 
-                {/* ฟิลด์เพิ่มเติม */}
                 {supportmentData.need && (
                   <div>
-                    <h3 className="font-semibold mb-2">รายละเอียดเพิ่มเติม</h3>
+                    <h3 className="font-semibold mb-2">{t("caseDetail.additionalDetails")}</h3>
                     <p className="text-sm text-muted-foreground">{supportmentData.need}</p>
                   </div>
                 )}
 
                 {supportmentData.additional_documents && (
                   <div>
-                    <h3 className="font-semibold mb-2">เอกสารเพิ่มเติม</h3>
+                    <h3 className="font-semibold mb-2">{t("form.additionalDocs")}</h3>
                     <p className="text-sm text-muted-foreground">{supportmentData.additional_documents}</p>
                   </div>
                 )}
               </div>
             ) : (
               <div className="text-center text-sm text-muted-foreground py-6">
-                ยังไม่มีข้อมูลการสนับสนุน
+                {t("caseDetail.noSupportData")}
               </div>
             )}
           </CardContent>

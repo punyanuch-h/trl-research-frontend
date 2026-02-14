@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { checkboxQuestionList } from "@/data/checkboxQuestionList";
@@ -19,7 +20,7 @@ const CheckboxQuestion = ({
   assessmentFiles,
   onAttachFile,
 }: CheckboxQuestionProps) => {
-
+  const { t } = useTranslation();
   const selectedQuestions = checkboxQuestionList[index - 1];
 
   const itemId = `cq${index}`;
@@ -56,7 +57,7 @@ const CheckboxQuestion = ({
                     !disabled && handleCheckboxChange(checked, item.id)
                   }
                 />
-                <Label htmlFor={fieldKey}>{item.label}</Label>
+                <Label htmlFor={fieldKey}>{t(`evaluate.checkbox.L${index}.q${item.id}`)}</Label>
               </div>
 
               {/* File upload per checked item */}
@@ -72,7 +73,7 @@ const CheckboxQuestion = ({
                     }`}
                     onClick={() => !disabled && document.getElementById(`file-${fieldKey}`)?.click()}
                   >
-                    แนบหลักฐาน
+                    {t("admin.attachEvidence")}
                   </button>
                   <input
                     type="file"

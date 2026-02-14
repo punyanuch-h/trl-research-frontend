@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -79,6 +80,7 @@ export default function ResearcherDetails({
     handleInputChange,
     refs,
 }: ResearcherDetailsProps) {
+    const { t } = useTranslation();
     const { data: userProfile } = useGetUserProfile();
     const [errors, setErrors] = useState({
         headPhoneNumber: "",
@@ -93,12 +95,12 @@ export default function ResearcherDetails({
             const phoneRegex = /^[0-9]{10}$/;
             const normalized = value.replace(/\D/g, "");
             if (!phoneRegex.test(normalized)) {
-                errorMessage = "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)";
+                errorMessage = t("form.phoneInvalid10");
             }
         } else if (field === "headEmail" || field === "coordinatorEmail") {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(value)) {
-                errorMessage = "กรุณากรอกอีเมลให้ถูกต้อง";
+                errorMessage = t("auth.emailInvalid");
             }
         }
         setErrors((prev) => ({ ...prev, [field]: errorMessage }));
@@ -172,13 +174,13 @@ export default function ResearcherDetails({
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-primary">
-                        ข้อมูลหัวหน้าโครงการ
+                        {t("form.projectHeadInfo")}
                     </h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-9 gap-2 items-center">
                     <div className="col-span-1">
-                        <Label htmlFor="headPrefix">คำนำหน้า<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="headPrefix">{t("auth.prefix")}<span className="text-red-500">*</span></Label>
                         <Input
                             disabled
                             id="headPrefix"
@@ -191,7 +193,7 @@ export default function ResearcherDetails({
                     </div>
 
                     <div className="col-span-2">
-                        <Label htmlFor="headAcademicPosition">ตำแหน่งวิชาการ</Label>
+                        <Label htmlFor="headAcademicPosition">{t("auth.academicPosition")}</Label>
 
                         <div
                             className={`grid gap-2 ${formData.headAcademicPosition === "other"
@@ -203,9 +205,9 @@ export default function ResearcherDetails({
                                 disabled
                                 value={
                                     formData.headAcademicPosition === "none"
-                                        ? "ไม่มี"
+                                        ? t("form.none")
                                         : formData.headAcademicPosition === "other"
-                                            ? "อื่นๆ"
+                                            ? t("common.other")
                                             : formData.headAcademicPosition
                                 }
                             />
@@ -220,7 +222,7 @@ export default function ResearcherDetails({
                     </div>
 
                     <div className="col-span-3">
-                        <Label htmlFor="headFirstName">ชื่อ<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="headFirstName">{t("auth.firstName")}<span className="text-red-500">*</span></Label>
                         <Input
                             disabled
                             id="headFirstName"
@@ -235,7 +237,7 @@ export default function ResearcherDetails({
                     </div>
 
                     <div className="col-span-3">
-                        <Label htmlFor="headLastName">นามสกุล<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="headLastName">{t("auth.lastName")}<span className="text-red-500">*</span></Label>
                         <Input
                             disabled
                             id="headLastName"
@@ -252,10 +254,10 @@ export default function ResearcherDetails({
 
                 <div>
                     <Label htmlFor="headDepartment">
-                        ภาควิชา / สถาน / หน่วยงาน ของหัวหน้าโครงการ<span className="text-red-500">*</span>
+                        {t("form.departmentOfHead")}<span className="text-red-500">*</span>
                     </Label>
                     <p className="text-xs text-muted-foreground mb-1">
-                        (รวมหน่วยงานที่เทียบเท่าภาควิชา)
+                        {t("form.departmentNote")}
                     </p>
                     <Input
                         disabled
@@ -264,14 +266,14 @@ export default function ResearcherDetails({
                         onChange={(e) =>
                             handleInputChange("headDepartment", e.target.value)
                         }
-                        placeholder="เช่น ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์"
+                        placeholder={t("auth.departmentPlaceholder")}
                         required
                         ref={refs?.headDepartment}
                     />
                 </div>
 
                 <div>
-                    <Label htmlFor="headPhoneNumber">เบอร์โทรศัพท์<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="headPhoneNumber">{t("auth.phone")}<span className="text-red-500">*</span></Label>
                     <PhoneInput
                         disabled
                         value={formData.headPhoneNumber}
@@ -287,7 +289,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="headEmail">อีเมล์<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="headEmail">{t("auth.email")}<span className="text-red-500">*</span></Label>
                     <Input
                         disabled
                         id="headEmail"
@@ -310,7 +312,7 @@ export default function ResearcherDetails({
 
             {/* ---------- ข้อมูลผู้ประสานงานโครงการ ---------- */}
             <div className="space-y-4">
-                <h3 className="font-semibold text-primary">ข้อมูลผู้ประสานงานโครงการ</h3>
+                <h3 className="font-semibold text-primary">{t("form.coordinatorInfo")}</h3>
 
                 {/* ✅ Checkbox ข้อมูลเดียวกับหัวหน้าโครงการ */}
                 <div className="flex items-center space-x-2 mb-2">
@@ -320,12 +322,12 @@ export default function ResearcherDetails({
                         checked={formData.sameAsHead || false}
                         onChange={(e) => handleSameAsHeadChange(e.target.checked)}
                     />
-                    <Label htmlFor="sameAsHead">ข้อมูลเดียวกับหัวหน้าโครงการ</Label>
+                    <Label htmlFor="sameAsHead">{t("form.sameAsHead")}</Label>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-9 gap-2 items-center">
                     <div className="col-span-1">
-                        <Label htmlFor="coordinatorPrefix">คำนำหน้า<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="coordinatorPrefix">{t("auth.prefix")}<span className="text-red-500">*</span></Label>
                         <Select
                             onValueChange={(value) =>
                                 handleInputChange("coordinatorPrefix", value)
@@ -341,15 +343,15 @@ export default function ResearcherDetails({
                                 <SelectItem value="พญ.">พญ.</SelectItem>
                                 <SelectItem value="ภญ.">ภญ.</SelectItem>
                                 <SelectItem value="ทพญ.">ทพญ.</SelectItem>
-                                <SelectItem value="นาย">นาย</SelectItem>
-                                <SelectItem value="นาง">นาง</SelectItem>
-                                <SelectItem value="นางสาว">นางสาว</SelectItem>
+                                <SelectItem value="นาย">{t("form.prefixMr")}</SelectItem>
+                                <SelectItem value="นาง">{t("form.prefixMrs")}</SelectItem>
+                                <SelectItem value="นางสาว">{t("form.prefixMs")}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="col-span-2">
-                        <Label htmlFor="coordinatorAcademicPosition">ตำแหน่งวิชาการ
+                        <Label htmlFor="coordinatorAcademicPosition">{t("auth.academicPosition")}
                             {formData.coordinatorAcademicPosition === "other" && (
                                 <span className="text-red-500">*</span>
                             )}</Label>
@@ -370,15 +372,15 @@ export default function ResearcherDetails({
                                 required
                             >
                                 <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="เลือก" />
+                                    <SelectValue placeholder={t("common.select")} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="none">ไม่มี</SelectItem>
+                                    <SelectItem value="none">{t("form.none")}</SelectItem>
                                     <SelectItem value="อ.">อ.</SelectItem>
                                     <SelectItem value="ผศ.">ผศ.</SelectItem>
                                     <SelectItem value="รศ.">รศ.</SelectItem>
                                     <SelectItem value="ศ.">ศ.</SelectItem>
-                                    <SelectItem value="other">อื่นๆ</SelectItem>
+                                    <SelectItem value="other">{t("common.other")}</SelectItem>
                                 </SelectContent>
                             </Select>
 
@@ -386,7 +388,7 @@ export default function ResearcherDetails({
                             {formData.coordinatorAcademicPosition === "other" && (
                                 <input
                                     type="text"
-                                    placeholder="ตำแหน่ง"
+                                    placeholder={t("form.positionPlaceholder")}
                                     className="w-full border rounded px-3 py-2 text-sm"
                                     onChange={(e) =>
                                         handleInputChange("coordinatorAcademicPositionOther", e.target.value)
@@ -399,28 +401,28 @@ export default function ResearcherDetails({
                     </div>
 
                     <div className="col-span-3">
-                        <Label htmlFor="coordinatorFirstName">ชื่อ<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="coordinatorFirstName">{t("auth.firstName")}<span className="text-red-500">*</span></Label>
                         <Input
                             id="coordinatorFirstName"
                             value={formData.coordinatorFirstName}
                             onChange={(e) =>
                                 handleInputChange("coordinatorFirstName", e.target.value)
                             }
-                            placeholder="ชื่อ"
+                            placeholder={t("form.namePlaceholder")}
                             required
                             ref={refs?.coordinatorFirstName}
                         />
                     </div>
 
                     <div className="col-span-3">
-                        <Label htmlFor="coordinatorLastName">นามสกุล<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="coordinatorLastName">{t("auth.lastName")}<span className="text-red-500">*</span></Label>
                         <Input
                             id="coordinatorLastName"
                             value={formData.coordinatorLastName}
                             onChange={(e) =>
                                 handleInputChange("coordinatorLastName", e.target.value)
                             }
-                            placeholder="นามสกุล"
+                            placeholder={t("form.lastNamePlaceholder")}
                             required
                             ref={refs?.coordinatorLastName}
                         />
@@ -429,10 +431,10 @@ export default function ResearcherDetails({
 
                 <div>
                     <Label htmlFor="coordinatorDepartment">
-                        ภาควิชา / สถาน / หน่วยงาน ของผู้ประสานงานโครงการ<span className="text-red-500">*</span>
+                        {t("form.departmentOfCoordinator")}<span className="text-red-500">*</span>
                     </Label>
                     <p className="text-xs text-muted-foreground mb-1">
-                        (รวมหน่วยงานที่เทียบเท่าภาควิชา)
+                        {t("form.departmentNote")}
                     </p>
                     <Input
                         id="coordinatorDepartment"
@@ -440,14 +442,14 @@ export default function ResearcherDetails({
                         onChange={(e) =>
                             handleInputChange("coordinatorDepartment", e.target.value)
                         }
-                        placeholder="เช่น ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์"
+                        placeholder={t("auth.departmentPlaceholder")}
                         required
                         ref={refs?.coordinatorDepartment}
                     />
                 </div>
 
                 <div>
-                    <Label htmlFor="coordinatorPhoneNumber">เบอร์โทรศัพท์<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="coordinatorPhoneNumber">{t("auth.phone")}<span className="text-red-500">*</span></Label>
                     <PhoneInput
                         value={formData.coordinatorPhoneNumber}
                         onChange={(value) => {
@@ -462,7 +464,7 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                    <Label htmlFor="coordinatorEmail">อีเมล์<span className="text-red-500">*</span></Label>
+                        <Label htmlFor="coordinatorEmail">{t("auth.email")}<span className="text-red-500">*</span></Label>
                     <Input
                         id="coordinatorEmail"
                         value={formData.coordinatorEmail}
@@ -489,13 +491,13 @@ export default function ResearcherDetails({
                             handleInputChange("isUrgent", e.target.checked)
                         }
                     />
-                    <Label htmlFor="isUrgent">ต้องการการประเมินอย่างเร่งด่วน</Label>
+                    <Label htmlFor="isUrgent">{t("home.urgent")}</Label>
                 </div>
 
                 {formData.isUrgent && (
                     <div>
                         <Label htmlFor="urgentReason">
-                            เหตุผลความเร่งด่วน{" "}
+                            {t("form.urgencyReason")}{" "}
                             <span className="text-red-500">*</span>
                         </Label>
                         <Textarea
@@ -504,7 +506,7 @@ export default function ResearcherDetails({
                             onChange={(e) =>
                                 handleInputChange("urgentReason", e.target.value)
                             }
-                            placeholder="โปรดระบุเหตุผลความเร่งด่วน"
+                            placeholder={t("form.urgencyReasonPlaceholder")}
                             rows={2}
                             required={formData.isUrgent}
                             ref={refs?.urgentReason}

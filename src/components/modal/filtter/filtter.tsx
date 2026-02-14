@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface FilterPopupProps {
   open: boolean;
@@ -19,6 +20,7 @@ export default function FilterPopup({
   columns,
   columnOptions,
 }: FilterPopupProps) {
+  const { t } = useTranslation();
   const [pos, setPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 8, width: 280 });
   const [expandedCols, setExpandedCols] = useState<string[]>([]);
   const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({});
@@ -117,7 +119,7 @@ export default function FilterPopup({
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium">ตัวกรองการค้นหา</h3>
+        <h3 className="text-sm font-medium">{t("home.filterSearch")}</h3>
         <button
           aria-label="close"
           onClick={() => onOpenChange(false)}
@@ -170,13 +172,13 @@ export default function FilterPopup({
           onClick={resetFilters}
           className="px-3 py-1 rounded text-sm bg-gray-200 hover:bg-gray-300"
         >
-          ล้างตัวกรอง
+          {t("home.clearFilter")}
         </button>
         <button
           onClick={applyFilters}
           className="px-3 py-1 rounded text-sm bg-primary text-white"
         >
-          กรองข้อมูล
+          {t("home.applyFilter")}
         </button>
       </div>
     </div>

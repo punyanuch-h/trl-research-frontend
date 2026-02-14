@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
 import { useUploadFile } from "@/hooks/file/useUploadFile";
 import { toast } from "@/lib/toast";
 
 export function UploadSection({ caseId }: { caseId: string }) {
+  const { t } = useTranslation();
   const { uploadFile, loading } = useUploadFile(
-    () => toast.success("Upload Success!"),
+    () => toast.success(t("toast.uploadSuccess")),
     () => console.log("Closed")
   );
 
@@ -11,7 +13,7 @@ export function UploadSection({ caseId }: { caseId: string }) {
     const file = e.target.files?.[0];
     if (file) {
       uploadFile({ file, case_id: caseId }).catch((err) => {
-        toast.error("Upload failed");
+        toast.error(t("toast.uploadError"));
       });
     }
   };

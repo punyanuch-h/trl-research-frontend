@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ type SignupFormValues = {
 };
 
 export default function SignupPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -91,7 +93,7 @@ export default function SignupPage() {
         email: data.email,
         password: data.password,
       });
-      toast.success("ลงทะเบียนสำเร็จ");
+      toast.success(t("auth.signupSuccess"));
       setTimeout(() => {
         navigate("/login");
       }, 1200);
@@ -99,7 +101,7 @@ export default function SignupPage() {
     } catch (err: unknown) {
       console.error(err);
       setError("root", {
-        message: "ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง หรือ ติดต่อเจ้าหน้าที่",
+        message: t("auth.signupError"),
       });
     }
   };
@@ -109,10 +111,10 @@ export default function SignupPage() {
       <div className="max-w-4xl mx-auto px-6 mt-8 mb-32">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            ระบบประเมินระดับความพร้อมทางเทคโนโลยี
+            {t("auth.appTitle")}
           </h1>
           <p className="text-xl text-muted-foreground">
-            Technology Readiness Level (TRL) Evaluation System
+            {t("auth.appSubtitle")}
           </p>
         </div>
 
@@ -121,7 +123,7 @@ export default function SignupPage() {
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <GraduationCap className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-center text-2xl">ลงทะเบียน</CardTitle>
+            <CardTitle className="text-center text-2xl">{t("auth.signup")}</CardTitle>
           </CardHeader>
 
           <CardContent>
@@ -129,26 +131,26 @@ export default function SignupPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Prefix */}
                 <div>
-                  <Label>คำนำหน้า</Label><span className="text-red-500">*</span>
+                  <Label>{t("auth.prefix")}</Label><span className="text-red-500">*</span>
                   <div className="relative">
                     <GraduationCap className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Controller
                       control={control}
                       name="prefix"
-                      rules={{ required: "กรุณาเลือกคำนำหน้า" }}
+                      rules={{ required: t("auth.prefixRequired") }}
                       render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="pl-10">
-                            <SelectValue placeholder="คำนำหน้า" />
+                            <SelectValue placeholder={t("form.prefixPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="นพ.">นพ.</SelectItem>
                             <SelectItem value="พญ.">พญ.</SelectItem>
                             <SelectItem value="ภญ.">ภญ.</SelectItem>
                             <SelectItem value="ทพญ.">ทพญ.</SelectItem>
-                            <SelectItem value="นาย">นาย</SelectItem>
-                            <SelectItem value="นาง">นาง</SelectItem>
-                            <SelectItem value="นางสาว">นางสาว</SelectItem>
+                            <SelectItem value="นาย">{t("form.prefixMr")}</SelectItem>
+                            <SelectItem value="นาง">{t("form.prefixMrs")}</SelectItem>
+                            <SelectItem value="นางสาว">{t("form.prefixMs")}</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -163,7 +165,7 @@ export default function SignupPage() {
 
                 {/* Academic Position */}
                 <div>
-                  <Label>ตำแหน่งทางวิชาการ</Label>
+                  <Label>{t("auth.academicPosition")}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Controller
@@ -175,10 +177,10 @@ export default function SignupPage() {
                           onValueChange={(val) => field.onChange(val === "none" ? null : val)}
                         >
                           <SelectTrigger className="pl-10">
-                            <SelectValue placeholder="ตำแหน่งทางวิชาการ" />
+                            <SelectValue placeholder={t("form.academicPositionPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">ไม่มี</SelectItem>
+                            <SelectItem value="none">{t("form.none")}</SelectItem>
                             <SelectItem value="อ.">อ.</SelectItem>
                             <SelectItem value="ผศ.">ผศ.</SelectItem>
                             <SelectItem value="รศ.">รศ.</SelectItem>
@@ -194,13 +196,13 @@ export default function SignupPage() {
 
               {/* First Name */}
               <div>
-                <Label>ชื่อ</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.firstName")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
                     className="pl-10"
-                    {...register("first_name", { required: "กรุณากรอกชื่อ" })}
+                    {...register("first_name", { required: t("auth.firstNameRequired") })}
                   />
                   {errors.first_name && (
                     <p className="text-sm text-destructive">
@@ -211,13 +213,13 @@ export default function SignupPage() {
               </div>
               {/* Last Name */}
               <div>
-                <Label>นามสกุล</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.lastName")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
                     className="pl-10"
-                    {...register("last_name", { required: "กรุณากรอกนามสกุล" })}
+                    {...register("last_name", { required: t("auth.lastNameRequired") })}
                   />
                   {errors.last_name && (
                     <p className="text-sm text-destructive">
@@ -228,13 +230,13 @@ export default function SignupPage() {
               </div>
               {/* Department */}
               <div>
-                <Label>ภาควิชา / สถาน / หน่วยงาน</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.department")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <Building className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
                     className="pl-10"
-                    {...register("department", { required: "กรุณากรอกภาควิชา / สถาน / หน่วยงาน" })}
+                    {...register("department", { required: t("auth.departmentRequired") })}
                   />
                   {errors.department && (
                     <p className="text-sm text-destructive">
@@ -245,15 +247,15 @@ export default function SignupPage() {
               </div>
               {/* Phone */}
               <div>
-                <Label>เบอร์โทรศัพท์</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.phone")}</Label><span className="text-red-500">*</span>
                 <Controller
                   name="phone_number"
                   control={control}
                   rules={{
-                    required: "กรุณากรอกเบอร์โทรศัพท์",
+                    required: t("auth.phoneRequired"),
                     pattern: {
                       value: /^0\d{9}$/,
-                      message: "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง",
+                      message: t("auth.phoneInvalid"),
                     },
                   }}
                   render={({ field, fieldState }) => (
@@ -266,17 +268,17 @@ export default function SignupPage() {
               </div>
               {/* Email */}
               <div>
-                <Label>อีเมล</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.email")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="email"
                     className="pl-10"
                     {...register("email", {
-                      required: "กรุณากรอกอีเมล",
+                      required: t("auth.emailRequired"),
                       pattern: {
                         value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: "รูปแบบอีเมลไม่ถูกต้อง",
+                        message: t("auth.emailInvalid"),
                       }
                     })}
                   />
@@ -289,22 +291,21 @@ export default function SignupPage() {
               </div>
               {/* Password */}
               <div>
-                <Label>รหัสผ่าน</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.password")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     className="pl-10"
                     {...register("password", {
-                      required: "กรุณากรอกรหัสผ่าน",
+                      required: t("auth.passwordRequired"),
                       minLength: {
                         value: 8,
-                        message: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+                        message: t("auth.passwordMin8"),
                       },
                       pattern: {
                         value: /^(?=.*[A-Z])(?=.*\d).+$/,
-                        message:
-                          "ต้องมีตัวอักษรพิมพ์ใหญ่ และตัวเลขอย่างน้อย 1 ตัว",
+                        message: t("auth.passwordStrength"),
                       },
                     })}
                   />
@@ -312,7 +313,7 @@ export default function SignupPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                    aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+                    aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -329,23 +330,23 @@ export default function SignupPage() {
               </div>
               {/* Confirm Password */}
               <div>
-                <Label>ยืนยันรหัสผ่าน</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.confirmPassword")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     className="pl-10"
                     {...register("confirmPassword", {
-                      required: "กรุณายืนยันรหัสผ่าน",
+                      required: t("auth.confirmPasswordRequired"),
                       validate: (value) =>
-                        value === password || "รหัสผ่านไม่ตรงกัน",
+                        value === password || t("auth.passwordMismatch"),
                     })}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                    aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+                    aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -372,20 +373,20 @@ export default function SignupPage() {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    กำลังลงทะเบียน...
+                    {t("auth.signingUp")}
                   </>
                 ) : (
-                  "ลงทะเบียน"
+                  t("auth.signup")
                 )}
               </Button>
             </form>
             <p className="text-sm text-center text-muted-foreground mt-4">
-              มีบัญชีอยู่แล้ว?{" "}
+              {t("auth.hasAccount")}{" "}
               <span
                 onClick={() => navigate("/login")}
                 className="text-primary cursor-pointer hover:underline"
               >
-                เข้าสู่ระบบ
+                {t("auth.login")}
               </span>
             </p>
           </CardContent>

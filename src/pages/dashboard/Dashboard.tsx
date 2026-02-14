@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { FileText, Users, Zap, AlertCircle } from "lucide-react";
 import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
 import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
@@ -35,6 +36,7 @@ const IP_COLORS = [
 ];
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { data: allCases = [] } = useGetAllCases();
   const { data: allResearchers = [] } = useGetAllResearcher();
   const { data: allAppointments = [] } = useGetAllAppointments();
@@ -59,10 +61,10 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50 px-6 py-8 rounded-lg">
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <KPICard icon={FileText} label="จำนวนงานวิจัย" value={stats.total} />
-        <KPICard icon={Zap} label="กำลังประเมิน" value={stats.pending} />
-        <KPICard icon={AlertCircle} label="งานวิจัยที่เร่งด่วน" value={stats.urgent} />
-        <KPICard icon={Users} label="จำนวนนักวิจัย" value={allResearchers.length} />
+        <KPICard icon={FileText} label={t("dashboard.researchCount")} value={stats.total} />
+        <KPICard icon={Zap} label={t("dashboard.inProcess")} value={stats.pending} />
+        <KPICard icon={AlertCircle} label={t("dashboard.urgentResearch")} value={stats.urgent} />
+        <KPICard icon={Users} label={t("dashboard.researcherCount")} value={allResearchers.length} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

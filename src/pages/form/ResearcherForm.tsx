@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -108,6 +109,7 @@ type FormState = {
 };
 
 export default function ResearcherForm() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [currentFormStep, setCurrentFormStep] = useState<number>(1);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -245,7 +247,7 @@ export default function ResearcherForm() {
           return {
             valid: false,
             firstField: field,
-            errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน"
+            errorMessage: t("form.fillRequired")
           };
         }
       }
@@ -256,15 +258,15 @@ export default function ResearcherForm() {
       }
       const coordinatorPhone = formData.coordinatorPhoneNumber.replace(/\D/g, "");
       if (!phoneRegex.test(coordinatorPhone)) {
-        return { valid: false, firstField: "coordinatorPhoneNumber", errorMessage: "กรุณากรอกเบอร์โทรศัพท์ของผู้ประสานงานให้ถูกต้อง (10 หลัก)" };
+        return { valid: false, firstField: "coordinatorPhoneNumber", errorMessage: t("form.phoneInvalidCoordinator") };
       }
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.headEmail)) {
-        return { valid: false, firstField: "headEmail", errorMessage: "กรุณากรอกอีเมลให้ถูกต้อง" };
+        return { valid: false, firstField: "headEmail", errorMessage: t("form.emailInvalidHead") };
       }
       if (!emailRegex.test(formData.coordinatorEmail)) {
-        return { valid: false, firstField: "coordinatorEmail", errorMessage: "กรุณากรอกอีเมลของผู้ประสานงานให้ถูกต้อง" };
+        return { valid: false, firstField: "coordinatorEmail", errorMessage: t("form.emailInvalidCoordinator") };
       }
 
       if (formData.isUrgent && !formData.urgentReason.trim()) {
@@ -280,7 +282,7 @@ export default function ResearcherForm() {
           return {
             valid: false,
             firstField: field,
-            errorMessage: "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน"
+            errorMessage: t("form.fillRequired")
           };
         }
       }
@@ -293,7 +295,7 @@ export default function ResearcherForm() {
           valid: false,
           firstField: "trlLevelResult",
           errorMessage:
-            "กรุณาตอบคำถามใน Part 1 และ Part 2 ให้ครบถ้วน และกดปุ่ม 'ประเมิน' ก่อนดำเนินการต่อ",
+            t("form.trlStepError"),
         };
       }
       return { valid: true };
@@ -324,14 +326,14 @@ export default function ResearcherForm() {
           return {
             valid: false,
             firstField: "ipProtectionStatus",
-            errorMessage: `กรุณาเลือกสถานะการคุ้มครองทรัพย์สินทางปัญญา (ใบที่ ${i + 1})`
+            errorMessage: t("form.ipStatusError", { n: i + 1 })
           };
         }
         if (!form.ipTypes || form.ipTypes.length === 0) {
           return {
             valid: false,
             firstField: "ipTypes",
-            errorMessage: `กรุณาระบุประเภททรัพย์สินทางปัญญา (ใบที่ ${i + 1})`
+            errorMessage: t("form.ipTypeError", { n: i + 1 })
           };
         }
         if (form.ipStatus === "ได้เลขที่คำขอแล้ว") {
@@ -340,7 +342,7 @@ export default function ResearcherForm() {
             return {
               valid: false,
               firstField: "ipRequestNumber",
-              errorMessage: `กรุณาระบุเลขที่คำขอ (ใบที่ ${i + 1})`
+              errorMessage: t("form.ipRequestNumberError", { n: i + 1 })
             };
           }
         }
@@ -357,7 +359,7 @@ export default function ResearcherForm() {
           return {
             valid: false,
             firstField: "otherSupportMarket",
-            errorMessage: "กรุณาระบุความช่วยเหลืออื่น ๆ"
+            errorMessage: t("form.otherSupportRequired")
           };
         }
         return { valid: true };
@@ -485,11 +487,11 @@ export default function ResearcherForm() {
   };
 
   const formSteps = [
-    { id: 1, title: "ข้อมูลนักวิจัย" },
-    { id: 2, title: "ข้อมูลผลงานวิจัย" },
-    { id: 3, title: "การประเมินระดับความพร้อมเทคโนโลยี (TRL)" },
-    { id: 4, title: "ทรัพย์สินทางปัญญา" },
-    { id: 5, title: "การสนับสนุนที่ต้องการ" }
+    { id: 1, title: t("form.step1") },
+    { id: 2, title: t("form.step2") },
+    { id: 3, title: t("form.step3") },
+    { id: 4, title: t("form.step4") },
+    { id: 5, title: t("form.step5") }
   ];
 
   const handlePrev = () => {
@@ -509,11 +511,11 @@ export default function ResearcherForm() {
             className="mr-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            ย้อนกลับ
+            {t("form.back")}
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">แบบฟอร์มประเมินงานวิจัย</h1>
-            <p className="text-muted-foreground">ขั้นตอนที่ {currentFormStep} จาก 5: {formSteps[currentFormStep - 1].title}</p>
+            <h1 className="text-3xl font-bold text-foreground">{t("form.formTitle")}</h1>
+            <p className="text-muted-foreground">{t("form.stepOf")} {currentFormStep} / 5: {formSteps[currentFormStep - 1].title}</p>
           </div>
         </div>
 
@@ -523,7 +525,7 @@ export default function ResearcherForm() {
             {formSteps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div className="text-sm font-medium mr-2 whitespace-nowrap">
-                  ขั้นตอนที่
+                  {t("form.stepOf")}
                 </div>
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${step.id === currentFormStep
                   ? "bg-primary text-primary-foreground"
@@ -544,7 +546,7 @@ export default function ResearcherForm() {
 
         <Card>
           <CardHeader>
-            <CardTitle>ขั้นตอนที่ {currentFormStep}: {formSteps[currentFormStep - 1].title}</CardTitle>
+            <CardTitle>{t("form.stepOf")} {currentFormStep}: {formSteps[currentFormStep - 1].title}</CardTitle>
           </CardHeader>
           <CardContent>
             {renderFormStep()}
@@ -560,17 +562,17 @@ export default function ResearcherForm() {
                 disabled={currentFormStep === 1}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                ขั้นตอนก่อนหน้า
+                {t("form.prevStep")}
               </Button>
               <div className="flex gap-3">
                 {currentFormStep === 5 ? (
                   <Button onClick={handleSubmit} disabled={submitFormMutation.isPending || !isStepValid()}>
-                    บันทึก
+                    {t("common.save")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
                   <Button onClick={handleNext} disabled={!isStepValid()}>
-                    ขั้นตอนถัดไป
+                    {t("form.nextStep")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 )}
@@ -583,17 +585,17 @@ export default function ResearcherForm() {
         <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>ยืนยันการส่งข้อมูล</DialogTitle>
+              <DialogTitle>{t("form.confirmSubmit")}</DialogTitle>
               <DialogDescription>
-                เมื่อคุณยืนยันแล้ว ข้อมูลจะถูกส่งเข้าสู่ระบบเพื่อพิจารณาและตรวจสอบ
+                {t("form.confirmSubmitDesc")}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
-                ยกเลิก
+                {t("common.cancel")}
               </Button>
               <Button onClick={handleConfirmSubmit} disabled={submitFormMutation.isPending}>
-                ยืนยันและส่งข้อมูล
+                {t("form.confirmAndSubmit")}
               </Button>
             </DialogFooter>
           </DialogContent>

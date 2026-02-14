@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import {
   Select,
@@ -23,6 +24,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
   onPageChange,
   onRowsPerPageChange,
 }) => {
+  const { t } = useTranslation();
   const handlePrevious = () => {
     if (currentPage > 1) onPageChange(currentPage - 1);
   };
@@ -35,13 +37,13 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
     <div className="flex flex-col md:flex-row items-center justify-between border-t pt-4 mt-4 gap-4">
       {/* Rows per page selector */}
       <div className="flex items-center space-x-2 text-sm">
-        <span className="text-muted-foreground">จำนวนแถวต่อหน้า:</span>
+        <span className="text-muted-foreground">{t("pagination.rowsPerPage")}</span>
         <Select
           value={rowsPerPage.toString()}
           onValueChange={(value) => onRowsPerPageChange(Number(value))}
         >
           <SelectTrigger className="w-20 h-8">
-            <SelectValue placeholder="Rows" />
+            <SelectValue placeholder={t("pagination.rowsPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
             {[5, 10, 25, 50].map((num) => (
@@ -56,7 +58,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
       {/* Page navigation */}
       <div className="flex items-center space-x-3">
         <span className="text-sm text-muted-foreground">
-          หน้า <strong>{currentPage}</strong> จาก <strong>{Math.max(totalPages, 1)}</strong>
+          {t("pagination.page")} <strong>{currentPage}</strong> {t("pagination.of")} <strong>{Math.max(totalPages, 1)}</strong>
         </span>
         <div className="flex items-center space-x-2">
           <Button
@@ -66,7 +68,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
             onClick={handlePrevious}
             disabled={currentPage === 1}
           >
-            ก่อนหน้า
+            {t("pagination.previous")}
           </Button>
           <Button
             size="sm"
@@ -75,7 +77,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
             onClick={handleNext}
             disabled={currentPage === totalPages || totalPages === 0}
           >
-            ถัดไป
+            {t("pagination.next")}
           </Button>
         </div>
       </div>

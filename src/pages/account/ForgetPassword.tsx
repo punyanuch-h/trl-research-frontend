@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ interface ForgotPasswordFormData {
 }
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -41,20 +43,18 @@ export default function ForgotPasswordPage() {
 
   useEffect(() => {
     if (isSuccess && response) {
-      setSuccessMessage(
-        "ส่งอีเมลสำเร็จ กรุณาตรวจสอบอีเมลของท่าน"
-      );
+      setSuccessMessage(t("auth.sendEmailSuccess"));
     }
-  }, [isSuccess, response]);
+  }, [isSuccess, response, t]);
 
   useEffect(() => {
     if (forgotPasswordError) {
       setError("root", {
         type: "manual",
-        message: "เกิดข้อผิดพลาดในการส่งอีเมล กรุณาลองใหม่อีกครั้ง",
+        message: t("auth.sendEmailError"),
       });
     }
-  }, [forgotPasswordError, setError]);
+  }, [forgotPasswordError, setError, t]);
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setSuccessMessage(null);
@@ -68,10 +68,10 @@ export default function ForgotPasswordPage() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            ระบบประเมินระดับความพร้อมทางเทคโนโลยี
+            {t("auth.appTitle")}
           </h1>
           <p className="text-xl text-muted-foreground">
-            Technology Readiness Level (TRL) Evaluation System
+            {t("auth.appSubtitle")}
           </p>
         </div>
 
@@ -80,9 +80,9 @@ export default function ForgotPasswordPage() {
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Mail className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-center text-2xl">ลืมรหัสผ่าน</CardTitle>
+            <CardTitle className="text-center text-2xl">{t("auth.forgetPasswordTitle")}</CardTitle>
             <CardDescription className="text-center">
-              กรอกอีเมลของคุณเพื่อรับอีเมลรีเซ็ตรหัสผ่าน
+              {t("auth.forgetPasswordDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -100,14 +100,14 @@ export default function ForgotPasswordPage() {
                   onClick={() => navigate("/login")}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  กลับไปหน้าเข้าสู่ระบบ
+                  {t("auth.backToLogin")}
                 </Button>
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
                 {/* Email */}
                 <div className="space-y-2">
-                  <Label htmlFor="email">อีเมล</Label>
+                  <Label htmlFor="email">{t("auth.email")}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Input
@@ -117,10 +117,10 @@ export default function ForgotPasswordPage() {
                       autoComplete="email"
                       autoFocus
                       {...register("email", {
-                        required: "กรุณากรอกอีเมล",
+                        required: t("auth.emailRequired"),
                         pattern: {
                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                          message: "รูปแบบอีเมลไม่ถูกต้อง",
+                          message: t("auth.emailInvalid"),
                         },
                         onChange: () => { clearErrors("root"); clearErrors("email"); },
                       })}
@@ -150,10 +150,10 @@ export default function ForgotPasswordPage() {
                   {forgotPasswordPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      กำลังส่งอีเมล...
+                      {t("auth.sendingEmail")}
                     </>
                   ) : (
-                    "ส่งอีเมลรีเซ็ตรหัสผ่าน"
+                    t("auth.sendResetEmail")
                   )}
                 </Button>
 
@@ -165,7 +165,7 @@ export default function ForgotPasswordPage() {
                     className="text-primary hover:underline font-medium inline-flex items-center"
                   >
                     <ArrowLeft className="w-4 h-4 mr-1" />
-                    กลับไปหน้าเข้าสู่ระบบ
+                    {t("auth.backToLogin")}
                   </button>
                 </div>
               </form>

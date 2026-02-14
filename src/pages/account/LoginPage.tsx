@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ interface LoginFormData {
 }
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -56,9 +58,9 @@ export default function LoginPage() {
 
     setError("root", {
       type: "manual",
-      message: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+      message: t("auth.loginError"),
     });
-  }, [loginError, setError]);
+  }, [loginError, setError, t]);
 
   /* ================= CLEAR ERROR WHEN TYPING ================= */
   useEffect(() => {
@@ -89,10 +91,10 @@ export default function LoginPage() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">
-            ระบบประเมินระดับความพร้อมทางเทคโนโลยี
+            {t("auth.appTitle")}
           </h1>
           <p className="text-xl text-muted-foreground">
-            Technology Readiness Level (TRL) Evaluation System
+            {t("auth.appSubtitle")}
           </p>
         </div>
 
@@ -101,7 +103,7 @@ export default function LoginPage() {
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <GraduationCap className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-center text-2xl">เข้าสู่ระบบ</CardTitle>
+            <CardTitle className="text-center text-2xl">{t("auth.login")}</CardTitle>
           </CardHeader>
 
           <CardContent>
@@ -112,7 +114,7 @@ export default function LoginPage() {
             >
               {/* EMAIL */}
               <div className="space-y-1">
-                <Label>อีเมล</Label>
+                <Label>{t("auth.email")}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -121,10 +123,10 @@ export default function LoginPage() {
                     autoComplete="email"
                     disabled={isLoading}
                     {...register("email", {
-                      required: "กรุณากรอกอีเมล",
+                      required: t("auth.emailRequired"),
                       pattern: {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: "รูปแบบอีเมลไม่ถูกต้อง",
+                        message: t("auth.emailInvalid"),
                       },
                     })}
                     className={`pl-10 ${
@@ -141,7 +143,7 @@ export default function LoginPage() {
 
               {/* PASSWORD */}
               <div className="space-y-2">
-                <Label>รหัสผ่าน</Label>
+                <Label>{t("auth.password")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -150,10 +152,10 @@ export default function LoginPage() {
                     autoComplete="current-password"
                     disabled={isLoading}
                     {...register("password", {
-                      required: "กรุณากรอกรหัสผ่าน",
+                      required: t("auth.passwordRequired"),
                       minLength: {
                         value: 6,
-                        message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
+                        message: t("auth.passwordMin6"),
                       },
                     })}
                     className={`pl-10 pr-10 ${
@@ -164,6 +166,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-muted-foreground"
+                    aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -185,7 +188,7 @@ export default function LoginPage() {
                     onClick={() => navigate("/forget-password")}
                     className="text-primary hover:underline"
                   >
-                    ลืมรหัสผ่าน
+                    {t("auth.forgetPassword")}
                   </button>
                 </div>
               </div>
@@ -206,21 +209,21 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    กำลังเข้าสู่ระบบ...
+                    {t("auth.loggingIn")}
                   </>
                 ) : (
-                  "เข้าสู่ระบบ"
+                  t("auth.login")
                 )}
               </Button>
 
               <div className="text-center text-sm text-muted-foreground">
-                ยังไม่มีบัญชี?{" "}
+                {t("auth.noAccount")}{" "}
                 <button
                   type="button"
                   onClick={() => navigate("/signup")}
                   className="text-primary hover:underline font-medium"
                 >
-                  ลงทะเบียน
+                  {t("auth.signup")}
                 </button>
               </div>
             </form>

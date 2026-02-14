@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import RadioQuestion from "@/components/evaluate/RadioQuestion";
 import CheckboxQuestion from "@/components/evaluate/CheckboxQuestion";
 import { checkboxQuestionList } from "@/data/checkboxQuestionList";
@@ -29,6 +30,7 @@ export default function EvaluateTRL({
   setIsEvaluated,
   setTrlCompleted,
 }: EvaluateTRLProps) {
+  const { t } = useTranslation();
   const radioDecisionMap: {
     [index: number]: {
       yes?: number;
@@ -270,7 +272,7 @@ export default function EvaluateTRL({
                     className="text-sm px-3 py-1 border rounded
               bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
                   >
-                    แนบหลักฐาน
+                    {t("admin.attachEvidence")}
                   </button>
 
                   <input
@@ -347,7 +349,7 @@ export default function EvaluateTRL({
                 onClick={handleEvaluateCheckbox}
                 className="px-6 py-2 bg-primary text-white rounded-lg shadow hover:opacity-90"
               >
-                ประเมิน
+                {t("assessment.evaluate")}
               </button>
             </div>
           )}
