@@ -1,5 +1,5 @@
-
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,6 +42,7 @@ type CreateAccountFormValues = {
 };
 
 export default function CreateAccountPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const {
@@ -102,7 +103,7 @@ export default function CreateAccountPage() {
     } catch (err: unknown) {
       console.error(err);
       setError("root", {
-        message: "ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง หรือ ติดต่อเจ้าหน้าที่",
+        message: t("auth.signupError"),
       });
     }
   };
@@ -121,11 +122,11 @@ export default function CreateAccountPage() {
             className="w-fit"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            ย้อนกลับ
+            {t("auth.back")}
           </Button>
 
           <h2 className="text-2xl text-center font-semibold">
-            สร้างบัญชีผู้ใช้
+            {t("auth.createAccount")}
           </h2>
         </div>
 
@@ -135,26 +136,26 @@ export default function CreateAccountPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Prefix */}
                 <div>
-                  <Label>คำนำหน้า</Label><span className="text-red-500">*</span>
+                  <Label>{t("auth.prefix")}</Label><span className="text-red-500">*</span>
                   <div className="relative">
                     <GraduationCap className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Controller
                       control={control}
                       name="prefix"
-                      rules={{ required: "กรุณาเลือกคำนำหน้า" }}
+                      rules={{ required: t("auth.prefixRequired") }}
                       render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="pl-10">
-                            <SelectValue placeholder="คำนำหน้า" />
+                            <SelectValue placeholder={t("form.prefixPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="นพ.">นพ.</SelectItem>
                             <SelectItem value="พญ.">พญ.</SelectItem>
                             <SelectItem value="ภญ.">ภญ.</SelectItem>
                             <SelectItem value="ทพญ.">ทพญ.</SelectItem>
-                            <SelectItem value="นาย">นาย</SelectItem>
-                            <SelectItem value="นาง">นาง</SelectItem>
-                            <SelectItem value="นางสาว">นางสาว</SelectItem>
+                            <SelectItem value="นาย">{t("form.prefixMr")}</SelectItem>
+                            <SelectItem value="นาง">{t("form.prefixMrs")}</SelectItem>
+                            <SelectItem value="นางสาว">{t("form.prefixMs")}</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -169,7 +170,7 @@ export default function CreateAccountPage() {
 
                 {/* Academic Position */}
                 <div>
-                  <Label>ตำแหน่งทางวิชาการ</Label>
+                  <Label>{t("auth.academicPosition")}</Label>
                   <div
                     className={`grid gap-2 ${academicPosition === "other" ? "grid-cols-3" : "grid-cols-1"
                       }`}
@@ -192,15 +193,15 @@ export default function CreateAccountPage() {
                             }
                           >
                             <SelectTrigger className="pl-10">
-                              <SelectValue placeholder="ตำแหน่งทางวิชาการ" />
+                              <SelectValue placeholder={t("form.academicPositionPlaceholder")} />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="none">ไม่มี</SelectItem>
+                              <SelectItem value="none">{t("form.none")}</SelectItem>
                               <SelectItem value="อ.">อ.</SelectItem>
                               <SelectItem value="ผศ.">ผศ.</SelectItem>
                               <SelectItem value="รศ.">รศ.</SelectItem>
                               <SelectItem value="ศ.">ศ.</SelectItem>
-                              <SelectItem value="other">อื่นๆ</SelectItem>
+                              <SelectItem value="other">{t("common.other")}</SelectItem>
                             </SelectContent>
                           </Select>
                         )}
@@ -211,9 +212,9 @@ export default function CreateAccountPage() {
                     {academicPosition === "other" && (
                       <div className="col-span-2">
                         <Input
-                          placeholder="ระบุตำแหน่งทางวิชาการ"
+                          placeholder={t("form.academicPositionPlaceholder")}
                           {...register("academic_position_other", {
-                            required: "กรุณาระบุตำแหน่งทางวิชาการ",
+                            required: t("auth.academicPositionRequired"),
                           })}
                         />
                         {errors.academic_position_other && (
@@ -229,14 +230,14 @@ export default function CreateAccountPage() {
 
               {/* First Name */}
               <div>
-                <Label>ชื่อ</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.firstName")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="ชื่อ"
+                    placeholder={t("form.namePlaceholder")}
                     className="pl-10"
-                    {...register("first_name", { required: "กรุณากรอกชื่อ" })}
+                    {...register("first_name", { required: t("auth.firstNameRequired") })}
                   />
                   {errors.first_name && (
                     <p className="text-sm text-destructive">
@@ -248,14 +249,14 @@ export default function CreateAccountPage() {
 
               {/* Last Name */}
               <div>
-                <Label>นามสกุล</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.lastName")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="นามสกุล"
+                    placeholder={t("form.lastNamePlaceholder")}
                     className="pl-10"
-                    {...register("last_name", { required: "กรุณากรอกนามสกุล" })}
+                    {...register("last_name", { required: t("auth.lastNameRequired") })}
                   />
                   {errors.last_name && (
                     <p className="text-sm text-destructive">
@@ -267,14 +268,14 @@ export default function CreateAccountPage() {
 
               {/* Department */}
               <div>
-                <Label>ภาควิชา / สถาน / หน่วยงาน</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.department")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <Building className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="เช่น ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์"
+                    placeholder={t("auth.departmentPlaceholder")}
                     className="pl-10"
-                    {...register("department", { required: "กรุณากรอกภาควิชา / สถาน / หน่วยงาน" })}
+                    {...register("department", { required: t("auth.departmentRequired") })}
                   />
                   {errors.department && (
                     <p className="text-sm text-destructive">
@@ -287,15 +288,15 @@ export default function CreateAccountPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Phone */}
                 <div>
-                  <Label>เบอร์โทรศัพท์</Label><span className="text-red-500">*</span>
+                  <Label>{t("auth.phone")}</Label><span className="text-red-500">*</span>
                   <Controller
                     name="phone_number"
                     control={control}
                     rules={{
-                      required: "กรุณากรอกเบอร์โทรศัพท์",
+                      required: t("auth.phoneRequired"),
                       pattern: {
                         value: /^0\d{9}$/,
-                        message: "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง",
+                        message: t("auth.phoneInvalid"),
                       },
                     }}
                     render={({ field, fieldState }) => (
@@ -309,7 +310,7 @@ export default function CreateAccountPage() {
 
                 {/* Email */}
                 <div>
-                  <Label>อีเมล</Label><span className="text-red-500">*</span>
+                  <Label>{t("auth.email")}</Label><span className="text-red-500">*</span>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Input
@@ -317,10 +318,10 @@ export default function CreateAccountPage() {
                       placeholder="example@email.com"
                       className="pl-10"
                       {...register("email", {
-                        required: "กรุณากรอกอีเมล",
+                        required: t("auth.emailRequired"),
                         pattern: {
                           value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: "รูปแบบอีเมลไม่ถูกต้อง",
+                          message: t("auth.emailInvalid"),
                         }
                       })}
                     />
@@ -335,7 +336,7 @@ export default function CreateAccountPage() {
 
               {/* Password */}
               <div>
-                <Label>รหัสผ่าน</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.password")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -343,15 +344,14 @@ export default function CreateAccountPage() {
                     placeholder="••••••••••"
                     className="pl-10"
                     {...register("password", {
-                      required: "กรุณากรอกรหัสผ่าน",
+                      required: t("auth.passwordRequired"),
                       minLength: {
                         value: 8,
-                        message: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+                        message: t("auth.passwordMin8"),
                       },
                       pattern: {
                         value: /^(?=.*[A-Z])(?=.*\d).+$/,
-                        message:
-                          "ต้องมีตัวอักษรพิมพ์ใหญ่ และตัวเลขอย่างน้อย 1 ตัว",
+                        message: t("auth.passwordStrength"),
                       },
                     })}
                   />
@@ -372,7 +372,7 @@ export default function CreateAccountPage() {
 
               {/* Confirm Password */}
               <div>
-                <Label>ยืนยันรหัสผ่าน</Label><span className="text-red-500">*</span>
+                <Label>{t("auth.confirmPassword")}</Label><span className="text-red-500">*</span>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -380,9 +380,9 @@ export default function CreateAccountPage() {
                     placeholder="••••••••••"
                     className="pl-10"
                     {...register("confirmPassword", {
-                      required: "กรุณายืนยันรหัสผ่าน",
+                      required: t("auth.confirmPasswordRequired"),
                       validate: (value) =>
-                        value === password || "รหัสผ่านไม่ตรงกัน",
+                        value === password || t("auth.passwordMismatch"),
                     })}
                   />
                   <button
@@ -410,10 +410,10 @@ export default function CreateAccountPage() {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    กำลังสร้างบัญชีผู้ใช้...
+                    {t("auth.creatingAccount")}
                   </>
                 ) : (
-                  "สร้างบัญชีผู้ใช้"
+                  t("auth.createAccount")
                 )}
               </Button>
             </form>

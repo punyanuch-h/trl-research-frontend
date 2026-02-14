@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
@@ -41,6 +42,7 @@ function mergeCasesData(
 }
 
 export default function AdminHomePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
@@ -183,38 +185,38 @@ export default function AdminHomePage() {
 
     return Object.entries(grouped).every(([column, values]) => {
 
-      if (column === "ประเภทงานวิจัย") {
+      if (column === t("home.researchType")) {
         return values.includes(c.type);
       }
 
-      if (column === "คาดว่ามีระดับความพร้อม") {
+      if (column === t("home.estimatedLevel")) {
         return values.includes(c.trl_estimate?.toString() || "");
       }
 
-      if (column === "ระดับความพร้อม") {
+      if (column === t("home.readinessLevel")) {
         return values.includes(c.trl_score?.toString() || "");
       }
 
-      if (column === "สถานะ") {
-        const statusText = c.status ? "ผ่านการประเมิน" : "กำลังประเมิน";
+      if (column === t("home.status")) {
+        const statusText = c.status ? t("home.approve") : t("home.inProcess");
         return values.includes(statusText);
       }
 
-      if (column === "สร้างโดย") {
+      if (column === t("home.createdBy")) {
         const name = getFullNameByResearcherID(c.researcher_id);
         return values.includes(name);
       }
 
-      if (column === "ความเร่งด่วน") {
-        const urgentText = c.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน";
+      if (column === t("home.urgency")) {
+        const urgentText = c.is_urgent ? t("home.urgent") : t("home.notUrgent");
         return values.includes(urgentText);
       }
 
-      if (column === "ชื่องานวิจัย") {
+      if (column === t("home.researchTitle")) {
         return values.includes(c.title);
       }
 
-      if (column === "วันที่สร้าง") {
+      if (column === t("home.createdAt")) {
         const date = formatDateTH(c.created_at);
         return values.includes(date);
       }
@@ -225,14 +227,14 @@ export default function AdminHomePage() {
 
 
   const columnOptions: Record<string, string[]> = {
-    ประเภทงานวิจัย: [...new Set(cases.map((c) => c.type))],
-    คาดว่ามีระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    ระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    สถานะ: ["ผ่านการประเมิน", "กำลังประเมิน"],
-    สร้างโดย: researcherData.map(r => getFullNameByResearcherID(r.id)),
-    ความเร่งด่วน: ["เร่งด่วน", "ไม่เร่งด่วน"],
-    ชื่องานวิจัย: [...new Set(cases.map((c) => c.title))],
-    วันที่สร้าง: [
+    [t("home.researchType")]: [...new Set(cases.map((c) => c.type))],
+    [t("home.estimatedLevel")]: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    [t("home.readinessLevel")]: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    [t("home.status")]: [t("home.approve"), t("home.inProcess")],
+    [t("home.createdBy")]: researcherData.map(r => getFullNameByResearcherID(r.id)),
+    [t("home.urgency")]: [t("home.urgent"), t("home.notUrgent")],
+    [t("home.researchTitle")]: [...new Set(cases.map((c) => c.title))],
+    [t("home.createdAt")]: [
       ...new Set(cases.map((c) => formatDateTH(c.created_at))),
     ].sort((a, b) => {
       const [da, ma, ya] = a.split("/");
@@ -329,7 +331,7 @@ export default function AdminHomePage() {
 
     } catch (error) {
       console.error("Error generating PDF:", error);
-      toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+      toast.error(t("toast.pdfError"));
     }
   };
 

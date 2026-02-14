@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from "react-i18next";
 
 interface FormData {
   supportDevNeeded: string[];
@@ -31,25 +32,27 @@ const Supporter: React.FC<SupporterProps> = ({
   handleInputChange,
   handleCheckboxChange,
 }) => {
+  const { t } = useTranslation();
+
   const innovationSupportOptions = [
-    { value: 'ฝ่ายวิจัย', label: 'ฝ่ายวิจัย' },
-    { value: 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)', label: 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)' },
-    { value: 'ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (Siriraj Excellent Innovation Center: SiEIC)', label: 'ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (Siriraj Excellent Innovation Center: SiEIC)' },
-    { value: 'ไม่มี', label: 'ไม่มี' },
+    { value: 'ฝ่ายวิจัย', labelKey: 'form.innovationSupport1' },
+    { value: 'ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)', labelKey: 'form.innovationSupport2' },
+    { value: 'ศูนย์ขับเคลื่อนงานนวัตกรรมเพื่อความเป็นเลิศ (Siriraj Excellent Innovation Center: SiEIC)', labelKey: 'form.innovationSupport3' },
+    { value: 'ไม่มี', labelKey: 'form.assistance11' },
   ];
 
   const assistanceOptions = [
-    { value: 'การคุ้มครองทรัพย์สินทางปัญญา', label: 'การคุ้มครองทรัพย์สินทางปัญญา เช่น จดสิทธิบัตร อนุสิทธิบัตร หรือลิขสิทธิ์' },
-    { value: 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม', label: 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม' },
-    { value: 'การจัดกิจกรรมร่วมกับผู้ร่วมพัฒนานวัตกรรม', label: 'การจัดกิจกรรมร่วมกับผู้ร่วมพัฒนานวัตกรรม เช่น design thinking, prototype testing' },
-    { value: 'หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม', label: 'หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม' },
-    { value: 'หาแหล่งทุน', label: 'หาแหล่งทุน' },
-    { value: 'หาคู่ค้าทางธุรกิจ', label: 'หาคู่ค้าทางธุรกิจ' },
-    { value: 'แนะนำแนวทางการเริ่มธุรกิจ', label: 'แนะนำแนวทางการเริ่มธุรกิจ' },
-    { value: 'การขอรับรองมาตรฐานหรือคุณภาพ', label: 'การขอรับรองมาตรฐานหรือคุณภาพ' },
-    { value: 'บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม', label: 'บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม' },
-    { value: 'อื่น ๆ', label: 'อื่น ๆ โปรดระบุ' },
-    { value: 'ไม่มี', label: 'ไม่มี' },
+    { value: 'การคุ้มครองทรัพย์สินทางปัญญา', labelKey: 'form.assistance1' },
+    { value: 'หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม', labelKey: 'form.assistance2' },
+    { value: 'การจัดกิจกรรมร่วมกับผู้ร่วมพัฒนานวัตกรรม', labelKey: 'form.assistance3' },
+    { value: 'หาผู้ร่วมหรือสถานที่ทดสอบนวัตกรรม', labelKey: 'form.assistance4' },
+    { value: 'หาแหล่งทุน', labelKey: 'form.assistance5' },
+    { value: 'หาคู่ค้าทางธุรกิจ', labelKey: 'form.assistance6' },
+    { value: 'แนะนำแนวทางการเริ่มธุรกิจ', labelKey: 'form.assistance7' },
+    { value: 'การขอรับรองมาตรฐานหรือคุณภาพ', labelKey: 'form.assistance8' },
+    { value: 'บัญชีสิทธิประโยชน์/บัญชีนวัตกรรม', labelKey: 'form.assistance9' },
+    { value: 'อื่น ๆ', labelKey: 'form.assistance10' },
+    { value: 'ไม่มี', labelKey: 'form.assistance11' },
   ];
 
   const handleSupportDevChange = (value: string, checked: boolean) => {
@@ -92,7 +95,7 @@ const Supporter: React.FC<SupporterProps> = ({
     <div className="supportment-form-container flex flex-col gap-4">
       <div className="form-group">
         <label className="form-label">
-          <h3 className="font-semibold text-primary">หน่วยงานสนับสนุนนวัตกรรมที่มีอยู่เดิม<span className="text-red-500">*</span> (เลือกได้มากกว่า 1 หน่วยงาน)</h3>
+          <h3 className="font-semibold text-primary">{t("form.innovationSupportLabel")}<span className="text-red-500">*</span></h3>
         </label>
         <div className="checkbox-options flex flex-col gap-2">
           {innovationSupportOptions.map((option) => (
@@ -106,7 +109,7 @@ const Supporter: React.FC<SupporterProps> = ({
                 className="mr-2"
                 required={formData.supportDevNeeded.length === 0}
               />
-              {option.label}
+              {t(option.labelKey)}
             </label>
           ))}
         </div>
@@ -114,7 +117,7 @@ const Supporter: React.FC<SupporterProps> = ({
 
       <div className="form-group">
         <label className="form-label">
-          <h3 className="font-semibold text-primary">ความช่วยเหลือที่ต้องการ<span className="text-red-500">*</span> (เลือกได้มากกว่า 1 ข้อ)</h3>
+          <h3 className="font-semibold text-primary">{t("form.assistanceNeededLabel")}<span className="text-red-500">*</span></h3>
         </label>
         <div className="checkbox-options flex flex-col gap-2">
           {assistanceOptions.map((option) => (
@@ -128,7 +131,7 @@ const Supporter: React.FC<SupporterProps> = ({
                   checked={formData.supportMarketNeeded.includes(option.value)}
                   className="mr-2"
                 />
-                {option.label}
+                {t(option.labelKey)}
               </label>
               {option.value === 'อื่น ๆ' && (
                 <div className="pl-6">
@@ -139,7 +142,7 @@ const Supporter: React.FC<SupporterProps> = ({
                     value={formData.otherSupportMarket}
                     onChange={(e) => handleInputChange('otherSupportMarket', e.target.value)}
                     disabled={!formData.supportMarketNeeded.includes('อื่น ๆ')}
-                    placeholder="ระบุความช่วยเหลืออื่น ๆ"
+                    placeholder={t("form.otherSupportPlaceholder")}
                     required={formData.supportMarketNeeded.includes('อื่น ๆ')}
                   />
                 </div>

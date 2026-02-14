@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Calendar } from "lucide-react";
 
 interface Appointment {
@@ -13,22 +14,23 @@ interface AppointmentsCardProps {
 }
 
 export function AppointmentsCard({ attended, absent, upcoming }: AppointmentsCardProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-white p-5 border border-gray-100 rounded-lg">
       <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-        <Calendar className="w-4 h-4 text-gray-400" /> การนัดหมาย
+        <Calendar className="w-4 h-4 text-gray-400" /> {t("home.appointment")}
       </h3>
       <div className="text-sm mb-3">
         <p>
-          ✅ เข้าพบแล้ว:{" "}
+          ✅ {t("dashboard.attended")}:{" "}
           <span className="font-semibold text-green-600">{attended}</span>
         </p>
         <p>
-          ❌ ไม่มาตามนัด:{" "}
+          ❌ {t("dashboard.noShow")}:{" "}
           <span className="font-semibold text-red-500">{absent}</span>
         </p>
         <p>
-          📅 รอการเข้าพบ:{" "}
+          📅 {t("dashboard.waiting")}:{" "}
           <span className="font-semibold text-blue-600">{upcoming.length}</span>
         </p>
       </div>
@@ -45,7 +47,7 @@ export function AppointmentsCard({ attended, absent, upcoming }: AppointmentsCar
           ))}
         </ul>
       ) : (
-        <p className="text-gray-400 text-sm">ไม่มีการนัดหมายที่กำลังจะมาถึง</p>
+        <p className="text-gray-400 text-sm">{t("dashboard.noUpcomingAppointments")}</p>
       )}
     </div>
   );

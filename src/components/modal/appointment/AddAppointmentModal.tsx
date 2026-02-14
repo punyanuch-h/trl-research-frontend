@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ export function AddAppointmentModal({
   onClose,
   onAdd,
 }: Props) {
+  const { t } = useTranslation();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
@@ -41,7 +43,7 @@ export function AddAppointmentModal({
   const { addAppointment, loading } = useAddAppointment(
     () => {
       // Success callback
-      toast.success("เพิ่มการนัดหมายสำเร็จ");
+      toast.success(t("toast.addAppointmentSuccess"));
       // ล้างค่าฟอร์ม
       setSelectedProjectId(null);
       setSelectedDate("");
@@ -56,7 +58,7 @@ export function AddAppointmentModal({
 
   const handleAdd = async () => {
     if (!selectedProjectId || !selectedDate || !selectedTime) {
-      toast.warning("กรุณากรอกข้อมูลชื่องานวิจัยและวันเวลา เพื่อเพิ่มการนัดหมาย");
+      toast.warning(t("toast.addAppointmentWarning"));
       return;
     }
 
@@ -74,24 +76,24 @@ export function AddAppointmentModal({
     try {
       await addAppointment({ ...appointmentData, status: "pending" });
     } catch (error) {
-      toast.error("เกิดข้อผิดพลาดในการสร้างนัดหมาย");
+      toast.error(t("toast.addAppointmentError"));
     }
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
       <div className="bg-white p-6 rounded shadow-lg w-[420px]">
-        <h3 className="text-lg font-medium mb-4">เพิ่มรายการการนัดหมาย</h3>
+        <h3 className="text-lg font-medium mb-4">{t("form.addAppointmentTitle")}</h3>
 
         {/* Project select */}
         <div className="mb-3">
-          <Label>ชื่องานวิจัย</Label>
+          <Label>{t("form.researchTitleLabel")}</Label>
           <Select
             value={selectedProjectId?.toString() || ""}
             onValueChange={(v: string) => setSelectedProjectId(String(v))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="เลือกงานวิจัย" />
+              <SelectValue placeholder={t("form.selectResearch")} />
             </SelectTrigger>
             <SelectContent>
               {projects.map((p) => (
@@ -105,7 +107,7 @@ export function AddAppointmentModal({
 
         {/* Researcher Name */}
         <div className="mb-3">
-          <Label>ชื่อนักวิจัย/หัวหน้าโครงการ</Label>
+          <Label>{t("form.researcherName")}</Label>
           <Input
             type="text"
             value={selectedProject ? getFullNameByResearcherID(selectedProject.researcher_id) : ""}
@@ -116,7 +118,7 @@ export function AddAppointmentModal({
 
         {/* Date input */}
         <div className="mb-3">
-          <Label>วันที่นัดหมาย</Label>
+          <Label>{t("form.appointmentDate")}</Label>
           <Input
             type="date"
             value={selectedDate}
@@ -126,7 +128,7 @@ export function AddAppointmentModal({
 
         {/* Time input */}
         <div className="mb-3">
-          <Label>เวลา</Label>
+          <Label>{t("form.time")}</Label>
           <Input
             type="time"
             value={selectedTime}
@@ -136,20 +138,20 @@ export function AddAppointmentModal({
 
         {/* Location */}
         <div className="mb-3">
-          <Label>สถานที่</Label>
+          <Label>{t("form.location")}</Label>
           <Input
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="เช่น Meeting Room A"
+            placeholder={t("form.locationPlaceholder")}
           />
         </div>
 
         {/* Details */}
         <div className="mb-3">
-          <Label>รายละเอียดการนัดหมาย</Label>
+          <Label>{t("form.appointmentDetails")}</Label>
           <Textarea
-            placeholder="กรอกรายละเอียด"
+            placeholder={t("form.enterDetails")}
             rows={3}
             value={detail}
             onChange={(e) => setDetail(e.target.value)}
@@ -158,10 +160,10 @@ export function AddAppointmentModal({
 
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="ghost" onClick={onClose}>
-            ยกเลิก
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleAdd} disabled={loading}>
-            {loading ? "กำลังบันทึก..." : "บันทึก"}
+            {loading ? t("common.loading") : t("common.save")}
           </Button>
         </div>
       </div>

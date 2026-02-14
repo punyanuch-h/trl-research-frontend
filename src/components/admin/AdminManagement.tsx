@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Download, Eye, AlertTriangle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -45,14 +46,15 @@ export default function AdminManagement({
   setRowsPerPage,
   getFullNameByResearcherID,
 }: Props) {
+  const { t } = useTranslation();
   const tableColumns = [
-    { key: "created_at", label: "วันที่สร้าง" },
-    { key: "createdBy", label: "สร้างโดย" },
-    { key: "title", label: "ชื่องานวิจัย" },
-    { key: "type", label: "ประเภทงานวิจัย" },
-    { key: "trl_estimate", label: "คาดว่ามีระดับความพร้อม" },
-    { key: "trlScore", label: "ระดับความพร้อม" },
-    { key: "status", label: "สถานะ" },
+    { key: "created_at", label: t("admin.createdAt") },
+    { key: "createdBy", label: t("admin.createdBy") },
+    { key: "title", label: t("admin.researchTitle") },
+    { key: "type", label: t("admin.researchType") },
+    { key: "trl_estimate", label: t("admin.estimatedLevel") },
+    { key: "trlScore", label: t("admin.readinessLevel") },
+    { key: "status", label: t("admin.status") },
   ];
   const navigate = useNavigate();
   const updateUrgentStatus = useUpdateUrgentStatus();
@@ -103,7 +105,7 @@ export default function AdminManagement({
         setCancelReason("");
       } catch (error) {
         console.error("Failed to update urgent status:", error);
-        toast.error("Failed to update urgent status. Please try again.");
+        toast.error(t("toast.urgentStatusError"));
       }
     }
   };
@@ -112,7 +114,7 @@ export default function AdminManagement({
     <>
       <Card>
         <CardHeader>
-          <CardTitle>รายการงานวิจัย</CardTitle>
+          <CardTitle>{t("admin.researchList")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -141,14 +143,14 @@ export default function AdminManagement({
                     </TableHead>
                   );
                 })}
-                <TableHead>การดำเนินการ</TableHead>
+                <TableHead>{t("home.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedProjects.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={tableColumns.length + 1} className="text-center text-muted-foreground">
-                    ไม่พบข้อมูลงานวิจัย
+                    {t("admin.noResearchData")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -187,7 +189,7 @@ export default function AdminManagement({
                         <button
                           onClick={() => handleAskConfirm(project.id)}
                           className="text-red-500 hover:text-red-700"
-                          title="Mark as not urgent"
+                          title={t("admin.markNotUrgent")}
                         >
                           <AlertTriangle className="w-4 h-4" />
                         </button>
@@ -210,7 +212,7 @@ export default function AdminManagement({
                     </TableCell>
                     <TableCell className="text-center align-middle">
                       <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(project.status === true ? "Approve" : "In process")}`}>
-                        {project.status === true ? "ผ่านการประเมิน" : "กำลังประเมิน"}
+                        {project.status === true ? t("home.approve") : t("home.inProcess")}
                       </Badge>
                     </TableCell>
                     <TableCell className="w-[250px] flex gap-2">
@@ -222,7 +224,7 @@ export default function AdminManagement({
                             onClick={() => handleViewResearch(project.id)}
                           >
                             <Eye className="w-4 h-4 mr-1" />
-                            ดูรายละเอียด
+                            {t("home.viewDetails")}
                           </Button>
                           {project.trl_score ? (
                             <Button
@@ -241,12 +243,12 @@ export default function AdminManagement({
                               {downloadingId === project.id ? (
                                 <span className="flex items-center gap-2">
                                   <Loader2 className="w-4 h-4 animate-spin" />
-                                  กำลังโหลดข้อมูล...
+                                  {t("home.loadingData")}
                                 </span>
                               ) : (
                                 <>
                                   <Download className="w-4 h-4 mr-2" />
-                                  ผลการประเมิน
+                                  {t("home.assessmentResult")}
                                 </>
                               )}
                             </Button>
@@ -255,7 +257,7 @@ export default function AdminManagement({
                             <div className="invisible">
                               <Button variant="outline" size="sm">
                                 <Download className="w-4 h-4 mr-2" />
-                                ผลการประเมิน
+                                {t("home.assessmentResult")}
                               </Button>
                             </div>
                           )}
@@ -271,12 +273,12 @@ export default function AdminManagement({
                               onClick={() => handleViewResearch(project.id)}
                             >
                               <Eye className="w-4 h-4 mr-1" />
-                              ดูรายละเอียด
+                              {t("home.viewDetails")}
                             </Button>
                           </div>
                           {project.appointments && project.appointments.length > 0 ? (
                             <Badge variant="outline" className="text-xs">
-                              การนัดหมาย:{" "}
+                              {t("home.appointment")}:{" "}
                               {format(
                                 new Date(
                                   project.appointments[project.appointments.length - 1].date
@@ -287,7 +289,7 @@ export default function AdminManagement({
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="text-xs text-gray-400">
-                              การนัดหมาย: -
+                              {t("home.appointment")}: -
                             </Badge>
                           )}
                         </div>
@@ -307,13 +309,13 @@ export default function AdminManagement({
           <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>ยืนยันการยกเลิก</DialogTitle>
+                <DialogTitle>{t("assessment.confirmCancel")}</DialogTitle>
               </DialogHeader>
-              <p>คุณแน่ใจหรือไม่ว่าจะยกเลิกสถานะ "เร่งด่วน"?</p>
+              <p>{t("assessment.confirmCancelUrgent")}</p>
 
               <textarea
                 className="w-full border rounded p-2 mt-2"
-                placeholder="ระบุเหตุผล..."
+                placeholder={t("assessment.reasonPlaceholder")}
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
               />
@@ -324,14 +326,14 @@ export default function AdminManagement({
                   onClick={() => setConfirmOpen(false)}
                   disabled={updateUrgentStatus.isPending}
                 >
-                  ยกเลิก
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   onClick={() => handleConfirm(targetId, cancelReason)}
                   variant="destructive"
                   disabled={updateUrgentStatus.isPending}
                 >
-                  {updateUrgentStatus.isPending ? "กำลังประมวลผล..." : "ยืนยัน"}
+                  {updateUrgentStatus.isPending ? t("common.processing") : t("common.confirm")}
                 </Button>
               </DialogFooter>
             </DialogContent>

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
@@ -19,6 +20,7 @@ interface ResetPasswordData {
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -49,7 +51,7 @@ export default function ResetPasswordPage() {
         old_password: data.oldPassword,
         new_password: data.newPassword,
       });
-      toast.success("รีเซ็ตรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสใหม่อีกครั้ง");
+      toast.success(t("auth.resetPasswordSuccess"));
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       setTimeout(() => {
@@ -59,16 +61,16 @@ export default function ResetPasswordPage() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           setError("root", {
-            message: "ขออภัยรหัสผ่านเดิมไม่ถูกต้อง",
+            message: t("auth.oldPasswordInvalid"),
           });
           return;
         }
       }
 
-      toast.error("เปลี่ยนรหัสผ่านไม่สำเร็จ");
+      toast.error(t("auth.resetPasswordError"));
 
       setError("root", {
-        message: "ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง หรือ ติดต่อเจ้าหน้าที่",
+        message: t("auth.resetPasswordError"),
       });
     }
   };
@@ -86,11 +88,11 @@ export default function ResetPasswordPage() {
             className="w-fit"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            ย้อนกลับ
+            {t("auth.back")}
           </Button>
 
           <h2 className="text-2xl text-center font-semibold">
-            เปลี่ยนรหัสผ่าน
+            {t("auth.resetPassword")}
           </h2>
         </div>
 
@@ -102,14 +104,14 @@ export default function ResetPasswordPage() {
             >
               {/* Old Password */}
               <div className="space-y-2">
-                <Label>รหัสผ่านเดิม</Label>
+                <Label>{t("auth.oldPassword")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     className="pl-10 pr-10"
                     {...register("oldPassword", {
-                      required: "กรุณากรอกรหัสผ่านเดิม",
+                      required: t("auth.oldPasswordRequired"),
                     })}
                   />
                   <PasswordToggle
@@ -126,22 +128,21 @@ export default function ResetPasswordPage() {
 
               {/* New Password */}
               <div className="space-y-2">
-                <Label>รหัสผ่านใหม่</Label>
+                <Label>{t("auth.newPassword")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     className="pl-10 pr-10"
                     {...register("newPassword", {
-                      required: "กรุณากรอกรหัสผ่านใหม่",
+                      required: t("auth.newPasswordRequired"),
                       minLength: {
                         value: 8,
-                        message: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+                        message: t("auth.passwordMin8"),
                       },
                       pattern: {
                         value: /^(?=.*[A-Z])(?=.*\d).+$/,
-                        message:
-                          "ต้องมีตัวอักษรพิมพ์ใหญ่ และตัวเลขอย่างน้อย 1 ตัว",
+                        message: t("auth.passwordStrength"),
                       },
                     })}
                   />
@@ -159,16 +160,16 @@ export default function ResetPasswordPage() {
 
               {/* Confirm New Password */}
               <div className="space-y-2">
-                <Label>ยืนยันรหัสผ่านใหม่</Label>
+                <Label>{t("auth.confirmNewPassword")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     className="pl-10 pr-10"
                     {...register("confirmNewPassword", {
-                      required: "กรุณายืนยันรหัสผ่านใหม่",
+                      required: t("auth.confirmNewPasswordRequired"),
                       validate: (value) =>
-                        value === newPassword || "รหัสผ่านใหม่ไม่ตรงกัน",
+                        value === newPassword || t("auth.newPasswordMismatch"),
                     })}
                   />
                   <PasswordToggle
@@ -193,10 +194,10 @@ export default function ResetPasswordPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    กำลังเปลี่ยนรหัสผ่าน...
+                    {t("auth.resettingPassword")}
                   </>
                 ) : (
-                  "เปลี่ยนรหัสผ่าน"
+                  t("auth.resetPassword")
                 )}
               </Button>
             </form>

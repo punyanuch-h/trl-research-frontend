@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -6,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 export const OfflineLogoutHandler = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { t } = useTranslation();
 
     useEffect(() => {
         const performLogout = () => {
@@ -14,7 +16,7 @@ export const OfflineLogoutHandler = () => {
                 sessionStorage.removeItem("token");
                 localStorage.removeItem("pendingLogout");
                 queryClient.clear();
-                toast.success("ออกจากระบบสำเร็จ เนื่องจากการเชื่อมต่อกลับมาแล้ว");
+                toast.success(t("auth.logoutSuccess"));
                 navigate("/");
             }
         };

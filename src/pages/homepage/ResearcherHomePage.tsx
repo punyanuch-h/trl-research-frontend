@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Download, Eye, Filter, Plus, Loader2 } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
@@ -40,6 +41,7 @@ function mergeCasesData(
 }
 
 export default function ResearcherHomePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
@@ -149,25 +151,25 @@ export default function ResearcherHomePage() {
 
     return Object.entries(grouped).every(([column, values]) => {
 
-      if (column === "ประเภทงานวิจัย") {
+      if (column === t("home.researchType")) {
         return values.includes(c.type);
       }
 
-      if (column === "ระดับความพร้อม") {
+      if (column === t("home.readinessLevel")) {
         return values.includes(c.trl_score?.toString() || "");
       }
 
-      if (column === "สถานะ") {
-        const statusText = c.status ? "ผ่านการประเมิน" : "กำลังประเมิน";
+      if (column === t("home.status")) {
+        const statusText = c.status ? t("home.approve") : t("home.inProcess");
         return values.includes(statusText);
       }
 
-      if (column === "ความเร่งด่วน") {
-        const urgentText = c.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน";
+      if (column === t("home.urgency")) {
+        const urgentText = c.is_urgent ? t("home.urgent") : t("home.notUrgent");
         return values.includes(urgentText);
       }
 
-      if (column === "ชื่องานวิจัย") {
+      if (column === t("home.researchTitle")) {
         return values.includes(c.title);
       }
 
@@ -176,22 +178,23 @@ export default function ResearcherHomePage() {
   });
 
 
-  // --- Columns ---
+  // --- Columns --- (use keys for filter, translate for display)
+  const colKeys = { caseId: "case_id", caseTitle: "case_title", caseType: "case_type", trlScore: "trl_score", status: "status", urgency: "urgency" };
   const columns = [
-    { key: "case_id", label: "รหัสงานวิจัย" },
-    { key: "case_title", label: "ชื่องานวิจัย" },
-    { key: "case_type", label: "ประเภทงานวิจัย" },
-    { key: "trl_score", label: "ระดับความพร้อม" },
-    { key: "status", label: "สถานะ" },
+    { key: colKeys.caseId, label: t("home.caseId") },
+    { key: colKeys.caseTitle, label: t("home.researchTitle") },
+    { key: colKeys.caseType, label: t("home.researchType") },
+    { key: colKeys.trlScore, label: t("home.readinessLevel") },
+    { key: colKeys.status, label: t("home.status") },
   ];
 
-  // --- Filter options ---
+  // --- Filter options --- (use translated labels as keys to match column labels)
   const columnOptions: Record<string, string[]> = {
-    ประเภทงานวิจัย: [...new Set(cases.map((c) => c.type))],
-    ระดับความพร้อม: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    สถานะ: ["ผ่านการประเมิน", "กำลังประเมิน"],
-    ความเร่งด่วน: ["เร่งด่วน", "ไม่เร่งด่วน"],
-    ชื่องานวิจัย: [...new Set(cases.map((c) => c.title))],
+    [t("home.researchType")]: [...new Set(cases.map((c) => c.type))],
+    [t("home.readinessLevel")]: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    [t("home.status")]: [t("home.approve"), t("home.inProcess")],
+    [t("home.urgency")]: [t("home.urgent"), t("home.notUrgent")],
+    [t("home.researchTitle")]: [...new Set(cases.map((c) => c.title))],
   };
 
   const handleSort = (key: string) => {
@@ -206,7 +209,7 @@ export default function ResearcherHomePage() {
     setCurrentPage(1);
   }, [customFilters, rowsPerPage]);
 
-  if (loading) return <div className="p-10 text-center text-lg text-gray-500">Loading data...</div>;
+  if (loading) return <div className="p-10 text-center text-lg text-gray-500">{t("common.loading")}</div>;
 
   const totalPages = Math.ceil(filteredCases.length / rowsPerPage);
   const paginatedProjects = filteredCases.slice(
@@ -310,7 +313,7 @@ export default function ResearcherHomePage() {
 
     } catch (error) {
       console.error("Error generating PDF:", error);
-      toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+      toast.error(t("toast.pdfError"));
     } finally {
       setDownloadingId(null);
     }
@@ -324,11 +327,11 @@ export default function ResearcherHomePage() {
           <div className="flex items-center space-x-4">
             <Button onClick={() => navigate("/researcher-form")}>
               <Plus className="w-4 h-4 mr-2" />
-              เพิ่มวิจัย
+              {t("home.addResearch")}
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">งานวิจัยของฉัน</h1>
-              <p className="text-muted-foreground">ดูสถานะการส่งงานวิจัยของคุณ</p>
+              <h1 className="text-3xl font-bold text-foreground">{t("home.myResearch")}</h1>
+              <p className="text-muted-foreground">{t("home.myResearchDesc")}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -354,7 +357,7 @@ export default function ResearcherHomePage() {
             <div ref={filterBtnRef} className="inline-block">
               <Button onClick={() => setShowFilterModal(true)} variant="outline">
                 <Filter className="h-4 w-4" />
-                ตัวกรอง
+                {t("home.filter")}
               </Button>
             </div>
           </div>
@@ -374,7 +377,7 @@ export default function ResearcherHomePage() {
         {/* --- Table --- */}
         <Card>
           <CardHeader>
-            <CardTitle>งานวิจัยที่ส่ง</CardTitle>
+            <CardTitle>{t("home.submittedResearch")}</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -401,15 +404,15 @@ export default function ResearcherHomePage() {
                       </TableHead>
                     );
                   })}
-                  <TableHead>การดำเนินการ</TableHead>
-                  <TableHead>คำแนะนำสำหรับการพัฒนา</TableHead>
+                  <TableHead>{t("home.actions")}</TableHead>
+                  <TableHead>{t("home.developmentSuggestion")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedProjects.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={columns.length + 2} className="text-center text-muted-foreground">
-                      ไม่พบข้อมูลงานวิจัย
+                      {t("home.noResearchData")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -448,7 +451,7 @@ export default function ResearcherHomePage() {
                       </TableCell>
                       <TableCell className="min-w-[90px] text-center">
                         <Badge className={`min-w-[20px] text-center whitespace-nowrap ${getStatusColor(c.status === true ? "Approve" : "In process")}`}>
-                          {c.status === true ? "ผ่านการประเมิน" : "กำลังประเมิน"}
+                          {c.status === true ? t("home.approve") : t("home.inProcess")}
                         </Badge>
                       </TableCell>
 
@@ -462,7 +465,7 @@ export default function ResearcherHomePage() {
                                 onClick={() => handleViewCase(c.id)}
                               >
                                 <Eye className="w-4 h-4 mr-2" />
-                                ดูรายละเอียด
+                                {t("home.viewDetails")}
                               </Button>
                               <Button
                                 variant="outline"
@@ -473,12 +476,12 @@ export default function ResearcherHomePage() {
                                 {downloadingId === c.id ? (
                                   <span className="flex items-center gap-2">
                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                    กำลังโหลดข้อมูล...
+                                    {t("home.loadingData")}
                                   </span>
                                 ) : (
                                   <>
                                     <Download className="w-4 h-4 mr-2" />
-                                    ผลการประเมิน
+                                    {t("home.assessmentResult")}
                                   </>
                                 )}
                               </Button>
@@ -504,14 +507,14 @@ export default function ResearcherHomePage() {
 
                                 return latestAppointment ? (
                                   <Badge variant="outline" className="text-xs">
-                                    การนัดหมาย:{" "}
+                                    {t("home.appointment")}:{" "}
                                     {format(new Date(latestAppointment.date), "dd/MM/yyyy HH:mm", {
                                       locale: th,
                                     })}
                                   </Badge>
                                 ) : (
                                   <Badge variant="outline" className="text-xs text-gray-400">
-                                    การนัดหมาย: -
+                                    {t("home.appointment")}: -
                                   </Badge>
                                 );
                               })()}

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface Researcher {
   id: string;
   name: string;
@@ -9,9 +11,10 @@ interface TopResearchersCardProps {
 }
 
 export function TopResearchersCard({ researchers }: TopResearchersCardProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-white p-5 border border-gray-100 rounded-lg">
-      <h3 className="font-semibold mb-3 text-sm">จำนวนการส่งงานวิจัย</h3>
+      <h3 className="font-semibold mb-3 text-sm">{t("dashboard.submitCount")}</h3>
       {researchers.length > 0 ? (
         <ul className="text-sm space-y-2">
           {researchers.map((r) => (
@@ -22,7 +25,7 @@ export function TopResearchersCard({ researchers }: TopResearchersCardProps) {
           ))}
         </ul>
       ) : (
-        <p className="text-gray-400 text-sm">No data</p>
+        <p className="text-gray-400 text-sm">{t("common.noData")}</p>
       )}
     </div>
   );

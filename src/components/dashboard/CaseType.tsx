@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 interface ChartData {
@@ -12,14 +13,15 @@ interface CaseTypeStatusChartProps {
 }
 
 export function CaseTypeStatusChart({ statusData, caseTypeData, colors }: CaseTypeStatusChartProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-white p-6 border border-gray-100 rounded-xl shadow-sm">
-      <h3 className="font-bold mb-4 text-gray-800 text-base">ประเภทและสถานะงานวิจัย</h3>
+      <h3 className="font-bold mb-4 text-gray-800 text-base">{t("dashboard.caseTypeStatus")}</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         {/* Type Distribution Pie (Donut) */}
         <div className="h-[220px] flex flex-col items-center">
-          <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-semibold">สัดส่วนประเภทงานวิจัย</p>
+          <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-semibold">{t("dashboard.researchTypeShare")}</p>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -52,15 +54,15 @@ export function CaseTypeStatusChart({ statusData, caseTypeData, colors }: CaseTy
 
         {/* Info Lists */}
         <div className="space-y-6">
-          <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-semibold">รายการประเภทงานวิจัย</p>
+          <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-semibold">{t("dashboard.researchTypeList")}</p>
           <div className="pr-2">
-            {caseTypeData.map((t, i) => (
+            {caseTypeData.map((item, i) => (
               <div key={`type-list-${i}`} className="flex items-center justify-between text-xs py-1.5 border-b border-gray-50 last:border-0">
                 <div className="flex items-center gap-2 truncate">
                   <div className="h-2 w-2 rounded-sm" style={{ backgroundColor: colors[i % colors.length] }} />
-                  <span className="text-gray-600 truncate">{t.name}</span>
+                  <span className="text-gray-600 truncate">{item.name}</span>
                 </div>
-                <span className="text-gray-400 tabular-nums">{t.value}</span>
+                <span className="text-gray-400 tabular-nums">{item.value}</span>
               </div>
             ))}
           </div>

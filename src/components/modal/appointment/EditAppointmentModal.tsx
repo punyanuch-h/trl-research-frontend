@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +46,7 @@ export default function EditAppointmentModal({
   getFullNameByResearcherID,
   onSave,
 }: Props) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<AppointmentResponse | null>(appointment);
 
   const { editAppointment, loading } = useEditAppointment(onSave, onClose);
@@ -83,7 +85,7 @@ export default function EditAppointmentModal({
     try {
       await editAppointment(formToSubmit);
 
-      toast.success("แก้ไขการนัดหมายสำเร็จ");
+      toast.success(t("toast.editAppointmentSuccess"));
       onSave(formToSubmit);
       onClose();
 
@@ -91,7 +93,7 @@ export default function EditAppointmentModal({
       const msg = axios.isAxiosError(err)
         ? err.response?.data?.message
         : undefined;
-      toast.error(msg || "เกิดข้อผิดพลาดในการแก้ไขการนัดหมาย");
+      toast.error(msg || t("toast.editAppointmentError"));
     }
   };
 
@@ -99,12 +101,12 @@ export default function EditAppointmentModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>แก้ไขรายการนัดหมาย</DialogTitle>
+          <DialogTitle>{t("form.editAppointmentTitle")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div>
-            <Label>ชื่องานวิจัย</Label>
+            <Label>{t("form.researchTitleLabel")}</Label>
             <Input
               type="text"
               value={projects.find(p => p.id === form.case_id)?.title || ""}
@@ -114,7 +116,7 @@ export default function EditAppointmentModal({
           </div>
 
           <div>
-            <Label>ชื่อนักวิจัย/หัวหน้าโครงการ</Label>
+            <Label>{t("form.researcherName")}</Label>
             <Input
               type="text"
               value={
@@ -129,7 +131,7 @@ export default function EditAppointmentModal({
 
           <div className="flex gap-4">
             <div className="flex-1">
-              <Label>วันที่เวลานัดหมาย</Label>
+              <Label>{t("form.appointmentDateTime")}</Label>
               <Input
                 type="datetime-local"
                 value={format(new Date(form.date), "yyyy-MM-dd'T'HH:mm")}
@@ -137,25 +139,25 @@ export default function EditAppointmentModal({
               />
             </div>
             <div className="flex-1">
-              <Label>สถานะ</Label>
+              <Label>{t("home.status")}</Label>
               <Select
                 value={form.status}
                 onValueChange={(v: "attended" | "absent" | "pending") => handleChange("status", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="เลือกสถานะ" />
+                  <SelectValue placeholder={t("form.selectStatus")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="attended">เข้าร่วมแล้ว</SelectItem>
-                  <SelectItem value="absent">ขาดนัด</SelectItem>
-                  <SelectItem value="pending">รอดำเนินการ</SelectItem>
+                  <SelectItem value="attended">{t("form.statusAttended")}</SelectItem>
+                  <SelectItem value="absent">{t("form.statusAbsent")}</SelectItem>
+                  <SelectItem value="pending">{t("form.statusPending")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div>
-            <Label>สถานที่</Label>
+            <Label>{t("form.location")}</Label>
             <Input
               type="text"
               value={form.location || ""}
@@ -164,21 +166,21 @@ export default function EditAppointmentModal({
           </div>
 
           <div>
-            <Label>รายละเอียดการนัดหมาย</Label>
+            <Label>{t("form.appointmentDetails")}</Label>
             <Textarea
               value={form.detail || ""}
               onChange={(e) => handleChange("detail", e.target.value)}
-              placeholder="กรอกรายละเอียด"
+              placeholder={t("form.enterDetails")}
               rows={3}
             />
           </div>
 
           <div>
-            <Label>สรุปการประชุม</Label>
+            <Label>{t("form.meetingSummary")}</Label>
             <Textarea
               value={form.summary || ""}
               onChange={(e) => handleChange("summary", e.target.value)}
-              placeholder="กรอกสรุปการประชุม"
+              placeholder={t("form.enterMeetingSummary")}
               rows={3}
             />
           </div>
@@ -187,10 +189,10 @@ export default function EditAppointmentModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            ยกเลิก
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "กำลังบันทึก..." : "บันทึก"}
+            {loading ? t("common.loading") : t("common.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface IPData {
@@ -11,9 +12,10 @@ interface IntellectualPropertyChartProps {
 }
 
 export function IntellectualPropertyChart({ data, colors = [] }: IntellectualPropertyChartProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-white p-5 border border-gray-100 rounded-lg">
-      <h3 className="font-semibold mb-3 text-sm">ประเภททรัพย์สินทางปัญญา</h3>
+      <h3 className="font-semibold mb-3 text-sm">{t("dashboard.ipType")}</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ bottom: 40 }}>
@@ -25,7 +27,7 @@ export function IntellectualPropertyChart({ data, colors = [] }: IntellectualPro
               interval={0}
             />
             <YAxis allowDecimals={false} fontSize={10} />
-            <Tooltip formatter={(value: number) => [`${value}`, "จำนวน"]} />
+            <Tooltip formatter={(value: number) => [`${value}`, t("dashboard.count")]} />
             <Bar dataKey="value" radius={[4, 4, 0, 0]}>
               {data.map((_, index) => (
                 <Cell

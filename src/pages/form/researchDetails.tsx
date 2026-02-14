@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,21 +27,22 @@ interface ResearchDetailsProps {
 }
 
 export default function ResearchDetails({ formData, handleInputChange, refs }: ResearchDetailsProps) {
+    const { t } = useTranslation();
     return (
         <div className="space-y-4 flex flex-col gap-2 text-gray-600">
             <div>
-                <h3 className="font-semibold text-primary">ชื่อผลงานนวัตกรรม<span className="text-red-500">*</span></h3>
+                <h3 className="font-semibold text-primary">{t("form.innovationNameLabel")}<span className="text-red-500">*</span></h3>
                 <Input
                     id="researchTitle"
                     value={formData.researchTitle}
                     onChange={(e) => handleInputChange("researchTitle", e.target.value)}
-                    placeholder="ใส่ชื่อผลงานนวัตกรรม"
+                    placeholder={t("form.innovationNamePlaceholder")}
                     required
                     ref={refs?.researchTitle}
                 />
             </div>
             <div>
-                <h3 className="font-semibold text-primary">ประเภทงานวิจัย<span className="text-red-500">*</span></h3>
+                <h3 className="font-semibold text-primary">{t("form.researchType")}<span className="text-red-500">*</span></h3>
                 <RadioGroup
                     id="researchType"
                     value={formData.researchType}
@@ -51,57 +53,57 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 >
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="TRL software" id="software" />
-                        <Label htmlFor="software">Software</Label>
+                        <Label htmlFor="software">{t("form.researchTypeSoftware")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="TRL medical devices" id="medical" />
-                        <Label htmlFor="medical">Medical Devices</Label>
+                        <Label htmlFor="medical">{t("form.researchTypeMedical")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="TRL medicines vaccines stem cells" id="medicines" />
-                        <Label htmlFor="medicines">Medicines Vaccines Stem Cells</Label>
+                        <Label htmlFor="medicines">{t("form.researchTypeMedicines")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="TRL plant/animal breeds" id="plant" />
-                        <Label htmlFor="plant">Plant/Animal Breeds</Label>
+                        <Label htmlFor="plant">{t("form.researchTypePlant")}</Label>
                     </div>
                 </RadioGroup>
             </div>
             <div>
-                <p className="text-base font-semibold">คำอธิบายโดยย่อของนวัตกรรม<span className="text-red-500">*</span> (ไม่เกิน 350 คำ)</p>
+                <p className="text-base font-semibold">{t("form.descriptionLabel")}<span className="text-red-500">*</span></p>
                 <p className="text-xs text-muted-foreground mb-1">
-                    โดยอาจมีหัวข้อดังนี้: 1) Technology Overview, 2) Features & Specifications, 3) Potential Applications, 4) Unique Selling Point
+                    {t("form.descriptionHint")}
                 </p>
                 <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => handleInputChange("description", e.target.value)}
-                    placeholder="อธิบายสรุปเกี่ยวกับผลงานนวัตกรรมของคุณ"
+                    placeholder={t("form.innovationDescPlaceholder")}
                     rows={6}
                     required
                     ref={refs?.description}
                 />
             </div>
             <div>
-                <h3 className="font-semibold text-primary">คำสำคัญ (Keywords)<span className="text-red-500">*</span></h3>
+                <h3 className="font-semibold text-primary">{t("form.keywordsLabel")}<span className="text-red-500">*</span></h3>
                 <Input
                     id="keywords"
                     value={formData.keywords}
                     onChange={(e) => handleInputChange("keywords", e.target.value)}
-                    placeholder="เช่น AI, Healthcare, Medical devices"
+                    placeholder={t("form.keywordsPlaceholder")}
                     required
                     ref={refs?.keywords}
                 />
             </div>
             <div>
-                <h3 className="font-semibold text-primary">เอกสารเพิ่มเติม (แนบไฟล์ - เลือกได้หลายไฟล์)</h3>
+                <h3 className="font-semibold text-primary">{t("form.additionalDocsLabel")}</h3>
                 <div className="flex gap-2 items-center mt-2">
                     <button
                         type="button"
                         onClick={() => document.getElementById('researchDetailsFiles')?.click()}
                         className="w-30 sm:w-auto px-2 py-1 bg-gray-100/50 border border-gray-200 text-gray-400 rounded-lg hover:bg-primary hover:border-primary hover:text-white transition-colors duration-300 focus:outline-none focus:bg-primary focus:text-white"
                     >
-                        เลือกไฟล์
+                        {t("form.selectFile")}
                     </button>
                     <input
                         type="file"
@@ -118,7 +120,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                     {formData.researchDetailsFiles && formData.researchDetailsFiles.length > 0 && (
                         <div className="flex flex-col gap-1">
                             <h4 className="text-sm text-gray-600">
-                                <span>ไฟล์ที่เลือก ({formData.researchDetailsFiles.length} ไฟล์):</span>
+                                <span>{t("form.filesSelectedCount", { count: formData.researchDetailsFiles.length })}</span>
                             </h4>
                             {formData.researchDetailsFiles.map((file: File, index: number) => (
                                 <span key={index} className="text-sm text-primary ml-2">

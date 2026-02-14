@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit, Save, X } from "lucide-react";
 
@@ -14,27 +15,25 @@ import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 import { useUpdateUserProfile } from "@/hooks/user/patch/useUpdateUserProfile";
 import { useToast } from "@/hooks/toast/useToast";
 
-/* =======================
-   Field Config
-======================= */
-const FIELD_GROUPS: { label: string; name: keyof UserProfile }[][] = [
-  [
-    { label: "คำนำหน้า", name: "prefix" },
-    { label: "ตำแหน่งทางวิชาการ", name: "academic_position" },
-  ],
-  [
-    { label: "ชื่อ", name: "first_name" },
-    { label: "นามสกุล", name: "last_name" },
-    { label: "ภาควิชา", name: "department" },
-  ],
-  [
-    { label: "อีเมล", name: "email" },
-    { label: "เบอร์โทรศัพท์", name: "phone_number" },
-  ],
-];
-
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const FIELD_GROUPS: { label: string; name: keyof UserProfile }[][] = [
+    [
+      { label: t("profile.prefix"), name: "prefix" },
+      { label: t("profile.academicPosition"), name: "academic_position" },
+    ],
+    [
+      { label: t("profile.firstName"), name: "first_name" },
+      { label: t("profile.lastName"), name: "last_name" },
+      { label: t("profile.department"), name: "department" },
+    ],
+    [
+      { label: t("profile.email"), name: "email" },
+      { label: t("profile.phone"), name: "phone_number" },
+    ],
+  ];
   const { toast } = useToast();
 
   const { data: userProfile, refetch } = useGetUserProfile();
@@ -70,15 +69,15 @@ export default function ProfilePage() {
     try {
       await updateUserProfile.mutateAsync(form);
       toast({
-        title: "Success",
-        description: "Profile updated successfully",
+        title: t("common.success"),
+        description: t("profile.updateSuccess"),
       });
       await refetch();
       setIsEditing(false);
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to update profile",
+        title: t("common.error"),
+        description: t("profile.updateError"),
         variant: "destructive",
       });
     }
@@ -98,11 +97,11 @@ export default function ProfilePage() {
             className="w-fit"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            ย้อนกลับ
+            {t("auth.back")}
           </Button>
 
           <h2 className="text-2xl text-center font-semibold">
-            ข้อมูลบัญชีผู้ใช้
+            {t("profile.title")}
           </h2>
 
           <div className="flex justify-end gap-2">
@@ -114,7 +113,7 @@ export default function ProfilePage() {
                 className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive"
               >
                 <X className="w-4 h-4" />
-                ยกเลิก
+                {t("common.cancel")}
               </Button>
             )}
             <Button
@@ -125,16 +124,16 @@ export default function ProfilePage() {
               className="flex items-center gap-2"
             >
               {updateUserProfile.isPending ? (
-                "กำลังบันทึก..."
+                t("profile.saving")
               ) : isEditing ? (
                 <>
                   <Save className="w-4 h-4" />
-                  บันทึก
+                  {t("common.save")}
                 </>
               ) : (
                 <>
                   <Edit className="w-4 h-4" />
-                  แก้ไข
+                  {t("profile.edit")}
                 </>
               )}
             </Button>

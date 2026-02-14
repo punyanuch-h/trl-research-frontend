@@ -4,6 +4,7 @@ import { ApiQueryClient } from "../../client/ApiQueryClient";
 import axios, { AxiosError } from "axios";
 import { SubmitResearcherFormRequest } from "@/types/request";
 import { toast } from "@/lib/toast";
+import i18n from "@/lib/i18n";
 
 interface IpForm {
   noIp?: boolean;
@@ -105,7 +106,7 @@ export function useSubmitResearcherForm() {
       queryClient.invalidateQueries({ queryKey: ["useGetIPAll"] });
 
       // Success - clear and navigate
-      toast.success("บันทึกข้อมูลสำเร็จ!");
+      toast.success(i18n.t("toast.saveSuccess"));
       localStorage.removeItem("currentFormStep");
       localStorage.removeItem("researcherFormData");
       navigate('/researcher-homepage');
@@ -124,7 +125,7 @@ export function useSubmitResearcherForm() {
         return;
       }
 
-      toast.error("unknown error");
+      toast.error(i18n.t("toast.unknownError"));
     },
   });
 }

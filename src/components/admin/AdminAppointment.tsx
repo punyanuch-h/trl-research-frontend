@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { CalendarPlus, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ export default function AdminAppointment({
   getFullNameByResearcherID,
   userRole = "admin",
 }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [range, setRange] = useState<RangeType>("1w");
@@ -127,7 +129,7 @@ export default function AdminAppointment({
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>📅 รายการการนัดหมาย</CardTitle>
+          <CardTitle>📅 {t("admin.appointmentList")}</CardTitle>
           <div className="flex gap-3">
             {/* Filter by status */}
             <Select
@@ -135,34 +137,34 @@ export default function AdminAppointment({
               onValueChange={(v: "all" | "attended" | "absent" | "pending") => setStatusFilter(v)}
             >
               <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t("admin.statusPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">ทั้งหมด</SelectItem>
-                <SelectItem value="pending">⏳ รอดำเนินการ</SelectItem>
-                <SelectItem value="attended">✅ เข้าร่วมแล้ว</SelectItem>
-                <SelectItem value="absent">❌ ขาดนัด</SelectItem>
+                <SelectItem value="all">{t("common.all")}</SelectItem>
+                <SelectItem value="pending">⏳ {t("form.statusPending")}</SelectItem>
+                <SelectItem value="attended">✅ {t("form.statusAttended")}</SelectItem>
+                <SelectItem value="absent">❌ {t("form.statusAbsent")}</SelectItem>
               </SelectContent>
             </Select>
 
             {/* Filter by range */}
             <Select value={range} onValueChange={(v: RangeType) => setRange(v)}>
               <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Range" />
+                <SelectValue placeholder={t("admin.rangePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">ทั้งหมด</SelectItem>
-                <SelectItem value="1w">1 สัปดาห์</SelectItem>
-                <SelectItem value="1m">1 เดือน</SelectItem>
-                <SelectItem value="3m">3 เดือน</SelectItem>
-                <SelectItem value="1y">1 ปี</SelectItem>
+                <SelectItem value="all">{t("common.all")}</SelectItem>
+                <SelectItem value="1w">{t("admin.range1w")}</SelectItem>
+                <SelectItem value="1m">{t("admin.range1m")}</SelectItem>
+                <SelectItem value="3m">{t("admin.range3m")}</SelectItem>
+                <SelectItem value="1y">{t("admin.range1y")}</SelectItem>
               </SelectContent>
             </Select>
 
             {userRole === "admin" && (
               <Button variant="default" size="sm" onClick={() => setShowModal(true)}>
                 <CalendarPlus className="w-4 h-4 mr-1" />
-                เพิ่มรายการการนัดหมาย
+                {t("form.addAppointmentTitle")}
               </Button>
             )}
           </div>
@@ -171,7 +173,7 @@ export default function AdminAppointment({
 
       <CardContent>
         {filteredAppointments.length === 0 ? (
-          <p className="text-muted-foreground">ไม่มีนัดหมายในช่วงเวลาที่เลือก</p>
+          <p className="text-muted-foreground">{t("admin.noAppointmentsInRange")}</p>
         ) : (
           <ul className="space-y-3">
             {paginatedAppointments.map((a) => (
@@ -185,9 +187,9 @@ export default function AdminAppointment({
                   <p className="text-sm text-gray-500">👨‍🔬 {a.researcherName}</p>
                   <p className="text-xs text-gray-400">📍 {a.location}</p>
                   <p className="text-xs">
-                    {a.status === "attended" && "✅ เข้าร่วมแล้ว"}
-                    {a.status === "absent" && "❌ ขาดนัด"}
-                    {a.status === "pending" && "⏳ รอดำเนินการ"}
+                    {a.status === "attended" && `✅ ${t("form.statusAttended")}`}
+                    {a.status === "absent" && `❌ ${t("form.statusAbsent")}`}
+                    {a.status === "pending" && `⏳ ${t("form.statusPending")}`}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -203,7 +205,7 @@ export default function AdminAppointment({
                         handleEditAppointment(a);
                       }}
                     >
-                      <Edit2 className="w-4 h-4 mr-1" /> แก้ไข
+                      <Edit2 className="w-4 h-4 mr-1" /> {t("profile.edit")}
                     </Button>
                   )}
                 </div>

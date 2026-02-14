@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { LogOut, User, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { getUserRole } from "@/lib/auth";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
 
 import { Home } from "lucide-react";
 import { toast } from "@/lib/toast";
@@ -19,12 +21,13 @@ interface HeaderProps {
 export default function Header({ disabled = false }: HeaderProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const role = getUserRole();
   const { data: userProfile } = useGetUserProfile();
 
   const handleLogout = () => {
     if (!navigator.onLine) {
-      toast.error("ไม่มีการเชื่อมต่ออินเทอร์เน็ต โปรดลองใหม่อีกครั้ง");
+      toast.error(t("auth.logoutInternetError"));
       localStorage.setItem("pendingLogout", "true");
       return;
     }
@@ -34,10 +37,10 @@ export default function Header({ disabled = false }: HeaderProps) {
       sessionStorage.removeItem("token");
       localStorage.removeItem("pendingLogout");
       queryClient.clear();
-      toast.success("ออกจากระบบสำเร็จ");
+      toast.success(t("auth.logoutSuccess"));
       navigate("/");
     } catch {
-      toast.error("ออกจากระบบไม่สำเร็จ โปรดลองใหม่อีกครั้ง");
+      toast.error(t("auth.logoutError"));
     }
   };
 
@@ -49,11 +52,11 @@ export default function Header({ disabled = false }: HeaderProps) {
           onClick={disabled ? undefined : () => navigate("/")}
         >
           <Home className="w-5 h-5" />
-          <span>ระบบประเมินระดับความพร้อมทางเทคโนโลยี</span>
+          <span>{t("header.appTitle")}</span>
         </h1>
 
-
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <LanguageSwitch />
           {!disabled && <NotificationIcon />}
 
           {disabled ? (
@@ -83,7 +86,7 @@ export default function Header({ disabled = false }: HeaderProps) {
                     onClick={() => navigate("/profile")}
                   >
                     <User className="w-4 h-4 mr-2" />
-                    ข้อมูลบัญชีผู้ใช้
+                    {t("header.accountInfo")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -91,7 +94,7 @@ export default function Header({ disabled = false }: HeaderProps) {
                     onClick={() => navigate("/reset-password")}
                   >
                     <Key className="w-4 h-4 mr-2" />
-                    เปลี่ยนรหัสผ่าน
+                    {t("header.changePassword")}
                   </Button>
                   {role === "admin" && (
                     <Button
@@ -100,7 +103,7 @@ export default function Header({ disabled = false }: HeaderProps) {
                       onClick={() => navigate("/admin/create-admin")}
                     >
                       <User className="w-4 h-4 mr-2" />
-                      เพิ่มบัญชีผู้ดูแลระบบ
+                      {t("header.addAdminAccount")}
                     </Button>
                   )}
                   <Button
@@ -109,7 +112,7 @@ export default function Header({ disabled = false }: HeaderProps) {
                     onClick={handleLogout}
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    ออกจากระบบ
+                    {t("header.logout")}
                   </Button>
                 </div>
               </PopoverContent>

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Case {
   id: string;
@@ -55,6 +56,8 @@ export function useDashboardStats({
   allAssessments,
   colors,
 }: UseDashboardStatsProps) {
+  const { t } = useTranslation();
+
   return useMemo(() => {
     const total = allCases.length;
     const pending = allCases.filter((c) => c.status === false).length;
@@ -98,38 +101,55 @@ export function useDashboardStats({
       .sort((a, b) => b.value - a.value);
 
     const statusData = [
-      { name: "กำลังประเมิน", value: pending },
-      { name: "ผ่านการประเมิน", value: total - pending },
-      { name: "เร่งด่วน", value: urgent },
+      { name: t("dashboard.inProcess"), value: pending },
+      { name: t("dashboard.approve"), value: total - pending },
+      { name: t("home.urgent"), value: urgent },
     ];
 
-    // Intellectual Property
+    // Intellectual Property - API may return id ("patent") or Thai ("สิทธิบัตร"), translate for chart
+    const ipTypeThaiToId: Record<string, string> = {
+      "สิทธิบัตร": "patent",
+      "อนุสิทธิบัตร": "pettyPatent",
+      "สิทธิบัตรออกแบบผลิตภัณฑ์": "designPatent",
+      "ลิขสิทธิ์": "copyright",
+      "เครื่องหมายการค้า": "trademark",
+      "ความลับทางการค้า": "tradeSecret",
+    };
     const ipCounts: Record<string, number> = {};
     allIntellectualProperties.forEach((ip) => {
-      const t = ip.types || "Unspecified";
-      ipCounts[t] = (ipCounts[t] || 0) + 1;
+      const raw = ip.types || "Unspecified";
+      const id = ipTypeThaiToId[raw] ?? raw;
+      ipCounts[id] = (ipCounts[id] || 0) + 1;
     });
+    const ipIdToLabel: Record<string, string> = {
+      patent: t("assessment.patent"),
+      pettyPatent: t("assessment.pettyPatent"),
+      designPatent: t("assessment.designPatent"),
+      copyright: t("assessment.copyright"),
+      trademark: t("assessment.trademark"),
+      tradeSecret: t("assessment.tradeSecret"),
+    };
     const ipData = Object.entries(ipCounts)
-      .map(([name, value]) => ({ name, value }))
+      .map(([id, value]) => ({ name: ipIdToLabel[id] ?? id, value }))
       .sort((a, b) => b.value - a.value);
 
-    // Supportment data with labels defined here
+    // Supportment data with translated labels
     const agencyLabels: Record<string, string> = {
-      support_research: "ฝ่ายวิจัย",
-      support_vdc: "VDC",
-      support_sieic: "SiEIC",
+      support_research: t("dashboard.agencyResearch"),
+      support_vdc: t("dashboard.agencyVdc"),
+      support_sieic: t("dashboard.agencySieic"),
     };
 
     const needLabels: Record<string, string> = {
-      need_protect_intellectual_property: "การคุ้มครองทรัพย์สินทางปัญญา",
-      need_co_developers: "ผู้ร่วมพัฒนา",
-      need_activities: "กิจกรรมสนับสนุน",
-      need_test: "การทดสอบ",
-      need_capital: "เงินทุนสนับสนุน",
-      need_partners: "พันธมิตร",
-      need_guidelines: "แนวทาง/คำปรึกษา",
-      need_certification: "การรับรองมาตรฐาน",
-      need_account: "บัญชีผลประโยชน์",
+      need_protect_intellectual_property: t("dashboard.needIpProtection"),
+      need_co_developers: t("dashboard.needCoDevelopers"),
+      need_activities: t("dashboard.needActivities"),
+      need_test: t("dashboard.needTest"),
+      need_capital: t("dashboard.needCapital"),
+      need_partners: t("dashboard.needPartners"),
+      need_guidelines: t("dashboard.needGuidelines"),
+      need_certification: t("dashboard.needCertification"),
+      need_account: t("dashboard.needAccount"),
     };
 
     const agencyData = Object.entries(agencyLabels)
@@ -201,6 +221,7 @@ export function useDashboardStats({
       upcoming,
     };
   }, [
+    t,
     allCases,
     allResearchers,
     allAppointments,

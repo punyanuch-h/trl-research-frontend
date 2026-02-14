@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,17 +21,31 @@ import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CaseResponse, IntellectualPropertyResponse } from '@/types/type';
 
-const ipTypesList = [
-  { id: "patent", label: "สิทธิบัตร" },
-  { id: "pettyPatent", label: "อนุสิทธิบัตร" },
-  { id: "designPatent", label: "สิทธิบัตรออกแบบผลิตภัณฑ์" },
-  { id: "copyright", label: "ลิขสิทธิ์" },
-  { id: "trademark", label: "เครื่องหมายการค้า" },
-  { id: "tradeSecret", label: "ความลับทางการค้า" },
-];
-
 const AssessmentResult = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
+
+  const getIpLabel = (type: string) => {
+    const idToLabel: Record<string, string> = {
+      patent: t("assessment.patent"),
+      pettyPatent: t("assessment.pettyPatent"),
+      designPatent: t("assessment.designPatent"),
+      copyright: t("assessment.copyright"),
+      trademark: t("assessment.trademark"),
+      tradeSecret: t("assessment.tradeSecret"),
+    };
+    // API may return id ("patent") or Thai label ("สิทธิบัตร") - map Thai to id for correct i18n
+    const thaiToId: Record<string, string> = {
+      "สิทธิบัตร": "patent",
+      "อนุสิทธิบัตร": "pettyPatent",
+      "สิทธิบัตรออกแบบผลิตภัณฑ์": "designPatent",
+      "ลิขสิทธิ์": "copyright",
+      "เครื่องหมายการค้า": "trademark",
+      "ความลับทางการค้า": "tradeSecret",
+    };
+    const id = thaiToId[type] ?? type;
+    return idToLabel[id] || type;
+  };
   const navigate = useNavigate();
   const { data: caseData, isPending: isCasePending, isError: isCaseError, refetch: refetchCase } = useGetCaseById(id || '');
   const { data: researcherData, isPending: isResearcherPending, isError: isResearcherError } = useGetResearcherById(caseData?.researcher_id || '');
@@ -101,16 +116,16 @@ const AssessmentResult = () => {
 
       updateAssessmentMutation.mutate(undefined, {
         onSuccess: () => {
-          toast.success(`Approved research ID: ${caseData?.id} successfully`);
+          toast.success(t("toast.approveSuccess", { id: caseData?.id }));
           navigate('/admin-homepage');
         },
         onError: () => {
-          toast.error('Failed to approve research ID: ' + caseData?.id);
+          toast.error(t("toast.approveError", { id: caseData?.id }));
         }
       });
     } catch (error) {
       console.error("Error during approval process:", error);
-      toast.error('กระบวนการ Approve ขัดข้อง โปรดลองอีกครั้ง');
+      toast.error(t("toast.approveProcessError"));
     }
   };
 
@@ -123,7 +138,7 @@ const AssessmentResult = () => {
     const caseId = caseData?.id || id;
 
     if (!caseId) {
-      toast.error("Error: Missing Data IDs");
+      toast.error(t("toast.missingDataError"));
       return;
     }
 
@@ -138,7 +153,7 @@ const AssessmentResult = () => {
         });
       } catch (error) {
         console.error("Error updating TRL Score:", error);
-        throw new Error('เกิดข้อผิดพลาดในการแก้ไข trl score');
+        throw new Error(t("assessment.trlScoreError"));
       }
 
       // Re-fetch both to ensure UI is in sync
@@ -147,7 +162,7 @@ const AssessmentResult = () => {
       ]);
 
       if (manualTrl !== previousTrl) {
-        toast.success(`TRL Level updated to ${manualTrl} successfully`);
+        toast.success(t("toast.trlUpdateSuccess", { level: manualTrl }));
       }
       setIsEditingTrl(false);
 
@@ -156,7 +171,7 @@ const AssessmentResult = () => {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Failed to update. Please try again.";
+          : t("assessment.trlScoreError");
       toast.error(errorMessage);
 
       refetchCase();
@@ -218,7 +233,7 @@ const AssessmentResult = () => {
 
     if (!assessmentId) {
       console.error("Assessment ID missing:", assessmentData);
-      toast.error("เกิดข้อผิดพลาดในการแก้ไขข้อแนะนำ");
+      toast.error(t("toast.editSuggestionError"));
       return;
     }
 
@@ -230,7 +245,7 @@ const AssessmentResult = () => {
       {
         onSuccess: () => {
           setIsEditing(false);
-          toast.success("บันทึกข้อเสนอแนะสำเร็จ");
+          toast.success(t("toast.saveSuggestionSuccess"));
         },
         onError: (err: Error) => {
           console.error("Update suggestion error:", err);
@@ -238,7 +253,7 @@ const AssessmentResult = () => {
           const message =
             err instanceof Error
               ? err.message
-              : "เกิดข้อผิดพลาดในการแก้ไขข้อแนะนำ";
+              : t("toast.editSuggestionError");
 
           toast.error(message);
         },
@@ -250,7 +265,7 @@ const AssessmentResult = () => {
     try {
       await openFile(path);
     } catch (error) {
-      toast.error("ไม่สามารถเปิดเอกสารได้");
+      toast.error(t("toast.cannotOpenDoc"));
     }
   };
 
@@ -310,17 +325,17 @@ const AssessmentResult = () => {
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                ย้อนกลับ
+                {t("assessment.backToCase")}
               </Button>
               <div className="h-6 w-px bg-gray-300"></div>
               <h1 className="text-xl font-semibold text-gray-900">
-                การประเมินงานวิจัย
+                {t("assessment.assessmentTitle")}
               </h1>
             </div>
 
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-sm">
-                รหัสงานวิจัย: {caseData?.id || 'กำลังโหลด...'}
+                {t("assessment.researchId")}: {caseData?.id || t("assessment.loading")}
               </Badge>
               <Button
                 onClick={handleApproveAssessment}
@@ -337,8 +352,8 @@ const AssessmentResult = () => {
                 )}
 
                 {caseData?.status === true
-                  ? "ผ่านการประเมินแล้ว"
-                  : (updateAssessmentMutation.isPending ? "กำลังยืนยันการประเมิน..." : "ยืนยันการประเมิน")
+                  ? t("assessment.alreadyAssessed")
+                  : (updateAssessmentMutation.isPending ? t("assessment.confirmingAssessment") : t("assessment.confirmAssessment"))
                 }
               </Button>
             </div>
@@ -354,17 +369,17 @@ const AssessmentResult = () => {
             {isCasePending ? (
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                <span className="text-muted-foreground">กำลังโหลดรายละเอียดงานวิจัย...</span>
+                <span className="text-muted-foreground">{t("assessment.loadingDetails")}</span>
               </div>
             ) : isCaseError ? (
               <div className="text-destructive">
-                <h2 className="text-xl font-bold">เกิดข้อผิดพลาดในการโหลดข้อมูลงานวิจัย</h2>
-                <p className="text-sm">ไม่สามารถโหลดรายละเอียดงานวิจัยได้</p>
+                <h2 className="text-xl font-bold">{t("assessment.loadError")}</h2>
+                <p className="text-sm">{t("assessment.loadErrorDesc")}</p>
               </div>
             ) : !caseData ? (
               <div className="text-muted-foreground">
-                <h2 className="text-xl font-bold">ไม่พบงานวิจัย</h2>
-                <p className="text-sm">ไม่สามารถค้นหาข้อมูลงานวิจัยที่ต้องการได้</p>
+                <h2 className="text-xl font-bold">{t("assessment.noResearch")}</h2>
+                <p className="text-sm">{t("assessment.noResearchDesc")}</p>
               </div>
             ) : (
               <div className="flex justify-between items-start">
@@ -375,13 +390,13 @@ const AssessmentResult = () => {
                   <div className="flex gap-2 mb-2">
                     <Badge variant="outline">{caseData.type}</Badge>
                     <Badge variant={caseData.is_urgent ? "destructive" : "secondary"}>
-                      {caseData.is_urgent ? "เร่งด่วน" : "ไม่เร่งด่วน"}
+                      {caseData.is_urgent ? t("home.urgent") : t("home.notUrgent")}
                     </Badge>
                   </div>
                 </div>
                 <div className="text-right text-sm text-muted-foreground">
-                  <p>รหัสงานวิจัย: {caseData.id}</p>
-                  <p>วันที่สร้าง: {new Date(caseData.created_at).toLocaleDateString()}</p>
+                  <p>{t("assessment.researchId")}: {caseData.id}</p>
+                  <p>{t("assessment.createdDate")}: {new Date(caseData.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
             )}
@@ -391,12 +406,12 @@ const AssessmentResult = () => {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-2">รายละเอียดข้อมูลงานวิจัย</h3>
+                  <h3 className="font-semibold mb-2">{t("assessment.researchDetails")}</h3>
                   <p className="text-sm leading-relaxed">{caseData.description}</p>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-2">คำสำคัญ (Keywords)</h3>
+                  <h3 className="font-semibold mb-2">{t("assessment.keywords")}</h3>
                   <p className="text-sm text-muted-foreground">{caseData.keywords}</p>
                 </div>
 
@@ -408,13 +423,13 @@ const AssessmentResult = () => {
                   </div>
                 ) : isResearcherError ? (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                    <h3 className="font-semibold">ไม่สามารถโหลดข้อมูลนักวิจัยได้</h3>
-                    <p className="text-sm">กรุณาลองรีเฟรชหน้าเว็บหรือติดต่อฝ่ายสนับสนุน</p>
+                    <h3 className="font-semibold">{t("caseDetail.loadErrorTitle")}</h3>
+                    <p className="text-sm">{t("caseDetail.loadErrorDesc")}</p>
                   </div>
                 ) : researcherData ? (
                   <div className="space-y-4">
                     <div>
-                      <h3 className="font-semibold mb-2">ข้อมูลนักวิจัย/ข้อมูลหัวหน้าโครงการ</h3>
+                      <h3 className="font-semibold mb-2">{t("caseDetail.researcherInfo")}</h3>
                       <p className="text-sm text-muted-foreground">{researcherData.first_name} {researcherData.last_name}</p>
                       <p className="text-sm text-muted-foreground">{researcherData.email}</p>
                       <p className="text-sm text-muted-foreground">{researcherData.phone_number}</p>
@@ -430,13 +445,13 @@ const AssessmentResult = () => {
                   </div>
                 ) : isCoordinatorError ? (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                    <h3 className="font-semibold">ไม่สามารถโหลดข้อมูลผู้ประสานงานได้</h3>
-                    <p className="text-sm">กรุณาลองรีเฟรชหน้าเว็บหรือติดต่อฝ่ายสนับสนุน</p>
+                    <h3 className="font-semibold">{t("caseDetail.coordinatorLoadError")}</h3>
+                    <p className="text-sm">{t("caseDetail.refreshOrContact")}</p>
                   </div>
                 ) : coordinatorData ? (
                   <div className="space-y-4">
                     <div>
-                      <h3 className="font-semibold mb-2">ข้อมูลผู้ประสานงานโครงการ</h3>
+                      <h3 className="font-semibold mb-2">{t("caseDetail.coordinatorInfo")}</h3>
                       <p className="text-sm text-muted-foreground">{coordinatorData.first_name} {coordinatorData.last_name}</p>
                       <p className="text-sm text-muted-foreground">{coordinatorData.email}</p>
                       <p className="text-sm text-muted-foreground">{coordinatorData.phone_number}</p>
@@ -453,14 +468,14 @@ const AssessmentResult = () => {
                 ) : assessmentData && caseData ? (
                   <div className="space-y-4 pt-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">คาดว่ามีระดับความพร้อม</h3>
+                      <h3 className="font-semibold">{t("admin.estimatedLevel")}</h3>
                       <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
                         TRL {assessmentData.trl_estimate}
                       </Badge>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">ระดับความพร้อม</h3>
+                      <h3 className="font-semibold">{t("admin.readinessLevel")}</h3>
                       {isEditingTrl ? (
                         <div className="flex items-center gap-2">
                           <select
@@ -530,47 +545,52 @@ const AssessmentResult = () => {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2 flex items-center gap-2">
-              <FileText className="h-5 w-5" /> เอกสารประกอบงานวิจัยและทรัพย์สินทางปัญญา
+              <FileText className="h-5 w-5" /> {t("assessment.ipDoc")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               {/* Research Files */}
               <div>
-                <h3 className="text-base font-semibold text-primary mb-3 ml-1">เอกสารงานวิจัย</h3>
+                <h3 className="text-base font-semibold text-primary mb-3 ml-1">
+                  {t("assessment.researchDoc")}
+                </h3>
+
                 {caseData && caseData.attachments && caseData.attachments.length > 0 ? (
-                  renderFileList("เอกสารรายละเอียดงานวิจัย", caseData.attachments)
+                  renderFileList(t("assessment.researchId"), caseData.attachments)
                 ) : (
-                  <div className="text-sm text-gray-400 italic pl-1">ไม่มีเอกสารแนบ</div>
+                  <div className="text-sm text-gray-400 italic pl-1">
+                    {t("assessment.noAttachments")}
+                  </div>
                 )}
               </div>
 
               {/* IP Files */}
               <div>
-                <h3 className="text-base font-semibold text-primary mb-3 ml-1">ทรัพย์สินทางปัญญา (IP)</h3>
+                <h3 className="text-base font-semibold text-primary mb-3 ml-1">IP</h3>
                 {ipData && ipData.length > 0 ? (
                   <div className="space-y-4">
                     {(Array.isArray(ipData) ? ipData : [ipData]).map((ip: IntellectualPropertyResponse, index: number) => {
-                      const thaiLabel = ipTypesList.find(t => t.id === ip.types)?.label || ip.types;
+                      const ipLabel = getIpLabel(ip.types);
                       const hasFiles = ip.attachments && ip.attachments.length > 0;
 
                       const CustomTitle = (
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 w-full">
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge variant="outline" className="bg-blue-50 text-primary border-primary h-6">#{index + 1}</Badge>
-                            <span className="font-semibold text-sm">{thaiLabel}</span>
+                            <span className="font-semibold text-sm">{ipLabel}</span>
                             <Badge variant="secondary" className="bg-gray-100 text-gray-700 font-medium text-xs h-5">
-                              {ip.protection_status || 'ไม่ระบุสถานะ'}
+                              {ip.protection_status || t("assessment.noStatus")}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
-                              เลขที่คำขอ: <span className="text-foreground">{ip.request_number || '-'}</span>
+                              {t("form.gotRequestNumber")}: <span className="text-foreground">{ip.request_number || '-'}</span>
                             </span>
                           </div>
 
                           {!hasFiles && (
                             <div className="flex items-center gap-1.5 text-gray-400 bg-gray-50 px-2 py-1 rounded border border-gray-100">
                               <FileText className="h-3 w-3" />
-                              <span className="text-xs text-muted-foreground">ไม่มีเอกสารแนบ</span>
+                              <span className="text-xs text-muted-foreground">{t("form.noDetail")}</span>
                             </div>
                           )}
                         </div>
@@ -590,7 +610,7 @@ const AssessmentResult = () => {
                     })}
                   </div>
                 ) : (
-                  <div className="text-sm text-gray-400 italic pl-1">ไม่มีข้อมูลทรัพย์สินทางปัญญา</div>
+                  <div className="text-sm text-gray-400 italic pl-1">{t("common.noData")}</div>
                 )}
               </div>
             </div>
@@ -601,10 +621,10 @@ const AssessmentResult = () => {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
-              คำถามประเมินทั่วไป
+              {t("assessment.generalQuestions")}
             </CardTitle>
             <p className="text-muted-foreground text-sm">
-              คำถามพื้นฐานเพื่อประเมินความก้าวหน้าของงานวิจัย
+              {t("assessment.generalQuestionsDesc")}
             </p>
           </CardHeader>
           <CardContent>
@@ -619,7 +639,7 @@ const AssessmentResult = () => {
                         <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
                           {index + 1}
                         </div>
-                        <p className="text-sm leading-relaxed font-medium">{question}</p>
+                        <p className="text-sm leading-relaxed font-medium">{t(`evaluate.radioQuestions.q${index + 1}`)}</p>
                       </div>
                       {/* Assessment Result Badge */}
                       <div className="flex-shrink-0">
@@ -633,16 +653,16 @@ const AssessmentResult = () => {
                               : "bg-red-500/20 hover:bg-red-200 text-red-500 rounded-sm"
                               }`}
                           >
-                            {getRQAnswer(index) ? "ใช่" : "ไม่ใช่"}
+                            {getRQAnswer(index) ? t("common.yes") : t("common.no")}
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="py-1 w-12">
-                            ไม่มีข้อมูล
+                            {t("common.noData")}
                           </Badge>
                         )}
                       </div>
                     </div>
-                    {attachments && attachments.length > 0 && <div className="ml-9 mt-3">{renderFileList("หลักฐานประกอบ", attachments)}</div>}
+                    {attachments && attachments.length > 0 && <div className="ml-9 mt-3">{renderFileList(t("form.attachment"), attachments)}</div>}
                   </div>
                 )
               })}
@@ -652,8 +672,8 @@ const AssessmentResult = () => {
 
         {/* TRL Evaluation Criteria Section - Always visible */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary mb-2">เกณฑ์การประเมินระดับความพร้อมของเทคโนโลยี (TRL)</h1>
-          <p className="text-muted-foreground">ชุดคำถามสำหรับการประเมินระดับความพร้อมเทคโนโลยี</p>
+          <h1 className="text-3xl font-bold text-primary mb-2">{t("assessment.trlCriteriaTitle")}</h1>
+          <p className="text-muted-foreground">{t("assessment.trlCriteriaDesc")}</p>
         </div>
 
         <div className="grid gap-6">
@@ -671,18 +691,18 @@ const AssessmentResult = () => {
                 >
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-xl font-semibold text-primary">
-                      ระดับ TRL {index + 1}
+                      {t("assessment.trlLevel")} {index + 1}
                     </CardTitle>
                     <div className="flex items-center gap-2">
                       {cqAnswers && cqAnswers.length > 0 && (
                         <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
-                          {cqAnswers.length} เกณฑ์ที่เลือก
+                          {cqAnswers.length} {t("assessment.criteriaSelected")}
                         </Badge>
                       )}
                       {attachments && attachments.filter(a => a !== "").length > 0 && (
                         <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
                           <Paperclip className="h-3 w-3" />
-                          {attachments.filter(a => a !== "").length} ไฟล์
+                          {attachments.filter(a => a !== "").length} {t("assessment.fileCount")}
                         </div>
                       )}
                       <Button
@@ -723,7 +743,7 @@ const AssessmentResult = () => {
                                 {question.id}
                               </div>
                               <p className={`text-sm leading-relaxed ${isSelected ? 'text-green-700' : 'text-muted-foreground'}`}>
-                                {question.label}
+                                {t(`evaluate.checkbox.L${index + 1}.q${question.id}`)}
                               </p>
                               {isSelected && (
                                 <div className="ml-auto">
@@ -736,7 +756,7 @@ const AssessmentResult = () => {
 
                             {isSelected && specificFile.length > 0 && (
                               <div className="ml-9 mb-4">
-                                {renderFileList("หลักฐานประกอบ", specificFile)}
+                                {renderFileList(t("form.attachment"), specificFile)}
                               </div>
                             )}
                           </div>
@@ -748,7 +768,7 @@ const AssessmentResult = () => {
                         <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                           <div className="flex items-center gap-2">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                            <span className="text-sm text-muted-foreground">กำลังโหลดผลการประเมิน...</span>
+                            <span className="text-sm text-muted-foreground">{t("assessment.loadingAssessment")}</span>
                           </div>
                         </div>
                       ) : cqAnswers && cqAnswers.length > 0 ? (
@@ -756,7 +776,7 @@ const AssessmentResult = () => {
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                             <span className="text-sm text-green-700 font-medium">
-                              มีการเลือกเกณฑ์จำนวน {cqAnswers.length} ข้อ สำหรับระดับนี้
+                              {t("assessment.criteriaCountForLevel", { count: cqAnswers.length })}
                             </span>
                           </div>
                         </div>
@@ -764,7 +784,7 @@ const AssessmentResult = () => {
                         <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                            <span className="text-sm text-muted-foreground">ยังไม่ได้เลือกเกณฑ์สำหรับระดับนี้</span>
+                            <span className="text-sm text-muted-foreground">{t("assessment.noCriteriaForLevel")}</span>
                           </div>
                         </div>
                       )}
@@ -780,7 +800,7 @@ const AssessmentResult = () => {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
-              ข้อเสนอแนะในการพัฒนางานวิจัย
+              {t("assessment.suggestion")}
             </CardTitle>
           </CardHeader>
 
@@ -788,7 +808,7 @@ const AssessmentResult = () => {
             {isAssessmentPending ? (
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                <span className="text-muted-foreground">กำลังโหลดข้อเสนอแนะในการพัฒนางานวิจัย...</span>
+                <span className="text-muted-foreground">{t("assessment.loadingSuggestion")}</span>
               </div>
             ) : getUnselectedCriteria().length > 0 ? (
               <div className="space-y-4">
@@ -847,16 +867,16 @@ const AssessmentResult = () => {
                         {updateSuggestionMutation.isPending ? (
                           <>
                             <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                            กำลังบันทึก...
+                            {t("profile.saving")}
                           </>
                         ) : (
                           <>
-                            บันทึก
+                            {t("common.save")}
                           </>
                         )}
                       </Button>
                       <Button variant="outline" size="sm" disabled={updateSuggestionMutation.isPending} onClick={() => setIsEditing(false)}>
-                        ยกเลิก
+                        {t("common.cancel")}
                       </Button>
                     </>
                   ) : (
@@ -875,7 +895,7 @@ const AssessmentResult = () => {
                       }}
                       className="text-primary border-primary hover:bg-primary/10"
                     >
-                      แก้ไขข้อเสนอแนะ
+                      {t("assessment.editSuggestion")}
                     </Button>
                   )}
                 </>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AppointmentResponse } from "@/hooks/client/type";
 import { format, isValid } from "date-fns";
@@ -15,18 +16,19 @@ export function NotificationOverlay({
     onNotificationClick,
     onMarkAllAsRead,
 }: NotificationOverlayProps) {
+    const { t } = useTranslation();
     const unreadCount = notifications.filter(n => !n.is_read).length;
 
     return (
         <div className="flex flex-col w-[350px]"> {/* Removed overflow-y-auto */}
             <div className="p-4 border-b flex justify-between items-center">
-                <h3 className="font-semibold text-lg">การแจ้งเตือน</h3>
+                <h3 className="font-semibold text-lg">{t("dashboard.notifications")}</h3>
                 {onMarkAllAsRead && unreadCount > 0 && (
                     <button
                         onClick={onMarkAllAsRead}
                         className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
                     >
-                        อ่านแล้วทั้งหมด
+                        {t("dashboard.markAllRead")}
                     </button>
                 )}
             </div>
@@ -34,7 +36,7 @@ export function NotificationOverlay({
             <ScrollArea className="h-[400px] w-full"> {/* Changed max-h to h */}
                 {notifications.length === 0 ? (
                     <div className="p-8 text-center text-muted-foreground italic">
-                        ไม่มีการแจ้งเตือน
+                        {t("dashboard.noNotifications")}
                     </div>
                 ) : (
                     <div className="flex flex-col">
@@ -52,7 +54,7 @@ export function NotificationOverlay({
                                         "text-sm flex-1",
                                         !notif.is_read ? "font-bold text-blue-700" : "font-semibold"
                                     )}>
-                                        {notif.case?.title || notif.summary || "นัดหมายใหม่"}
+                                        {notif.case?.title || notif.summary || t("form.newAppointment")}
                                     </span>
                                     {!notif.is_read && (
                                         <div className="w-2 h-2 rounded-full bg-blue-600 mt-1.5 shrink-0" />
@@ -69,7 +71,7 @@ export function NotificationOverlay({
                                     <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
                                         📅 {(() => {
                                             const d = new Date(notif.date);
-                                            return isValid(d) ? format(d, "dd MMM yyyy - HH:mm", { locale: th }) : "ไม่ระบุวันที่";
+                                            return isValid(d) ? format(d, "dd MMM yyyy - HH:mm", { locale: th }) : t("form.dateNotSpecified");
                                         })()}
                                     </span>
                                     {notif.location && (
