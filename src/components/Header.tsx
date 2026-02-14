@@ -20,9 +20,16 @@ export default function Header({ disabled = false }: HeaderProps) {
   const { data: userProfile } = useGetUserProfile();
 
   const handleLogout = () => {
-    // if success logout then show toast success else toast error
+    if (!navigator.onLine) {
+      toast.error("Please Check Your internet");
+      localStorage.setItem("pendingLogout", "true");
+      return;
+    }
+
     try {
       localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      localStorage.removeItem("pendingLogout");
       toast.success("Logged out successfully");
       navigate("/");
     } catch {

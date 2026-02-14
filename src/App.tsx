@@ -20,6 +20,7 @@ import AssessmentResult from "./pages/evaluate/assessmentResult.tsx";
 import PublicRoute from "./routers/PublicRoute.tsx";
 import PrivateRoute from "./routers/PrivateRoute.tsx";
 import Unauthorized from "./pages/notFound/UnauthorizedPage.tsx";
+import { OfflineLogoutHandler } from "@/components/OfflineLogoutHandler";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App: React.FC = () => {
         <Toaster />
         <Sonner />
         <DifyChatIframe />
+        <OfflineLogoutHandler />
 
         <Routes>
           <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
@@ -38,7 +40,7 @@ const App: React.FC = () => {
           <Route path="/forget-password" element={<PublicRoute><ForgetPassword /></PublicRoute>} />
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route path="/case-detail/:id" element={<PrivateRoute><CaseDetial /></PrivateRoute>} />
-          <Route path="/reset-password" element={<PrivateRoute><ResetPasswordPage /></PrivateRoute>} />  
+          <Route path="/reset-password" element={<PrivateRoute><ResetPasswordPage /></PrivateRoute>} />
           {/* Admin */}
           <Route path="/admin/create-admin" element={<PrivateRoute allowRoles={["admin"]}><CreateAccountPage /></PrivateRoute>} />
           <Route path="/admin/homepage" element={<PrivateRoute allowRoles={["admin"]}><AdminHomePage /></PrivateRoute>} />
