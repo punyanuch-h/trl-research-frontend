@@ -50,14 +50,15 @@ export const useDifyChat = () => {
   }, [authToken]);
 
   useEffect(() => {
-    if (authToken && (messages.length > 0 || conversationId)) {
+    if (authToken && !isLoading && (messages.length > 0 || conversationId)) {
       const key = `dify_chat_history_${authToken}`;
       localStorage.setItem(key, JSON.stringify({ messages, conversationId }));
     }
-  }, [messages, conversationId, authToken]);
+  }, [messages, conversationId, authToken, isLoading]);
 
   const sendMessage = async (message: string) => {
     if (!message.trim()) return;
+    const controller = new AbortController();
 
     const userMsg: Message = { role: "user", content: message };
     setMessages((prev) => [...prev, userMsg]);
@@ -69,6 +70,7 @@ export const useDifyChat = () => {
 
       const response = await fetch(`${BASE_URL}/chat-messages`, {
         method: "POST",
+        signal: controller.signal,
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${API_KEY}`,

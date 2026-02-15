@@ -107,6 +107,7 @@ export default function DifyChatIframe() {
                             table: ({ node, ...props }) => <div className="overflow-x-auto my-2 rounded-md border border-gray-200"><table className="w-full text-left border-collapse text-xs" {...props} /></div>,
                             th: ({ node, ...props }) => <th className="bg-gray-50 p-2 border-b font-semibold text-gray-700" {...props} />,
                             td: ({ node, ...props }) => <td className="p-2 border-b last:border-0 border-gray-100" {...props} />,
+                            hr: ({ node, ...props }) => <hr className="my-4 border-gray-200" {...props} />,
                             code: ({ node, className, children, ...props }: ComponentPropsWithoutRef<"code"> & { node?: unknown }) => {
                               const isInline = !String(children).includes('\n');
                               return isInline ? (
