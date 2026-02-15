@@ -149,6 +149,9 @@ export const useDifyChat = () => {
         }
       }
     } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
       console.error("Chat Error:", error);
       setMessages((prev) => [
         ...prev,
