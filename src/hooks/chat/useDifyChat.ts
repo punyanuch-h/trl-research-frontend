@@ -64,8 +64,8 @@ export const useDifyChat = () => {
     setIsLoading(true);
 
     try {
-      const API_KEY = "app-Go2DBhyyY6pL3S6l7bpxrmf1"; 
-      const BASE_URL = "https://api.dify.ai/v1";
+      const API_KEY = import.meta.env.VITE_DIFY_API_KEY;
+      const BASE_URL = import.meta.env.VITE_DIFY_BASE_URL;
 
       const response = await fetch(`${BASE_URL}/chat-messages`, {
         method: "POST",
@@ -94,13 +94,15 @@ export const useDifyChat = () => {
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
       
       let assistantMessage = "";
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n");
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
 
         for (const line of lines) {
           if (line.startsWith("data: ")) {
@@ -118,9 +120,9 @@ export const useDifyChat = () => {
                 assistantMessage += data.answer;
                 setMessages((prev) => {
                   const newMessages = [...prev];
-                  const lastMsg = newMessages[newMessages.length - 1];
-                  if (lastMsg.role === "assistant") {
-                    lastMsg.content = assistantMessage;
+                  const lastIdx = newMessages.length - 1;
+                  if (newMessages[lastIdx].role === "assistant") {
+                    newMessages[lastIdx] = { ...newMessages[lastIdx], content: assistantMessage };
                   }
                   return newMessages;
                 });

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, ComponentPropsWithoutRef } from "react";
 import { Send, X, MessageCircle, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,7 @@ export default function DifyChatIframe() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={isOpen ? "Close chat" : "Open chat"}
         className={`fixed right-6 bottom-6 p-4 rounded-full shadow-xl transition-all duration-300 z-[9999] hover:scale-105 active:scale-95 ${
           isOpen 
             ? "bg-red-500 rotate-90"
@@ -106,7 +107,7 @@ export default function DifyChatIframe() {
                             table: ({ node, ...props }) => <div className="overflow-x-auto my-2 rounded-md border border-gray-200"><table className="w-full text-left border-collapse text-xs" {...props} /></div>,
                             th: ({ node, ...props }) => <th className="bg-gray-50 p-2 border-b font-semibold text-gray-700" {...props} />,
                             td: ({ node, ...props }) => <td className="p-2 border-b last:border-0 border-gray-100" {...props} />,
-                            code: ({ node, className, children, ...props }: any) => {
+                            code: ({ node, className, children, ...props }: ComponentPropsWithoutRef<"code"> & { node?: unknown }) => {
                               const isInline = !String(children).includes('\n');
                               return isInline ? (
                                 <code className="bg-gray-100 text-pink-500 px-1.5 py-0.5 rounded text-xs font-mono border border-gray-200" {...props}>
