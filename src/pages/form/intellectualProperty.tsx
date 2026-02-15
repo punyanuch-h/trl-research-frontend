@@ -112,27 +112,27 @@ export default function IntellectualProperty({
     value: string
   ) => {
     const regexMap: { [key: string]: RegExp } = {
-    patent: /^\d{7}$/,
-    pettyPatent: /^2\d{6}$/,
-    designPatent: /^[Dd]\d{6}$/,
-    copyright: /^[A-Za-z0-9\-/]{5,30}$/,
-    trademark: /^\d{7,8}$/,
-    tradeSecret: /^.{1,100}$/,
-  };
+      patent: /^\d{7}$/,
+      pettyPatent: /^2\d{6}$/,
+      designPatent: /^[Dd]\d{6}$/,
+      copyright: /^[A-Za-z0-9\-/]{5,30}$/,
+      trademark: /^\d{7,8}$/,
+      tradeSecret: /^.{1,100}$/,
+    };
 
-  const regex = regexMap[ipType];
-  const errorMessage = regex && !regex.test(value)
-    ? t("form.requestNumberInvalid", { type: ipTypesList.find((item) => item.id === ipType)?.label || ipType })
-    : "";
+    const regex = regexMap[ipType];
+    const errorMessage = regex && !regex.test(value)
+      ? t("form.requestNumberInvalid", { type: ipTypesList.find((item) => item.id === ipType)?.label || ipType })
+      : "";
 
-  setForms((currentForms) => {
-    const updatedForms = [...currentForms];
-    updatedForms[formIndex].requestNumbers[ipType] = value;
-    updatedForms[formIndex].error = errorMessage; // Add error message to the form
-    return updatedForms;
-  });
+    setForms((currentForms) => {
+      const updatedForms = [...currentForms];
+      updatedForms[formIndex].requestNumbers[ipType] = value;
+      updatedForms[formIndex].error = errorMessage; // Add error message to the form
+      return updatedForms;
+    });
 
-  handleInputChange("ipRequestNumber", value);
+    handleInputChange("ipRequestNumber", value);
   };
 
   const handleAddForm = () => {
@@ -188,11 +188,11 @@ export default function IntellectualProperty({
             required
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem id={`noIp-no-${formIndex}`} value="ไม่มี" />
+              <RadioGroupItem id={`noIp-no-${formIndex}`} value="ไม่มี" data-testid={`ip-no-${formIndex}`} />
               <Label htmlFor={`noIp-no-${formIndex}`}>{t("form.noIp")}</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem id={`noIp-yes-${formIndex}`} value="มี" />
+              <RadioGroupItem id={`noIp-yes-${formIndex}`} value="มี" data-testid={`ip-yes-${formIndex}`} />
               <Label htmlFor={`noIp-yes-${formIndex}`}>{t("form.hasIp")}</Label>
             </div>
           </RadioGroup>
@@ -216,6 +216,7 @@ export default function IntellectualProperty({
                     <RadioGroupItem
                       value="ได้เลขที่คำขอแล้ว"
                       id={`hasNumber-${formIndex}`}
+                      data-testid={`ip-status-number-${formIndex}`}
                     />
                     <Label htmlFor={`hasNumber-${formIndex}`}>
                       {t("form.gotRequestNumber")}
@@ -225,6 +226,7 @@ export default function IntellectualProperty({
                     <RadioGroupItem
                       value="กำลังดำเนินการ"
                       id={`inProgress-${formIndex}`}
+                      data-testid={`ip-status-progress-${formIndex}`}
                     />
                     <Label htmlFor={`inProgress-${formIndex}`}>
                       {t("form.inProgress")}
@@ -250,6 +252,7 @@ export default function IntellectualProperty({
                         <RadioGroupItem
                           value={item.id}
                           id={`${item.id}-${formIndex}`}
+                          data-testid={`ip-type-${item.id}-${formIndex}`}
                         />
                         <Label htmlFor={`${item.id}-${formIndex}`}>
                           {item.label}
@@ -266,6 +269,7 @@ export default function IntellectualProperty({
                   <h3 className="font-semibold text-primary">{t("form.requestNumberLabel")}<span className="text-red-500">*</span></h3>
                   <Input
                     type="text"
+                    data-testid={`ip-number-${formIndex}`}
                     value={form.requestNumbers[form.ipTypes[0]] || ""}
                     onChange={(e) =>
                       handleFormRequestNumberChange(
@@ -318,6 +322,7 @@ export default function IntellectualProperty({
       <div className="flex justify-center">
         <button
           onClick={handleAddForm}
+          data-testid="ip-add-btn"
           className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
         >
           <Plus className="w-4 h-4" /> {t("form.addIpForm")}

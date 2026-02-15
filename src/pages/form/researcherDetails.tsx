@@ -184,6 +184,7 @@ export default function ResearcherDetails({
                         <Input
                             disabled
                             id="headPrefix"
+                            data-testid="headPrefix"
                             value={formData.headPrefix}
                             onChange={(e) =>
                                 handleInputChange("headPrefix", e.target.value)
@@ -197,11 +198,12 @@ export default function ResearcherDetails({
 
                         <div
                             className={`grid gap-2 ${formData.headAcademicPosition === "other"
-                                    ? "grid-cols-2"
-                                    : "grid-cols-1"
+                                ? "grid-cols-2"
+                                : "grid-cols-1"
                                 }`}
                         >
                             <Input
+                                data-testid="headAcademicPosition"
                                 disabled
                                 value={
                                     formData.headAcademicPosition === "none"
@@ -226,6 +228,7 @@ export default function ResearcherDetails({
                         <Input
                             disabled
                             id="headFirstName"
+                            data-testid="headFirstName"
                             value={formData.headFirstName}
                             onChange={(e) =>
                                 handleInputChange("headFirstName", e.target.value)
@@ -241,6 +244,7 @@ export default function ResearcherDetails({
                         <Input
                             disabled
                             id="headLastName"
+                            data-testid="headLastName"
                             value={formData.headLastName}
                             onChange={(e) =>
                                 handleInputChange("headLastName", e.target.value)
@@ -262,6 +266,7 @@ export default function ResearcherDetails({
                     <Input
                         disabled
                         id="headDepartment"
+                        data-testid="headDepartment"
                         value={formData.headDepartment}
                         onChange={(e) =>
                             handleInputChange("headDepartment", e.target.value)
@@ -273,9 +278,10 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                        <Label htmlFor="headPhoneNumber">{t("auth.phone")}<span className="text-red-500">*</span></Label>
+                    <Label htmlFor="headPhoneNumber">{t("auth.phone")}<span className="text-red-500">*</span></Label>
                     <PhoneInput
                         disabled
+                        data-testid="headPhoneNumber"
                         value={formData.headPhoneNumber}
                         onChange={(value) => {
                             handleInputChange("headPhoneNumber", value);
@@ -289,10 +295,11 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                        <Label htmlFor="headEmail">{t("auth.email")}<span className="text-red-500">*</span></Label>
+                    <Label htmlFor="headEmail">{t("auth.email")}<span className="text-red-500">*</span></Label>
                     <Input
                         disabled
                         id="headEmail"
+                        data-testid="headEmail"
                         value={formData.headEmail}
                         onChange={(e) => {
                             handleInputChange("headEmail", e.target.value);
@@ -319,6 +326,7 @@ export default function ResearcherDetails({
                     <input
                         type="checkbox"
                         id="sameAsHead"
+                        data-testid="sameAsHead"
                         checked={formData.sameAsHead || false}
                         onChange={(e) => handleSameAsHeadChange(e.target.checked)}
                     />
@@ -335,7 +343,7 @@ export default function ResearcherDetails({
                             value={formData.coordinatorPrefix}
                             required
                         >
-                            <SelectTrigger>
+                            <SelectTrigger data-testid="coordinatorPrefix">
                                 <SelectValue placeholder="เลือก" />
                             </SelectTrigger>
                             <SelectContent>
@@ -357,8 +365,8 @@ export default function ResearcherDetails({
                             )}</Label>
                         <div
                             className={`grid gap-2 ${formData.coordinatorAcademicPosition === "other"
-                                    ? "grid-cols-2"
-                                    : "grid-cols-1"
+                                ? "grid-cols-2"
+                                : "grid-cols-1"
                                 }`}
                         >
                             <Select
@@ -371,7 +379,7 @@ export default function ResearcherDetails({
                                 value={formData.coordinatorAcademicPosition}
                                 required
                             >
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger className="w-full" data-testid="coordinatorAcademicPosition">
                                     <SelectValue placeholder={t("common.select")} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -404,6 +412,7 @@ export default function ResearcherDetails({
                         <Label htmlFor="coordinatorFirstName">{t("auth.firstName")}<span className="text-red-500">*</span></Label>
                         <Input
                             id="coordinatorFirstName"
+                            data-testid="coordinatorFirstName"
                             value={formData.coordinatorFirstName}
                             onChange={(e) =>
                                 handleInputChange("coordinatorFirstName", e.target.value)
@@ -418,6 +427,7 @@ export default function ResearcherDetails({
                         <Label htmlFor="coordinatorLastName">{t("auth.lastName")}<span className="text-red-500">*</span></Label>
                         <Input
                             id="coordinatorLastName"
+                            data-testid="coordinatorLastName"
                             value={formData.coordinatorLastName}
                             onChange={(e) =>
                                 handleInputChange("coordinatorLastName", e.target.value)
@@ -438,6 +448,7 @@ export default function ResearcherDetails({
                     </p>
                     <Input
                         id="coordinatorDepartment"
+                        data-testid="coordinatorDepartment"
                         value={formData.coordinatorDepartment}
                         onChange={(e) =>
                             handleInputChange("coordinatorDepartment", e.target.value)
@@ -449,9 +460,10 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                        <Label htmlFor="coordinatorPhoneNumber">{t("auth.phone")}<span className="text-red-500">*</span></Label>
+                    <Label htmlFor="coordinatorPhoneNumber">{t("auth.phone")}<span className="text-red-500">*</span></Label>
                     <PhoneInput
                         value={formData.coordinatorPhoneNumber}
+                        data-testid="coordinatorPhoneNumber"
                         onChange={(value) => {
                             handleInputChange("coordinatorPhoneNumber", value);
                             validateField("coordinatorPhoneNumber", value);
@@ -464,9 +476,10 @@ export default function ResearcherDetails({
                 </div>
 
                 <div>
-                        <Label htmlFor="coordinatorEmail">{t("auth.email")}<span className="text-red-500">*</span></Label>
+                    <Label htmlFor="coordinatorEmail">{t("auth.email")}<span className="text-red-500">*</span></Label>
                     <Input
                         id="coordinatorEmail"
+                        data-testid="coordinatorEmail"
                         value={formData.coordinatorEmail}
                         onChange={(e) => {
                             handleInputChange("coordinatorEmail", e.target.value);

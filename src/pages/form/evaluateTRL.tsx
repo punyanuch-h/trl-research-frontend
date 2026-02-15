@@ -137,8 +137,8 @@ export default function EvaluateTRL({
         if (oldVal === 1 && newValue[idx] === 0) {
           const fileKey = `cq${step.level}-${idx + 1}`;
 
-        const newFiles = { ...formData.assessmentFiles };
-        delete newFiles[fileKey];
+          const newFiles = { ...formData.assessmentFiles };
+          delete newFiles[fileKey];
 
           handleInputChange("assessmentFiles", {
             ...formData.assessmentFiles,
@@ -278,6 +278,7 @@ export default function EvaluateTRL({
                   <input
                     type="file"
                     id={`file-${fileKey}`}
+                    data-testid={`file-${fileKey}`}
                     accept=".pdf"
                     className="hidden"
                     onChange={(e) => {
@@ -346,6 +347,7 @@ export default function EvaluateTRL({
           {phase === "checkbox" && currentStep && (
             <div className="flex justify-end pt-4 border-t">
               <button
+                data-testid="trl-evaluate-btn"
                 onClick={handleEvaluateCheckbox}
                 className="px-6 py-2 bg-primary text-white rounded-lg shadow hover:opacity-90"
               >

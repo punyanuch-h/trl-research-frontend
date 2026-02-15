@@ -196,6 +196,7 @@ export default function ResearcherForm() {
   });
 
   const [stepError, setStepError] = useState<string>("");
+  const [errorField, setErrorField] = useState<string | null>(null);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -230,7 +231,10 @@ export default function ResearcherForm() {
     value: FormState[K]
   ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (stepError) setStepError("");
+    if (errorField === field) {
+      setStepError("");
+      setErrorField(null);
+    }
   };
 
   // Validation - pure function that doesn't call setStepError
@@ -386,11 +390,10 @@ export default function ResearcherForm() {
     // Normal validation for other steps
     const { valid, firstField, errorMessage } = validateStepWithField(currentFormStep);
     if (!valid) {
-      if (errorMessage) {
-        setStepError(errorMessage);
-      } else {
-        setStepError("กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน");
-      }
+      const msg = errorMessage || "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน";
+      setStepError(msg);
+      setErrorField(firstField || null);
+
       if (firstField) {
         setTimeout(() => scrollToField(firstField), 100);
       }
@@ -415,11 +418,10 @@ export default function ResearcherForm() {
   const handleSubmit = async () => {
     const { valid, firstField, errorMessage } = validateStepWithField(currentFormStep);
     if (!valid) {
-      if (errorMessage) {
-        setStepError(errorMessage);
-      } else {
-        setStepError("กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน");
-      }
+      const msg = errorMessage || "กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน";
+      setStepError(msg);
+      setErrorField(firstField || null);
+
       if (firstField) {
         setTimeout(() => scrollToField(firstField), 100);
       }
@@ -523,7 +525,7 @@ export default function ResearcherForm() {
         <div className="mb-8">
           <div className="flex items-center">
             {formSteps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
+              <div key={step.id} className="flex items-center" data-testid="step-indicator">
                 <div className="text-sm font-medium mr-2 whitespace-nowrap">
                   {t("form.stepOf")}
                 </div>
@@ -551,7 +553,7 @@ export default function ResearcherForm() {
           <CardContent>
             {renderFormStep()}
             {stepError && (
-              <div className="text-red-500 font-semibold mt-4">
+              <div className="text-red-500 font-semibold mt-4" data-testid="step-error">
                 {stepError}
               </div>
             )}
@@ -559,6 +561,7 @@ export default function ResearcherForm() {
               <Button
                 variant="outline"
                 onClick={handlePrev}
+                data-testid="prev-btn"
                 disabled={currentFormStep === 1}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -566,12 +569,12 @@ export default function ResearcherForm() {
               </Button>
               <div className="flex gap-3">
                 {currentFormStep === 5 ? (
-                  <Button onClick={handleSubmit} disabled={submitFormMutation.isPending || !isStepValid()}>
+                  <Button data-testid="submit-btn" onClick={handleSubmit} >
                     {t("common.save")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
-                  <Button onClick={handleNext} disabled={!isStepValid()}>
+                  <Button data-testid="next-btn" onClick={handleNext}>
                     {t("form.nextStep")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
@@ -594,7 +597,7 @@ export default function ResearcherForm() {
               <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
                 {t("common.cancel")}
               </Button>
-              <Button onClick={handleConfirmSubmit} disabled={submitFormMutation.isPending}>
+              <Button onClick={handleConfirmSubmit} data-testid="confirm-submit" disabled={submitFormMutation.isPending}>
                 {t("form.confirmAndSubmit")}
               </Button>
             </DialogFooter>

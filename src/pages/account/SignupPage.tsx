@@ -140,7 +140,7 @@ export default function SignupPage() {
                       rules={{ required: t("auth.prefixRequired") }}
                       render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="pl-10">
+                          <SelectTrigger className="pl-10" data-testid="prefix">
                             <SelectValue placeholder={t("form.prefixPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
@@ -176,7 +176,7 @@ export default function SignupPage() {
                           value={field.value ?? "none"}
                           onValueChange={(val) => field.onChange(val === "none" ? null : val)}
                         >
-                          <SelectTrigger className="pl-10">
+                          <SelectTrigger className="pl-10" data-testid="academic_position">
                             <SelectValue placeholder={t("form.academicPositionPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
@@ -201,6 +201,7 @@ export default function SignupPage() {
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
+                    data-testid="first_name"
                     className="pl-10"
                     {...register("first_name", { required: t("auth.firstNameRequired") })}
                   />
@@ -218,6 +219,7 @@ export default function SignupPage() {
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
+                    data-testid="last_name"
                     className="pl-10"
                     {...register("last_name", { required: t("auth.lastNameRequired") })}
                   />
@@ -235,6 +237,7 @@ export default function SignupPage() {
                   <Building className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
+                    data-testid="department"
                     className="pl-10"
                     {...register("department", { required: t("auth.departmentRequired") })}
                   />
@@ -261,6 +264,7 @@ export default function SignupPage() {
                   render={({ field, fieldState }) => (
                     <PhoneInput
                       {...field}
+                      data-testid="phone_number"
                       error={fieldState.error?.message}
                     />
                   )}
@@ -273,6 +277,7 @@ export default function SignupPage() {
                   <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="email"
+                    data-testid="email"
                     className="pl-10"
                     {...register("email", {
                       required: t("auth.emailRequired"),
@@ -296,6 +301,7 @@ export default function SignupPage() {
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
+                    data-testid="password"
                     className="pl-10"
                     {...register("password", {
                       required: t("auth.passwordRequired"),
@@ -335,6 +341,7 @@ export default function SignupPage() {
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
+                    data-testid="confirmPassword"
                     className="pl-10"
                     {...register("confirmPassword", {
                       required: t("auth.confirmPasswordRequired"),
