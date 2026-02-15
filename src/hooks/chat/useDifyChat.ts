@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
 
 export type Message = {
@@ -13,6 +13,13 @@ export const useDifyChat = () => {
   const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem("token"));
   const { data: userProfile } = useGetUserProfile();
   const userId = userProfile?.id ?? "guest";
+  const controllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      controllerRef.current?.abort();
+    };
+  }, []);
 
   useEffect(() => {
     const checkToken = () => {
@@ -58,7 +65,9 @@ export const useDifyChat = () => {
 
   const sendMessage = async (message: string) => {
     if (!message.trim()) return;
+    controllerRef.current?.abort();
     const controller = new AbortController();
+    controllerRef.current = controller;
 
     const userMsg: Message = { role: "user", content: message };
     setMessages((prev) => [...prev, userMsg]);
@@ -67,6 +76,10 @@ export const useDifyChat = () => {
     try {
       const API_KEY = import.meta.env.VITE_DIFY_API_KEY;
       const BASE_URL = import.meta.env.VITE_DIFY_BASE_URL;
+
+      if (!API_KEY || !BASE_URL) {
+        throw new Error("Dify API configuration is missing. Check VITE_DIFY_API_KEY and VITE_DIFY_BASE_URL.");
+      }
 
       const response = await fetch(`${BASE_URL}/chat-messages`, {
         method: "POST",
