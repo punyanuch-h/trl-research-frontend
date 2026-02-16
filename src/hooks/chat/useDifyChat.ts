@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
+import { getUserRole } from "@/lib/auth";
+import { sendDifyMessage } from "@/lib/dify";
 
 export type Message = {
   role: "user" | "assistant";
@@ -10,27 +12,82 @@ export const useDifyChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem("token"));
+  const [authToken, setAuthToken] = useState<string | null>(() => localStorage.getItem("token"));
   const { data: userProfile } = useGetUserProfile();
-  const userId = userProfile?.id ?? "guest";
+  const userId = userProfile?.id ?? "undefined";
+  const userRole = getUserRole();
   const controllerRef = useRef<AbortController | null>(null);
+
+  const messagesRef = useRef<Message[]>([]);
+  const authTokenRef = useRef<string | null>(authToken);
+  const userIdRef = useRef(userId);
+  const userRoleRef = useRef(userRole);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+    authTokenRef.current = authToken;
+    userIdRef.current = userId;
+    userRoleRef.current = userRole;
+  }, [messages, authToken, userId, userRole]);
+
+  const saveChatHistory = useCallback(async (token: string) => {
+    const msgs = messagesRef.current;
+    if (msgs.length === 0) return;
+
+    if (!userIdRef.current || userIdRef.current === "undefined") return;
+    
+    const payload: { history: Message[]; admin_id?: string; researcher_id?: string } = {
+      history: msgs,
+    };
+
+    if (userRoleRef.current === "admin") {
+      payload.admin_id = userIdRef.current;
+    } else {
+      payload.researcher_id = userIdRef.current;
+    }
+
+    try {
+      const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
+      await fetch(`${API_URL}/trl/chat-log`, {
+        method: "POST",
+        keepalive: true,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      console.error("Failed to save chat history:", error);
+    }
+  }, []);
 
   useEffect(() => {
     return () => {
       controllerRef.current?.abort();
-    };
-  }, []);
-
-  useEffect(() => {
-    const checkToken = () => {
       const current = localStorage.getItem("token");
-      if (current !== authToken) {
-        setAuthToken(current);
+      if (!current && authTokenRef.current) {
+        saveChatHistory(authTokenRef.current);
       }
     };
-    const interval = setInterval(checkToken, 1000);
-    return () => clearInterval(interval);
-  }, [authToken]);
+  }, [saveChatHistory]);
+
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "token") {
+        const current = event.newValue;
+        if (current !== authToken) {
+          if (!current && authToken) {
+            saveChatHistory(authToken);
+          }
+          setAuthToken(current);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [authToken, saveChatHistory]);
 
   useEffect(() => {
     if (authToken) {
@@ -74,80 +131,33 @@ export const useDifyChat = () => {
     setIsLoading(true);
 
     try {
-      const API_KEY = import.meta.env.VITE_DIFY_API_KEY;
-      const BASE_URL = import.meta.env.VITE_DIFY_BASE_URL;
-
-      if (!API_KEY || !BASE_URL) {
-        throw new Error("Dify API configuration is missing. Check VITE_DIFY_API_KEY and VITE_DIFY_BASE_URL.");
-      }
-
-      const response = await fetch(`${BASE_URL}/chat-messages`, {
-        method: "POST",
-        signal: controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${API_KEY}`,
-        },
-        body: JSON.stringify({
-          inputs: {},
-          query: message,
-          response_mode: "streaming",
-          conversation_id: conversationId,
-          user: userId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (!reader) throw new Error("No reader available");
-
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
       
       let assistantMessage = "";
-      let buffer = "";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const jsonStr = line.slice(6);
-            if (!jsonStr.trim()) continue;
-
-            try {
-              const data = JSON.parse(jsonStr);
-              
-              if (data.conversation_id) {
-                setConversationId(data.conversation_id);
+      await sendDifyMessage(
+        message,
+        conversationId,
+        userId,
+        controller.signal,
+        {
+          onMessage: (chunk, convId) => {
+            if (convId) setConversationId(convId);
+            assistantMessage += chunk;
+            setMessages((prev) => {
+              const newMessages = [...prev];
+              const lastIdx = newMessages.length - 1;
+              if (newMessages[lastIdx].role === "assistant") {
+                newMessages[lastIdx] = { ...newMessages[lastIdx], content: assistantMessage };
               }
-
-              if (data.event === "message") {
-                assistantMessage += data.answer;
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  const lastIdx = newMessages.length - 1;
-                  if (newMessages[lastIdx].role === "assistant") {
-                    newMessages[lastIdx] = { ...newMessages[lastIdx], content: assistantMessage };
-                  }
-                  return newMessages;
-                });
-              }
-            } catch (e) {
-              console.error("Error parsing JSON chunk", e);
-            }
+              return newMessages;
+            });
+          },
+          onError: (error) => {
+            throw error;
           }
         }
-      }
+      );
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         return;
