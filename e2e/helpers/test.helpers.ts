@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page, type Download } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -26,11 +26,11 @@ export async function takeScreenshotOnFailure(
 /** Verify file was downloaded (Playwright download event) */
 export async function expectDownload(
   page: Page,
-  downloadPromise: Promise<unknown>,
+  downloadPromise: Promise<Download>,
   expectedSuffix?: string
 ) {
   // Use page.waitForEvent('download') if passed
-  const download = await (downloadPromise as Promise<import('@playwright/test').Download>);
+  const download = await downloadPromise;
   const filename = download.suggestedFilename();
   const filepath = await download.path();
   expect(filepath).toBeTruthy();

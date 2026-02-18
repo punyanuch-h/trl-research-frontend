@@ -33,12 +33,10 @@ jobs:
           VITE_PUBLIC_API_URL: ${{ vars.VITE_PUBLIC_API_URL || 'http://localhost:8000' }}
 
       - name: Start application
-        run: npm run preview &
-        env:
-          PORT: 3000
+        run: npm run preview -- --port 3000 &
 
       - name: Wait for server
-        run: sleep 5 && curl -f http://localhost:3000 || true
+        run: npx wait-on http://localhost:3000 --timeout 30000
 
       - name: Run E2E tests
         run: npx playwright test --project=chromium
