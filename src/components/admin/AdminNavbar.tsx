@@ -43,7 +43,7 @@ export default function AdminNavbar({
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{t("admin.researchManagement")}</h1>
+              <h1 data-testid="admin-title" className="text-3xl font-bold text-foreground">{t("admin.researchManagement")}</h1>
               <p className="text-muted-foreground">{t("admin.researchManagementDesc")}</p>
             </div>
           </div>
@@ -57,6 +57,7 @@ export default function AdminNavbar({
                 >
                   {filter.column}: {filter.value}
                   <button
+                    data-testid="filter-btn"
                     onClick={() =>
                       setCustomFilters((prev) =>
                         prev.filter((_, i) => i !== index)
@@ -90,6 +91,7 @@ export default function AdminNavbar({
         {/* View Toggle */}
         <div className="flex items-center space-x-2">
           <Button
+            data-testid="tab-management"
             variant={activeView === 'management' ? 'default' : 'outline'}
             onClick={() => onViewChange('management')}
             className="flex items-center space-x-2"
@@ -98,6 +100,7 @@ export default function AdminNavbar({
             <span>{t("admin.manageResearch")}</span>
           </Button>
           <Button
+            data-testid="tab-dashboard"
             variant={activeView === 'dashboard' ? 'default' : 'outline'}
             onClick={() => onViewChange('dashboard')}
             className="flex items-center space-x-2"
@@ -106,6 +109,7 @@ export default function AdminNavbar({
             <span>{t("admin.researchOverview")}</span>
           </Button>
           <Button
+            data-testid="tab-appointments"
             variant={activeView === 'appointments' ? 'default' : 'outline'}
             onClick={() => onViewChange('appointments')}
             className="flex items-center space-x-2"

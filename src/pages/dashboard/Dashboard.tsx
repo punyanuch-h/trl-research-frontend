@@ -58,27 +58,29 @@ export default function Dashboard() {
   const safeUrgentRatio = stats.total ? (stats.urgent / stats.total) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-8 rounded-lg">
+    <div data-testid="admin-dashboard" className="min-h-screen bg-gray-50 px-6 py-8 rounded-lg">
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <KPICard icon={FileText} label={t("dashboard.researchCount")} value={stats.total} />
-        <KPICard icon={Zap} label={t("dashboard.inProcess")} value={stats.pending} />
-        <KPICard icon={AlertCircle} label={t("dashboard.urgentResearch")} value={stats.urgent} />
-        <KPICard icon={Users} label={t("dashboard.researcherCount")} value={allResearchers.length} />
+        <KPICard data-testid="kpi-total" icon={FileText} label={t("dashboard.researchCount")} value={stats.total} />
+        <KPICard data-testid="kpi-pending" icon={Zap} label={t("dashboard.inProcess")} value={stats.pending} />
+        <KPICard data-testid="kpi-urgent" icon={AlertCircle} label={t("dashboard.urgentResearch")} value={stats.urgent} />
+        <KPICard data-testid="kpi-researcher" icon={Users} label={t("dashboard.researcherCount")} value={allResearchers.length} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Charts Section */}
         <div className="lg:col-span-2 space-y-6">
-          <TRLEstimatedScoreChart data={stats.trlEstimateDistribution} baseColor={PRIMARY_COLOR} />
-          <TRLRealScoreChart data={stats.trlRealDistribution} baseColor={PRIMARY_COLOR} />
+          <TRLEstimatedScoreChart data-testid="chart-trl-estimate" data={stats.trlEstimateDistribution} baseColor={PRIMARY_COLOR} />
+          <TRLRealScoreChart data-testid="chart-trl-real" data={stats.trlRealDistribution} baseColor={PRIMARY_COLOR} />
           <CaseTypeStatusChart
+            data-testid="chart-case-type"
             statusData={stats.statusData}
             caseTypeData={stats.caseTypeData}
             colors={COLORS}
           />
-          <IntellectualPropertyChart data={stats.ipData} colors={IP_COLORS} />
+          <IntellectualPropertyChart data-testid="chart-ip" data={stats.ipData} colors={IP_COLORS} />
           <SupportmentCharts
+            data-testid="chart-support"
             agencyData={stats.agencyData}
             neededSupportData={stats.neededSupportData}
             baseColor={PRIMARY_COLOR}
@@ -88,12 +90,14 @@ export default function Dashboard() {
         {/* Right Sidebar */}
         <div className="space-y-6">
           <AveragesCard
+            data-testid="avg-card"
             avgTRL={stats.avgTRL}
             pendingRatio={safePendingRatio}
             urgentRatio={safeUrgentRatio}
           />
-          <TopResearchersCard researchers={stats.topResearchers} />
+          <TopResearchersCard data-testid="top-researcher-card" researchers={stats.topResearchers} />
           <AppointmentsCard
+            data-testid="appointments-card"
             attended={stats.attended}
             absent={stats.absent}
             upcoming={stats.upcoming}

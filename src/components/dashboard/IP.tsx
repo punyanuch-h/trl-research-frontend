@@ -9,12 +9,13 @@ interface IPData {
 interface IntellectualPropertyChartProps {
   data: IPData[];
   colors: string[];
+  "data-testid"?: string;
 }
 
-export function IntellectualPropertyChart({ data, colors = [] }: IntellectualPropertyChartProps) {
+export function IntellectualPropertyChart({ data, colors = [], "data-testid": testId }: IntellectualPropertyChartProps) {
   const { t } = useTranslation();
   return (
-    <div className="bg-white p-5 border border-gray-100 rounded-lg">
+    <div data-testid={testId} className="bg-white p-5 border border-gray-100 rounded-lg">
       <h3 className="font-semibold mb-3 text-sm">{t("dashboard.ipType")}</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">

@@ -4,12 +4,13 @@ interface AveragesCardProps {
   avgTRL: string;
   pendingRatio: number;
   urgentRatio: number;
+  "data-testid"?: string;
 }
 
-export function AveragesCard({ avgTRL, pendingRatio, urgentRatio }: AveragesCardProps) {
+export function AveragesCard({ avgTRL, pendingRatio, urgentRatio, "data-testid": testId }: AveragesCardProps) {
   const { t } = useTranslation();
   return (
-    <div className="bg-white p-5 border border-gray-100 rounded-lg">
+    <div data-testid={testId} className="bg-white p-5 border border-gray-100 rounded-lg">
       <h3 className="font-semibold mb-3 text-sm">{t("dashboard.averageLabel")}</h3>
       <div className="space-y-2 text-sm">
         <p>

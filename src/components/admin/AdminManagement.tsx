@@ -117,7 +117,7 @@ export default function AdminManagement({
           <CardTitle>{t("admin.researchList")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
+          <Table data-testid="research-table">
             <TableHeader>
               <TableRow>
                 {tableColumns.map(col => {
@@ -148,14 +148,14 @@ export default function AdminManagement({
             </TableHeader>
             <TableBody>
               {paginatedProjects.length === 0 ? (
-                <TableRow>
+                <TableRow data-testid="empty-state">
                   <TableCell colSpan={tableColumns.length + 1} className="text-center text-muted-foreground">
                     {t("admin.noResearchData")}
                   </TableCell>
                 </TableRow>
               ) : (
                 paginatedProjects.map(project => (
-                  <TableRow key={project.id}>
+                  <TableRow key={project.id} data-testid="research-row">
                     <TableCell className="min-w-[140px] px-2 align-middle">
                       {format(new Date(project.created_at), "dd/MM/yyyy")}
                     </TableCell>
@@ -219,6 +219,7 @@ export default function AdminManagement({
                       {project.status === true ? (
                         <>
                           <Button
+                            data-testid="view-detail-btn"
                             variant="outline"
                             size="sm"
                             onClick={() => handleViewResearch(project.id)}
@@ -228,6 +229,7 @@ export default function AdminManagement({
                           </Button>
                           {project.trl_score ? (
                             <Button
+                              data-testid="download-btn"
                               variant="outline"
                               size="sm"
                               disabled={downloadingId === project.id}

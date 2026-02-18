@@ -8,12 +8,13 @@ interface Researcher {
 
 interface TopResearchersCardProps {
   researchers: Researcher[];
+  "data-testid"?: string;
 }
 
-export function TopResearchersCard({ researchers }: TopResearchersCardProps) {
+export function TopResearchersCard({ researchers, "data-testid": testId }: TopResearchersCardProps) {
   const { t } = useTranslation();
   return (
-    <div className="bg-white p-5 border border-gray-100 rounded-lg">
+    <div data-testid={testId} className="bg-white p-5 border border-gray-100 rounded-lg">
       <h3 className="font-semibold mb-3 text-sm">{t("dashboard.submitCount")}</h3>
       {researchers.length > 0 ? (
         <ul className="text-sm space-y-2">

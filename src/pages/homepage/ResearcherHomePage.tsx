@@ -495,7 +495,7 @@ export default function ResearcherHomePage() {
                                   onClick={() => handleViewCase(c.id)}
                                 >
                                   <Eye className="w-4 h-4 mr-2" />
-                                  ดูรายละเอียด
+                                  {t("home.viewDetails")}
                                 </Button>
                               </div>
                               {(() => {

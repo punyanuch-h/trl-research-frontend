@@ -10,12 +10,13 @@ interface CaseTypeStatusChartProps {
   statusData: ChartData[];
   caseTypeData: ChartData[];
   colors: string[];
+  "data-testid"?: string;
 }
 
-export function CaseTypeStatusChart({ statusData, caseTypeData, colors }: CaseTypeStatusChartProps) {
+export function CaseTypeStatusChart({ statusData, caseTypeData, colors, "data-testid": testId }: CaseTypeStatusChartProps) {
   const { t } = useTranslation();
   return (
-    <div className="bg-white p-6 border border-gray-100 rounded-xl shadow-sm">
+    <div data-testid={testId} className="bg-white p-6 border border-gray-100 rounded-xl shadow-sm">
       <h3 className="font-bold mb-4 text-gray-800 text-base">{t("dashboard.caseTypeStatus")}</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">

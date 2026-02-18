@@ -29,6 +29,22 @@ export function buildResearcherSignupData(overrides?: Partial<SignupFormData>): 
   };
 }
 
+/** Build researcher signup data with optional overrides */
+export function buildAdminData(overrides?: Partial<SignupFormData>): SignupFormData {
+  const timestamp = Date.now();
+  return {
+    prefix: 'นพ.',
+    firstName: 'Test',
+    lastName: 'Admin',
+    department: 'Computer Engineering',
+    phone: '0812345678',
+    email: `test.admin.${timestamp}@example.com`,
+    password: 'TestPass123',
+    confirmPassword: 'TestPass123',
+    ...overrides,
+  };
+}
+
 /** Valid researcher credentials (pre-seeded or from env) */
 export function getResearcherCredentials() {
   return {

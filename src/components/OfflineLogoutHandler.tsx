@@ -33,7 +33,7 @@ export const OfflineLogoutHandler = () => {
         return () => {
             window.removeEventListener("online", handleOnline);
         };
-    }, [navigate]);
+    }, [navigate, queryClient, t]);
 
     return null;
 };

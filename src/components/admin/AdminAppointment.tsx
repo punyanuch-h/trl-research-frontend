@@ -198,6 +198,7 @@ export default function AdminAppointment({
                   </span>
                   {userRole === "admin" && (
                     <Button
+                      data-testid="appointment-edit-btn"
                       variant="outline"
                       size="sm"
                       onClick={(e) => {

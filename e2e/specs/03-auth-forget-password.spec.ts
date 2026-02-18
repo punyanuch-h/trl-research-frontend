@@ -30,7 +30,7 @@ test.describe('Forget Password', () => {
   test('should show success message after submitting valid email', async ({ page }) => {
     // Note: Backend may reject unknown emails - use known test email if available
     const credentials = getResearcherCredentials();
-    await forgetPasswordPage.submitEmail(credentials.email);
+    await forgetPasswordPage.submitEmail("forget@password.com");
     // Assert: Either success message or error (depending on backend behavior)
     const successAlert = page.getByRole('alert');
     const errorText = page.locator('.text-destructive');
