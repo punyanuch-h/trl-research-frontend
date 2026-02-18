@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 import LoginPage from "./pages/account/LoginPage.tsx";
 import SignupPage from "./pages/account/SignupPage.tsx";
@@ -25,12 +25,15 @@ import { OfflineLogoutHandler } from "@/components/OfflineLogoutHandler";
 const queryClient = new QueryClient();
 
 const App: React.FC = () => {
+  useLocation();
+  const isAuthenticated = !!localStorage.getItem("token");
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <DifyChatIframe />
+        {isAuthenticated && <DifyChatIframe />}
         <OfflineLogoutHandler />
 
         <Routes>
