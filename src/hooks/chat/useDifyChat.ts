@@ -46,22 +46,17 @@ export const useDifyChat = () => {
       payload.researcher_id = userIdRef.current;
     }
 
-    try {
-      const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-      const res = await fetch(`${API_URL}/trl/chat-log`, {
-        method: "POST",
-        keepalive: true,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`Failed to save chat history: ${res.status}`);
-    } catch (error) {
-      console.error("Failed to save chat history:", error);
-      throw error;
-    }
+    const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
+    const res = await fetch(`${API_URL}/trl/chat-log`, {
+      method: "POST",
+      keepalive: true,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Failed to save chat history: ${res.status}`);
   }, []);
 
   useEffect(() => {
