@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, ComponentPropsWithoutRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Send, X, MessageCircle, Bot } from "lucide-react";
+import { Send, X, MessageCircle, Bot, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import remarkGfm from "remark-gfm";
 export default function DifyChatIframe() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const { messages, isLoading, sendMessage } = useDifyChat();
+  const { messages, isLoading, sendMessage, resetChat } = useDifyChat();
   const scrollRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
@@ -59,6 +59,14 @@ export default function DifyChatIframe() {
                 <h3 className="font-semibold text-sm tracking-wide">{t("chat.assistantTitle")}</h3>
               </div>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 hover:text-white h-8 w-8 rounded-full"
+              onClick={resetChat}
+            >
+              <RotateCcw className="w-5 h-5" />
+            </Button>
           </div>
           
           <CardContent className="flex-1 flex flex-col p-0 overflow-hidden bg-slate-50/50">

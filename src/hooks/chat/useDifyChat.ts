@@ -120,6 +120,17 @@ export const useDifyChat = () => {
     }
   }, [messages, conversationId, authToken, isLoading]);
 
+  const resetChat = useCallback(() => {
+    controllerRef.current?.abort();
+    if (authTokenRef.current) {
+      saveChatHistory(authTokenRef.current);
+      localStorage.removeItem(`dify_chat_history_${authTokenRef.current}`);
+    }
+    setMessages([]);
+    setConversationId(null);
+    setIsLoading(false);
+  }, [saveChatHistory]);
+
   const sendMessage = async (message: string) => {
     if (!message.trim()) return;
     controllerRef.current?.abort();
@@ -172,5 +183,5 @@ export const useDifyChat = () => {
     }
   };
 
-  return { messages, isLoading, sendMessage };
+  return { messages, isLoading, sendMessage, resetChat };
 };
