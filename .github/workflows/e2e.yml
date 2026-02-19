@@ -31,6 +31,7 @@ jobs:
         run: npm run build
         env:
           VITE_PUBLIC_API_URL: https://trl-research-backend-855321865617.asia-southeast1.run.app
+          VERCEL: true
 
       - name: Start application
         run: npm run preview -- --port 3000 &
