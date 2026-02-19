@@ -99,6 +99,13 @@ export default function DifyChatIframe() {
                     }`}
                   >
                     {msg.role === "assistant" ? (
+                      msg.content === "" && isLoading ? (
+                        <div className="flex items-center gap-1.5 h-5">
+                          <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"/>
+                          <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"/>
+                          <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"/>
+                        </div>
+                      ) : (
                       <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-pre:p-0 prose-pre:bg-transparent prose-ul:my-1 prose-ol:my-1">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
@@ -127,25 +134,13 @@ export default function DifyChatIframe() {
                           {msg.content}
                         </ReactMarkdown>
                       </div>
+                      )
                     ) : (
                       msg.content
                     )}
                   </div>
                 </div>
               ))}
-              
-              {isLoading && messages[messages.length - 1]?.role === "user" && (
-                <div className="flex justify-start gap-3 animate-in fade-in duration-300">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                    <Bot className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-4 shadow-sm flex items-center gap-1.5 h-[44px]">
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"/>
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"/>
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"/>
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="p-4 bg-white border-t border-gray-100">
