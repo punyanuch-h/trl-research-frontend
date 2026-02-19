@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarPlus, Edit2, Sparkles } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { toast } from "@/lib/toast";
 import { AddAppointmentModal } from "../../components/modal/appointment/AddAppointmentModal";
 import EditAppointmentModal from "../../components/modal/appointment/EditAppointmentModal";
 
@@ -81,6 +82,21 @@ export default function CaseDetail() {
     }
     return type;
   };
+
+  useEffect(() => {
+    if (!id) {
+      toast.error(t("toast.caseDetailError"));
+      navigate(role === "admin" ? "/admin/homepage" : "/researcher/homepage", { replace: true });
+      return;
+    }
+
+    if (isCasePending) return;
+
+    if (isCaseError || !caseData) {
+      toast.error(t("toast.caseDetailError"));
+      navigate(role === "admin" ? "/admin/homepage" : "/researcher/homepage", { replace: true });
+    }
+  }, [id, isCaseError, caseData, isCasePending, navigate, role, t]);
 
   return (
     <div className="min-h-screen bg-gray-50">

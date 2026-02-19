@@ -12,10 +12,18 @@ import { useMarkAsRead } from "@/hooks/notifications/useMarkAsRead";
 import { useMarkAllAsRead } from "@/hooks/notifications/useMarkAllAsRead";
 import { NotificationOverlay } from "./NotificationOverlay";
 import { AppointmentModal } from "./AppointmentModal";
-import { AppointmentResponse } from "@/hooks/client/type";
+import { AppointmentResponse } from "@/types/type";
 
 export function NotificationIcon() {
-    const { data: notifications = [] } = useGetNotifications();
+    const {
+        data: notifications = [],
+        isLoading,
+        isError,
+        refetch,
+    } = useGetNotifications();
+    const isOffline = !navigator.onLine;
+    const showError = isError || isOffline;
+
     const { mutate: markAsRead } = useMarkAsRead();
     const { mutate: markAllAsRead } = useMarkAllAsRead();
 
@@ -54,6 +62,9 @@ export function NotificationIcon() {
                 <PopoverContent className="w-auto p-0" align="end" sideOffset={8}>
                     <NotificationOverlay
                         notifications={notifications}
+                        loading={isLoading}
+                        error={showError}
+                        onRetry={refetch}
                         onNotificationClick={handleNotificationClick}
                         onMarkAllAsRead={() => markAllAsRead()}
                     />

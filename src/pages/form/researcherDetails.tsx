@@ -347,13 +347,15 @@ export default function ResearcherDetails({
                                 <SelectValue placeholder="เลือก" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="นพ.">นพ.</SelectItem>
-                                <SelectItem value="พญ.">พญ.</SelectItem>
-                                <SelectItem value="ภญ.">ภญ.</SelectItem>
-                                <SelectItem value="ทพญ.">ทพญ.</SelectItem>
                                 <SelectItem value="นาย">{t("form.prefixMr")}</SelectItem>
                                 <SelectItem value="นาง">{t("form.prefixMrs")}</SelectItem>
                                 <SelectItem value="นางสาว">{t("form.prefixMs")}</SelectItem>
+                                <SelectItem value="นพ.">{t("form.prefixDrMale")}</SelectItem>
+                                <SelectItem value="พญ.">{t("form.prefixDrFemale")}</SelectItem>
+                                <SelectItem value="ภก.">{t("form.prefixPharmacistMale")}</SelectItem>
+                                <SelectItem value="ภกญ.">{t("form.prefixPharmacistFemale")}</SelectItem>
+                                <SelectItem value="ทพ.">{t("form.prefixDentistMale")}</SelectItem>
+                                <SelectItem value="ทพญ.">{t("form.prefixDentistFemale")}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -384,10 +386,10 @@ export default function ResearcherDetails({
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="none">{t("form.none")}</SelectItem>
-                                    <SelectItem value="อ.">อ.</SelectItem>
-                                    <SelectItem value="ผศ.">ผศ.</SelectItem>
-                                    <SelectItem value="รศ.">รศ.</SelectItem>
-                                    <SelectItem value="ศ.">ศ.</SelectItem>
+                                    <SelectItem value="อ.">{t("form.lecturer")}</SelectItem>
+                                    <SelectItem value="ผศ.">{t("form.assistantProfessor")}</SelectItem>
+                                    <SelectItem value="รศ.">{t("form.associateProfessor")}</SelectItem>
+                                    <SelectItem value="ศ.">{t("form.professor")}</SelectItem>
                                     <SelectItem value="other">{t("common.other")}</SelectItem>
                                 </SelectContent>
                             </Select>

@@ -21,7 +21,8 @@
     "noData": "ไม่มีข้อมูล",
     "other": "อื่นๆ",
     "select": "เลือก",
-    "processing": "กำลังประมวลผล..."
+    "processing": "กำลังประมวลผล...",
+    "try": "ลองใหม่"
   },
   "header": {
     "appTitle": "ระบบประเมินระดับความพร้อมทางเทคโนโลยี",
@@ -103,8 +104,18 @@
     "prefixMr": "นาย",
     "prefixMrs": "นาง",
     "prefixMs": "นางสาว",
+    "prefixDrMale": "นายแพทย์",
+    "prefixDrFemale": "แพทย์หญิง",
+    "prefixPharmacistMale": "เภสัชกรชาย",
+    "prefixPharmacistFemale": "เภสัชกรหญิง",
+    "prefixDentistMale": "ทันตแพทย์ชาย",
+    "prefixDentistFemale": "ทันตแพทย์หญิง",
     "prefixPlaceholder": "คำนำหน้า",
     "academicPositionPlaceholder": "ตำแหน่งทางวิชาการ",
+    "lecturer": "อาจารย์",
+    "assistantProfessor": "ผู้ช่วยศาสตราจารย์ (ผศ.)",
+    "associateProfessor": "รองศาสตราจารย์ (รศ.)",
+    "professor": "ศาสตราจารย์ (ศ.)",
     "namePlaceholder": "ชื่อ",
     "lastNamePlaceholder": "นามสกุล",
     "positionPlaceholder": "ตำแหน่ง",
@@ -233,7 +244,8 @@
     "addAppointmentSuccess": "เพิ่มการนัดหมายสำเร็จ",
     "addAppointmentWarning": "กรุณากรอกข้อมูลชื่องานวิจัยและวันเวลา เพื่อเพิ่มการนัดหมาย",
     "addAppointmentError": "เกิดข้อผิดพลาดในการสร้างนัดหมาย",
-    "urgentStatusError": "ไม่สามารถอัปเดตสถานะเร่งด่วนได้ โปรดลองอีกครั้ง"
+    "urgentStatusError": "ไม่สามารถอัปเดตสถานะเร่งด่วนได้ โปรดลองอีกครั้ง",
+    "caseDetailError": "ไม่สามารถแสดงรายละเอียดงานวิจัยได้ในขณะนี้"
   },
   "home": {
     "caseId": "รหัสงานวิจัย",
@@ -343,6 +355,9 @@
     "notifications": "การแจ้งเตือน",
     "markAllRead": "อ่านแล้วทั้งหมด",
     "noNotifications": "ไม่มีการแจ้งเตือน",
+    "unableNotifications": "ไม่สามารถโหลดการแจ้งเตือนได้",
+    "checkInternet": "กรุณาตรวจสอบอินเทอร์เน็ต หรือระบบเซิร์ฟเวอร์",
+    "unableBackend": "ไม่สามารถเชื่อมต่อกับระบบเซิร์ฟเวอร์ได้ ตอนนี้กำลังทำงานในโหมดออฟไลน์",
     "agencyResearch": "ฝ่ายวิจัย",
     "agencyVdc": "VDC",
     "agencySieic": "SiEIC",

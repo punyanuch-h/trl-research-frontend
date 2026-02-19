@@ -17,7 +17,7 @@ export interface SignupFormData {
 export function buildResearcherSignupData(overrides?: Partial<SignupFormData>): SignupFormData {
   const timestamp = Date.now();
   return {
-    prefix: 'นพ.',
+    prefix: 'Mr.',
     firstName: 'Test',
     lastName: 'Researcher',
     department: 'Computer Engineering',
@@ -33,7 +33,7 @@ export function buildResearcherSignupData(overrides?: Partial<SignupFormData>): 
 export function buildAdminData(overrides?: Partial<SignupFormData>): SignupFormData {
   const timestamp = Date.now();
   return {
-    prefix: 'นพ.',
+    prefix: 'Mr.',
     firstName: 'Test',
     lastName: 'Admin',
     department: 'Computer Engineering',

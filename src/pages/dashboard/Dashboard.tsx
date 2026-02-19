@@ -37,28 +37,70 @@ const IP_COLORS = [
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const { data: allCases = [] } = useGetAllCases();
-  const { data: allResearchers = [] } = useGetAllResearcher();
-  const { data: allAppointments = [] } = useGetAllAppointments();
-  const { data: allIntellectualProperties = [] } = useGetAllIPs();
-  const { data: allSupportments = [] } = useGetAllSupportments();
-  const { data: allAssessments = [] } = useGetAllAssessments();
+  const { data: allCases = [], isLoading: casesLoading, isError: casesError } = useGetAllCases();
+  const { data: allResearchers = [], isLoading: researcherLoading, isError: researcherError } = useGetAllResearcher();
+  const { data: allAppointments = [], isLoading: appointmentLoading, isError: appointmentError } = useGetAllAppointments();
+  const { data: allIntellectualProperties = [], isError: ipError } = useGetAllIPs();
+  const { data: allSupportments = [], isError: supportError } = useGetAllSupportments();
+  const { data: allAssessments = [], isError: assessError } = useGetAllAssessments();
+
+  const hasError =
+    casesError ||
+    researcherError ||
+    appointmentError ||
+    ipError ||
+    supportError ||
+    assessError;
+
+  const isLoading =
+    casesLoading ||
+    researcherLoading ||
+    appointmentLoading;
 
   const stats = useDashboardStats({
-    allCases,
-    allResearchers,
-    allAppointments,
-    allIntellectualProperties,
-    allSupportments,
-    allAssessments,
+    allCases: allCases ?? [],
+    allResearchers: allResearchers ?? [],
+    allAppointments: allAppointments ?? [],
+    allIntellectualProperties: allIntellectualProperties ?? [],
+    allSupportments: allSupportments ?? [],
+    allAssessments: allAssessments ?? [],
     colors: COLORS,
-  });
+  }) ?? {
+    total: 0,
+    pending: 0,
+    urgent: 0,
+    attended: 0,
+    absent: 0,
+    upcoming: [],
+    avgTRL: "0",
+    topResearchers: [],
+    trlEstimateDistribution: [],
+    trlRealDistribution: [],
+    statusData: [],
+    caseTypeData: [],
+    ipData: [],
+    agencyData: [],
+    neededSupportData: [],
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-10 text-center text-gray-400">
+        {t("common.loading")}
+      </div>
+    );
+  }
 
   const safePendingRatio = stats.total ? (stats.pending / stats.total) * 100 : 0;
   const safeUrgentRatio = stats.total ? (stats.urgent / stats.total) * 100 : 0;
 
   return (
     <div data-testid="admin-dashboard" className="min-h-screen bg-gray-50 px-6 py-8 rounded-lg">
+      {hasError && (
+        <div className="mb-4 rounded-lg bg-yellow-100 border border-yellow-300 p-4 text-yellow-800">
+          ⚠️ {t("dashboard.unableBackend")}
+        </div>
+      )}
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <KPICard data-testid="kpi-total" icon={FileText} label={t("dashboard.researchCount")} value={stats.total} />
@@ -70,15 +112,15 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Charts Section */}
         <div className="lg:col-span-2 space-y-6">
-          <TRLEstimatedScoreChart data-testid="chart-trl-estimate" data={stats.trlEstimateDistribution} baseColor={PRIMARY_COLOR} />
-          <TRLRealScoreChart data-testid="chart-trl-real" data={stats.trlRealDistribution} baseColor={PRIMARY_COLOR} />
+          <TRLEstimatedScoreChart data-testid="chart-trl-estimate" data={stats.trlEstimateDistribution || []} baseColor={PRIMARY_COLOR} />
+          <TRLRealScoreChart data-testid="chart-trl-real" data={stats.trlRealDistribution || []} baseColor={PRIMARY_COLOR} />
           <CaseTypeStatusChart
             data-testid="chart-case-type"
             statusData={stats.statusData}
             caseTypeData={stats.caseTypeData}
             colors={COLORS}
           />
-          <IntellectualPropertyChart data-testid="chart-ip" data={stats.ipData} colors={IP_COLORS} />
+          <IntellectualPropertyChart data-testid="chart-ip" data={stats.ipData || []} colors={IP_COLORS} />
           <SupportmentCharts
             data-testid="chart-support"
             agencyData={stats.agencyData}
