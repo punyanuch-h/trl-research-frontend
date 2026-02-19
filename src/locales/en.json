@@ -528,6 +528,7 @@
     "assistantTitle": "TRL Assistant",
     "welcomeTitle": "Hello! 👋",
     "welcomeMessage": "Feel free to ask any questions about TRL or the assessment process.",
-    "inputPlaceholder": "Type your message..."
+    "inputPlaceholder": "Type your message...",
+    "resetChat": "Reset Chat"
   }
 }

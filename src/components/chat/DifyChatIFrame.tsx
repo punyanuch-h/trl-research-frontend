@@ -4,6 +4,7 @@ import { Send, X, MessageCircle, Bot, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import chatIcon from "/assets/chat_icon.svg";
 import { useDifyChat } from "@/hooks/chat/useDifyChat";
 import ReactMarkdown from "react-markdown";
@@ -48,7 +49,7 @@ export default function DifyChatIframe() {
       </button>
 
       {isOpen && (
-        <Card className="fixed right-6 bottom-24 w-[380px] h-[600px] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-8rem)] flex flex-col shadow-2xl z-[9998] animate-in slide-in-from-bottom-5 fade-in duration-300 border-0 rounded-2xl overflow-hidden ring-1 ring-black/5">
+        <Card className="fixed right-6 bottom-24 w-[340px] h-[500px] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-8rem)] flex flex-col shadow-2xl z-[9998] animate-in slide-in-from-bottom-5 fade-in duration-300 border-0 rounded-2xl overflow-hidden ring-1 ring-black/5">
           {/* Custom Header */}
           <div className="bg-primary p-4 flex items-center justify-between shrink-0 shadow-md z-10">
             <div className="flex items-center gap-3 text-white">
@@ -59,14 +60,24 @@ export default function DifyChatIframe() {
                 <h3 className="font-semibold text-sm tracking-wide">{t("chat.assistantTitle")}</h3>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/20 hover:text-white h-8 w-8 rounded-full"
-              onClick={resetChat}
-            >
-              <RotateCcw className="w-5 h-5" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:bg-white/20 hover:text-white h-8 w-8 rounded-full"
+                    onClick={resetChat}
+                    aria-label={t("chat.resetChat")}
+                  >
+                    <RotateCcw className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="end" className="z-[9999] border-primary">
+                  <p>{t("chat.resetChat")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           
           <CardContent className="flex-1 flex flex-col p-0 overflow-hidden bg-slate-50/50">
