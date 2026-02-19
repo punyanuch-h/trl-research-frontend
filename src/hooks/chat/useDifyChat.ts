@@ -48,7 +48,7 @@ export const useDifyChat = () => {
 
     try {
       const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-      await fetch(`${API_URL}/trl/chat-log`, {
+      const res = await fetch(`${API_URL}/trl/chat-log`, {
         method: "POST",
         keepalive: true,
         headers: {
@@ -57,8 +57,10 @@ export const useDifyChat = () => {
         },
         body: JSON.stringify(payload),
       });
+      if (!res.ok) throw new Error(`Failed to save chat history: ${res.status}`);
     } catch (error) {
       console.error("Failed to save chat history:", error);
+      throw error;
     }
   }, []);
 
@@ -67,7 +69,7 @@ export const useDifyChat = () => {
       controllerRef.current?.abort();
       const current = localStorage.getItem("token");
       if (!current && authTokenRef.current) {
-        saveChatHistory(authTokenRef.current);
+        saveChatHistory(authTokenRef.current).catch(console.error);
       }
     };
   }, [saveChatHistory]);
@@ -78,7 +80,7 @@ export const useDifyChat = () => {
         const current = event.newValue;
         if (current !== authToken) {
           if (!current && authToken) {
-            saveChatHistory(authToken);
+            saveChatHistory(authToken).catch(console.error);
           }
           setAuthToken(current);
         }
@@ -120,10 +122,10 @@ export const useDifyChat = () => {
     }
   }, [messages, conversationId, authToken, isLoading]);
 
-  const resetChat = useCallback(() => {
+  const resetChat = useCallback(async () => {
     controllerRef.current?.abort();
     if (authTokenRef.current) {
-      saveChatHistory(authTokenRef.current);
+      await saveChatHistory(authTokenRef.current);
       localStorage.removeItem(`dify_chat_history_${authTokenRef.current}`);
     }
     setMessages([]);

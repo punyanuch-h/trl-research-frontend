@@ -67,7 +67,7 @@ export default function DifyChatIframe() {
                     variant="ghost"
                     size="icon"
                     className="text-white hover:bg-white/20 hover:text-white h-8 w-8 rounded-full"
-                    onClick={resetChat}
+                    onClick={() => resetChat().catch(console.error)}
                     aria-label={t("chat.resetChat")}
                   >
                     <RotateCcw className="w-5 h-5" />
