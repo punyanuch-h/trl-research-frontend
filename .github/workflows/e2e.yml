@@ -30,18 +30,18 @@ jobs:
       - name: Build application
         run: npm run build
         env:
-          VITE_PUBLIC_API_URL: ${{ vars.VITE_PUBLIC_API_URL || 'http://localhost:8000' }}
+          VITE_PUBLIC_API_URL: https://trl-research-backend-855321865617.asia-southeast1.run.app
 
       - name: Start application
         run: npm run preview -- --port 3000 &
 
       - name: Wait for server
-        run: npx wait-on http://localhost:3000 --timeout 30000
+        run: npx wait-on BASE_URL=http://localhost:3000/trl-research-frontend --timeout 30000
 
       - name: Run E2E tests
         run: npx playwright test --project=chromium
         env:
-          BASE_URL: ${{ vars.BASE_URL || 'http://localhost:3000' }}
+          BASE_URL: http://localhost:3000/trl-research-frontend/
           RESEARCHER_EMAIL: ${{ secrets.RESEARCHER_EMAIL }}
           RESEARCHER_PASSWORD: ${{ secrets.RESEARCHER_PASSWORD }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
