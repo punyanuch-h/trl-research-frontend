@@ -523,5 +523,11 @@
         "q4": "Safety and side effect risks identified and mitigated"
       }
     }
+  },
+  "chat": {
+    "assistantTitle": "TRL Assistant",
+    "welcomeTitle": "Hello! 👋",
+    "welcomeMessage": "Feel free to ask any questions about TRL or the assessment process.",
+    "inputPlaceholder": "Type your message..."
   }
 }

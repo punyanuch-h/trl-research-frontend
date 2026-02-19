@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, ComponentPropsWithoutRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Send, X, MessageCircle, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ export default function DifyChatIframe() {
   const [inputValue, setInputValue] = useState("");
   const { messages, isLoading, sendMessage } = useDifyChat();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -54,7 +56,7 @@ export default function DifyChatIframe() {
                 <Bot className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-sm tracking-wide">ผู้ช่วย AI</h3>
+                <h3 className="font-semibold text-sm tracking-wide">{t("chat.assistantTitle")}</h3>
               </div>
             </div>
           </div>
@@ -70,8 +72,8 @@ export default function DifyChatIframe() {
                     <MessageCircle className="w-10 h-10 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-700 mb-2">สวัสดีครับ! 👋</h4>
-                    <p className="text-sm text-gray-500 leading-relaxed">มีข้อสงสัยเรื่อง TRL หรือต้องการความช่วยเหลือ สอบถามได้เลยครับ</p>
+                    <h4 className="font-semibold text-gray-700 mb-2">{t("chat.welcomeTitle")}</h4>
+                    <p className="text-sm text-gray-500 leading-relaxed">{t("chat.welcomeMessage")}</p>
                   </div>
                 </div>
               )}
@@ -151,7 +153,7 @@ export default function DifyChatIframe() {
                 <Input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="พิมพ์ข้อความ..."
+                  placeholder={t("chat.inputPlaceholder")}
                   className="flex-1 min-h-[44px] pr-12 py-3 bg-gray-50 border-gray-200 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-xl resize-none shadow-sm"
                   disabled={isLoading}
                 />
