@@ -27,11 +27,14 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      - name: Clean dist
+        run: rm -rf dist
+
       - name: Build application
         run: npm run build
         env:
+          CI: true
           VITE_PUBLIC_API_URL: https://trl-research-backend-855321865617.asia-southeast1.run.app
-          VERCEL: true
 
       - name: Start application
         run: npm run preview -- --port 3000 &
