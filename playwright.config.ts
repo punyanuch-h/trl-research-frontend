@@ -31,4 +31,12 @@ export default defineConfig({
   ],
   outputDir: 'e2e/test-results',
   snapshotPathTemplate: '{testDir}/__snapshots__/{arg}-{projectName}{ext}',
+  webServer: process.env.CI
+    ? {
+      command: 'npm run preview -- --port 3000',
+      url: 'http://localhost:3000',
+      timeout: 120000,
+      reuseExistingServer: !process.env.CI,
+    }
+    : undefined,
 });
