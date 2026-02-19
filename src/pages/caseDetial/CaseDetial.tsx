@@ -96,7 +96,7 @@ export default function CaseDetail() {
       toast.error(t("toast.caseDetailError"));
       navigate(role === "admin" ? "/admin/homepage" : "/researcher/homepage", { replace: true });
     }
-  }, [id, isCaseError, caseData, isCasePending, navigate, role]);
+  }, [id, isCaseError, caseData, isCasePending, navigate, role, t]);
 
   return (
     <div className="min-h-screen bg-gray-50">
