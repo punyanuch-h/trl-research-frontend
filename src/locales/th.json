@@ -347,6 +347,7 @@
     "noNotifications": "ไม่มีการแจ้งเตือน",
     "unableNotifications": "ไม่สามารถโหลดการแจ้งเตือนได้",
     "checkInternet": "กรุณาตรวจสอบอินเทอร์เน็ต หรือระบบเซิร์ฟเวอร์",
+    "unableBackend": "ไม่สามารถเชื่อมต่อกับระบบเซิร์ฟเวอร์ได้ ตอนนี้กำลังทำงานในโหมดออฟไลน์",
     "agencyResearch": "ฝ่ายวิจัย",
     "agencyVdc": "VDC",
     "agencySieic": "SiEIC",

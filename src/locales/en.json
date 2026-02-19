@@ -347,6 +347,7 @@
     "noNotifications": "No notifications",
     "unableNotifications": "Unable to load notifications",
     "checkInternet": "Please check your internet connection or the server system",
+    "unableBackend": "Cannot connect to backend. Dashboard is running in offline mode.",
     "agencyResearch": "Research Dept",
     "agencyVdc": "VDC",
     "agencySieic": "SiEIC",
