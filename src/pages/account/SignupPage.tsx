@@ -149,9 +149,9 @@ export default function SignupPage() {
                             <SelectItem value="นางสาว">{t("form.prefixMs")}</SelectItem>
                             <SelectItem value="นพ.">{t("form.prefixDrMale")}</SelectItem>
                             <SelectItem value="พญ.">{t("form.prefixDrFemale")}</SelectItem>
-                            <SelectItem value="ภญ.">{t("form.prefixPharmacistMale")}</SelectItem>
-                            <SelectItem value="ภช.">{t("form.prefixPharmacistFemale")}</SelectItem>
-                            <SelectItem value="ทพช.">{t("form.prefixDentistMale")}</SelectItem>
+                            <SelectItem value="ภก.">{t("form.prefixPharmacistMale")}</SelectItem>
+                            <SelectItem value="ภกญ.">{t("form.prefixPharmacistFemale")}</SelectItem>
+                            <SelectItem value="ทพ.">{t("form.prefixDentistMale")}</SelectItem>
                             <SelectItem value="ทพญ.">{t("form.prefixDentistFemale")}</SelectItem>
                           </SelectContent>
                         </Select>
