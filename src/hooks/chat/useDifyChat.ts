@@ -125,8 +125,12 @@ export const useDifyChat = () => {
   const resetChat = useCallback(async () => {
     controllerRef.current?.abort();
     if (authTokenRef.current) {
-      await saveChatHistory(authTokenRef.current);
-      localStorage.removeItem(`dify_chat_history_${authTokenRef.current}`);
+      try {
+        await saveChatHistory(authTokenRef.current);
+        localStorage.removeItem(`dify_chat_history_${authTokenRef.current}`);
+      } catch (error) {
+        console.error("Failed to save history on reset:", error);
+      }
     }
     setMessages([]);
     setConversationId(null);
