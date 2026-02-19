@@ -528,6 +528,7 @@
     "assistantTitle": "ผู้ช่วย TRL",
     "welcomeTitle": "สวัสดี! 👋",
     "welcomeMessage": "หากมีข้อสงสัยเกี่ยวกับ TRL หรือต้องการคำแนะนำ สอบถามได้เลย",
-    "inputPlaceholder": "พิมพ์คำถามของคุณ..."
+    "inputPlaceholder": "พิมพ์คำถามของคุณ...",
+    "resetChat": "เริ่มการสนทนาใหม่"
   }
 }
