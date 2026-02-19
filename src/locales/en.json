@@ -21,7 +21,8 @@
     "noData": "No data",
     "other": "Other",
     "select": "Select",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "try": "Try again"
   },
   "header": {
     "appTitle": "Technology Readiness Level Assessment System",
@@ -233,7 +234,8 @@
     "addAppointmentSuccess": "Appointment added successfully",
     "addAppointmentWarning": "Please enter research title and date/time to add appointment",
     "addAppointmentError": "Error creating appointment",
-    "urgentStatusError": "Failed to update urgent status. Please try again."
+    "urgentStatusError": "Failed to update urgent status. Please try again.",
+    "caseDetailError": "Research details cannot be displayed at this time."
   },
   "home": {
     "caseId": "Research ID",
@@ -343,6 +345,8 @@
     "notifications": "Notifications",
     "markAllRead": "Mark all as read",
     "noNotifications": "No notifications",
+    "unableNotifications": "Unable to load notifications",
+    "checkInternet": "Please check your internet connection or the server system",
     "agencyResearch": "Research Dept",
     "agencyVdc": "VDC",
     "agencySieic": "SiEIC",

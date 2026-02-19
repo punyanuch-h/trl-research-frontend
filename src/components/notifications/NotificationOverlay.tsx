@@ -1,18 +1,25 @@
 import { useTranslation } from "react-i18next";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AppointmentResponse } from "@/hooks/client/type";
+import { NotificationSkeleton } from "./NotificationSkeleton";
+import { AppointmentResponse } from "@/types/type";
 import { format, isValid } from "date-fns";
 import { th } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
 interface NotificationOverlayProps {
     notifications: AppointmentResponse[];
+    loading?: boolean;
+    error?: boolean;
+    onRetry?: () => void;
     onNotificationClick: (notification: AppointmentResponse) => void;
     onMarkAllAsRead?: () => void;
 }
 
 export function NotificationOverlay({
     notifications,
+    loading,
+    error,
+    onRetry,
     onNotificationClick,
     onMarkAllAsRead,
 }: NotificationOverlayProps) {
@@ -34,11 +41,39 @@ export function NotificationOverlay({
             </div>
 
             <ScrollArea className="h-[400px] w-full"> {/* Changed max-h to h */}
-                {notifications.length === 0 ? (
+                {/* loading */}
+                {loading && <NotificationSkeleton />}
+
+                {/* offline/backend error */}
+                {error && !loading && (
+                    <div className="p-8 flex flex-col items-center gap-3 text-center">
+                        <div className="text-sm text-red-500 font-medium">
+                            {t("dashboard.unableNotifications")}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                            {t("dashboard.checkInternet")}
+                        </div>
+
+                        {onRetry && (
+                            <button
+                                onClick={onRetry}
+                                className="text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+                            >
+                                {t("common.try")}
+                            </button>
+                        )}
+                    </div>
+                )}
+
+                {/* empty */}
+                {!loading && !error && notifications.length === 0 && (
                     <div className="p-8 text-center text-muted-foreground italic">
                         {t("dashboard.noNotifications")}
                     </div>
-                ) : (
+                )}
+
+                {/* success */}
+                {!loading && !error && notifications.length > 0 && (
                     <div className="flex flex-col">
                         {notifications.map((notif) => (
                             <button
