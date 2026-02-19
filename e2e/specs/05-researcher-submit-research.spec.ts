@@ -28,7 +28,7 @@ test.describe('Submit research - 5-step form', () => {
       });
       await test.step('submit form', async () => {
         await page.getByTestId('coordinatorPrefix').click();
-        await page.locator('[data-value="นพ."]').click();
+        await page.getByRole('option', { name: /นายแพทย์|Dr\. \(Male\)/ }).click();
         await page.getByTestId('coordinatorAcademicPosition').click();
         await page.getByRole('option', { name: /none/i }).click();
         await page.getByTestId('coordinatorFirstName').fill('QA');
