@@ -6,12 +6,12 @@ import type { SignupFormData } from '../test-data/auth.data';
  * Page Object for Signup page (Researcher registration)
  */
 export class CreateAccountPage {
-  constructor(private readonly page: Page) {}
+  constructor(private readonly page: Page) { }
 
   /** Select prefix (Mr, Mrs, Ms, etc.) */
   async selectPrefix(value: string) {
     await authLocators.prefixSelect(this.page).click();
-    await this.page.getByRole('option', { name: value }).click();
+    await this.page.locator(`[data-value="${value}"]`).click();
   }
 
   /** Fill first name */
