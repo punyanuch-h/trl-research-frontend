@@ -338,6 +338,7 @@ const AssessmentResult = () => {
                 {t("assessment.researchId")}: {caseData?.id || t("assessment.loading")}
               </Badge>
               <Button
+                data-testid="approve-assessment-btn"
                 onClick={handleApproveAssessment}
                 disabled={!caseData?.id || updateAssessmentMutation.isPending || caseData?.status === true}
                 className={`flex items-center gap-2 ${caseData?.status === true
@@ -479,6 +480,7 @@ const AssessmentResult = () => {
                       {isEditingTrl ? (
                         <div className="flex items-center gap-2">
                           <select
+                            data-testid="trl-select"
                             className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                             value={manualTrl}
                             onChange={(e) => setManualTrl(Number(e.target.value))}
@@ -491,6 +493,7 @@ const AssessmentResult = () => {
                           </select>
 
                           <Button
+                            data-testid="save-trl-btn"
                             size="icon"
                             className="h-8 w-8 bg-green-600 hover:bg-green-700"
                             onClick={handleSaveTrlLevel}
@@ -514,11 +517,12 @@ const AssessmentResult = () => {
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-lg px-3 py-1 border-primary">
+                          <Badge data-testid="trl-current" variant="outline" className="text-lg px-3 py-1 border-primary">
                             TRL {caseData.trl_score ?? assessmentData.trl_estimate}
                           </Badge>
                           {caseData.status !== true && (
                             <Button
+                              data-testid="edit-trl-btn"
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-muted-foreground hover:text-primary"
@@ -797,7 +801,7 @@ const AssessmentResult = () => {
         </div>
 
         {/* Suggestions Section (Div turns into Textarea with default text) */}
-        <Card className="w-full">
+        <Card data-testid="suggestion-section" className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
               {t("assessment.suggestion")}
@@ -815,6 +819,7 @@ const AssessmentResult = () => {
                 {/* Editable Area */}
                 {isEditing ? (
                   <Textarea
+                    data-testid="suggestion-textarea"
                     value={suggestions["all"] || ''}
                     onChange={(e) => setSuggestions(prev => ({ ...prev, "all": e.target.value }))}
                     className="min-h-[200px] bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm leading-relaxed text-yellow-800 font-medium"
@@ -857,6 +862,7 @@ const AssessmentResult = () => {
                   {isEditing ? (
                     <>
                       <Button
+                        data-testid="save-suggestion-btn"
                         size="sm"
                         className="bg-primary hover:bg-primary/80 mr-2"
                         disabled={updateSuggestionMutation.isPending}
@@ -881,6 +887,7 @@ const AssessmentResult = () => {
                     </>
                   ) : (
                     <Button
+                      data-testid="edit-suggestion-btn"
                       variant="outline"
                       size="sm"
                       onClick={() => {

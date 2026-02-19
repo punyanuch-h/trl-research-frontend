@@ -119,6 +119,7 @@ export default function LoginPage() {
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="email"
+                    data-testid="email"
                     placeholder="example@email.com"
                     autoComplete="email"
                     disabled={isLoading}
@@ -129,9 +130,8 @@ export default function LoginPage() {
                         message: t("auth.emailInvalid"),
                       },
                     })}
-                    className={`pl-10 ${
-                      errors.email || errors.root ? "border-destructive" : ""
-                    }`}
+                    className={`pl-10 ${errors.email || errors.root ? "border-destructive" : ""
+                      }`}
                   />
                 </div>
                 {errors.email && (
@@ -148,6 +148,7 @@ export default function LoginPage() {
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
+                    data-testid="password"
                     placeholder="••••••••"
                     autoComplete="current-password"
                     disabled={isLoading}
@@ -158,9 +159,8 @@ export default function LoginPage() {
                         message: t("auth.passwordMin6"),
                       },
                     })}
-                    className={`pl-10 pr-10 ${
-                      errors.password || errors.root ? "border-destructive" : ""
-                    }`}
+                    className={`pl-10 pr-10 ${errors.password || errors.root ? "border-destructive" : ""
+                      }`}
                   />
                   <button
                     type="button"

@@ -34,6 +34,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 <h3 className="font-semibold text-primary">{t("form.innovationNameLabel")}<span className="text-red-500">*</span></h3>
                 <Input
                     id="researchTitle"
+                    data-testid="researchTitle"
                     value={formData.researchTitle}
                     onChange={(e) => handleInputChange("researchTitle", e.target.value)}
                     placeholder={t("form.innovationNamePlaceholder")}
@@ -45,6 +46,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 <h3 className="font-semibold text-primary">{t("form.researchType")}<span className="text-red-500">*</span></h3>
                 <RadioGroup
                     id="researchType"
+                    data-testid="researchType"
                     value={formData.researchType}
                     onValueChange={(value) => handleInputChange("researchType", value)}
                     className="space-y-2 mt-2"
@@ -76,6 +78,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 </p>
                 <Textarea
                     id="description"
+                    data-testid="description"
                     value={formData.description}
                     onChange={(e) => handleInputChange("description", e.target.value)}
                     placeholder={t("form.innovationDescPlaceholder")}
@@ -88,6 +91,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                 <h3 className="font-semibold text-primary">{t("form.keywordsLabel")}<span className="text-red-500">*</span></h3>
                 <Input
                     id="keywords"
+                    data-testid="keywords"
                     value={formData.keywords}
                     onChange={(e) => handleInputChange("keywords", e.target.value)}
                     placeholder={t("form.keywordsPlaceholder")}
@@ -108,6 +112,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                     <input
                         type="file"
                         id="researchDetailsFiles"
+                        data-testid="researchDetailsFiles"
                         name="researchDetailsFiles"
                         accept=".pdf"
                         multiple

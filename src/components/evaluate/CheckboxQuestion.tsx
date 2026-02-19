@@ -32,8 +32,8 @@ const CheckboxQuestion = ({
     updatedValue[index] = checked ? 1 : 0;
 
     const selectedLabels = selectedQuestions
-        .filter((_, idx) => updatedValue[idx] === 1)
-        .map(item => item.label);
+      .filter((_, idx) => updatedValue[idx] === 1)
+      .map(item => item.label);
 
     onChange(updatedValue, itemId, selectedLabels);
   };
@@ -51,6 +51,7 @@ const CheckboxQuestion = ({
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id={fieldKey}
+                  data-testid={fieldKey}
                   checked={isChecked}
                   disabled={disabled}
                   onCheckedChange={(checked: boolean) =>
@@ -66,11 +67,10 @@ const CheckboxQuestion = ({
                   <button
                     type="button"
                     disabled={disabled}
-                    className={`text-xs px-2 py-1 border rounded transition-colors ${
-                      disabled
-                        ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
-                    }`}
+                    className={`text-xs px-2 py-1 border rounded transition-colors ${disabled
+                      ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
+                      }`}
                     onClick={() => !disabled && document.getElementById(`file-${fieldKey}`)?.click()}
                   >
                     {t("admin.attachEvidence")}
@@ -78,6 +78,7 @@ const CheckboxQuestion = ({
                   <input
                     type="file"
                     id={`file-${fieldKey}`}
+                    data-testid={`file-${fieldKey}`}
                     accept=".pdf"
                     disabled={disabled}
                     className="hidden"

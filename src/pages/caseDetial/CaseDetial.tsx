@@ -38,7 +38,8 @@ export default function CaseDetail() {
     researcherId: caseData?.researcher_id,
     isCasePending,
     isResearcherPending,
-    hasResearcherData: !!researcherData
+    hasResearcherData: !!researcherData,
+    ipData
   });
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -98,13 +99,13 @@ export default function CaseDetail() {
                 {t("form.back")}
               </Button>
               <div className="h-6 w-px bg-gray-300"></div>
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 data-testid="case-title" className="text-xl font-semibold text-gray-900">
                 {t("caseDetail.title")}
               </h1>
             </div>
 
             <div className="flex items-center gap-3">
-              <Badge variant="outline" className="text-sm">
+              <Badge data-testid="case-id" variant="outline" className="text-sm">
                 {t("caseDetail.researchIdLabel")} {caseData?.id || t("common.loading")}
               </Badge>
               {role === "admin" && (
@@ -122,7 +123,7 @@ export default function CaseDetail() {
       <div className="container mx-auto p-6 space-y-6">
 
         {/* Case Details */}
-        <Card className="w-full">
+        <Card data-testid="case-main-card" className="w-full">
           {isCasePending ? (
             <CardContent className="p-6 space-y-4">
               <div className="space-y-2">
@@ -167,12 +168,12 @@ export default function CaseDetail() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-3xl font-bold mb-2">
+                    <CardTitle data-testid="research-title" className="text-3xl font-bold mb-2">
                       {caseData.title}
                     </CardTitle>
                     <div className="flex gap-2 mb-2">
-                      <Badge variant="outline">{caseData.type}</Badge>
-                      <Badge variant={caseData.is_urgent ? "destructive" : "secondary"}>
+                      <Badge data-testid="research-type" variant="outline">{caseData.type}</Badge>
+                      <Badge data-testid="research-urgent" variant={caseData.is_urgent ? "destructive" : "secondary"}>
                         {caseData.is_urgent ? t("home.urgent") : t("home.notUrgent")}
                       </Badge>
                     </div>
@@ -187,12 +188,12 @@ export default function CaseDetail() {
                 <div className="space-y-4">
                   <div>
                     <h3 className="font-semibold mb-2">{t("form.descriptionLabel")}</h3>
-                    <p className="text-sm leading-relaxed">{caseData.description}</p>
+                    <p data-testid="research-description" className="text-sm leading-relaxed">{caseData.description}</p>
                   </div>
 
                   <div>
                     <h3 className="font-semibold mb-2">{t("form.keywordsLabel")}</h3>
-                    <p className="text-sm text-muted-foreground">{caseData.keywords}</p>
+                    <p data-testid="research-keywords" className="text-sm text-muted-foreground">{caseData.keywords}</p>
                   </div>
 
                   {isResearcherPending ? (
@@ -202,17 +203,17 @@ export default function CaseDetail() {
                       <Skeleton className="h-4 w-40" />
                     </div>
                   ) : isResearcherError ? (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                    <h3 className="font-semibold">{t("caseDetail.researcherLoadError")}</h3>
-                    <p className="text-sm">{t("caseDetail.refreshOrContact")}</p>
-                  </div>
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                      <h3 className="font-semibold">{t("caseDetail.researcherLoadError")}</h3>
+                      <p className="text-sm">{t("caseDetail.refreshOrContact")}</p>
+                    </div>
                   ) : researcherData ? (
                     <div className="space-y-4">
-                      <div>
+                      <div data-testid="researcher-section">
                         <h3 className="font-semibold mb-2">{t("caseDetail.researcherInfo")}</h3>
-                        <p className="text-sm text-muted-foreground">{researcherData.first_name} {researcherData.last_name}</p>
-                        <p className="text-sm text-muted-foreground">{researcherData.email}</p>
-                        <p className="text-sm text-muted-foreground">{researcherData.phone_number}</p>
+                        <p data-testid="researcher-name" className="text-sm text-muted-foreground">{researcherData.first_name} {researcherData.last_name}</p>
+                        <p data-testid="researcher-email" className="text-sm text-muted-foreground">{researcherData.email}</p>
+                        <p data-testid="researcher-phone_number" className="text-sm text-muted-foreground">{researcherData.phone_number}</p>
                       </div>
                     </div>
                   ) : null}
@@ -224,17 +225,17 @@ export default function CaseDetail() {
                       <Skeleton className="h-4 w-40" />
                     </div>
                   ) : isCoordinatorError ? (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                    <h3 className="font-semibold">{t("caseDetail.coordinatorLoadError")}</h3>
-                    <p className="text-sm">{t("caseDetail.refreshOrContact")}</p>
-                  </div>
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                      <h3 className="font-semibold">{t("caseDetail.coordinatorLoadError")}</h3>
+                      <p className="text-sm">{t("caseDetail.refreshOrContact")}</p>
+                    </div>
                   ) : coordinatorData ? (
                     <div className="space-y-4">
-                      <div>
+                      <div data-testid="coordinator-section">
                         <h3 className="font-semibold mb-2">{t("caseDetail.coordinatorInfo")}</h3>
-                        <p className="text-sm text-muted-foreground">{coordinatorData.first_name} {coordinatorData.last_name}</p>
-                        <p className="text-sm text-muted-foreground">{coordinatorData.email}</p>
-                        <p className="text-sm text-muted-foreground">{coordinatorData.phone_number}</p>
+                        <p data-testid="coordinator-name" className="text-sm text-muted-foreground">{coordinatorData.first_name} {coordinatorData.last_name}</p>
+                        <p data-testid="coordinator-email" className="text-sm text-muted-foreground">{coordinatorData.email}</p>
+                        <p data-testid="coordinator-phone_number" className="text-sm text-muted-foreground">{coordinatorData.phone_number}</p>
                       </div>
                     </div>
                   ) : null}
@@ -280,10 +281,10 @@ export default function CaseDetail() {
         </Card>
 
         {/* Appointment Data */}
-        <Card className="w-full">
+        <Card data-testid="appointment-card" className="w-full">
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
-              <CardTitle className="text-2xl font-bold text-primary mb-1">
+              <CardTitle data-testid="appointment-title" className="text-2xl font-bold text-primary mb-1">
                 {t("caseDetail.appointmentListTitle")}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
@@ -343,7 +344,7 @@ export default function CaseDetail() {
                       className="border rounded-xl p-4 bg-gray-50 shadow-sm hover:shadow-md transition"
                     >
                       {/* Header + Status + Edit */}
-                      <div className="flex justify-between items-center mb-3">
+                      <div data-testid="appointment-row" className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-2">
                           <h3 className="font-semibold text-lg">{a.appointment_id}</h3>
                           <Badge className={badgeClass}>{badgeLabel}</Badge>
@@ -351,6 +352,7 @@ export default function CaseDetail() {
 
                         {role === "admin" && (
                           <Button
+                            data-testid="appointment-edit-btn"
                             variant="outline"
                             size="sm"
                             onClick={() => handleEditAppointment(a)}
@@ -400,7 +402,7 @@ export default function CaseDetail() {
         </Card>
 
         {/* Intellectual Property Data */}
-        <Card className="w-full">
+        <Card data-testid="ip-card" className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary mb-2">
               {t("caseDetail.ipDataTitle")}
@@ -422,24 +424,25 @@ export default function CaseDetail() {
                 {ipData.map((ip, index) => (
                   <div
                     key={ip.id || index}
+                    data-testid={`ip-item-${index}`}
                     className="border p-4 rounded-2xl shadow-sm bg-gray-50"
                   >
-                    <h3 className="font-semibold text-lg mb-1">
+                    <h3 data-testid={`ip-type-${index}`} className="font-semibold text-lg mb-1">
                       {getIPTypeLabel(ip.types)}
                     </h3>
 
                     <div className="flex items-center gap-2 mb-1">
                       <Badge
+                        data-testid={`ip-status-${index}`}
                         className={
-                          ip.protection_status?.toLowerCase().includes("filed") ||
-                            ip.protection_status?.toLowerCase().includes("granted")
+                          ip.protection_status?.includes("ได้เลขที่คำขอแล้ว")
                             ? "bg-green-500 text-white"
                             : "bg-yellow-400 text-black"
                         }
                       >
                         {ip.protection_status || t("caseDetail.statusUnspecified")}
                       </Badge>
-                      <span className="text-sm text-muted-foreground">
+                      <span data-testid={`ip-number-${index}`} className="text-sm text-muted-foreground">
                         {ip.request_number || "-"}
                       </span>
                     </div>
@@ -463,9 +466,9 @@ export default function CaseDetail() {
           </CardContent>
         </Card>
 
-        <Card className="w-full">
+        <Card data-testid="support-card" className="w-full">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-primary mb-2">
+            <CardTitle data-testid="support-title" className="text-2xl font-bold text-primary mb-2">
               {t("caseDetail.supportDataTitle")}
             </CardTitle>
           </CardHeader>

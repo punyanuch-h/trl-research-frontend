@@ -81,7 +81,7 @@ export function AddAppointmentModal({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+    <div data-testid="add-appointment-modal" className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
       <div className="bg-white p-6 rounded shadow-lg w-[420px]">
         <h3 className="text-lg font-medium mb-4">{t("form.addAppointmentTitle")}</h3>
 
@@ -92,7 +92,7 @@ export function AddAppointmentModal({
             value={selectedProjectId?.toString() || ""}
             onValueChange={(v: string) => setSelectedProjectId(String(v))}
           >
-            <SelectTrigger>
+            <SelectTrigger data-testid="appointment-project-select">
               <SelectValue placeholder={t("form.selectResearch")} />
             </SelectTrigger>
             <SelectContent>
@@ -109,6 +109,7 @@ export function AddAppointmentModal({
         <div className="mb-3">
           <Label>{t("form.researcherName")}</Label>
           <Input
+            data-testid="appointment-researcher"
             type="text"
             value={selectedProject ? getFullNameByResearcherID(selectedProject.researcher_id) : ""}
             readOnly
@@ -120,6 +121,7 @@ export function AddAppointmentModal({
         <div className="mb-3">
           <Label>{t("form.appointmentDate")}</Label>
           <Input
+            data-testid="appointment-date"
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
@@ -130,6 +132,7 @@ export function AddAppointmentModal({
         <div className="mb-3">
           <Label>{t("form.time")}</Label>
           <Input
+            data-testid="appointment-time"
             type="time"
             value={selectedTime}
             onChange={(e) => setSelectedTime(e.target.value)}
@@ -140,6 +143,7 @@ export function AddAppointmentModal({
         <div className="mb-3">
           <Label>{t("form.location")}</Label>
           <Input
+            data-testid="appointment-location"
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
@@ -151,6 +155,7 @@ export function AddAppointmentModal({
         <div className="mb-3">
           <Label>{t("form.appointmentDetails")}</Label>
           <Textarea
+            data-testid="appointment-detail"
             placeholder={t("form.enterDetails")}
             rows={3}
             value={detail}
@@ -159,10 +164,10 @@ export function AddAppointmentModal({
         </div>
 
         <div className="flex justify-end gap-2 mt-4">
-          <Button variant="ghost" onClick={onClose}>
+          <Button data-testid="appointment-cancel-btn" variant="ghost" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button onClick={handleAdd} disabled={loading}>
+          <Button data-testid="appointment-save-btn" onClick={handleAdd} disabled={loading}>
             {loading ? t("common.loading") : t("common.save")}
           </Button>
         </div>

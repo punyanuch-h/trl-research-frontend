@@ -10,12 +10,13 @@ interface TRLData {
 interface TRLDistributionChartProps {
   data: TRLData[];
   baseColor: string;
+  "data-testid"?: string;
 }
 
-export function TRLEstimatedScoreChart({ data, baseColor }: TRLDistributionChartProps) {
+export function TRLEstimatedScoreChart({ data, baseColor, "data-testid": testId }: TRLDistributionChartProps) {
   const { t } = useTranslation();
   return (
-    <div className="bg-white p-5 border border-gray-100 rounded-lg">
+    <div data-testid={testId} className="bg-white p-5 border border-gray-100 rounded-lg">
       <h3 className="font-semibold mb-3 text-sm">{t("dashboard.trlEstimateScore")}</h3>
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
@@ -23,7 +24,7 @@ export function TRLEstimatedScoreChart({ data, baseColor }: TRLDistributionChart
             <XAxis dataKey="level" fontSize={10} />
             <YAxis allowDecimals={false} fontSize={10} />
             <Tooltip formatter={(value: number) => [`${value}`, t("dashboard.count")]} />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]}> 
+            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill || baseColor} />
               ))}

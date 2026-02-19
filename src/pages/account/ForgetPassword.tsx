@@ -112,6 +112,7 @@ export default function ForgotPasswordPage() {
                     <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Input
                       id="email"
+                      data-testid="email"
                       type="email"
                       placeholder="example@email.com"
                       autoComplete="email"

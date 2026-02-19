@@ -10,12 +10,13 @@ interface SupportmentChartsProps {
   agencyData: SupportData[];
   neededSupportData: SupportData[];
   baseColor: string;
+  "data-testid"?: string;
 }
 
-export function SupportmentCharts({ agencyData, neededSupportData, baseColor }: SupportmentChartsProps) {
+export function SupportmentCharts({ agencyData, neededSupportData, baseColor, "data-testid": testId }: SupportmentChartsProps) {
   const { t } = useTranslation();
   return (
-    <div className="bg-white p-5 border border-gray-100 rounded-lg space-y-8">
+    <div data-testid={testId} className="bg-white p-5 border border-gray-100 rounded-lg space-y-8">
       {/* Existing Support Agencies */}
       <div>
         <h3 className="font-semibold mb-3 text-sm">{t("dashboard.agencySupport")}</h3>

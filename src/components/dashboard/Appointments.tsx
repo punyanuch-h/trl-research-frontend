@@ -11,12 +11,13 @@ interface AppointmentsCardProps {
   attended: number;
   absent: number;
   upcoming: Appointment[];
+  "data-testid"?: string;
 }
 
-export function AppointmentsCard({ attended, absent, upcoming }: AppointmentsCardProps) {
+export function AppointmentsCard({ attended, absent, upcoming, "data-testid": testId }: AppointmentsCardProps) {
   const { t } = useTranslation();
   return (
-    <div className="bg-white p-5 border border-gray-100 rounded-lg">
+    <div data-testid={testId} className="bg-white p-5 border border-gray-100 rounded-lg">
       <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
         <Calendar className="w-4 h-4 text-gray-400" /> {t("home.appointment")}
       </h3>

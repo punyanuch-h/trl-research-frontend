@@ -108,6 +108,7 @@ export default function EditAppointmentModal({
           <div>
             <Label>{t("form.researchTitleLabel")}</Label>
             <Input
+              data-testid="appointment-project-input"
               type="text"
               value={projects.find(p => p.id === form.case_id)?.title || ""}
               readOnly
@@ -118,6 +119,7 @@ export default function EditAppointmentModal({
           <div>
             <Label>{t("form.researcherName")}</Label>
             <Input
+              data-testid="appointment-researcher-input"
               type="text"
               value={
                 getFullNameByResearcherID(
@@ -133,6 +135,7 @@ export default function EditAppointmentModal({
             <div className="flex-1">
               <Label>{t("form.appointmentDateTime")}</Label>
               <Input
+                data-testid="appointment-date-input"
                 type="datetime-local"
                 value={format(new Date(form.date), "yyyy-MM-dd'T'HH:mm")}
                 onChange={(e) => handleChange("date", e.target.value)}
@@ -144,7 +147,7 @@ export default function EditAppointmentModal({
                 value={form.status}
                 onValueChange={(v: "attended" | "absent" | "pending") => handleChange("status", v)}
               >
-                <SelectTrigger>
+                <SelectTrigger data-testid="appointment-status-input">
                   <SelectValue placeholder={t("form.selectStatus")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -159,6 +162,7 @@ export default function EditAppointmentModal({
           <div>
             <Label>{t("form.location")}</Label>
             <Input
+              data-testid="appointment-location-input"
               type="text"
               value={form.location || ""}
               onChange={(e) => handleChange("location", e.target.value)}
@@ -168,6 +172,7 @@ export default function EditAppointmentModal({
           <div>
             <Label>{t("form.appointmentDetails")}</Label>
             <Textarea
+              data-testid="appointment-detail-input"
               value={form.detail || ""}
               onChange={(e) => handleChange("detail", e.target.value)}
               placeholder={t("form.enterDetails")}
@@ -178,6 +183,7 @@ export default function EditAppointmentModal({
           <div>
             <Label>{t("form.meetingSummary")}</Label>
             <Textarea
+              data-testid="appointment-summary-input"
               value={form.summary || ""}
               onChange={(e) => handleChange("summary", e.target.value)}
               placeholder={t("form.enterMeetingSummary")}
@@ -191,7 +197,7 @@ export default function EditAppointmentModal({
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button onClick={handleSubmit} disabled={loading}>
+          <Button data-testid="appointment-save-btn" onClick={handleSubmit} disabled={loading}>
             {loading ? t("common.loading") : t("common.save")}
           </Button>
         </DialogFooter>

@@ -26,13 +26,13 @@ const RadioQuestion = ({ index, value, onChange, disabled }: RadioQuestionProps)
         disabled={disabled}
       >
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value={YES_VALUE} id={`rq${index}-yes`} disabled={disabled} />
+          <RadioGroupItem value={YES_VALUE} id={`rq${index}-yes`} data-testid={`rq${index}-yes`} disabled={disabled} />
           <Label htmlFor={`rq${index}-yes`} className={disabled ? "cursor-not-allowed" : ""}>
             {t("common.yes")}
           </Label>
         </div>
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value={NO_VALUE} id={`rq${index}-no`} disabled={disabled} />
+          <RadioGroupItem value={NO_VALUE} id={`rq${index}-no`} data-testid={`rq${index}-no`} disabled={disabled} />
           <Label htmlFor={`rq${index}-no`} className={disabled ? "cursor-not-allowed" : ""}>
             {t("common.no")}
           </Label>

@@ -145,7 +145,7 @@ export default function CreateAccountPage() {
                       rules={{ required: t("auth.prefixRequired") }}
                       render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="pl-10">
+                          <SelectTrigger className="pl-10" data-testid="prefix">
                             <SelectValue placeholder={t("form.prefixPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
@@ -162,7 +162,7 @@ export default function CreateAccountPage() {
                     />
                   </div>
                   {errors.prefix && (
-                    <p className="text-sm text-destructive">
+                    <p data-testid="form-error" className="text-sm text-destructive">
                       {errors.prefix.message}
                     </p>
                   )}
@@ -192,7 +192,7 @@ export default function CreateAccountPage() {
                               field.onChange(val === "none" ? null : val)
                             }
                           >
-                            <SelectTrigger className="pl-10">
+                            <SelectTrigger className="pl-10" data-testid="academic_position">
                               <SelectValue placeholder={t("form.academicPositionPlaceholder")} />
                             </SelectTrigger>
                             <SelectContent>
@@ -218,7 +218,7 @@ export default function CreateAccountPage() {
                           })}
                         />
                         {errors.academic_position_other && (
-                          <p className="text-sm text-destructive">
+                          <p data-testid="form-error" className="text-sm text-destructive">
                             {errors.academic_position_other.message}
                           </p>
                         )}
@@ -235,12 +235,13 @@ export default function CreateAccountPage() {
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
+                    data-testid="first_name"
                     placeholder={t("form.namePlaceholder")}
                     className="pl-10"
                     {...register("first_name", { required: t("auth.firstNameRequired") })}
                   />
                   {errors.first_name && (
-                    <p className="text-sm text-destructive">
+                    <p data-testid="form-error" className="text-sm text-destructive">
                       {errors.first_name.message}
                     </p>
                   )}
@@ -254,12 +255,13 @@ export default function CreateAccountPage() {
                   <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
+                    data-testid="last_name"
                     placeholder={t("form.lastNamePlaceholder")}
                     className="pl-10"
                     {...register("last_name", { required: t("auth.lastNameRequired") })}
                   />
                   {errors.last_name && (
-                    <p className="text-sm text-destructive">
+                    <p data-testid="form-error" className="text-sm text-destructive">
                       {errors.last_name.message}
                     </p>
                   )}
@@ -273,12 +275,13 @@ export default function CreateAccountPage() {
                   <Building className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
+                    data-testid="department"
                     placeholder={t("auth.departmentPlaceholder")}
                     className="pl-10"
                     {...register("department", { required: t("auth.departmentRequired") })}
                   />
                   {errors.department && (
-                    <p className="text-sm text-destructive">
+                    <p data-testid="form-error" className="text-sm text-destructive">
                       {errors.department.message}
                     </p>
                   )}
@@ -301,6 +304,7 @@ export default function CreateAccountPage() {
                     }}
                     render={({ field, fieldState }) => (
                       <PhoneInput
+                        data-testid="phone_number"
                         {...field}
                         error={fieldState.error?.message}
                       />
@@ -315,6 +319,7 @@ export default function CreateAccountPage() {
                     <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="email"
+                      data-testid="email"
                       placeholder="example@email.com"
                       className="pl-10"
                       {...register("email", {
@@ -326,7 +331,7 @@ export default function CreateAccountPage() {
                       })}
                     />
                     {errors.email && (
-                      <p className="text-sm text-destructive">
+                      <p data-testid="form-error" className="text-sm text-destructive">
                         {errors.email.message}
                       </p>
                     )}
@@ -341,6 +346,7 @@ export default function CreateAccountPage() {
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
+                    data-testid="password"
                     placeholder="••••••••••"
                     className="pl-10"
                     {...register("password", {
@@ -363,7 +369,7 @@ export default function CreateAccountPage() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                   {errors.password && (
-                    <p className="text-sm text-destructive">
+                    <p data-testid="form-error" className="text-sm text-destructive">
                       {errors.password.message}
                     </p>
                   )}
@@ -377,6 +383,7 @@ export default function CreateAccountPage() {
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
+                    data-testid="confirmPassword"
                     placeholder="••••••••••"
                     className="pl-10"
                     {...register("confirmPassword", {
@@ -393,7 +400,7 @@ export default function CreateAccountPage() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                   {errors.confirmPassword && (
-                    <p className="text-sm text-destructive">
+                    <p data-testid="form-error" className="text-sm text-destructive">
                       {errors.confirmPassword.message}
                     </p>
                   )}
@@ -401,7 +408,7 @@ export default function CreateAccountPage() {
               </div>
 
               {errors.root && (
-                <p className="text-sm text-destructive text-center">
+                <p data-testid="form-error" className="text-sm text-destructive text-center">
                   {errors.root.message}
                 </p>
               )}

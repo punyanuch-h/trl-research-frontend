@@ -103,6 +103,7 @@ const Supporter: React.FC<SupporterProps> = ({
               <input
                 type="checkbox"
                 name="supportDevNeeded"
+                data-testid={`support-dev-${option.value}`}
                 value={option.value}
                 onChange={(e) => handleSupportDevChange(e.target.value, e.target.checked)}
                 checked={formData.supportDevNeeded.includes(option.value)}
@@ -126,6 +127,7 @@ const Supporter: React.FC<SupporterProps> = ({
                 <input
                   type="checkbox"
                   name="supportMarketNeeded"
+                  data-testid={`support-market-${option.value}`}
                   value={option.value}
                   onChange={(e) => handleSupportMarketChange(e.target.value, e.target.checked)}
                   checked={formData.supportMarketNeeded.includes(option.value)}
@@ -138,6 +140,7 @@ const Supporter: React.FC<SupporterProps> = ({
                   <input
                     type="text"
                     name="otherSupportMarket"
+                    data-testid="support-market-other"
                     className="other-input pl-6 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition duration-300 w-full"
                     value={formData.otherSupportMarket}
                     onChange={(e) => handleInputChange('otherSupportMarket', e.target.value)}

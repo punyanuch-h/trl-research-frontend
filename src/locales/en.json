@@ -175,7 +175,7 @@
     "phoneInvalidCoordinator": "Please enter valid 10-digit phone number for coordinator",
     "emailInvalidHead": "Please enter valid email",
     "emailInvalidCoordinator": "Please enter valid email for coordinator",
-    "trlStepError": "Please answer all questions in Part 1 and Part 2, then click 'Evaluate' before continuing",
+    "trlStepError": "Please fill in all questions in Part 1 and Part 2, then click 'Evaluate' before continuing",
     "ipStatusError": "Please select IP protection status (Form {{n}})",
     "ipTypeError": "Please specify IP type (Form {{n}})",
     "ipRequestNumberError": "Please specify request number (Form {{n}})",

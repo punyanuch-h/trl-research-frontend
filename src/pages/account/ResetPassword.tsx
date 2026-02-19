@@ -99,6 +99,7 @@ export default function ResetPasswordPage() {
         <Card className="w-full max-w-xl shadow-md">
           <CardContent>
             <form
+              data-testid="reset-password-form"
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-6 mt-6"
             >
@@ -108,6 +109,7 @@ export default function ResetPasswordPage() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
+                    data-testid="oldPassword"
                     type={showPassword ? "text" : "password"}
                     className="pl-10 pr-10"
                     {...register("oldPassword", {
@@ -120,7 +122,7 @@ export default function ResetPasswordPage() {
                   />
                 </div>
                 {errors.oldPassword && (
-                  <p className="text-sm text-destructive">
+                  <p data-testid="form-error" className="text-sm text-destructive">
                     {errors.oldPassword.message}
                   </p>
                 )}
@@ -132,6 +134,7 @@ export default function ResetPasswordPage() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
+                    data-testid="newPassword"
                     type={showPassword ? "text" : "password"}
                     className="pl-10 pr-10"
                     {...register("newPassword", {
@@ -152,7 +155,7 @@ export default function ResetPasswordPage() {
                   />
                 </div>
                 {errors.newPassword && (
-                  <p className="text-sm text-destructive">
+                  <p data-testid="form-error" className="text-sm text-destructive">
                     {errors.newPassword.message}
                   </p>
                 )}
@@ -164,6 +167,7 @@ export default function ResetPasswordPage() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
+                    data-testid="confirmNewPassword"
                     type={showPassword ? "text" : "password"}
                     className="pl-10 pr-10"
                     {...register("confirmNewPassword", {
@@ -178,7 +182,7 @@ export default function ResetPasswordPage() {
                   />
                 </div>
                 {errors.confirmNewPassword && (
-                  <p className="text-sm text-destructive">
+                  <p data-testid="form-error" className="text-sm text-destructive">
                     {errors.confirmNewPassword.message}
                   </p>
                 )}
@@ -190,7 +194,7 @@ export default function ResetPasswordPage() {
                 </p>
               )}
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
+              <Button data-testid="reset-password-submit" type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

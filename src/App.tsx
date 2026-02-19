@@ -41,6 +41,7 @@ const App: React.FC = () => {
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
           <Route path="/forget-password" element={<PublicRoute><ForgetPassword /></PublicRoute>} />
+          
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route path="/case-detail/:id" element={<PrivateRoute><CaseDetial /></PrivateRoute>} />
           <Route path="/reset-password" element={<PrivateRoute><ResetPasswordPage /></PrivateRoute>} />

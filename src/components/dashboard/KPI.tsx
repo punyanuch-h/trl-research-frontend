@@ -4,11 +4,12 @@ interface KPICardProps {
   icon: LucideIcon;
   label: string;
   value: string | number;
+  "data-testid"?: string;
 }
 
-export function KPICard({ icon: Icon, label, value }: KPICardProps) {
+export function KPICard({ icon: Icon, label, value, "data-testid": testId }: KPICardProps) {
   return (
-    <div className="p-4 bg-white rounded-lg border border-gray-100 flex items-center gap-3">
+    <div data-testid={testId} className="p-4 bg-white rounded-lg border border-gray-100 flex items-center gap-3">
       <Icon className="w-5 h-5 text-gray-400" />
       <div>
         <p className="text-xs text-gray-500">{label}</p>
