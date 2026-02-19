@@ -35,6 +35,7 @@ test.describe('Edit appointment', () => {
 
     await page.getByTestId('appointment-save-btn').click();
     await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 5000 });
-    await expect(page.getByText('QA Updated Location')).toBeVisible();
+    const updated = page.getByText('QA Updated Location').first();
+    await expect(updated).toBeVisible();
   });
 });
