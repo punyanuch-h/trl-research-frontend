@@ -36,24 +36,6 @@ jobs:
           CI: true
           VITE_PUBLIC_API_URL: https://trl-research-backend-855321865617.asia-southeast1.run.app
 
-      - name: Start application
-        run: npm run preview -- --port 3000 &
-
-      - name: Wait for server
-        run: npx wait-on http://localhost:3000 --timeout 30000
-
-      - name: Debug API
-        run: curl -I https://trl-research-backend-855321865617.asia-southeast1.run.app
-      - name: Debug login env
-        run: |
-          echo "Researcher email length:"
-          echo ${#RESEARCHER_EMAIL}
-          echo "Admin email length:"
-          echo ${#ADMIN_EMAIL}
-        env:
-          RESEARCHER_EMAIL: ${{ secrets.RESEARCHER_EMAIL }}
-          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-
       - name: Run E2E tests
         run: npx playwright test --project=chromium
         env:
