@@ -307,16 +307,14 @@ export default function EvaluateTRL({
           );
         })}
 
-
-        {phase === "radio" && (
-          <RadioQuestion
-            index={radioIndex + 1}
-            value={
-              radioAnswers.find(a => a.index === radioIndex)?.value ?? ""
-            }
-            onChange={(v) => handleRadioChange(radioIndex, v)}
-          />
-        )}
+        {phase === "radio" &&
+          !radioAnswers.some(a => a.index === radioIndex) && (
+            <RadioQuestion
+              index={radioIndex + 1}
+              value=""
+              onChange={(v) => handleRadioChange(radioIndex, v)}
+            />
+          )}
 
       </div>
 
