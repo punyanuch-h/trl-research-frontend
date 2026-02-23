@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
+import { toast } from "@/lib/toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,8 +101,10 @@ export default function CreateAccountPage() {
         email: data.email,
         password: data.password,
       });
+      toast.success(t("auth.signupSuccess"));
     } catch (err: unknown) {
       console.error(err);
+      toast.error(t("auth.signupError"));
       setError("root", {
         message: t("auth.signupError"),
       });
