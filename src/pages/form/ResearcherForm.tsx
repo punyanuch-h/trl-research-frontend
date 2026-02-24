@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import {
   Dialog,
@@ -279,7 +279,7 @@ export default function ResearcherForm() {
       return { valid: true };
     }
     if (step === 2) {
-      const required = ["researchTitle", "researchType", "description"];
+      const required = ["researchTitle", "researchType", "description", "keywords"];
       for (const field of required as (keyof FormState)[]) {
         const value = formData[field];
         if (!value || (typeof value === "string" && !value.trim())) {
@@ -405,16 +405,6 @@ export default function ResearcherForm() {
     }
   };
 
-  // Check if current step is valid for button disabling
-  const isStepValid = () => {
-    if (currentFormStep === 3) {
-      // For TRL step, enable Next once TRL has been evaluated
-      return trlCompleted && isEvaluated;
-    }
-    const { valid } = validateStepWithField(currentFormStep);
-    return valid;
-  };
-
   const handleSubmit = async () => {
     const { valid, firstField, errorMessage } = validateStepWithField(currentFormStep);
     if (!valid) {
@@ -432,7 +422,6 @@ export default function ResearcherForm() {
   };
 
   const handleConfirmSubmit = async () => {
-    setShowConfirmDialog(false);
     submitFormMutation.mutate(formData);
   };
 
@@ -585,7 +574,11 @@ export default function ResearcherForm() {
         </Card>
 
         {/* Confirm dialog */}
-        <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <Dialog open={showConfirmDialog} onOpenChange={(open) => {
+          if (!submitFormMutation.isPending) {
+            setShowConfirmDialog(open);
+          }
+        }}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{t("form.confirmSubmit")}</DialogTitle>
@@ -594,11 +587,26 @@ export default function ResearcherForm() {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowConfirmDialog(false)}
+                disabled={submitFormMutation.isPending}
+              >
                 {t("common.cancel")}
               </Button>
-              <Button onClick={handleConfirmSubmit} data-testid="confirm-submit" disabled={submitFormMutation.isPending}>
-                {t("form.confirmAndSubmit")}
+              <Button
+                onClick={handleConfirmSubmit}
+                data-testid="confirm-submit"
+                disabled={submitFormMutation.isPending}
+              >
+                {submitFormMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t("form.loadingConfirmAndSubmit")}
+                  </>
+                ) : (
+                  t("form.confirmAndSubmit")
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
