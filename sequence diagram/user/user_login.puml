@@ -1,17 +1,44 @@
 @startuml
-title Sequence Diagram: Researcher Logs In
+title Sequence Diagram: User Login
 
-actor Researcher
+actor User
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Neon)" as DB
+participant "Rate Limiter" as RL
+database "Database (Neon)" as DB
 
-Researcher -> UI: Open 'Login' page
-Researcher -> UI: Fill login form and submit
+User -> UI: Open 'Login' page
+
+User -> UI: Enter email + password
 UI -> API: POST /auth/login
-API -> DB: Verify Researcher credentials
-DB --> API: Success/Failure response
-API --> UI: Return result (success/failure)
-UI --> Researcher: Show confirmation or error
+
+API -> RL: Check rate limit
+RL --> API: Allowed / Blocked
+
+alt Rate Limited
+    API --> UI: 429 Too Many Requests
+else Allowed
+    API -> DB: Find user by email
+    DB --> API: User found / not found
+
+    alt User Not Found
+        API --> UI: 401 Invalid credentials
+    else User Found
+        API -> API: Compare password (bcrypt.compare)
+
+        alt Password Invalid
+            API --> UI: 401 Invalid credentials
+        else Password Valid
+            API -> API: Generate Access Token (JWT)
+            API -> API: Generate Refresh Token
+            API -> DB: Store hashed refresh token
+            API --> UI: 200 OK (tokens + user info)
+        end
+    end
+end
+
+UI -> UI: Store access token (memory)
+UI -> UI: Store refresh token (httpOnly cookie)
+UI --> User: Redirect to Homepage
 
 @enduml

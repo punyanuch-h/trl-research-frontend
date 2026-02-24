@@ -1,17 +1,32 @@
 @startuml
 title Sequence Diagram: Admin Manages Appointments
-
 actor Admin
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Neon)" as DB
+participant "Auth Middleware (JWT)" as AUTH
+database "Database (Neon)" as DB
+
+== Load Appointment Dashboard ==
 
 Admin -> UI: Open 'Appointments Management' page
-UI -> API: GET /trl/case/{case_id}
-UI -> API: GET /trl/researcher/{researcher_id}
-API -> DB: Fetch appointments list
-DB --> API: Return appointments data
-API --> UI: Return appointments list
-UI -> Admin: Display appointments
+UI -> API: GET /trl/appointments (JWT)
+
+API -> AUTH: Verify JWT & role=Admin
+AUTH --> API: Valid / Invalid
+
+alt Invalid Token
+    API --> UI: 401 Unauthorized
+    UI --> Admin: Redirect to login
+else Valid
+    API -> DB: Fetch appointments (by status)
+    API -> DB: Count attended
+    API -> DB: Count absent
+    API -> DB: Fetch upcoming appointments
+    DB --> API: Return aggregated data
+    API --> UI: 200 OK (dashboard data)
+end
+
+UI --> Admin: Display appointment summary
+UI --> Admin: Display upcoming list
 
 @enduml

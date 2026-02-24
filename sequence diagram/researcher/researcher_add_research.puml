@@ -1,0 +1,56 @@
+@startuml
+title Sequence Diagram: Researcher Adds Research
+
+actor Researcher
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+participant "Auth Middleware (JWT)" as AUTH
+participant "Validation Layer" as VAL
+database "Database (Neon)" as DB
+
+Researcher -> UI: Open 'Add Research' page
+
+Researcher -> UI: Fill research details + Submit
+UI -> UI: Client-side validation
+
+UI -> API: POST /trl/case (JWT)
+UI -> API: POST /trl/coordinator (JWT)
+UI -> API: POST /trl/assessment (JWT)
+UI -> API: POST /trl/ip (JWT)
+UI -> API: POST /trl/supportment (JWT)
+
+API -> AUTH: Verify JWT & role=Researcher
+AUTH --> API: Valid / Invalid
+
+alt Invalid Token
+    API --> UI: 401 Unauthorized
+    UI --> Researcher: Redirect to Login
+else Valid
+    API -> VAL: Validate payload schema
+    VAL --> API: Valid / Invalid
+
+    alt Invalid Data
+        API --> UI: 400 Validation Error
+        UI --> Researcher: Show validation errors
+    else Valid
+        API -> DB: BEGIN TRANSACTION
+
+        API -> DB: Insert case
+        API -> DB: Insert coordinator
+        API -> DB: Insert assessment
+        API -> DB: Insert IP
+        API -> DB: Insert supportment
+
+        alt Any Insert Fails
+            API -> DB: ROLLBACK
+            API --> UI: 500 Error
+            UI --> Researcher: Show failure message
+        else All Success
+            API -> DB: COMMIT
+            API --> UI: 201 Created
+            UI --> Researcher: Show success message
+        end
+    end
+end
+
+@enduml

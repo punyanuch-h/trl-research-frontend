@@ -1,16 +1,52 @@
 @startuml
-title Sequence Diagram: Admin Edit Appointments
+title Sequence Diagram: Admin Edit Appointment
 
 actor Admin
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Neon)" as DB
+participant "Auth Middleware (JWT)" as AUTH
+database "Database (Neon)" as DB
+participant "Notification Service (Email)" as NOTI
 
-Admin -> UI: Open 'Appointments Management' page
-UI -> API: PATCH /trl/appointment{id}
-API -> DB: Edit appointments data
-DB --> API: Success/Failure response
-API --> UI: Return result (success/failure)
-UI --> Admin: Show confirmation or error
+Admin -> UI: Open Appointments Management
+
+Admin -> UI: Click Edit + Modify data
+UI -> UI: Validate required fields
+UI -> API: PATCH /trl/appointment/{id} (JWT + payload)
+
+API -> AUTH: Verify JWT & role
+AUTH --> API: Authorized / Forbidden
+
+alt Forbidden
+    API --> UI: 403 Forbidden
+    UI --> Admin: Show error
+else Authorized
+    API -> API: Validate payload
+    alt Invalid data
+        API --> UI: 400 Validation error
+    else Valid
+        API -> DB: Check appointment exists
+        alt Not found
+            API --> UI: 404 Not Found
+        else Exists
+            API -> DB: Check time conflict
+            alt Conflict
+                API --> UI: 409 Conflict
+            else No conflict
+                API -> DB: BEGIN TRANSACTION
+                API -> DB: Update appointment
+                DB --> API: Update success
+                API -> DB: COMMIT
+                API -> NOTI: Send update notification (Email)
+                NOTI --> API: Sent
+                API --> UI: 200 Success
+            end
+        end
+    end
+end
+
+UI -> UI: Invalidate query cache
+UI --> Admin: Show success toast
+UI -> UI: Close edit modal
 
 @enduml

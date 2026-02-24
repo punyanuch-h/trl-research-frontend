@@ -1,0 +1,45 @@
+@startuml
+title Sequence Diagram: Admin Edit Suggestion
+
+actor Admin
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+participant "Auth Middleware (JWT)" as AUTH
+database "Database (Neon)" as DB
+
+Admin -> UI: Navigate to Assessment page
+
+Admin -> UI: Edit suggestion + Click Save
+UI -> UI: Validate required fields
+UI -> API: PATCH /trl/assessment/{id} (JWT + payload)
+
+API -> AUTH: Verify JWT & role
+AUTH --> API: Authorized / Forbidden
+
+alt Forbidden
+    API --> UI: 403 Forbidden
+    UI --> Admin: Show error
+else Authorized
+    API -> API: Validate payload schema
+    alt Invalid Data
+        API --> UI: 400 Validation Error
+    else Valid
+        API -> DB: Check assessment exists
+        alt Not Found
+            API --> UI: 404 Not Found
+        else Exists
+            API -> DB: BEGIN TRANSACTION
+            API -> DB: Update suggestion fields
+            API -> DB: Insert audit log (who edited + timestamp)
+            DB --> API: Update success
+            API -> DB: COMMIT
+            API --> UI: 200 Success
+        end
+    end
+end
+
+UI -> UI: Invalidate query cache
+UI --> Admin: Show success toast
+UI -> UI: Close edit modal
+
+@enduml
