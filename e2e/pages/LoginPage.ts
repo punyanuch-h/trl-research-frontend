@@ -35,8 +35,8 @@ export class LoginPage {
   }
 
   /** Click Forgot Password link */
-  async clickForgetPassword() {
-    await authLocators.forgetPasswordLink(this.page).click();
+  async clickForgotPassword() {
+    await authLocators.forgotPasswordLink(this.page).click();
   }
 
   /** Click Sign Up link */

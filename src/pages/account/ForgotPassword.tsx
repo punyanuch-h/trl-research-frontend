@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { useForgetPassword } from "@/hooks/useForgetPassword";
+import { useForgotPassword } from "@/hooks/useForgotPassword";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ForgotPasswordFormData {
@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
     isPending: forgotPasswordPending,
     isSuccess,
     reset: resetMutation,
-  } = useForgetPassword();
+  } = useForgotPassword();
 
   useEffect(() => {
     if (isSuccess && response) {
@@ -80,9 +80,9 @@ export default function ForgotPasswordPage() {
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Mail className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-center text-2xl">{t("auth.forgetPasswordTitle")}</CardTitle>
+            <CardTitle className="text-center text-2xl">{t("auth.forgotPasswordTitle")}</CardTitle>
             <CardDescription className="text-center">
-              {t("auth.forgetPasswordDesc")}
+              {t("auth.forgotPasswordDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -1,14 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
-export const useForgetPassword = () => {
+export const useForgotPassword = () => {
   const apiQueryClient = new ApiQueryClient(
     import.meta.env.VITE_PUBLIC_API_URL
   );
 
   return useMutation({
     mutationFn: async (email: string) => {
-      return apiQueryClient.useForgetPassword(email);
+      return apiQueryClient.useForgotPassword(email);
     },
     onSuccess: (data) => {
       console.log("Password reset email sent successfully:", data);
