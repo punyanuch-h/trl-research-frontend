@@ -90,7 +90,7 @@ interface FormState {
   otherSupportMarket: string;
 }
 
-export function useSubmitResearcherForm() {
+export function useSubmitResearcherForm(setShowConfirmDialog?: (v: boolean) => void) {
   const apiClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -106,6 +106,7 @@ export function useSubmitResearcherForm() {
       queryClient.invalidateQueries({ queryKey: ["useGetIPAll"] });
 
       // Success - clear and navigate
+      setShowConfirmDialog?.(false);
       toast.success(i18n.t("toast.saveSuccess"));
       localStorage.removeItem("currentFormStep");
       localStorage.removeItem("researcherFormData");

@@ -180,6 +180,7 @@
     "confirmSubmit": "Confirm Submission",
     "confirmSubmitDesc": "Upon confirmation, your data will be submitted to the system for review.",
     "confirmAndSubmit": "Confirm and Submit",
+    "loadingConfirmAndSubmit": "Loading Confirm and Submit...",
     "fillRequired": "Please fill in all required fields marked with *",
     "phoneInvalidHead": "Please enter valid 10-digit phone number",
     "phoneInvalidCoordinator": "Please enter valid 10-digit phone number for coordinator",

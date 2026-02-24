@@ -19,7 +19,7 @@ import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImpr
 import { useUpdateTrlScore } from '@/hooks/case/patch/useUpdateTrlScore';
 import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CaseResponse, IntellectualPropertyResponse } from '@/types/type';
+import { IntellectualPropertyResponse } from '@/types/type';
 
 const AssessmentResult = () => {
   const { t } = useTranslation();
