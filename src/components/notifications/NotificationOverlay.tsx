@@ -53,15 +53,6 @@ export function NotificationOverlay({
                         <div className="text-xs text-muted-foreground">
                             {t("dashboard.checkInternet")}
                         </div>
-
-                        {onRetry && (
-                            <button
-                                onClick={onRetry}
-                                className="text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
-                            >
-                                {t("common.try")}
-                            </button>
-                        )}
                     </div>
                 )}
 

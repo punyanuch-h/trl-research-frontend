@@ -21,8 +21,7 @@
     "noData": "No data",
     "other": "Other",
     "select": "Select",
-    "processing": "Processing...",
-    "try": "Try again"
+    "processing": "Processing..."
   },
   "header": {
     "appTitle": "Technology Readiness Level Assessment System",
@@ -226,8 +225,8 @@
     "assistance11": "None"
   },
   "toast": {
-    "saveSuccess": "Saved successfully!",
-    "uploadSuccess": "Upload Success!",
+    "saveSuccess": "Saved successfully",
+    "uploadSuccess": "Upload Success",
     "uploadError": "Upload failed",
     "pdfError": "Error generating PDF file",
     "editSuggestionError": "Error editing suggestion",
