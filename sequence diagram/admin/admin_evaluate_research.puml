@@ -1,0 +1,44 @@
+@startuml
+title Sequence Diagram: Admin Evaluate Research
+
+actor Admin
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+participant "Auth Middleware (JWT)" as AUTH
+database "Database (Neon)" as DB
+participant "Notification Service (Optional)" as NOTI
+
+Admin -> UI: Edit evaluation + Click Save
+UI -> UI: Validate required fields
+UI -> API: PATCH /trl/assessment/{id} (JWT + payload)
+
+API -> AUTH: Verify JWT & role
+AUTH --> API: Authorized / Forbidden
+
+alt Forbidden
+    API --> UI: 403 Forbidden
+else Authorized
+    API -> API: Validate payload schema
+    alt Invalid Data
+        API --> UI: 400 Validation Error
+    else Valid
+        API -> DB: Check assessment exists
+        alt Not Found
+            API --> UI: 404 Not Found
+        else Exists
+            API -> DB: BEGIN TRANSACTION
+            API -> DB: Update evaluation fields
+            API -> DB: Recalculate TRL Level
+            API -> DB: Insert audit log
+            DB --> API: Success
+            API -> DB: COMMIT
+            API -> NOTI: Send evaluation result (optional)
+            NOTI --> API: Sent
+            API --> UI: 200 Success
+            UI -> UI: Invalidate query cache
+            UI --> Admin: Show success toast
+        end
+    end
+end
+
+@enduml

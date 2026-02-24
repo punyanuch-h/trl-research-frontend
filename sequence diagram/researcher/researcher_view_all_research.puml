@@ -1,36 +1,33 @@
 @startuml
-title Sequence Diagram: Admin Views All Research
+title Sequence Diagram: Researcher Views All Research
 
-actor Admin
+actor Researcher
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
 participant "Auth Middleware (JWT)" as AUTH
 database "Database (Neon)" as DB
 
-== Load Admin Homepage ==
+== Load Researcher Homepage ==
 
-Admin -> UI: Navigate to 'Admin Homepage'
+Researcher -> UI: Navigate to 'Researcher Homepage'
 UI -> API: GET /trl/case (JWT)
 UI -> API: GET /trl/appointment (JWT)
-UI -> API: GET /trl/researcher (JWT)
 
-API -> AUTH: Verify JWT & role=Admin
+API -> AUTH: Verify JWT & role=Researcher
 AUTH --> API: Valid / Invalid
 
 alt Invalid Token
     API --> UI: 401 Unauthorized
-    UI --> Admin: Redirect to Login
+    UI --> Researcher: Redirect to Login
 else Valid
     API -> DB: Fetch all research cases
     API -> DB: Fetch appointment summary
     API -> DB: Aggregate statistics
     DB --> API: Return aggregated data
     API --> UI: 200 OK (Dashboard Data)
-    UI --> Admin: Display research list
-    UI --> Admin: Display appointment stats
-    UI --> Admin: Display summary cards
+    UI --> Researcher: Display research list
+    UI --> Researcher: Display appointment stats
+    UI --> Researcher: Display summary cards
 end
-
-
 
 @enduml

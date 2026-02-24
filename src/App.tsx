@@ -10,7 +10,7 @@ import SignupPage from "./pages/account/SignupPage.tsx";
 import ProfilePage from "./pages/account/ProfilePage.tsx";
 import CreateAccountPage from "./pages/account/CreateAccountPage.tsx";
 import ResetPasswordPage from "./pages/account/ResetPassword.tsx";
-import ForgetPassword from "./pages/account/ForgetPassword.tsx";
+import ForgotPassword from "./pages/account/ForgotPassword.tsx";
 import AdminHomePage from "./pages/homepage/AdminHomePage.tsx";
 import CaseDetial from "./pages/caseDetial/CaseDetial";
 import ResearcherForm from "./pages/form/ResearcherForm";
@@ -40,7 +40,7 @@ const App: React.FC = () => {
           <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
-          <Route path="/forget-password" element={<PublicRoute><ForgetPassword /></PublicRoute>} />
+          <Route path="/forget-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
           
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route path="/case-detail/:id" element={<PrivateRoute><CaseDetial /></PrivateRoute>} />

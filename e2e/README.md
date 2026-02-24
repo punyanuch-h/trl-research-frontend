@@ -21,7 +21,7 @@ e2e/
 ├── pages/                # Page Object Model
 │   ├── LoginPage.ts
 │   ├── SignupPage.ts
-│   ├── ForgetPasswordPage.ts
+│   ├── ForgotPasswordPage.ts
 │   ├── ResearcherHomePage.ts
 │   ├── AdminHomePage.ts
 │   └── index.ts

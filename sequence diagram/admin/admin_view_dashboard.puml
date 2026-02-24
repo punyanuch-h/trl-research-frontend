@@ -4,18 +4,42 @@ title Sequence Diagram: Admin Views Dashboard
 actor Admin
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Neon)" as DB
+participant "Auth Middleware (JWT)" as AUTH
+database "Database (Neon)" as DB
+participant "Cache Layer (Redis - Optional)" as CACHE
 
+== Open Dashboard ==
 Admin -> UI: Open 'Dashboard' page
-UI -> API: GET /trl/case/{id}
-UI -> API: GET /trl/researchers
-UI -> API: GET /trl/assessment
-UI -> API: GET /trl/ip
-UI -> API: GET /trl/supportment
-API -> DB: Fetch dashboard data
-DB --> API: Return dashboard data
-API --> UI: Return dashboard data
-UI --> Admin: Display dashboard
+UI -> API: GET /trl/case (JWT)
+UI -> API: GET /trl/researchers (JWT)
+UI -> API: GET /trl/assessment (JWT)
+UI -> API: GET /trl/ip (JWT)
+UI -> API: GET /trl/supportment (JWT)
+API -> AUTH: Verify JWT & role=Admin
+AUTH --> API: Valid / Invalid
+
+alt Invalid Token
+    API --> UI: 401 Unauthorized
+    UI --> Admin: Redirect to Login
+else Valid
+    API -> CACHE: Check dashboard cache
+    alt Cache Hit
+        CACHE --> API: Return cached data
+    else Cache Miss
+        API -> DB: Fetch case statistics
+        API -> DB: Fetch researchers count
+        API -> DB: Fetch assessment summary
+        API -> DB: Fetch IP summary
+        API -> DB: Fetch supportment summary
+        DB --> API: Return aggregated results
+        API -> CACHE: Store dashboard data (TTL 60s)
+    end
+    API --> UI: 200 OK (Dashboard Data)
+    UI --> Admin: Display dashboard widgets
+    UI --> Admin: Display summary cards
+    UI --> Admin: Display charts
+end
+
+
 
 @enduml
-

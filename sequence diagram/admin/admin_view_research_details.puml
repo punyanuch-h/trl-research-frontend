@@ -4,18 +4,51 @@ title Sequence Diagram: Admin Views Research Details
 actor Admin
 participant "Frontend/UI" as UI
 participant "Backend/API" as API
-database "Database \n (Neon)" as DB
+participant "Auth Middleware (JWT)" as AUTH
+participant "Service Layer" as SERVICE
+database "Database (Neon)" as DB
+participant "Cache Layer (Optional)" as CACHE
 
+== Open Research Details Page ==
 Admin -> UI: Navigate to 'Research Details' page
-UI -> API: GET /trl/case/{id}
-UI -> API: GET /trl/appointment/{id}
-UI -> API: GET /trl/coordinator/{id}
-UI -> API: GET /trl/assessment/{id}
-UI -> API: GET /trl/ip/{id}
-UI -> API: GET /trl/supportment/{id}
-API -> DB: Fetch research details
-DB --> API: Return research details
-API --> UI: Return research details
-UI --> Admin: Display research details
+
+UI -> API: GET /trl/case/{id} (JWT)
+UI -> API: GET /trl/research/{id} (JWT)
+UI -> API: GET /trl/coordinator/{id} (JWT)
+UI -> API: GET /trl/assessment/{id} (JWT)
+UI -> API: GET /trl/appointment/{id} (JWT)
+UI -> API: GET /trl/ip/{id} (JWT)
+UI -> API: GET /trl/supportment/{id}(JWT)
+
+API -> AUTH: Verify JWT & role=Admin
+AUTH --> API: Valid / Invalid
+
+alt Invalid Token
+    API --> UI: 401 Unauthorized
+    UI --> Admin: Redirect to Login
+else Valid
+    API -> CACHE: Check cache (case details)
+    alt Cache Hit
+        CACHE --> API: Return cached details
+    else Cache Miss
+        API -> SERVICE: Aggregate research details
+
+        SERVICE -> DB: Fetch case info
+        SERVICE -> DB: Fetch researcher info
+        SERVICE -> DB: Fetch coordinator info
+        SERVICE -> DB: Fetch assessments
+        SERVICE -> DB: Fetch appointments
+        SERVICE -> DB: Fetch IP data
+        SERVICE -> DB: Fetch supportment data
+
+        DB --> SERVICE: Return all related data
+        SERVICE --> API: Combined research detail object
+        API -> CACHE: Store aggregated data (TTL 60s)
+    end
+
+    API --> UI: 200 OK (Full Research Details)
+    UI --> Admin: Render research details page
+    UI --> Admin: Display tabs (Assessment / IP / Appointment / Supportment)
+end
 
 @enduml

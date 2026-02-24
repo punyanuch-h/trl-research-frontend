@@ -1,0 +1,38 @@
+@startuml
+title Sequence Diagram: User Edit Profile
+
+actor User
+participant "Frontend/UI (React)" as UI
+participant "Backend/API" as API
+participant "Auth Middleware (JWT)" as AUTH
+database "Database (Neon)" as DB
+
+User -> UI: Open Profile Page
+UI -> API: GET /user/profile (JWT)
+API -> AUTH: Verify token
+AUTH --> API: Valid
+API -> DB: Fetch user by ID
+DB --> API: User data
+API --> UI: Return profile
+UI --> User: Display profile
+
+User -> UI: Click "Edit"
+UI -> UI: Enable form fields
+
+User -> UI: Click "Save"
+UI -> API: PATCH /user/profile (updated data + JWT)
+
+API -> AUTH: Verify token
+AUTH --> API: Valid
+API -> DB: Update user record
+DB --> API: Success
+API --> UI: 200 OK
+
+UI -> API: GET /user/profile (refetch)
+API -> DB: Fetch updated user
+DB --> API
+API --> UI: Updated profile
+
+UI --> User: Show success toast + display updated data
+
+@enduml

@@ -1,20 +1,53 @@
 @startuml
-title Sequence Diagram: Researcher Views Research Details
+title Sequence Diagram: User Views Research Details
 
-actor Researcher
-participant "Frontend/UI" as UI
+actor User
+participant "Frontend/UI (React)" as UI
 participant "Backend/API" as API
-database "Database \n (Neon)" as DB
+participant "Auth Middleware (JWT)" as AUTH
+database "Database (Neon)" as DB
 
-Researcher -> UI: Navigate to 'Research Details' page
-UI -> API: GET /trl/case/{id}
-UI -> API: GET /trl/appointment/{id}
-UI -> API: GET /trl/coordinator/{id}
-UI -> API: GET /trl/ip/{id}
-UI -> API: GET /trl/supportment/{id}
-API -> DB: Fetch research details
-DB --> API: Return research details
-API --> UI: Return research details
-UI --> Researcher: Display research details
+User -> UI: Navigate to /case/{id}
+
+UI -> API: GET /trl/case/{id} (JWT)
+API -> AUTH: Verify token
+AUTH --> API: Token valid
+API -> DB: Fetch case by id
+DB --> API: Case data
+API --> UI: Return case data
+
+par Fetch related data
+    UI -> API: GET /trl/appointment/{id}
+    API -> DB: Fetch appointments
+    DB --> API: Appointment data
+    API --> UI: Return appointments
+
+    UI -> API: GET /trl/coordinator/{id}
+    API -> DB: Fetch coordinator
+    DB --> API: Coordinator data
+    API --> UI: Return coordinator
+
+    UI -> API: GET /trl/ip/{id}
+    API -> DB: Fetch IP data
+    DB --> API: IP records
+    API --> UI: Return IP data
+
+    UI -> API: GET /trl/supportment/{id}
+    API -> DB: Fetch support data
+    DB --> API: Support data
+    API --> UI: Return support data
+
+    UI -> API: GET /trl/assessment/{id}
+    API -> DB: Fetch assessment
+    DB --> API: Assessment data
+    API --> UI: Return assessment
+end
+
+UI -> API: GET /researcher/{researcher_id}
+API -> DB: Fetch researcher info
+DB --> API: Researcher data
+API --> UI: Return researcher data
+
+UI --> User: Display full research details page
 
 @enduml

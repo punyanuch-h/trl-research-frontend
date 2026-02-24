@@ -188,7 +188,7 @@ export default function LoginPage() {
                     onClick={() => navigate("/forget-password")}
                     className="text-primary hover:underline"
                   >
-                    {t("auth.forgetPassword")}
+                    {t("auth.forgotPassword")}
                   </button>
                 </div>
               </div>

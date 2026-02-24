@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { ForgetPasswordPage } from '../pages/ForgetPasswordPage';
+import { ForgotPasswordPage } from '../pages/ForgotPasswordPage';
 import { getResearcherCredentials } from '../test-data/auth.data';
 
 test.describe('Forget Password', () => {
-  let forgetPasswordPage: ForgetPasswordPage;
+  let forgotPasswordPage: ForgotPasswordPage;
 
   test.beforeEach(async ({ page }) => {
-    forgetPasswordPage = new ForgetPasswordPage(page);
-    await forgetPasswordPage.goto();
+    forgotPasswordPage = new ForgotPasswordPage(page);
+    await forgotPasswordPage.goto();
   });
 
   test('should display forget password form', async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe('Forget Password', () => {
   test('should show success message after submitting valid email', async ({ page }) => {
     // Note: Backend may reject unknown emails - use known test email if available
     const credentials = getResearcherCredentials();
-    await forgetPasswordPage.submitEmail("forget@password.com");
+    await forgotPasswordPage.submitEmail("forget@password.com");
     // Assert: Either success message or error (depending on backend behavior)
     const successAlert = page.getByRole('alert');
     const errorText = page.locator('.text-destructive');

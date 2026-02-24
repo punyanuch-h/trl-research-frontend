@@ -4,7 +4,7 @@ import { authLocators } from '../locators/auth.locators';
 /**
  * Page Object for Forget Password page
  */
-export class ForgetPasswordPage {
+export class ForgotPasswordPage {
   constructor(private readonly page: Page) { }
 
   /** Navigate to forget password page (app uses HashRouter) */
