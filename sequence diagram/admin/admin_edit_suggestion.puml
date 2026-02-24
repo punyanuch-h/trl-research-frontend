@@ -31,9 +31,15 @@ else Authorized
             API -> DB: BEGIN TRANSACTION
             API -> DB: Update suggestion fields
             API -> DB: Insert audit log (who edited + timestamp)
-            DB --> API: Update success
-            API -> DB: COMMIT
-            API --> UI: 200 Success
+            alt DB Error
+                API -> DB: ROLLBACK
+                API --> UI: 500 Internal Server Error
+                UI --> Admin: Show error
+            else DB Success
+                DB --> API: Update success
+                API -> DB: COMMIT
+                API --> UI: 200 Success
+            end
             UI -> UI: Invalidate query cache
             UI --> Admin: Show success toast
             UI -> UI: Close edit modal

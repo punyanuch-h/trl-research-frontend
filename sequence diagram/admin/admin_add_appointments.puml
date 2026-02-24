@@ -24,6 +24,7 @@ else Authorized
     API -> API: Validate payload
     alt Invalid Data
         API --> UI: 400 Validation Error
+        UI --> Admin: Show validation error
     else Valid Data
         API -> DB: BEGIN TRANSACTION
         API -> DB: Insert appointment
