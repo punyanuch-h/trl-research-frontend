@@ -36,7 +36,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                     id="researchTitle"
                     data-testid="researchTitle"
                     value={formData.researchTitle}
-                    onChange={(e) => handleInputChange("researchTitle", e.target.value)}
+                    onChange={(e) => handleInputChange("researchTitle", String(e.target.value))}
                     placeholder={t("form.innovationNamePlaceholder")}
                     required
                     ref={refs?.researchTitle}
@@ -80,7 +80,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                     id="description"
                     data-testid="description"
                     value={formData.description}
-                    onChange={(e) => handleInputChange("description", e.target.value)}
+                    onChange={(e) => handleInputChange("description", String(e.target.value))}
                     placeholder={t("form.innovationDescPlaceholder")}
                     rows={6}
                     required
@@ -93,7 +93,7 @@ export default function ResearchDetails({ formData, handleInputChange, refs }: R
                     id="keywords"
                     data-testid="keywords"
                     value={formData.keywords}
-                    onChange={(e) => handleInputChange("keywords", e.target.value)}
+                    onChange={(e) => handleInputChange("keywords", String(e.target.value))}
                     placeholder={t("form.keywordsPlaceholder")}
                     required
                     ref={refs?.keywords}
