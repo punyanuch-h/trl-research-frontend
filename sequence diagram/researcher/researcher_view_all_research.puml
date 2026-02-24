@@ -25,10 +25,9 @@ else Valid
     API -> DB: Aggregate statistics
     DB --> API: Return aggregated data
     API --> UI: 200 OK (Dashboard Data)
+    UI --> Researcher: Display research list
+    UI --> Researcher: Display appointment stats
+    UI --> Researcher: Display summary cards
 end
-
-UI --> Researcher: Display research list
-UI --> Researcher: Display appointment stats
-UI --> Researcher: Display summary cards
 
 @enduml

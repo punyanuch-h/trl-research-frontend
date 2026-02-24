@@ -40,13 +40,14 @@ else Authorized
                 API -> NOTI: Send update notification (Email)
                 NOTI --> API: Sent
                 API --> UI: 200 Success
+                UI -> UI: Invalidate query cache
+                UI --> Admin: Show success toast
+                UI -> UI: Close edit modal
             end
         end
     end
 end
 
-UI -> UI: Invalidate query cache
-UI --> Admin: Show success toast
-UI -> UI: Close edit modal
+
 
 @enduml

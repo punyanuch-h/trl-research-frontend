@@ -32,11 +32,10 @@ else Authorized
         API -> NOTI: Send notification (Email)
         NOTI --> API: Sent
         API --> UI: 201 Created
+        UI -> UI: Invalidate query cache
+        UI --> Admin: Show success toast
+        UI -> UI: Close modal
     end
 end
-
-UI -> UI: Invalidate query cache
-UI --> Admin: Show success toast
-UI -> UI: Close modal
 
 @enduml

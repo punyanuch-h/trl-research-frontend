@@ -33,12 +33,11 @@ else Allowed
             API -> API: Generate Refresh Token
             API -> DB: Store hashed refresh token
             API --> UI: 200 OK (tokens + user info)
+            UI -> UI: Store access token (memory)
+            UI -> UI: Store refresh token (httpOnly cookie)
+            UI --> User: Redirect to Homepage
         end
     end
 end
-
-UI -> UI: Store access token (memory)
-UI -> UI: Store refresh token (httpOnly cookie)
-UI --> User: Redirect to Homepage
 
 @enduml

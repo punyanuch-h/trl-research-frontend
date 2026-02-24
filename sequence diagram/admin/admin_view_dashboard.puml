@@ -35,10 +35,11 @@ else Valid
         API -> CACHE: Store dashboard data (TTL 60s)
     end
     API --> UI: 200 OK (Dashboard Data)
+    UI --> Admin: Display dashboard widgets
+    UI --> Admin: Display summary cards
+    UI --> Admin: Display charts
 end
 
-UI --> Admin: Display dashboard widgets
-UI --> Admin: Display summary cards
-UI --> Admin: Display charts
+
 
 @enduml

@@ -48,6 +48,6 @@ API -> DB: Fetch researcher info
 DB --> API: Researcher data
 API --> UI: Return researcher data
 
-UI --> Researcher: Display full research details page
+UI --> User: Display full research details page
 
 @enduml

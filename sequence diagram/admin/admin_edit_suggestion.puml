@@ -34,12 +34,13 @@ else Authorized
             DB --> API: Update success
             API -> DB: COMMIT
             API --> UI: 200 Success
+            UI -> UI: Invalidate query cache
+            UI --> Admin: Show success toast
+            UI -> UI: Close edit modal
         end
     end
 end
 
-UI -> UI: Invalidate query cache
-UI --> Admin: Show success toast
-UI -> UI: Close edit modal
+
 
 @enduml

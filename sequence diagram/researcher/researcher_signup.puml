@@ -31,10 +31,9 @@ else Valid
         DB --> API: Insert success
         API -> DB: COMMIT
         API --> UI: 201 Created
+        UI --> Researcher: Show success message
+        UI -> UI: Redirect to login page
     end
 end
-
-UI --> Researcher: Show success message
-UI -> UI: Redirect to login page
 
 @enduml

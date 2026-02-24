@@ -24,9 +24,10 @@ else Valid
     API -> DB: Fetch upcoming appointments
     DB --> API: Return aggregated data
     API --> UI: 200 OK (dashboard data)
+    UI --> Admin: Display appointment summary
+    UI --> Admin: Display upcoming list
 end
 
-UI --> Admin: Display appointment summary
-UI --> Admin: Display upcoming list
+
 
 @enduml

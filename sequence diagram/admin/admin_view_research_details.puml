@@ -47,9 +47,8 @@ else Valid
     end
 
     API --> UI: 200 OK (Full Research Details)
+    UI --> Admin: Render research details page
+    UI --> Admin: Display tabs (Assessment / IP / Appointment / Supportment)
 end
-
-UI --> Admin: Render research details page
-UI --> Admin: Display tabs (Assessment / IP / Appointment / Supportment)
 
 @enduml

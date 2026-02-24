@@ -38,10 +38,11 @@ else Valid
         end
 
         API --> UI: 201 Created
+        UI --> Admin: Show success message
+        UI -> UI: Redirect to Admin homepage
     end
 end
 
-UI --> Admin: Show success message
-UI -> UI: Redirect to Admin homepage
+
 
 @enduml

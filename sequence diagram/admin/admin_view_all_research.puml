@@ -26,10 +26,11 @@ else Valid
     API -> DB: Aggregate statistics
     DB --> API: Return aggregated data
     API --> UI: 200 OK (Dashboard Data)
+    UI --> Admin: Display research list
+    UI --> Admin: Display appointment stats
+    UI --> Admin: Display summary cards
 end
 
-UI --> Admin: Display research list
-UI --> Admin: Display appointment stats
-UI --> Admin: Display summary cards
+
 
 @enduml
