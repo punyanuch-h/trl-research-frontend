@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { GraduationCap, Loader2, User, Lock, EyeOff, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLogin } from "@/hooks/login/useLogin";
+import { useLogin } from "@/hooks/index";
 
 interface LoginFormData {
   email: string;

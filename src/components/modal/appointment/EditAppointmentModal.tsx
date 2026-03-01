@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { CaseResponse, AppointmentResponse, ResearcherResponse } from '@/types/type';
-import { useEditAppointment } from "@/hooks/case/patch/useEditAppointment";
+import { useUpdateAppointment } from "@/hooks/index";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
@@ -49,7 +49,7 @@ export default function EditAppointmentModal({
   const { t } = useTranslation();
   const [form, setForm] = useState<AppointmentResponse | null>(appointment);
 
-  const { editAppointment, loading } = useEditAppointment(onSave, onClose);
+  const { updateAppointment, loading } = useUpdateAppointment(onSave, onClose);
 
   useEffect(() => {
     setForm(appointment);
@@ -65,7 +65,7 @@ export default function EditAppointmentModal({
       let dateValue = value;
       if (typeof value === "string" && value) {
         const parsed = new Date(value);
-        dateValue = isNaN(parsed.getTime()) ? value : parsed.toISOString();
+        dateValue = (isNaN(parsed.getTime()) ? value : parsed.toISOString()) as AppointmentResponse[K];
       }
 
       setForm(prev => prev ? { ...prev, [field]: dateValue } : prev);
@@ -83,7 +83,7 @@ export default function EditAppointmentModal({
     };
 
     try {
-      await editAppointment(formToSubmit);
+      await updateAppointment(formToSubmit);
 
       toast.success(t("toast.editAppointmentSuccess"));
       onSave(formToSubmit);

@@ -11,9 +11,7 @@ import ProfileField, {
   UserProfile,
 } from "@/components/profile/ProfileField";
 
-import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
-import { useUpdateUserProfile } from "@/hooks/user/patch/useUpdateUserProfile";
-import { useToast } from "@/hooks/toast/useToast";
+import { useGetUserProfile, useUpdateUserProfile, useToast } from "@/hooks/index";
 
 export default function ProfilePage() {
   const { t } = useTranslation();

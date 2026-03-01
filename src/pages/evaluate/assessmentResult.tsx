@@ -8,15 +8,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { ChevronDown, ChevronUp, ArrowLeft, CheckCircle, Pencil, X, Check, FileText, Paperclip, ExternalLink } from 'lucide-react';
 import { radioQuestionList } from '@/data/radioQuestionList';
 import { checkboxQuestionList } from '@/data/checkboxQuestionList';
-import { useGetCaseById } from '@/hooks/case/get/useGetCaseById';
-import { useGetResearcherById } from "@/hooks/researcher/get/useGetResearcherById";
-import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByCaseId";
-import { useGetAssessmentById } from '@/hooks/case/get/useGetAssessmentById';
-import { useGetIPByCaseId } from "@/hooks/case/get/useGetIPByCaseId";
-import { useGetDownloadUrl } from '@/hooks/file/useDownloadFile';
-import { useUpdateAssessment } from '@/hooks/case/patch/useUpdateAssessment';
-import { useUpdateImprovementSuggestion } from '@/hooks/case/patch/useUpdateImprovementSuggestion';
-import { useUpdateTrlScore } from '@/hooks/case/patch/useUpdateTrlScore';
+import { 
+  useGetCaseById,
+  useGetResearcherById,
+  useGetCoordinatorByCaseId,
+  useGetAssessmentByCaseId,
+  useGetIPByCaseId,
+  useDownloadFile,
+  useUpdateStatusById,
+  useUpdateImprovementSuggestionById,
+  useUpdateTrlScoreById
+} from '@/hooks/index';
 import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IntellectualPropertyResponse } from '@/types/type';
@@ -50,13 +52,13 @@ const AssessmentResult = () => {
   const { data: caseData, isPending: isCasePending, isError: isCaseError, refetch: refetchCase } = useGetCaseById(id || '');
   const { data: researcherData, isPending: isResearcherPending, isError: isResearcherError } = useGetResearcherById(caseData?.researcher_id || '');
   const { data: coordinatorData, isPending: isCoordinatorPending, isError: isCoordinatorError } = useGetCoordinatorByCaseId(id || '');
-  const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentById(id || '');
+  const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentByCaseId(id || '');
   const { data: ipData } = useGetIPByCaseId(id || '');
 
-  const updateAssessmentMutation = useUpdateAssessment(caseData?.id || '');
-  const updateSuggestionMutation = useUpdateImprovementSuggestion();
-  const updateTrlScoreMutation = useUpdateTrlScore();
-  const { openFile, isPathLoading } = useGetDownloadUrl();
+  const updateAssessmentMutation = useUpdateStatusById(caseData?.id || '');
+  const updateSuggestionMutation = useUpdateImprovementSuggestionById();
+  const updateTrlScoreMutation = useUpdateTrlScoreById();
+  const { openFile, isPathLoading } = useDownloadFile();
 
   // State for editable suggestions
   const [suggestions, setSuggestions] = useState<{ [key: string]: string }>({});

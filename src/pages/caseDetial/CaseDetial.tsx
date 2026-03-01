@@ -10,13 +10,15 @@ import { AddAppointmentModal } from "../../components/modal/appointment/AddAppoi
 import EditAppointmentModal from "../../components/modal/appointment/EditAppointmentModal";
 
 import { getUserRole } from "@/lib/auth";
-import { useGetCaseById } from "@/hooks/case/get/useGetCaseById";
-import { useGetCoordinatorByCaseId } from "@/hooks/case/get/useGetCoordinatorByCaseId";
-import { useGetAppointmentByCaseId } from "@/hooks/case/get/useGetAppointmentByCaseId";
-import { useGetAssessmentById } from "@/hooks/case/get/useGetAssessmentById";
-import { useGetIPByCaseId } from "@/hooks/case/get/useGetIPByCaseId";
-import { useGetSupporterByCaseId } from "@/hooks/case/get/useGetSupporterByCaseId";
-import { useGetResearcherById } from "@/hooks/researcher/get/useGetResearcherById";
+import { 
+  useGetCaseById,
+  useGetCoordinatorByCaseId,
+  useGetAppointmentByCaseId,
+  useGetAssessmentByCaseId,
+  useGetIPByCaseId,
+  useGetSupportmentByCaseId,
+  useGetResearcherById
+} from "@/hooks/index";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppointmentResponse, ResearcherResponse } from "@/types/type";
 
@@ -28,9 +30,9 @@ export default function CaseDetail() {
   const { data: caseData, isPending: isCasePending, isError: isCaseError } = useGetCaseById(id || '');
   const { data: coordinatorData, isPending: isCoordinatorPending, isError: isCoordinatorError } = useGetCoordinatorByCaseId(id || '');
   const { data: appointmentData, isPending: isAppointmentPending, isError: isAppointmentError } = useGetAppointmentByCaseId(id || '');
-  const { data: assessmentData, isPending: isAssessmentPending, isError: isAssessmentError } = useGetAssessmentById(id || '');
+  const { data: assessmentData, isPending: isAssessmentPending, isError: isAssessmentError } = useGetAssessmentByCaseId(id || '');
   const { data: ipData, isPending: isIPPending, isError: isIPError } = useGetIPByCaseId(id || '');
-  const { data: supportmentData, isPending: isSupporterPending, isError: isSupporterError } = useGetSupporterByCaseId(id || '');
+  const { data: supportmentData, isPending: isSupporterPending, isError: isSupporterError } = useGetSupportmentByCaseId(id || '');
   const { data: researcherData, isPending: isResearcherPending, isError: isResearcherError } = useGetResearcherById(caseData?.researcher_id || '');
 
   console.log("CaseDetail Render State:", {

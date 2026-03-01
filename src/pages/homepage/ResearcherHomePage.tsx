@@ -18,9 +18,7 @@ import { CaseReportPDF } from "@/components/modal/report/report";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
-import { useGetAllCasesByID } from "@/hooks/case/get/useGetAllCasesByID";
-import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
+import { useGetUserProfile, useGetCaseByResearcherId, useGetAllAppointments } from "@/hooks/index";
 import { toast } from "@/lib/toast";
 
 // Merge Case + Appointment
@@ -47,7 +45,7 @@ export default function ResearcherHomePage() {
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
   const { data: userProfile } = useGetUserProfile();
-  const { data: caseData = [] } = useGetAllCasesByID(userProfile?.id) as { data: CaseResponse[] | undefined };
+  const { data: caseData = [] } = useGetCaseByResearcherId(userProfile?.id) as { data: CaseResponse[] | undefined };
   const { data: appointmentData = [] } = useGetAllAppointments();
 
   // --- State ---
@@ -244,7 +242,7 @@ export default function ResearcherHomePage() {
         coordinatorData = await queryClient.fetchQuery({
           queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.id);
+            return await apiQueryClient.getCoordinatorByCaseId(caseInfo.id);
           },
         });
       } catch (err) {
@@ -256,7 +254,7 @@ export default function ResearcherHomePage() {
         ipData = await queryClient.fetchQuery({
           queryKey: ["useGetIPByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetIPByCaseId(caseInfo.id);
+            return await apiQueryClient.getIPByCaseId(caseInfo.id);
           },
         });
       } catch (err) {
@@ -268,7 +266,7 @@ export default function ResearcherHomePage() {
         supportmentData = await queryClient.fetchQuery({
           queryKey: ["useGetSupporterByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetSupporterByCaseId(caseInfo.id);
+            return await apiQueryClient.getSupportmentByCaseId(caseInfo.id);
           },
         });
       } catch (err) {
@@ -280,7 +278,7 @@ export default function ResearcherHomePage() {
         assessmentData = await queryClient.fetchQuery({
           queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetAssessmentById(caseInfo.id);
+            return await apiQueryClient.getAssessmentByCaseId(caseInfo.id);
           },
         });
       } catch (err) {

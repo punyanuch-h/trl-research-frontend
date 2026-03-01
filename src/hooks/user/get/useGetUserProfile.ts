@@ -8,7 +8,7 @@ export const useGetUserProfile = () => {
   return useQuery({
     queryKey: ["getUserProfile", token],
     queryFn: async () => {
-      const userProfile = await apiQueryClient.useGetUserProfile();
+      const userProfile = await apiQueryClient.getUserProfile();
       return userProfile;
     },
     retry: false,

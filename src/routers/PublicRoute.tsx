@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
+import { useGetUserProfile } from "@/hooks/index";
 import { getUserRole } from "@/lib/auth";
 
 interface Props {

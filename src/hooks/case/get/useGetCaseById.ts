@@ -8,9 +8,7 @@ export const useGetCaseById = (caseId: string) => {
 
   return useQuery({
     queryKey: ["getCaseById", caseId],
-    queryFn: async () => {
-      return apiQueryClient.useGetCaseById(caseId);
-    },
+    queryFn: () => apiQueryClient.getCaseById(caseId),
     enabled: !!caseId
   });
 };

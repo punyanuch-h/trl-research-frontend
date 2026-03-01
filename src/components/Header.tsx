@@ -9,7 +9,7 @@ import { LanguageSwitch } from "@/components/LanguageSwitch";
 
 import { Home } from "lucide-react";
 import { toast } from "@/lib/toast";
-import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
+import { useGetUserProfile } from "@/hooks/index";
 import { NotificationIcon } from "@/components/notifications/NotificationIcon";
 
 import { useQueryClient } from "@tanstack/react-query";

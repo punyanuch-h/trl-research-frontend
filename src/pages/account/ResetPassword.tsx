@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
-import { usePostResetPassword } from "@/hooks/user/post/useResetPassword";
+import { usePostResetPassword } from "@/hooks/index";
 import { toast } from "@/lib/toast";
 
 interface ResetPasswordData {

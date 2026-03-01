@@ -25,7 +25,7 @@ import {
   EyeOff,
   Eye,
 } from "lucide-react";
-import { usePostAdmin } from "@/hooks/admin/post/usePostAdmin";
+import { useCreateAdmin } from "@/hooks/index";
 import Header from "@/components/Header";
 import { PhoneInput } from "@/components/format/PhoneInput";
 
@@ -76,7 +76,7 @@ export default function CreateAccountPage() {
     return () => subscription.unsubscribe();
   }, [watch, clearErrors, errors.root]);
 
-  const { postAdmin, loading } = usePostAdmin(() => {
+  const { createAdmin, loading } = useCreateAdmin(() => {
     navigate("/admin/homepage");
   });
 
@@ -91,7 +91,7 @@ export default function CreateAccountPage() {
         : data.academic_position;
 
     try {
-      await postAdmin({
+      await createAdmin({
         prefix: data.prefix,
         academic_position: academicPosition,
         first_name: data.first_name,

@@ -12,10 +12,7 @@ import AdminDashboard from "../dashboard/Dashboard";
 import AdminAppointment from "../../components/admin/AdminAppointment";
 import { CaseReportPDF } from "@/components/modal/report/report";
 
-import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
-import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
-import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
-import { useGetAllAssessments } from "@/hooks/case/get/useGetAllAssessments";
+import { useGetAllCases, useGetAllResearchers, useGetAllAppointments, useGetAllAssessments } from "@/hooks/index";
 import { toast } from "@/lib/toast";
 
 // Merge Case + Appointment + Researcher
@@ -48,7 +45,7 @@ export default function AdminHomePage() {
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
   const [activeView, setActiveView] = useState<"management" | "dashboard" | "appointments">("management");
-  const { data: researcherData = [], isLoading: researchersLoading } = useGetAllResearcher();
+  const { data: researcherData = [], isLoading: researchersLoading } = useGetAllResearchers();
   const { data: caseData = [], isLoading: casesLoading } = useGetAllCases();
   const { data: appointmentData = [], isLoading: appointmentsLoading } = useGetAllAppointments();
   const { data: assessmentData = [], isLoading: assessmentsLoading } = useGetAllAssessments();
@@ -264,7 +261,7 @@ export default function AdminHomePage() {
         coordinatorData = await queryClient.fetchQuery({
           queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.id);
+            return await apiQueryClient.getCoordinatorByCaseId(caseInfo.id);
           },
         });
       } catch (err) {
@@ -276,7 +273,7 @@ export default function AdminHomePage() {
         ipData = await queryClient.fetchQuery({
           queryKey: ["useGetIPByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetIPByCaseId(caseInfo.id);
+            return await apiQueryClient.getIPByCaseId(caseInfo.id);
           },
         });
       } catch (err) {
@@ -288,7 +285,7 @@ export default function AdminHomePage() {
         supportmentData = await queryClient.fetchQuery({
           queryKey: ["useGetSupporterByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetSupporterByCaseId(caseInfo.id);
+            return await apiQueryClient.getSupportmentByCaseId(caseInfo.id);
           },
         });
       } catch (err) {
@@ -300,7 +297,7 @@ export default function AdminHomePage() {
         assessmentData = await queryClient.fetchQuery({
           queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
           queryFn: async () => {
-            return await apiQueryClient.useGetAssessmentById(caseInfo.id);
+            return await apiQueryClient.getAssessmentByCaseId(caseInfo.id);
           },
         });
       } catch (err) {

@@ -97,7 +97,7 @@ export function useSubmitResearcherForm(setShowConfirmDialog?: (v: boolean) => v
 
   return useMutation({
     mutationFn: (form: SubmitResearcherFormRequest) =>
-      apiClient.useSubmitResearcherForm(form),
+      apiClient.submitResearcherForm(form),
     onSuccess: () => {
       // Invalidate related queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["getAllCases"] });

@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { CaseResponse, AppointmentResponse, ResearcherResponse } from '@/types/type';
 
-import { useAddAppointment } from "@/hooks/case/post/useAddAppointment";
+import { useCreateAppointment } from "@/hooks/index";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
@@ -40,7 +40,7 @@ export function AddAppointmentModal({
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
   // 🔄 ใช้ hook ใหม่ที่มี query invalidation
-  const { addAppointment, loading } = useAddAppointment(
+  const { createAppointment, loading } = useCreateAppointment(
     () => {
       // Success callback
       toast.success(t("toast.addAppointmentSuccess"));
@@ -74,7 +74,7 @@ export function AddAppointmentModal({
     };
 
     try {
-      await addAppointment({ ...appointmentData, status: "pending" });
+      await createAppointment({ ...appointmentData, status: "pending" });
     } catch (error) {
       toast.error(t("toast.addAppointmentError"));
     }

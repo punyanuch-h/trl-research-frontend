@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { TablePagination } from "@/components/TablePagination";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { useUpdateUrgentStatus } from "@/hooks/case/patch/useUpdateUrgentStatus";
+import { useUpdateUrgentStatusById } from "@/hooks/index";
 
 import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../types/type";
 import { toast } from "@/lib/toast";
@@ -57,7 +57,7 @@ export default function AdminManagement({
     { key: "status", label: t("admin.status") },
   ];
   const navigate = useNavigate();
-  const updateUrgentStatus = useUpdateUrgentStatus();
+  const updateUrgentStatus = useUpdateUrgentStatusById();
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -8,7 +8,7 @@ export const useUpdateUserProfile = () => {
 
   return useMutation({
     mutationFn: async (userProfile: UserProfileResponse) => {
-      return apiClient.useUpdateUserProfile(userProfile);
+      return apiClient.updateUserProfile(userProfile);
     },
     onSuccess: async (data) => {
       if (data) {

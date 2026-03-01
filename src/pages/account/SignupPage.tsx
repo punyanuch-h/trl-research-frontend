@@ -24,7 +24,7 @@ import {
   EyeOff,
   Eye,
 } from "lucide-react";
-import { usePostResearcher } from "@/hooks/researcher/post/usePostResearcher";
+import { useCreateResearcher } from "@/hooks/index";
 import { PhoneInput } from "@/components/format/PhoneInput";
 
 type SignupFormValues = {
@@ -75,7 +75,7 @@ export default function SignupPage() {
   }, [watch, clearErrors, errors.root]);
 
 
-  const { postResearcher, loading } = usePostResearcher(() => {
+  const { createResearcher, loading } = useCreateResearcher(() => {
     navigate("/login");
   });
 
@@ -83,7 +83,7 @@ export default function SignupPage() {
 
   const onSubmit = async (data: SignupFormValues) => {
     try {
-      await postResearcher({
+      await createResearcher({
         prefix: data.prefix,
         academic_position: data.academic_position,
         first_name: data.first_name,

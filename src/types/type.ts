@@ -177,7 +177,7 @@ export type PostAdminData = {
     password: string;
 };
 
-export type AddAppointmentData = {
+export type PostAppointmentData = {
     case_id: string;
     date: string;
     status: "pending" | string;
