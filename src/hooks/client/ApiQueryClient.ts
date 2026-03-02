@@ -211,6 +211,10 @@ export class ApiQueryClient extends ApiBaseClient {
   async submitResearcherForm(
     formData: SubmitResearcherFormRequest
   ): Promise<SubmitResearcherFormResponse> {
+    if (!formData.id) {
+      throw new Error("Researcher ID is missing");
+    }
+
     const getStringArray = (value: unknown): string[] => {
       if (Array.isArray(value)) return value as string[];
       return [];
@@ -307,10 +311,10 @@ export class ApiQueryClient extends ApiBaseClient {
 
       const results = await Promise.all(uploadPromises);
 
-      const hasAnyFile = results.some(path => path !== "");
+      const filteredResults = results.filter(path => path !== "");
 
-      if (hasAnyFile) {
-        assessmentAttachmentsRecord[fieldName] = results;
+      if (filteredResults.length > 0) {
+        assessmentAttachmentsRecord[fieldName] = filteredResults;
       } else {
         assessmentAttachmentsRecord[fieldName] = [];
       }

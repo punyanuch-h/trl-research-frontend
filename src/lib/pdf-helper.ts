@@ -7,52 +7,43 @@ export async function fetchCasePdfData(
   apiQueryClient: ApiQueryClient,
   caseInfo: CaseResponse & { appointments?: AppointmentResponse[] }
 ) {
-  let coordinatorData = null;
-  try {
-    coordinatorData = await queryClient.fetchQuery({
+  const [coordinatorRes, ipRes, supportmentRes, assessmentRes] = await Promise.allSettled([
+    queryClient.fetchQuery({
       queryKey: ["getCoordinatorByCaseId", caseInfo.id],
-      queryFn: async () => {
-        return await apiQueryClient.getCoordinatorByCaseId(caseInfo.id);
-      },
-    });
-  } catch (err) {
-    console.warn("No coordinator data found or error fetching", err);
-  }
-
-  let ipData = [];
-  try {
-    ipData = await queryClient.fetchQuery({
+      queryFn: () => apiQueryClient.getCoordinatorByCaseId(caseInfo.id),
+    }),
+    queryClient.fetchQuery({
       queryKey: ["getIPByCaseId", caseInfo.id],
-      queryFn: async () => {
-        return await apiQueryClient.getIPByCaseId(caseInfo.id);
-      },
-    });
-  } catch (err) {
-    console.warn("No IP data found", err);
-  }
-
-  let supportmentData = null;
-  try {
-    supportmentData = await queryClient.fetchQuery({
+      queryFn: () => apiQueryClient.getIPByCaseId(caseInfo.id),
+    }),
+    queryClient.fetchQuery({
       queryKey: ["getSupportmentByCaseId", caseInfo.id],
-      queryFn: async () => {
-        return await apiQueryClient.getSupportmentByCaseId(caseInfo.id);
-      },
-    });
-  } catch (err) {
-    console.warn("No supportment data found", err);
+      queryFn: () => apiQueryClient.getSupportmentByCaseId(caseInfo.id),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ["getAssessmentByCaseId", caseInfo.id],
+      queryFn: () => apiQueryClient.getAssessmentByCaseId(caseInfo.id),
+    }),
+  ]);
+
+  const coordinatorData = coordinatorRes.status === "fulfilled" ? coordinatorRes.value : null;
+  if (coordinatorRes.status === "rejected") {
+    console.warn("No coordinator data found or error fetching", coordinatorRes.reason);
   }
 
-  let assessmentData = null;
-  try {
-    assessmentData = await queryClient.fetchQuery({
-      queryKey: ["getAssessmentByCaseId", caseInfo.id],
-      queryFn: async () => {
-        return await apiQueryClient.getAssessmentByCaseId(caseInfo.id);
-      },
-    });
-  } catch (err) {
-    console.warn("No assessment data found", err);
+  const ipData = ipRes.status === "fulfilled" ? ipRes.value : [];
+  if (ipRes.status === "rejected") {
+    console.warn("No IP data found", ipRes.reason);
+  }
+
+  const supportmentData = supportmentRes.status === "fulfilled" ? supportmentRes.value : null;
+  if (supportmentRes.status === "rejected") {
+    console.warn("No supportment data found", supportmentRes.reason);
+  }
+
+  const assessmentData = assessmentRes.status === "fulfilled" ? assessmentRes.value : null;
+  if (assessmentRes.status === "rejected") {
+    console.warn("No assessment data found", assessmentRes.reason);
   }
 
   return {

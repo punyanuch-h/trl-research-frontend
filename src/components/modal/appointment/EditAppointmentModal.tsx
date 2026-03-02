@@ -83,9 +83,15 @@ export default function EditAppointmentModal({
   const handleSubmit = () => {
     if (!form) return;
 
+    const dateObj = new Date(form.date);
+    if (isNaN(dateObj.getTime())) {
+      toast.error(t("toast.invalidDate") || "Invalid date");
+      return;
+    }
+
     const formToSubmit = {
       ...form,
-      date: new Date(form.date).toISOString(),
+      date: dateObj.toISOString(),
     };
 
     updateAppointment(formToSubmit, {
@@ -136,7 +142,11 @@ export default function EditAppointmentModal({
               <Input
                 data-testid="appointment-date-input"
                 type="datetime-local"
-                value={format(new Date(form.date), "yyyy-MM-dd'T'HH:mm")}
+                value={
+                  form.date && !isNaN(new Date(form.date).getTime())
+                    ? format(new Date(form.date), "yyyy-MM-dd'T'HH:mm")
+                    : ""
+                }
                 onChange={(e) => handleChange("date", e.target.value)}
               />
             </div>
