@@ -1,30 +1,35 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import { AppointmentResponse } from "@/types/type";
+import { NotificationListResponse } from "@/types/type";
 
 export const useMarkAppointmentNotificationAsRead = () => {
     const apiQueryClient = new ApiQueryClient(
         import.meta.env.VITE_PUBLIC_API_URL
     );
     const queryClient = useQueryClient();
+    const token = localStorage.getItem("token");
 
     return useMutation({
         mutationFn: (id: string) => apiQueryClient.markAppointmentNotificationAsRead(id),
         // Optimistic UI update
         onMutate: async (id: string) => {
             // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-            await queryClient.cancelQueries({ queryKey: ["notifications"] });
+            await queryClient.cancelQueries({ queryKey: ["getAppointmentNotifications", token] });
 
             // Snapshot the previous value
-            const previousNotifications = queryClient.getQueryData<AppointmentResponse[]>(["notifications"]);
+            const previousNotifications = queryClient.getQueryData<NotificationListResponse>(["getAppointmentNotifications", token]);
 
             // Optimistically update to the new value
             if (previousNotifications) {
-                queryClient.setQueryData<AppointmentResponse[]>(
-                    ["notifications"],
-                    previousNotifications.map((notif) =>
-                        notif.id === id ? { ...notif, is_read: true } : notif
-                    )
+                const isCurrentlyUnread = previousNotifications.data.find(n => n.id === id)?.is_read === false;
+                
+                queryClient.setQueryData<NotificationListResponse>(
+                    ["getAppointmentNotifications", token],
+                    {
+                        ...previousNotifications,
+                        unread_count: isCurrentlyUnread ? Math.max(0, previousNotifications.unread_count - 1) : previousNotifications.unread_count,
+                        data: previousNotifications.data.map((notif) => notif.id === id ? { ...notif, is_read: true } : notif)
+                    }
                 );
             }
 
@@ -34,12 +39,12 @@ export const useMarkAppointmentNotificationAsRead = () => {
         // If the mutation fails, use the context returned from onMutate to roll back
         onError: (_err, _id, context) => {
             if (context?.previousNotifications) {
-                queryClient.setQueryData(["notifications"], context.previousNotifications);
+                queryClient.setQueryData(["getAppointmentNotifications", token], context.previousNotifications);
             }
         },
         // Always refetch after error or success:
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            queryClient.invalidateQueries({ queryKey: ["getAppointmentNotifications", token] });
         },
     });
 };

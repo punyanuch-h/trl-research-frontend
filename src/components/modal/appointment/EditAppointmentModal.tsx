@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+		import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/lib/toast";
 import {
   Dialog,
@@ -49,7 +49,13 @@ export default function EditAppointmentModal({
   const { t } = useTranslation();
   const [form, setForm] = useState<AppointmentResponse | null>(appointment);
 
-  const { updateAppointment, loading } = useUpdateAppointment(onSave, onClose);
+  const { updateAppointment, loading } = useUpdateAppointment(
+    (updated) => {
+      toast.success(t("toast.editAppointmentSuccess"));
+      onSave(updated);
+    },
+    onClose
+  );
 
   useEffect(() => {
     setForm(appointment);
@@ -74,7 +80,7 @@ export default function EditAppointmentModal({
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!form) return;
 
     const formToSubmit = {
@@ -82,19 +88,12 @@ export default function EditAppointmentModal({
       date: new Date(form.date).toISOString(),
     };
 
-    try {
-      await updateAppointment(formToSubmit);
-
-      toast.success(t("toast.editAppointmentSuccess"));
-      onSave(formToSubmit);
-      onClose();
-
-    } catch (err: unknown) {
-      const msg = axios.isAxiosError(err)
-        ? err.response?.data?.message
-        : undefined;
-      toast.error(msg || t("toast.editAppointmentError"));
-    }
+    updateAppointment(formToSubmit, {
+      onError: (err: any) => {
+        const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined;
+        toast.error(msg || t("toast.editAppointmentError"));
+      },
+    });
   };
 
   return (

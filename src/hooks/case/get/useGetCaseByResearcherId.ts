@@ -7,7 +7,7 @@ export const useGetCaseByResearcherId = (researcherId: string, options?: UseQuer
   );
 
   return useQuery({
-    queryKey: ["getCasesById", researcherId],
+    queryKey: ["getCaseByResearcherId", researcherId],
     queryFn: () => apiQueryClient.getCaseByResearcherId(researcherId),
     enabled: !!researcherId,
     ...options,

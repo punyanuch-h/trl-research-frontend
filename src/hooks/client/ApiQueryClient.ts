@@ -177,8 +177,8 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async getCaseByResearcherId(researcherId: string): Promise<CaseResponse> {
-    const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/researcher/${researcherId}`);
+  async getCaseByResearcherId(researcherId: string): Promise<CaseResponse[]> {
+    const response = await this.axiosInstance.get<CaseResponse[]>(`/trl/case/researcher/${researcherId}`);
     return response.data;
   }
 

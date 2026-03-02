@@ -7,7 +7,8 @@ export const useGetIPByCaseId = (caseId: string) => {
   );
 
   return useQuery({
-    queryKey: ["useGetIPByCaseId", caseId],
-    queryFn: () => apiQueryClient.getIPByCaseId(caseId)
+    queryKey: ["getIPByCaseId", caseId],
+    queryFn: () => apiQueryClient.getIPByCaseId(caseId),
+    enabled: !!caseId
   });
 };

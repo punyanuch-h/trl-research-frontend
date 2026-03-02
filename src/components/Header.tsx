@@ -4,7 +4,7 @@ import { LogOut, User, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { getUserRole } from "@/lib/auth";
+import { getUserRole, logout } from "@/lib/auth";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 
 import { Home } from "lucide-react";
@@ -33,9 +33,7 @@ export default function Header({ disabled = false }: HeaderProps) {
     }
 
     try {
-      localStorage.removeItem("token");
-      sessionStorage.removeItem("token");
-      localStorage.removeItem("pendingLogout");
+      logout();
       queryClient.clear();
       toast.success(t("auth.logoutSuccess"));
       navigate("/");
@@ -73,9 +71,9 @@ export default function Header({ disabled = false }: HeaderProps) {
                 <div className="flex items-center gap-2 cursor-pointer">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src="" alt="User" />
-                    <AvatarFallback>{userProfile?.first_name.slice(0, 1)}{userProfile?.last_name.slice(0, 1)}</AvatarFallback>
+                    <AvatarFallback>{userProfile?.first_name?.slice(0, 1)}{userProfile?.last_name?.slice(0, 1)}</AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-medium">{userProfile?.first_name} {userProfile?.last_name}</span>
+                  <span className="text-sm font-medium">{userProfile?.first_name ?? ''} {userProfile?.last_name ?? ''}</span>
                 </div>
               </PopoverTrigger>
               <PopoverContent className="w-auto inline-block p-2 mr-4">

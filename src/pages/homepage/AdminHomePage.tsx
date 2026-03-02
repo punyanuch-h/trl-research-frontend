@@ -38,6 +38,13 @@ function mergeCasesData(
   });
 }
 
+type AdminCase = CaseResponse & {
+  appointments: AppointmentResponse[];
+  researcherInfo: ResearcherResponse | null;
+  latestAppointment: AppointmentResponse | null;
+  trl_estimate: number | null;
+};
+
 export default function AdminHomePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -51,6 +58,7 @@ export default function AdminHomePage() {
   const { data: assessmentData = [], isLoading: assessmentsLoading } = useGetAllAssessments();
 
   const [loading, setLoading] = useState(true);
+  const [cases, setCases] = useState<AdminCase[]>([]);
 
   // --- Filter state ---
   const [customFilters, setCustomFilters] = useState<{ column: string; value: string }[]>([]);
@@ -89,14 +97,6 @@ export default function AdminHomePage() {
   ]);
 
   // --- Sorting ---
-  type AdminCase = CaseResponse & {
-    appointments: AppointmentResponse[];
-    researcherInfo: ResearcherResponse | null;
-    latestAppointment: AppointmentResponse | null;
-    trl_estimate: number | null;
-  };
-  const [cases, setCases] = useState<AdminCase[]>([]);
-
   function sortCases(projects: AdminCase[]) {
     const sorted = [...projects].sort((a, b) => {
       const { key, direction } = sortConfig;
@@ -259,7 +259,7 @@ export default function AdminHomePage() {
       let coordinatorData = null;
       try {
         coordinatorData = await queryClient.fetchQuery({
-          queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
+          queryKey: ["getCoordinatorByCaseId", caseInfo.id],
           queryFn: async () => {
             return await apiQueryClient.getCoordinatorByCaseId(caseInfo.id);
           },
@@ -271,7 +271,7 @@ export default function AdminHomePage() {
       let ipData = [];
       try {
         ipData = await queryClient.fetchQuery({
-          queryKey: ["useGetIPByCaseId", caseInfo.id],
+          queryKey: ["getIPByCaseId", caseInfo.id],
           queryFn: async () => {
             return await apiQueryClient.getIPByCaseId(caseInfo.id);
           },
@@ -283,7 +283,7 @@ export default function AdminHomePage() {
       let supportmentData = null;
       try {
         supportmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetSupporterByCaseId", caseInfo.id],
+          queryKey: ["getSupportmentByCaseId", caseInfo.id],
           queryFn: async () => {
             return await apiQueryClient.getSupportmentByCaseId(caseInfo.id);
           },
@@ -295,7 +295,7 @@ export default function AdminHomePage() {
       let assessmentData = null;
       try {
         assessmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
+          queryKey: ["getAssessmentByCaseId", caseInfo.id],
           queryFn: async () => {
             return await apiQueryClient.getAssessmentByCaseId(caseInfo.id);
           },
@@ -362,7 +362,6 @@ export default function AdminHomePage() {
         {activeView === "management" ? (
           <AdminManagement
             projects={filteredCases}
-            setProjects={setCases}
             sortConfig={sortConfig}
             onSort={handleSort}
             onAIEstimate={handleAIEstimate}

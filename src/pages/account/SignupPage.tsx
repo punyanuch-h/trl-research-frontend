@@ -75,9 +75,7 @@ export default function SignupPage() {
   }, [watch, clearErrors, errors.root]);
 
 
-  const { createResearcher, loading } = useCreateResearcher(() => {
-    navigate("/login");
-  });
+  const { createResearcher, loading } = useCreateResearcher();
 
   const password = watch("password");
 

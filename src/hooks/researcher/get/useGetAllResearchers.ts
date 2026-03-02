@@ -7,9 +7,7 @@ export const useGetAllResearchers = () => {
   );
 
   return useQuery({
-    queryKey: ["getAllResearcher"],
-    queryFn: async () => {
-      return apiQueryClient.getAllResearchers();
-    }
+    queryKey: ["getAllResearchers"],
+    queryFn: () => apiQueryClient.getAllResearchers()
   });
 };

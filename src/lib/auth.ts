@@ -41,4 +41,5 @@ export function isAuthenticated(): boolean {
 export function logout() {
   localStorage.removeItem("token");
   sessionStorage.removeItem("token");
+  localStorage.removeItem("pendingLogout");
 }

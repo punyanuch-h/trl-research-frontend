@@ -240,7 +240,7 @@ export default function ResearcherHomePage() {
       let coordinatorData = null;
       try {
         coordinatorData = await queryClient.fetchQuery({
-          queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
+          queryKey: ["getCoordinatorByCaseId", caseInfo.id],
           queryFn: async () => {
             return await apiQueryClient.getCoordinatorByCaseId(caseInfo.id);
           },
@@ -252,7 +252,7 @@ export default function ResearcherHomePage() {
       let ipData = [];
       try {
         ipData = await queryClient.fetchQuery({
-          queryKey: ["useGetIPByCaseId", caseInfo.id],
+          queryKey: ["getIPByCaseId", caseInfo.id],
           queryFn: async () => {
             return await apiQueryClient.getIPByCaseId(caseInfo.id);
           },
@@ -264,7 +264,7 @@ export default function ResearcherHomePage() {
       let supportmentData = null;
       try {
         supportmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetSupporterByCaseId", caseInfo.id],
+          queryKey: ["getSupportmentByCaseId", caseInfo.id],
           queryFn: async () => {
             return await apiQueryClient.getSupportmentByCaseId(caseInfo.id);
           },
@@ -276,7 +276,7 @@ export default function ResearcherHomePage() {
       let assessmentData = null;
       try {
         assessmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
+          queryKey: ["getAssessmentByCaseId", caseInfo.id],
           queryFn: async () => {
             return await apiQueryClient.getAssessmentByCaseId(caseInfo.id);
           },

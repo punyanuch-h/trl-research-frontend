@@ -10,8 +10,9 @@ export const useUpdateTrlScoreById = () => {
       caseId: string;
       trlData: { trl_score: number }
     }) => apiClient.updateTrlScoreById(caseId, trlData),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["case", variables.caseId] });
+    onSuccess: (_, { caseId }) => {
+      queryClient.invalidateQueries({ queryKey: ["getAllCases"] });
+      queryClient.invalidateQueries({ queryKey: ["getCaseById", caseId] });
     },
   });
 }

@@ -55,7 +55,7 @@ const AssessmentResult = () => {
   const { data: assessmentData, isPending: isAssessmentPending } = useGetAssessmentByCaseId(id || '');
   const { data: ipData } = useGetIPByCaseId(id || '');
 
-  const updateAssessmentMutation = useUpdateStatusById(caseData?.id || '');
+  const updateAssessmentMutation = useUpdateStatusById();
   const updateSuggestionMutation = useUpdateImprovementSuggestionById();
   const updateTrlScoreMutation = useUpdateTrlScoreById();
   const { openFile, isPathLoading } = useDownloadFile();
@@ -116,7 +116,10 @@ const AssessmentResult = () => {
         }
       }
 
-      updateAssessmentMutation.mutate(undefined, {
+      updateAssessmentMutation.mutate({
+        caseId: caseId,
+        status: true
+      }, {
         onSuccess: () => {
           toast.success(t("toast.approveSuccess", { id: caseData?.id }));
           navigate('/admin-homepage');

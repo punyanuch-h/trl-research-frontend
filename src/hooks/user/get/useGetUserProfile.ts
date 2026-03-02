@@ -7,11 +7,9 @@ export const useGetUserProfile = () => {
 
   return useQuery({
     queryKey: ["getUserProfile", token],
-    queryFn: async () => {
-      const userProfile = await apiQueryClient.getUserProfile();
-      return userProfile;
-    },
+    queryFn: () => apiQueryClient.getUserProfile(),
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!token,
   });
 };

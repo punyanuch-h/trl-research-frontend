@@ -10,8 +10,9 @@ export const useUpdateTrlEstimateById = () => {
       assessmentId: string;
       trlData: { trl_estimate: number }
     }) => apiClient.updateTrlEstimateById(assessmentId, trlData),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["assessment", variables.assessmentId] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getAssessmentByCaseId"] });
+      queryClient.invalidateQueries({ queryKey: ["getAllAssessments"] });
     },
   });
 }

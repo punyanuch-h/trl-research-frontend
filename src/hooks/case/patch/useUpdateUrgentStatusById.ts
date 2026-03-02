@@ -6,15 +6,13 @@ export const useUpdateUrgentStatusById = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ caseId, urgentData }: { 
+    mutationFn: ({ caseId, urgentData }: { 
       caseId: string; 
       urgentData: { is_urgent: boolean; urgent_feedback: string } 
-    }) => {
-      return apiClient.updateUrgentStatusById(caseId, urgentData);
-    },
-    onSuccess: () => {
-      // Invalidate related queries to refresh data
+    }) => apiClient.updateUrgentStatusById(caseId, urgentData),
+    onSuccess: (_, { caseId }) => {
       queryClient.invalidateQueries({ queryKey: ["getAllCases"] });
+      queryClient.invalidateQueries({ queryKey: ["getCaseById", caseId] });
     },
   });
 };

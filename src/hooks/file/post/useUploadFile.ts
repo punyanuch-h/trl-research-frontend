@@ -3,7 +3,6 @@ import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
 interface UploadFileInput {
   file: File;
-  case_id?: string; // optional
 }
 
 export function useUploadFile(onSuccess: () => void, onClose?: () => void) {

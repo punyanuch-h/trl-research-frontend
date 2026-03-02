@@ -10,8 +10,9 @@ export const useUpdateImprovementSuggestionById = () => {
       assessmentId: string; 
       suggestionData: { improvement_suggestion: string } 
     }) => apiClient.updateImprovementSuggestionById(assessmentId, suggestionData),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["assessment", variables.assessmentId] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getAssessmentByCaseId"] });
+      queryClient.invalidateQueries({ queryKey: ["getAllAssessments"] });
     },
   });
 };

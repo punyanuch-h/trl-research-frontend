@@ -5,8 +5,7 @@ import { toast } from "@/lib/toast";
 export function UploadSection() {
   const { t } = useTranslation();
   const { uploadFile, loading } = useUploadFile(
-    () => toast.success(t("toast.uploadSuccess")),
-    () => console.log("Closed")
+    () => toast.success(t("toast.uploadSuccess"))
   );
 
   const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

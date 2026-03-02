@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 
 export interface PostResetPasswordData {
@@ -6,22 +6,15 @@ export interface PostResetPasswordData {
   new_password: string;
 }
 
-export function usePostResetPassword() {
-  const [loading, setLoading] = useState(false);
+export function useResetPassword() {
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
-  const postResetPassword = async (data: PostResetPasswordData) => {
-    setLoading(true);
-    try {
-      await apiQueryClient.resetPassword(data);
-      return true;
-    } catch (error) {
+  const { mutate, mutateAsync, isPending, isError, error } = useMutation({
+    mutationFn: (data: PostResetPasswordData) => apiQueryClient.resetPassword(data),
+    onError: (error) => {
       console.error("❌ Failed to reset password:", error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
-  return { postResetPassword, loading };
+  return { postResetPassword: mutateAsync, mutate, isLoading: isPending, isError, error };
 }

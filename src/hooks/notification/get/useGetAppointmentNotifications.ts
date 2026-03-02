@@ -9,13 +9,13 @@ export const useGetAppointmentNotifications = () => {
     const token = localStorage.getItem("token");
 
     return useQuery({
-        queryKey: ["notifications", token],
+        queryKey: ["getAppointmentNotifications", token],
         queryFn: async () => {
             const response = await apiQueryClient.getAppointmentNotifications();
-            // The API response is { data: AppointmentResponse[], unread_count: number }
-            return response.data || [];
+            return response;
         },
         // Refresh every 1 minute to check for new notifications
         refetchInterval: 60000,
+        enabled: !!token,
     });
 };

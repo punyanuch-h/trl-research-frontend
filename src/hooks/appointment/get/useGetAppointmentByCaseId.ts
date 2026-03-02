@@ -7,7 +7,8 @@ export const useGetAppointmentByCaseId = (caseId: string) => {
   );
 
   return useQuery({
-    queryKey: ["useGetAppointmentByCaseId", caseId],
-    queryFn: () => apiQueryClient.getAppointmentByCaseId(caseId)
+    queryKey: ["getAppointmentByCaseId", caseId],
+    queryFn: () => apiQueryClient.getAppointmentByCaseId(caseId),
+    enabled: !!caseId
   });
 };

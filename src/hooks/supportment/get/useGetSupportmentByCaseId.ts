@@ -7,7 +7,8 @@ export const useGetSupportmentByCaseId = (caseId: string) => {
   );
 
   return useQuery({
-    queryKey: ["useGetSupporterByCaseId", caseId],
-    queryFn: () => apiQueryClient.getSupportmentByCaseId(caseId)
+    queryKey: ["getSupportmentByCaseId", caseId],
+    queryFn: () => apiQueryClient.getSupportmentByCaseId(caseId),
+    enabled: !!caseId
   });
 };

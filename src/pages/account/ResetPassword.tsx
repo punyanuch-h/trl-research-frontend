@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
-import { usePostResetPassword } from "@/hooks/index";
+import { useResetPassword } from "@/hooks/index";
 import { toast } from "@/lib/toast";
 
 interface ResetPasswordData {
@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
 
   const newPassword = watch("newPassword");
 
-  const { postResetPassword } = usePostResetPassword();
+  const { postResetPassword } = useResetPassword();
 
   const onSubmit = async (data: ResetPasswordData) => {
     try {

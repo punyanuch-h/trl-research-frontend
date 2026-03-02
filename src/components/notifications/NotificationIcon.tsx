@@ -14,7 +14,7 @@ import { AppointmentResponse } from "@/types/type";
 
 export function NotificationIcon() {
     const {
-        data: notifications = [],
+        data,
         isLoading,
         isError,
         refetch,
@@ -29,7 +29,8 @@ export function NotificationIcon() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-    const unreadCount = notifications.filter(n => !n.is_read).length;
+    const notifications = data?.data || [];
+    const unreadCount = data?.unread_count ?? 0;
 
     const handleNotificationClick = (notif: AppointmentResponse) => {
         setSelectedAppointment(notif);

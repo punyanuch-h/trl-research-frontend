@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { logout } from "@/lib/auth";
 
 export const OfflineLogoutHandler = () => {
     const navigate = useNavigate();
@@ -12,9 +13,7 @@ export const OfflineLogoutHandler = () => {
     useEffect(() => {
         const performLogout = () => {
             if (localStorage.getItem("pendingLogout") === "true") {
-                localStorage.removeItem("token");
-                sessionStorage.removeItem("token");
-                localStorage.removeItem("pendingLogout");
+                logout();
                 queryClient.clear();
                 toast.success(t("auth.logoutSuccess"));
                 navigate("/");

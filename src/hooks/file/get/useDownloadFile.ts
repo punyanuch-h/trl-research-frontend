@@ -12,7 +12,7 @@ export function useDownloadFile() {
       const response = await apiQueryClient.getDownloadUrl(path);
       
       if (response?.download_url) {
-        window.open(response.download_url, '_blank');
+        window.open(response.download_url, '_blank', "noopener,noreferrer");
       } else {
         throw new Error("Invalid download URL");
       }

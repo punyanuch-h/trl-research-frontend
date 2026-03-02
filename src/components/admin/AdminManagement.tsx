@@ -22,7 +22,6 @@ interface Project extends CaseResponse {
 }
 interface Props {
   projects: Project[];
-  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   sortConfig: { key: string; direction: "asc" | "desc" };
   onSort: (key: string) => void;
   onAIEstimate: (project: Project) => void;

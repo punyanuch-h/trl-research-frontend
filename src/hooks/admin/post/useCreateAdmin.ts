@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
 import { PostAdminData } from "@/types/type";
 
-export function useCreateAdmin(onSuccess: () => void) {
+export function useCreateAdmin(onSuccess?: () => void) {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
@@ -15,7 +15,7 @@ export function useCreateAdmin(onSuccess: () => void) {
 
       await queryClient.invalidateQueries({ queryKey: ["getAllAdmins"] });
 
-      onSuccess();
+      onSuccess?.();
     } catch (error) {
       console.error("❌ Failed to create admin:", error);
       throw error;
