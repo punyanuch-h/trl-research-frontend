@@ -9,7 +9,7 @@ export const useGetAppointmentNotifications = () => {
     const token = localStorage.getItem("token");
 
     return useQuery({
-        queryKey: ["getAppointmentNotifications", token],
+        queryKey: ["getAppointmentNotifications"],
         queryFn: async () => {
             const response = await apiQueryClient.getAppointmentNotifications();
             return response;

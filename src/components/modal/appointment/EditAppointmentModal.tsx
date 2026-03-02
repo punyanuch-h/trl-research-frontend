@@ -1,10 +1,10 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-		import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/lib/toast";
 import {
   Dialog,
@@ -89,8 +89,8 @@ export default function EditAppointmentModal({
     };
 
     updateAppointment(formToSubmit, {
-      onError: (err: any) => {
-        const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined;
+      onError: (err: unknown) => {
+        const msg = axios.isAxiosError(err) ? (err as AxiosError<{ message?: string }>).response?.data?.message : undefined;
         toast.error(msg || t("toast.editAppointmentError"));
       },
     });

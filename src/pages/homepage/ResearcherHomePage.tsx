@@ -20,6 +20,7 @@ import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useGetUserProfile, useGetCaseByResearcherId, useGetAllAppointments } from "@/hooks/index";
 import { toast } from "@/lib/toast";
+import { fetchCasePdfData } from "@/lib/pdf-helper";
 
 // Merge Case + Appointment
 function mergeCasesData(
@@ -45,7 +46,7 @@ export default function ResearcherHomePage() {
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
   const { data: userProfile } = useGetUserProfile();
-  const { data: caseData = [] } = useGetCaseByResearcherId(userProfile?.id) as { data: CaseResponse[] | undefined };
+  const { data: caseData = [] } = useGetCaseByResearcherId(userProfile?.id || "") as { data: CaseResponse[] | undefined };
   const { data: appointmentData = [] } = useGetAllAppointments();
 
   // --- State ---
@@ -237,62 +238,7 @@ export default function ResearcherHomePage() {
       setDownloadingId(caseInfo.id);
       console.log("Generating PDF for:", caseInfo.title);
 
-      let coordinatorData = null;
-      try {
-        coordinatorData = await queryClient.fetchQuery({
-          queryKey: ["getCoordinatorByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.getCoordinatorByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No coordinator data found or error fetching", err);
-      }
-
-      let ipData = [];
-      try {
-        ipData = await queryClient.fetchQuery({
-          queryKey: ["getIPByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.getIPByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No IP data found", err);
-      }
-
-      let supportmentData = null;
-      try {
-        supportmentData = await queryClient.fetchQuery({
-          queryKey: ["getSupportmentByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.getSupportmentByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No supportment data found", err);
-      }
-
-      let assessmentData = null;
-      try {
-        assessmentData = await queryClient.fetchQuery({
-          queryKey: ["getAssessmentByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.getAssessmentByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No assessment data found", err);
-      }
-
-      const pdfProps = {
-        c: caseInfo,
-        appointments: caseInfo.appointments || [],
-        coordinatorData: coordinatorData,
-        ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
-        supportmentData: supportmentData,
-        assessmentData: assessmentData,
-      };
+      const pdfProps = await fetchCasePdfData(queryClient, apiQueryClient, caseInfo);
 
       const blob = await pdf(<CaseReportPDF {...pdfProps} />).toBlob();
       const url = URL.createObjectURL(blob);

@@ -16,6 +16,7 @@ export function UploadSection() {
           toast.error(t("toast.uploadError"));
         }
       });
+      e.target.value = "";
     }
   };
 

@@ -56,23 +56,29 @@ export class ApiQueryClient extends ApiBaseClient {
   // ---------- User Profile (Admin/Researcher) ---------- //
 
   async getUserProfile(): Promise<UserProfileResponse> {
-    if (getUserRole() === "admin") {
+    const role = getUserRole();
+    if (role === "admin") {
       const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/admin/profile`);
       return response.data;
-    } else {
+    }
+    if (role === "researcher") {
       const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/researcher/profile`);
       return response.data;
     }
+    throw new Error(`Unable to determine user role for profile request: ${role}`);
   }
 
   async updateUserProfile(userProfile: UserProfileResponse): Promise<UserProfileResponse> {
-    if (getUserRole() === "admin") {
+    const role = getUserRole();
+    if (role === "admin") {
       const response = await this.axiosInstance.patch<UserProfileResponse>(`/trl/admin/${userProfile.id}`, userProfile);
       return response.data;
-    } else {
+    }
+    if (role === "researcher") {
       const response = await this.axiosInstance.patch<UserProfileResponse>(`/trl/researcher/${userProfile.id}`, userProfile);
       return response.data;
     }
+    throw new Error(`Unable to determine user role for profile update: ${role}`);
   }
 
   // ---------- Admins ---------- //
