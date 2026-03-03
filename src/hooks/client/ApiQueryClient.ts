@@ -238,13 +238,9 @@ export class ApiQueryClient extends ApiBaseClient {
 
     if (researchFiles && researchFiles.length > 0) {
       for (const file of researchFiles) {
-        try {
-          const { upload_url, object_path } = await this.presignUpload(file);
-          await this.uploadToSignedUrl(upload_url, file);
-          casesAttachments.push(object_path);
-        } catch (error) {
-          throw error;
-        }
+        const { upload_url, object_path } = await this.presignUpload(file);
+        await this.uploadToSignedUrl(upload_url, file);
+        casesAttachments.push(object_path);
       }
     }
 
@@ -353,13 +349,9 @@ export class ApiQueryClient extends ApiBaseClient {
 
         const ipAttachments: string[] = [];
         if (ipForm.file) {
-          try {
-            const { upload_url, object_path } = await this.presignUpload(ipForm.file);
-            await this.uploadToSignedUrl(upload_url, ipForm.file);
-            ipAttachments.push(object_path);
-          } catch (error) {
-            throw error;
-          }
+          const { upload_url, object_path } = await this.presignUpload(ipForm.file);
+          await this.uploadToSignedUrl(upload_url, ipForm.file);
+          ipAttachments.push(object_path);
         }
 
         const ipPayload: Record<string, unknown> = {
