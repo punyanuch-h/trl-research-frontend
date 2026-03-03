@@ -7,31 +7,30 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { useGetNotifications } from "@/hooks/notifications/useGetNotifications";
-import { useMarkAsRead } from "@/hooks/notifications/useMarkAsRead";
-import { useMarkAllAsRead } from "@/hooks/notifications/useMarkAllAsRead";
+import { useGetAppointmentNotifications, useMarkAppointmentNotificationAsRead, useMarkAllAppointmentNotificationsAsRead } from "@/hooks/index";
 import { NotificationOverlay } from "./NotificationOverlay";
 import { AppointmentModal } from "./AppointmentModal";
 import { AppointmentResponse } from "@/types/type";
 
 export function NotificationIcon() {
     const {
-        data: notifications = [],
+        data,
         isLoading,
         isError,
         refetch,
-    } = useGetNotifications();
+    } = useGetAppointmentNotifications();
     const isOffline = !navigator.onLine;
     const showError = isError || isOffline;
 
-    const { mutate: markAsRead } = useMarkAsRead();
-    const { mutate: markAllAsRead } = useMarkAllAsRead();
+    const { mutate: markAsRead } = useMarkAppointmentNotificationAsRead();
+    const { mutate: markAllAsRead } = useMarkAllAppointmentNotificationsAsRead();
 
     const [selectedAppointment, setSelectedAppointment] = useState<AppointmentResponse | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-    const unreadCount = notifications.filter(n => !n.is_read).length;
+    const notifications = data?.data || [];
+    const unreadCount = data?.unread_count ?? 0;
 
     const handleNotificationClick = (notif: AppointmentResponse) => {
         setSelectedAppointment(notif);

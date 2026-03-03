@@ -12,11 +12,11 @@ import EditAppointmentModal from "../modal/appointment/EditAppointmentModal";
 
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../types/type";
+import type { CaseResponse, AppointmentResponse, UserProfileResponse } from "../../types/type";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
-  researcherInfo?: ResearcherResponse;
+  researcherInfo?: UserProfileResponse;
 }
 
 interface Props {

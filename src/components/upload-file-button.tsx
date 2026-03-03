@@ -1,20 +1,22 @@
 import { useTranslation } from "react-i18next";
-import { useUploadFile } from "@/hooks/file/useUploadFile";
+import { useUploadFile } from "@/hooks/index";
 import { toast } from "@/lib/toast";
 
-export function UploadSection({ caseId }: { caseId: string }) {
+export function UploadSection() {
   const { t } = useTranslation();
   const { uploadFile, loading } = useUploadFile(
-    () => toast.success(t("toast.uploadSuccess")),
-    () => console.log("Closed")
+    () => toast.success(t("toast.uploadSuccess"))
   );
 
   const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      uploadFile({ file, case_id: caseId }).catch((err) => {
-        toast.error(t("toast.uploadError"));
+      uploadFile({ file }, {
+        onError: () => {
+          toast.error(t("toast.uploadError"));
+        }
       });
+      e.target.value = "";
     }
   };
 

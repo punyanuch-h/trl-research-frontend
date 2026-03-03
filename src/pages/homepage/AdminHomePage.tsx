@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import type { CaseResponse, AppointmentResponse, ResearcherResponse, AssessmentResponse } from "@/types/type";
+import type { CaseResponse, AppointmentResponse, UserProfileResponse, AssessmentResponse } from "@/types/type";
 
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminManagement from "../../components/admin/AdminManagement";
@@ -12,17 +12,15 @@ import AdminDashboard from "../dashboard/Dashboard";
 import AdminAppointment from "../../components/admin/AdminAppointment";
 import { CaseReportPDF } from "@/components/modal/report/report";
 
-import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
-import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
-import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
-import { useGetAllAssessments } from "@/hooks/case/get/useGetAllAssessments";
+import { useGetAllCases, useGetAllResearchers, useGetAllAppointments, useGetAllAssessments } from "@/hooks/index";
 import { toast } from "@/lib/toast";
+import { fetchCasePdfData } from "@/lib/pdf-helper";
 
 // Merge Case + Appointment + Researcher
 function mergeCasesData(
   cases: CaseResponse[],
   appointments: AppointmentResponse[],
-  researchers: ResearcherResponse[],
+  researchers: UserProfileResponse[],
   assessmentData?: AssessmentResponse[]
 ) {
   return cases.map((c) => {
@@ -41,6 +39,13 @@ function mergeCasesData(
   });
 }
 
+type AdminCase = CaseResponse & {
+  appointments: AppointmentResponse[];
+  researcherInfo: UserProfileResponse | null;
+  latestAppointment: AppointmentResponse | null;
+  trl_estimate: number | null;
+};
+
 export default function AdminHomePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -48,12 +53,13 @@ export default function AdminHomePage() {
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
   const [activeView, setActiveView] = useState<"management" | "dashboard" | "appointments">("management");
-  const { data: researcherData = [], isLoading: researchersLoading } = useGetAllResearcher();
+  const { data: researcherData = [], isLoading: researchersLoading } = useGetAllResearchers();
   const { data: caseData = [], isLoading: casesLoading } = useGetAllCases();
   const { data: appointmentData = [], isLoading: appointmentsLoading } = useGetAllAppointments();
   const { data: assessmentData = [], isLoading: assessmentsLoading } = useGetAllAssessments();
 
   const [loading, setLoading] = useState(true);
+  const [cases, setCases] = useState<AdminCase[]>([]);
 
   // --- Filter state ---
   const [customFilters, setCustomFilters] = useState<{ column: string; value: string }[]>([]);
@@ -92,14 +98,6 @@ export default function AdminHomePage() {
   ]);
 
   // --- Sorting ---
-  type AdminCase = CaseResponse & {
-    appointments: AppointmentResponse[];
-    researcherInfo: ResearcherResponse | null;
-    latestAppointment: AppointmentResponse | null;
-    trl_estimate: number | null;
-  };
-  const [cases, setCases] = useState<AdminCase[]>([]);
-
   function sortCases(projects: AdminCase[]) {
     const sorted = [...projects].sort((a, b) => {
       const { key, direction } = sortConfig;
@@ -259,62 +257,7 @@ export default function AdminHomePage() {
     try {
       console.log("Generating PDF for:", caseInfo.title);
 
-      let coordinatorData = null;
-      try {
-        coordinatorData = await queryClient.fetchQuery({
-          queryKey: ["useGetCoordinatorByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetCoordinatorByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No coordinator data found or error fetching", err);
-      }
-
-      let ipData = [];
-      try {
-        ipData = await queryClient.fetchQuery({
-          queryKey: ["useGetIPByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetIPByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No IP data found", err);
-      }
-
-      let supportmentData = null;
-      try {
-        supportmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetSupporterByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetSupporterByCaseId(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No supportment data found", err);
-      }
-
-      let assessmentData = null;
-      try {
-        assessmentData = await queryClient.fetchQuery({
-          queryKey: ["useGetAssessmentByCaseId", caseInfo.id],
-          queryFn: async () => {
-            return await apiQueryClient.useGetAssessmentById(caseInfo.id);
-          },
-        });
-      } catch (err) {
-        console.warn("No assessment data found", err);
-      }
-
-      const pdfProps = {
-        c: caseInfo,
-        appointments: caseInfo.appointments || [],
-        coordinatorData: coordinatorData,
-        ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
-        supportmentData: supportmentData,
-        assessmentData: assessmentData,
-      };
+      const pdfProps = await fetchCasePdfData(queryClient, apiQueryClient, caseInfo);
 
       const blob = await pdf(<CaseReportPDF {...pdfProps} />).toBlob();
       const url = URL.createObjectURL(blob);
@@ -365,7 +308,6 @@ export default function AdminHomePage() {
         {activeView === "management" ? (
           <AdminManagement
             projects={filteredCases}
-            setProjects={setCases}
             sortConfig={sortConfig}
             onSort={handleSort}
             onAIEstimate={handleAIEstimate}

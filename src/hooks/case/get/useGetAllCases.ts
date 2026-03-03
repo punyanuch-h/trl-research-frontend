@@ -8,8 +8,6 @@ export const useGetAllCases = () => {
 
   return useQuery({
     queryKey: ["getAllCases"],
-    queryFn: async () => {
-      return apiQueryClient.useGetAllCases();
-    }
+    queryFn: () => apiQueryClient.getAllCases()
   });
 };

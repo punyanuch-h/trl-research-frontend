@@ -6,12 +6,10 @@ export const useGetUserProfile = () => {
   const token = localStorage.getItem("token");
 
   return useQuery({
-    queryKey: ["getUserProfile", token],
-    queryFn: async () => {
-      const userProfile = await apiQueryClient.useGetUserProfile();
-      return userProfile;
-    },
+    queryKey: ["getUserProfile"],
+    queryFn: () => apiQueryClient.getUserProfile(),
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!token,
   });
 };

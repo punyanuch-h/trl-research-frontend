@@ -10,7 +10,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
+import { useGetUserProfile } from "@/hooks/index";
 import { PhoneInput } from "@/components/format/PhoneInput";
 
 interface ResearcherFormData {

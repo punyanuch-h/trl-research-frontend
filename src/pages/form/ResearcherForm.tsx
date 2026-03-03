@@ -12,8 +12,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useSubmitResearcherForm } from "@/hooks/case/post/useSubmitResearcherForm";
-import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
+import { useSubmitResearcherForm, useGetUserProfile } from "@/hooks/index";
 
 // Import components
 import ResearcherDetails from '@/pages/form/researcherDetails';

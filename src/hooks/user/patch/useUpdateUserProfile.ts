@@ -7,14 +7,12 @@ export const useUpdateUserProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (userProfile: UserProfileResponse) => {
-      return apiClient.useUpdateUserProfile(userProfile);
-    },
+    mutationFn: (userProfile: UserProfileResponse) => apiClient.updateUserProfile(userProfile),
     onSuccess: async (data) => {
       if (data) {
         queryClient.setQueryData(["getUserProfile"], data);
       }
-      await queryClient.invalidateQueries({ queryKey: ["getUserProfile"], exact: true });
+      await queryClient.invalidateQueries({ queryKey: ["getUserProfile"] });
     },
   });
 };

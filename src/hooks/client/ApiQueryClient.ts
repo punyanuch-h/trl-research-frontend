@@ -7,20 +7,24 @@ import {
   IntellectualPropertyResponse,
   LoginResponse,
   SupportmentResponse,
-  ResearcherResponse,
   UserProfileResponse,
   PostResearcherData,
   PostAdminData,
-  AddAppointmentData,
+  PostAppointmentData,
   NotificationListResponse,
+  PresignUploadResponse,
+  DownloadUrlResponse,
 } from "@/types/type";
 import { getUserRole } from "@/lib/auth";
 import { SubmitResearcherFormRequest, SubmitResearcherFormResponse } from "@/types/request";
 import { checkboxQuestionList } from "@/data/checkboxQuestionList";
 
 export class ApiQueryClient extends ApiBaseClient {
-  // Authentication
-  async useLogin(email: string, password: string): Promise<LoginResponse> {
+  // ============================================================================
+  // ✅ Public Auth
+  // ============================================================================
+
+  async login(email: string, password: string): Promise<LoginResponse> {
     const response = await this.axiosInstance.post<LoginResponse>(`/auth/login`, {
       email,
       password,
@@ -29,130 +33,189 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async useGetAllResearcher(): Promise<ResearcherResponse[]> {
-    const response = await this.axiosInstance.get<ResearcherResponse[]>(`/trl/researchers`);
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const response = await this.axiosInstance.post(`/auth/forget-password`, { email });
     return response.data;
   }
 
-  async useGetResearcherById(researcherId: string): Promise<ResearcherResponse> {
-    const response = await this.axiosInstance.get<ResearcherResponse>(`/trl/researcher/${researcherId}`);
+  async createResearcher(data: PostResearcherData): Promise<UserProfileResponse> {
+    const response = await this.axiosInstance.post<UserProfileResponse>(`/researcher`, data);
     return response.data;
   }
 
-  async useGetAllCasesByID(researcherId: string): Promise<CaseResponse> {
-    const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/researcher/${researcherId}`);
+  // ============================================================================
+  // ✅ Protected APIs
+  // ============================================================================
+
+  // ---------- Auth ---------- //
+
+  async resetPassword(data: { old_password: string; new_password: string }): Promise<{ message: string }> {
+    const response = await this.axiosInstance.post(`/trl/auth/reset-password`, data);
     return response.data;
   }
 
-  async useGetCaseById(caseId: string): Promise<CaseResponse> {
-    const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/${caseId}`);
+  // ---------- User Profile (Admin/Researcher) ---------- //
+
+  async getUserProfile(): Promise<UserProfileResponse> {
+    const role = getUserRole();
+    if (role === "admin") {
+      const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/admin/profile`);
+      return response.data;
+    }
+    if (role === "researcher") {
+      const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/researcher/profile`);
+      return response.data;
+    }
+    throw new Error(`Unable to determine user role for profile request: ${role}`);
+  }
+
+  async updateUserProfile(userProfile: UserProfileResponse): Promise<UserProfileResponse> {
+    const role = getUserRole();
+    if (role === "admin") {
+      const response = await this.axiosInstance.patch<UserProfileResponse>(`/trl/admin/${userProfile.id}`, userProfile);
+      return response.data;
+    }
+    if (role === "researcher") {
+      const response = await this.axiosInstance.patch<UserProfileResponse>(`/trl/researcher/${userProfile.id}`, userProfile);
+      return response.data;
+    }
+    throw new Error(`Unable to determine user role for profile update: ${role}`);
+  }
+
+  // ---------- Admins ---------- //
+
+  async createAdmin(data: PostAdminData): Promise<UserProfileResponse> {
+    const response = await this.axiosInstance.post<UserProfileResponse>(`/trl/admin`, data);
     return response.data;
   }
 
-  async useGetAllAssessments(): Promise<AssessmentResponse[]> {
-    const response = await this.axiosInstance.get<AssessmentResponse[]>(`/trl/assessments`);
+  // ---------- Researchers ---------- //
+
+  async getAllResearchers(): Promise<UserProfileResponse[]> {
+    const response = await this.axiosInstance.get<UserProfileResponse[]>(`/trl/researchers`);
     return response.data;
   }
 
-  async useGetAssessmentById(caseId: string): Promise<AssessmentResponse> {
-    const response = await this.axiosInstance.get<AssessmentResponse>(`/trl/assessment/case/${caseId}`);
+  async getResearcherById(researcherId: string): Promise<UserProfileResponse> {
+    const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/researcher/${researcherId}`);
     return response.data;
   }
 
-  async useUpdateImprovementSuggestionByID(assessmentId: string, improvementSuggestionData: { improvement_suggestion: string }): Promise<AssessmentResponse> {
-    const response = await this.axiosInstance.patch<AssessmentResponse>(`/trl/assessment/${assessmentId}`, improvementSuggestionData);
-    return response.data;
-  }
+  // ---------- Coordinators ---------- //
 
-  async useUpdateTrlEstimateByID(assessmentId: string, trlEstimateData: { trl_estimate: number }): Promise<AssessmentResponse> {
-    const response = await this.axiosInstance.patch<AssessmentResponse>(`/trl/assessment/${assessmentId}`, trlEstimateData);
-    return response.data;
-  }
-
-  async useUpdateAssessment(caseId: string, statusData: { status: boolean }) {
-    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, statusData);
-    return response.data;
-  }
-
-  async useUpdateTrlScore(caseId: string, trlData: { trl_score: number }) {
-    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, trlData);
-    return response.data;
-  }
-
-  async useUpdateUrgentStatus(caseId: string, urgentData: { is_urgent: boolean; urgent_feedback: string }) {
-    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, urgentData);
-    return response.data;
-  }
-
-  async useGetAllCases(): Promise<CaseResponse[]> {
-    const response = await this.axiosInstance.get<CaseResponse[]>(`/trl/cases`);
-    return response.data;
-  }
-
-  async useGetAllAppointments(): Promise<AppointmentResponse[]> {
-    const response = await this.axiosInstance.get<AppointmentResponse[]>(`/trl/appointments`);
-    return response.data;
-  }
-
-  async useGetAppointmentById(appointmentId: string): Promise<AppointmentResponse> {
-    const response = await this.axiosInstance.get<AppointmentResponse>(`/trl/appointment/${appointmentId}`);
-    return response.data;
-  }
-
-  async useGetAppointmentByCaseId(caseId: string): Promise<AppointmentResponse> {
-    const response = await this.axiosInstance.get<AppointmentResponse>(`/trl/appointment/case/${caseId}`);
-    return response.data;
-  }
-
-  async useGetIPAll(): Promise<IntellectualPropertyResponse[]> {
-    const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ips`);
-    return response.data;
-  }
-
-  async useGetIPById(ipId: string): Promise<IntellectualPropertyResponse> {
-    const response = await this.axiosInstance.get<IntellectualPropertyResponse>(`/trl/ip/${ipId}`);
-    return response.data;
-  }
-
-  async useGetIPByCaseId(caseId: string): Promise<IntellectualPropertyResponse[]> {
-    const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ip/case/${caseId}`);
-    return response.data;
-  }
-
-  async useGetAllSupporters(): Promise<SupportmentResponse[]> {
-    const response = await this.axiosInstance.get<SupportmentResponse[]>(`/trl/supportments`);
-    return response.data;
-  }
-
-  async useGetSupporterById(supportmentId: string): Promise<SupportmentResponse> {
-    const response = await this.axiosInstance.get<SupportmentResponse>(`/trl/supportment/${supportmentId}`);
-    return response.data;
-  }
-
-  async useGetSupporterByCaseId(caseId: string): Promise<SupportmentResponse> {
-    const response = await this.axiosInstance.get<SupportmentResponse>(`/trl/supportment/case/${caseId}`);
-    return response.data;
-  }
-
-  async useGetAllCoordinators(): Promise<CoordinatorResponse[]> {
+  async getAllCoordinators(): Promise<CoordinatorResponse[]> {
     const response = await this.axiosInstance.get<CoordinatorResponse[]>(`/trl/coordinators`);
     return response.data;
   }
 
-  async useGetCoordinatorById(coordinatorId: string): Promise<CoordinatorResponse> {
+  async getCoordinatorById(coordinatorId: string): Promise<CoordinatorResponse> {
     const response = await this.axiosInstance.get<CoordinatorResponse>(`/trl/coordinator/${coordinatorId}`);
     return response.data;
   }
 
-  async useGetCoordinatorByCaseId(caseId: string): Promise<CoordinatorResponse> {
+  async getCoordinatorByCaseId(caseId: string): Promise<CoordinatorResponse> {
     const response = await this.axiosInstance.get<CoordinatorResponse>(`/trl/coordinator/case/${caseId}`);
     return response.data;
   }
 
-  // Submit researcher form
-  async useSubmitResearcherForm(
+  // ---------- Supportments ---------- //
+
+  async getAllSupportments(): Promise<SupportmentResponse[]> {
+    const response = await this.axiosInstance.get<SupportmentResponse[]>(`/trl/supportments`);
+    return response.data;
+  }
+
+  async getSupportmentById(supportmentId: string): Promise<SupportmentResponse> {
+    const response = await this.axiosInstance.get<SupportmentResponse>(`/trl/supportment/${supportmentId}`);
+    return response.data;
+  }
+
+  async getSupportmentByCaseId(caseId: string): Promise<SupportmentResponse> {
+    const response = await this.axiosInstance.get<SupportmentResponse>(`/trl/supportment/case/${caseId}`);
+    return response.data;
+  }
+
+  // ---------- Appointments ---------- //
+
+  async getAllAppointments(): Promise<AppointmentResponse[]> {
+    const response = await this.axiosInstance.get<AppointmentResponse[]>(`/trl/appointments`);
+    return response.data;
+  }
+
+  async getAppointmentById(appointmentId: string): Promise<AppointmentResponse> {
+    const response = await this.axiosInstance.get<AppointmentResponse>(`/trl/appointment/${appointmentId}`);
+    return response.data;
+  }
+
+  async getAppointmentByCaseId(caseId: string): Promise<AppointmentResponse> {
+    const response = await this.axiosInstance.get<AppointmentResponse>(`/trl/appointment/case/${caseId}`);
+    return response.data;
+  }
+
+  async createAppointment(data: PostAppointmentData): Promise<AppointmentResponse> {
+    const response = await this.axiosInstance.post<AppointmentResponse>(`/trl/appointment`, data);
+    return response.data;
+  }
+
+  async updateAppointment(id: string, data: Partial<PostAppointmentData>): Promise<AppointmentResponse> {
+    const response = await this.axiosInstance.patch<AppointmentResponse>(`/trl/appointment/${id}`, data);
+    return response.data;
+  }
+
+  // ---------- Appointment Notifications ---------- //
+
+  async getAppointmentNotifications(): Promise<NotificationListResponse> {
+    const response = await this.axiosInstance.get<NotificationListResponse>(`/trl/notifications/appointments`);
+    return response.data;
+  }
+
+  async markAllAppointmentNotificationsAsRead(): Promise<void> {
+    await this.axiosInstance.patch(`/trl/notifications/appointments/read-all`);
+  }
+
+  async markAppointmentNotificationAsRead(notificationId: string): Promise<void> {
+    await this.axiosInstance.patch(`/trl/notifications/appointments/${notificationId}/read`);
+  }
+
+  // ---------- Cases ---------- //
+
+  async getAllCases(): Promise<CaseResponse[]> {
+    const response = await this.axiosInstance.get<CaseResponse[]>(`/trl/cases`);
+    return response.data;
+  }
+
+  async getCaseByResearcherId(researcherId: string): Promise<CaseResponse[]> {
+    const response = await this.axiosInstance.get<CaseResponse[]>(`/trl/case/researcher/${researcherId}`);
+    return response.data;
+  }
+
+  async getCaseById(caseId: string): Promise<CaseResponse> {
+    const response = await this.axiosInstance.get<CaseResponse>(`/trl/case/${caseId}`);
+    return response.data;
+  }
+
+  async updateStatusById(caseId: string, statusData: { status: boolean }): Promise<CaseResponse> {
+    const response = await this.axiosInstance.patch<CaseResponse>(`/trl/case/${caseId}`, statusData);
+    return response.data;
+  }
+
+  async updateTrlScoreById(caseId: string, trlData: { trl_score: number }): Promise<CaseResponse> {
+    const response = await this.axiosInstance.patch<CaseResponse>(`/trl/case/${caseId}`, trlData);
+    return response.data;
+  }
+
+  async updateUrgentStatusById(caseId: string, urgentData: { is_urgent: boolean; urgent_feedback: string }): Promise<CaseResponse> {
+    const response = await this.axiosInstance.patch<CaseResponse>(`/trl/case/${caseId}`, urgentData);
+    return response.data;
+  }
+
+  async submitResearcherForm(
     formData: SubmitResearcherFormRequest
   ): Promise<SubmitResearcherFormResponse> {
+    if (!formData.id) {
+      throw new Error("Researcher ID is missing");
+    }
+
     const getStringArray = (value: unknown): string[] => {
       if (Array.isArray(value)) return value as string[];
       return [];
@@ -175,22 +238,15 @@ export class ApiQueryClient extends ApiBaseClient {
 
     if (researchFiles && researchFiles.length > 0) {
       for (const file of researchFiles) {
-        console.log(`📎 Uploading research file: ${file.name}`);
-        try {
-          const { upload_url, object_path } = await this.presignUpload(file);
-          await this.uploadToSignedUrl(upload_url, file);
-          casesAttachments.push(object_path);
-          console.log(`✅ Uploaded research file: ${file.name}`);
-        } catch (error) {
-          console.error(`❌ Failed to upload research file ${file.name}:`, error);
-          throw error;
-        }
+        const { upload_url, object_path } = await this.presignUpload(file);
+        await this.uploadToSignedUrl(upload_url, file);
+        casesAttachments.push(object_path);
       }
     }
 
     // Create Case
     const casePayload: Record<string, unknown> = {
-      researcher_id: formData.id ?? "",
+      researcher_id: formData.id,
       coordinator_id: coordinatorResponse.data.id,
       trl_score: formData.trlScore ?? null,
       is_urgent: formData.isUrgent ?? false,
@@ -249,10 +305,10 @@ export class ApiQueryClient extends ApiBaseClient {
 
       const results = await Promise.all(uploadPromises);
 
-      const hasAnyFile = results.some(path => path !== "");
+      const filteredResults = results.filter(path => path !== "");
 
-      if (hasAnyFile) {
-        assessmentAttachmentsRecord[fieldName] = results;
+      if (filteredResults.length > 0) {
+        assessmentAttachmentsRecord[fieldName] = filteredResults;
       } else {
         assessmentAttachmentsRecord[fieldName] = [];
       }
@@ -293,16 +349,9 @@ export class ApiQueryClient extends ApiBaseClient {
 
         const ipAttachments: string[] = [];
         if (ipForm.file) {
-          try {
-            console.log(`📎 Uploading IP file: ${ipForm.file.name}`);
-            const { upload_url, object_path } = await this.presignUpload(ipForm.file);
-            await this.uploadToSignedUrl(upload_url, ipForm.file);
-            ipAttachments.push(object_path);
-            console.log(`✅ Uploaded IP file: ${ipForm.file.name}`);
-          } catch (error) {
-            console.error(`❌ Failed to upload IP file:`, error);
-            throw error;
-          }
+          const { upload_url, object_path } = await this.presignUpload(ipForm.file);
+          await this.uploadToSignedUrl(upload_url, ipForm.file);
+          ipAttachments.push(object_path);
         }
 
         const ipPayload: Record<string, unknown> = {
@@ -348,28 +397,49 @@ export class ApiQueryClient extends ApiBaseClient {
     };
   }
 
-  async useGetUserProfile(): Promise<UserProfileResponse> {
-    if (getUserRole() === "admin") {
-      const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/admin/profile`);
-      return response.data;
-    } else {
-      const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/researcher/profile`);
-      return response.data;
-    }
+  // ---------- IPs ---------- //
+
+  async getAllIPs(): Promise<IntellectualPropertyResponse[]> {
+    const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ips`);
+    return response.data;
   }
 
-  async useUpdateUserProfile(userProfile: UserProfileResponse): Promise<UserProfileResponse> {
-    if (getUserRole() === "admin") {
-      const response = await this.axiosInstance.patch<UserProfileResponse>(`/trl/admin/${userProfile.id}`, userProfile);
-      return response.data;
-    } else {
-      const response = await this.axiosInstance.patch<UserProfileResponse>(`/trl/researcher/${userProfile.id}`, userProfile);
-      return response.data;
-    }
+  async getIPById(ipId: string): Promise<IntellectualPropertyResponse> {
+    const response = await this.axiosInstance.get<IntellectualPropertyResponse>(`/trl/ip/${ipId}`);
+    return response.data;
   }
 
-  async presignUpload(file: File) {
-    const response = await this.axiosInstance.post("/trl/presign/upload", {
+  async getIPByCaseId(caseId: string): Promise<IntellectualPropertyResponse[]> {
+    const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ip/case/${caseId}`);
+    return response.data;
+  }
+
+  // ---------- Assessments ---------- //
+
+  async getAllAssessments(): Promise<AssessmentResponse[]> {
+    const response = await this.axiosInstance.get<AssessmentResponse[]>(`/trl/assessments`);
+    return response.data;
+  }
+
+  async getAssessmentByCaseId(caseId: string): Promise<AssessmentResponse> {
+    const response = await this.axiosInstance.get<AssessmentResponse>(`/trl/assessment/case/${caseId}`);
+    return response.data;
+  }
+
+  async updateImprovementSuggestionById(assessmentId: string, improvementSuggestionData: { improvement_suggestion: string }): Promise<AssessmentResponse> {
+    const response = await this.axiosInstance.patch<AssessmentResponse>(`/trl/assessment/${assessmentId}`, improvementSuggestionData);
+    return response.data;
+  }
+
+  async updateTrlEstimateById(assessmentId: string, trlEstimateData: { trl_estimate: number }): Promise<AssessmentResponse> {
+    const response = await this.axiosInstance.patch<AssessmentResponse>(`/trl/assessment/${assessmentId}`, trlEstimateData);
+    return response.data;
+  }
+
+  // ---------- File Management ---------- //
+
+  async presignUpload(file: File): Promise<PresignUploadResponse> {
+    const response = await this.axiosInstance.post<PresignUploadResponse>("/trl/presign/upload", {
       file_name: file.name,
       content_type: file.type || "application/octet-stream",
     });
@@ -393,79 +463,10 @@ export class ApiQueryClient extends ApiBaseClient {
     }
   }
 
-  async useNotifyUploaded(payload: {
-    case_id: string;
-    cases_attachments: string[];
-  }) {
-    const response = await this.axiosInstance.post("/trl/files/uploaded", {
-      case_id: payload.case_id,
-      cases_attachments: payload.cases_attachments,
-    });
-    return response.data;
-  }
-
-  async useGetDownloadUrl(path: string): Promise<{ download_url: string }> {
-    const response = await this.axiosInstance.get(`/trl/file/download`, {
+  async getDownloadUrl(path: string): Promise<DownloadUrlResponse> {
+    const response = await this.axiosInstance.get<DownloadUrlResponse>(`/trl/file/download`, {
       params: { path },
     });
     return response.data; // { download_url: "..." }
-  }
-
-  async useGetFilesByCase(caseId: string) {
-    const response = await this.axiosInstance.get(`/trl/files?case_id=${caseId}`);
-    return response.data;
-  }
-
-  async getAllIPs(): Promise<IntellectualPropertyResponse[]> {
-    const response = await this.axiosInstance.get<IntellectualPropertyResponse[]>(`/trl/ips`);
-    return response.data;
-  }
-
-  async getAllSupportments(): Promise<SupportmentResponse[]> {
-    const response = await this.axiosInstance.get<SupportmentResponse[]>(`/trl/supportments`);
-    return response.data;
-  }
-
-  async useResetPassword(data: { old_password: string; new_password: string }) {
-    const response = await this.axiosInstance.post(`/trl/auth/reset-password`, data);
-    return response.data;
-  }
-
-  async useForgotPassword(email: string) {
-    const response = await this.axiosInstance.post(`/auth/forget-password`, { email });
-    return response.data;
-  }
-
-  async usePostResearcher(data: PostResearcherData) {
-    const response = await this.axiosInstance.post(`/researcher`, data);
-    return response.data;
-  }
-
-  async useAddAppointment(data: AddAppointmentData) {
-    const response = await this.axiosInstance.post(`/trl/appointment`, data);
-    return response.data;
-  }
-
-  async useEditAppointment(id: string, data: Partial<AddAppointmentData>) {
-    const response = await this.axiosInstance.patch(`/trl/appointment/${id}`, data);
-    return response.data;
-  }
-
-  async usePostAdmin(data: PostAdminData) {
-    const response = await this.axiosInstance.post(`/trl/admin`, data);
-    return response.data;
-  }
-
-  async useGetNotificationAppointments(): Promise<NotificationListResponse> {
-    const response = await this.axiosInstance.get<NotificationListResponse>(`/trl/notifications/appointments`);
-    return response.data;
-  }
-
-  async useMarkAppointmentAsRead(id: string): Promise<void> {
-    await this.axiosInstance.patch(`/trl/notifications/appointments/${id}/read`);
-  }
-
-  async useMarkAllAppointmentsAsRead(): Promise<void> {
-    await this.axiosInstance.patch(`/trl/notifications/appointments/read-all`);
   }
 }

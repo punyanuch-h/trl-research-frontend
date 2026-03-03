@@ -1,12 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { FileText, Users, Zap, AlertCircle } from "lucide-react";
-import { useGetAllCases } from "@/hooks/case/get/useGetAllCases";
-import { useGetAllResearcher } from "@/hooks/researcher/get/useGetAllResearcher";
-import { useGetAllAppointments } from "@/hooks/case/get/useGetAllAppointments";
-import { useGetAllIPs } from "@/hooks/case/get/useGetAllIPs";
-import { useGetAllSupportments } from "@/hooks/case/get/useGetAllSupportments";
-import { useGetAllAssessments } from "@/hooks/case/get/useGetAllAssessments";
-import { useDashboardStats } from "@/hooks/useDashboardStatus";
+import { 
+  useGetAllCases,
+  useGetAllResearchers,
+  useGetAllAppointments,
+  useGetAllIPs,
+  useGetAllSupportments,
+  useGetAllAssessments,
+  useDashboardStats
+} from "@/hooks/index";
 import { KPICard } from "@/components/dashboard/KPI";
 import { TRLEstimatedScoreChart } from "@/components/dashboard/TrlEstimate";
 import { TRLRealScoreChart } from "@/components/dashboard/TrlReal";
@@ -38,7 +40,7 @@ const IP_COLORS = [
 export default function Dashboard() {
   const { t } = useTranslation();
   const { data: allCases = [], isLoading: casesLoading, isError: casesError } = useGetAllCases();
-  const { data: allResearchers = [], isLoading: researcherLoading, isError: researcherError } = useGetAllResearcher();
+  const { data: allResearchers = [], isLoading: researcherLoading, isError: researcherError } = useGetAllResearchers();
   const { data: allAppointments = [], isLoading: appointmentLoading, isError: appointmentError } = useGetAllAppointments();
   const { data: allIntellectualProperties = [], isError: ipError } = useGetAllIPs();
   const { data: allSupportments = [], isError: supportError } = useGetAllSupportments();

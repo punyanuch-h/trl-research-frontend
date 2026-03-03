@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -21,12 +21,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { CaseResponse, AppointmentResponse, ResearcherResponse } from '@/types/type';
-import { useEditAppointment } from "@/hooks/case/patch/useEditAppointment";
+import { CaseResponse, AppointmentResponse, UserProfileResponse } from '@/types/type';
+import { useUpdateAppointment } from "@/hooks/index";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
-  researcherInfo?: ResearcherResponse;
+  researcherInfo?: UserProfileResponse;
 }
 
 interface Props {
@@ -49,7 +49,13 @@ export default function EditAppointmentModal({
   const { t } = useTranslation();
   const [form, setForm] = useState<AppointmentResponse | null>(appointment);
 
-  const { editAppointment, loading } = useEditAppointment(onSave, onClose);
+  const { updateAppointment, loading } = useUpdateAppointment(
+    (updated) => {
+      toast.success(t("toast.editAppointmentSuccess"));
+      onSave(updated);
+    },
+    onClose
+  );
 
   useEffect(() => {
     setForm(appointment);
@@ -65,7 +71,7 @@ export default function EditAppointmentModal({
       let dateValue = value;
       if (typeof value === "string" && value) {
         const parsed = new Date(value);
-        dateValue = isNaN(parsed.getTime()) ? value : parsed.toISOString();
+        dateValue = (isNaN(parsed.getTime()) ? value : parsed.toISOString()) as AppointmentResponse[K];
       }
 
       setForm(prev => prev ? { ...prev, [field]: dateValue } : prev);
@@ -74,27 +80,26 @@ export default function EditAppointmentModal({
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!form) return;
+
+    const dateObj = new Date(form.date);
+    if (isNaN(dateObj.getTime())) {
+      toast.error(t("toast.invalidDate") || "Invalid date");
+      return;
+    }
 
     const formToSubmit = {
       ...form,
-      date: new Date(form.date).toISOString(),
+      date: dateObj.toISOString(),
     };
 
-    try {
-      await editAppointment(formToSubmit);
-
-      toast.success(t("toast.editAppointmentSuccess"));
-      onSave(formToSubmit);
-      onClose();
-
-    } catch (err: unknown) {
-      const msg = axios.isAxiosError(err)
-        ? err.response?.data?.message
-        : undefined;
-      toast.error(msg || t("toast.editAppointmentError"));
-    }
+    updateAppointment(formToSubmit, {
+      onError: (err: unknown) => {
+        const msg = axios.isAxiosError(err) ? (err as AxiosError<{ message?: string }>).response?.data?.message : undefined;
+        toast.error(msg || t("toast.editAppointmentError"));
+      },
+    });
   };
 
   return (
@@ -137,7 +142,11 @@ export default function EditAppointmentModal({
               <Input
                 data-testid="appointment-date-input"
                 type="datetime-local"
-                value={format(new Date(form.date), "yyyy-MM-dd'T'HH:mm")}
+                value={
+                  form.date && !isNaN(new Date(form.date).getTime())
+                    ? format(new Date(form.date), "yyyy-MM-dd'T'HH:mm")
+                    : ""
+                }
                 onChange={(e) => handleChange("date", e.target.value)}
               />
             </div>

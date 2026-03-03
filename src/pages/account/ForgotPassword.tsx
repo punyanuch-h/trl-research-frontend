@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { useForgotPassword } from "@/hooks/useForgotPassword";
+import { useForgotPassword } from "@/hooks/index";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ForgotPasswordFormData {

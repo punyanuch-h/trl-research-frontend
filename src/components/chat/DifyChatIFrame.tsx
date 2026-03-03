@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import chatIcon from "/assets/chat_icon.svg";
-import { useDifyChat } from "@/hooks/chat/useDifyChat";
+import { useDifyChat } from "@/hooks/index";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
