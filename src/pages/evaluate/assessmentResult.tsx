@@ -176,9 +176,7 @@ const AssessmentResult = () => {
       }
 
       // Re-fetch both to ensure UI is in sync
-      await Promise.all([
-        refetchCase(),
-      ]);
+      await refetchCase();
 
       if (manualTrl !== previousTrl) {
         toast.success(t("toast.trlUpdateSuccess", { level: manualTrl }));
