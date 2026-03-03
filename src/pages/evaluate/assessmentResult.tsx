@@ -183,7 +183,6 @@ const AssessmentResult = () => {
       if (manualTrl !== previousTrl) {
         toast.success(t("toast.trlUpdateSuccess", { level: manualTrl }));
       }
-      setIsEditingTrl(false);
 
     } catch (error: unknown) {
       console.error(error);
@@ -196,6 +195,7 @@ const AssessmentResult = () => {
       refetchCase();
     } finally {
       setIsUpdatingTrl(false);
+      setIsEditingTrl(false);
     }
   };
 
