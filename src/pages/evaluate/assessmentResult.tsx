@@ -17,7 +17,8 @@ import {
   useDownloadFile,
   useUpdateStatusById,
   useUpdateImprovementSuggestionById,
-  useUpdateTrlScoreById
+  useUpdateTrlScoreById,
+  useUpdateUrgentStatusById
 } from '@/hooks/index';
 import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -58,6 +59,7 @@ const AssessmentResult = () => {
   const updateAssessmentMutation = useUpdateStatusById();
   const updateSuggestionMutation = useUpdateImprovementSuggestionById();
   const updateTrlScoreMutation = useUpdateTrlScoreById();
+  const updateUrgentStatusMutation = useUpdateUrgentStatusById();
   const { openFile, isPathLoading } = useDownloadFile();
 
   // State for editable suggestions
@@ -114,6 +116,13 @@ const AssessmentResult = () => {
             suggestionData: { improvement_suggestion: defaultSuggestion }
           });
         }
+      }
+
+      if (caseData?.is_urgent) {
+        await updateUrgentStatusMutation.mutateAsync({
+          caseId: caseId,
+          urgentData: { is_urgent: false, urgent_feedback: caseData.urgent_feedback || "" }
+        });
       }
 
       updateAssessmentMutation.mutate({
