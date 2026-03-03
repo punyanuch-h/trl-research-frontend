@@ -175,7 +175,7 @@ const AssessmentResult = () => {
         throw new Error(t("assessment.trlScoreError"));
       }
 
-      // Re-fetch both to ensure UI is in sync
+      // Re-fetch case data to ensure UI is in sync
       await refetchCase();
 
       if (manualTrl !== previousTrl) {
