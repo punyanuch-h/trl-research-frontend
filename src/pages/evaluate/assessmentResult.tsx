@@ -175,15 +175,12 @@ const AssessmentResult = () => {
         throw new Error(t("assessment.trlScoreError"));
       }
 
-      // Re-fetch both to ensure UI is in sync
-      await Promise.all([
-        refetchCase(),
-      ]);
+      // Re-fetch case data to ensure UI is in sync
+      await refetchCase();
 
       if (manualTrl !== previousTrl) {
         toast.success(t("toast.trlUpdateSuccess", { level: manualTrl }));
       }
-      setIsEditingTrl(false);
 
     } catch (error: unknown) {
       console.error(error);
@@ -196,6 +193,7 @@ const AssessmentResult = () => {
       refetchCase();
     } finally {
       setIsUpdatingTrl(false);
+      setIsEditingTrl(false);
     }
   };
 
