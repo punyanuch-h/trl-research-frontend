@@ -118,6 +118,16 @@ const AssessmentResult = () => {
         }
       }
 
+      try {
+        await updateAssessmentMutation.mutateAsync({
+          caseId: caseId,
+          status: true
+        });
+      } catch (error) {
+        toast.error(t("toast.approveError", { id: caseData?.id }));
+        return;
+      }
+
       if (caseData?.is_urgent) {
         await updateUrgentStatusMutation.mutateAsync({
           caseId: caseId,
@@ -125,18 +135,8 @@ const AssessmentResult = () => {
         });
       }
 
-      updateAssessmentMutation.mutate({
-        caseId: caseId,
-        status: true
-      }, {
-        onSuccess: () => {
-          toast.success(t("toast.approveSuccess", { id: caseData?.id }));
-          navigate('/admin-homepage');
-        },
-        onError: () => {
-          toast.error(t("toast.approveError", { id: caseData?.id }));
-        }
-      });
+      toast.success(t("toast.approveSuccess", { id: caseData?.id }));
+      navigate('/admin-homepage');
     } catch (error) {
       console.error("Error during approval process:", error);
       toast.error(t("toast.approveProcessError"));
