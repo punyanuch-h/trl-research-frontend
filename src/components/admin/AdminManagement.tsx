@@ -12,12 +12,12 @@ import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useUpdateUrgentStatusById } from "@/hooks/index";
 
-import type { CaseResponse, AppointmentResponse, ResearcherResponse } from "../../types/type";
+import type { CaseResponse, AppointmentResponse, UserProfileResponse } from "../../types/type";
 import { toast } from "@/lib/toast";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
-  researcherInfo?: ResearcherResponse;
+  researcherInfo?: UserProfileResponse;
   trl_estimate?: number;
 }
 interface Props {

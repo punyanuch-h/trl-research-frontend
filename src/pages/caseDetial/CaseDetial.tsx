@@ -20,7 +20,7 @@ import {
   useGetResearcherById
 } from "@/hooks/index";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AppointmentResponse, ResearcherResponse } from "@/types/type";
+import { AppointmentResponse } from "@/types/type";
 
 export default function CaseDetail() {
   const { t } = useTranslation();

@@ -124,19 +124,6 @@ export type SupportmentResponse = {
     updated_at: string;
 };
 
-export type ResearcherResponse = {
-    id: string;
-    prefix: string;
-    academic_position: string;
-    first_name: string;
-    last_name: string;
-    department: string;
-    phone_number: string;
-    email: string;
-    created_at: string;
-    updated_at: string;
-};
-
 export type UserProfileResponse = {
     id: string;
     prefix: string;
@@ -189,4 +176,13 @@ export type PostAppointmentData = {
 export type NotificationListResponse = {
     data: AppointmentResponse[];
     unread_count: number;
+};
+
+export type PresignUploadResponse = {
+    upload_url: string;
+    object_path: string;
+};
+
+export type DownloadUrlResponse = {
+    download_url: string;
 };

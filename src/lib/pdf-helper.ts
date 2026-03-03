@@ -1,12 +1,21 @@
 import { QueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import { CaseResponse, AppointmentResponse } from "@/types/type";
+import { CaseResponse, AppointmentResponse, CoordinatorResponse, IntellectualPropertyResponse, SupportmentResponse, AssessmentResponse } from "@/types/type";
+
+export interface CasePdfData {
+  c: CaseResponse & { appointments?: AppointmentResponse[] };
+  appointments: AppointmentResponse[];
+  coordinatorData: CoordinatorResponse | null;
+  ipList: IntellectualPropertyResponse[];
+  supportmentData: SupportmentResponse | null;
+  assessmentData: AssessmentResponse | null;
+}
 
 export async function fetchCasePdfData(
   queryClient: QueryClient,
   apiQueryClient: ApiQueryClient,
   caseInfo: CaseResponse & { appointments?: AppointmentResponse[] }
-) {
+): Promise<CasePdfData> {
   const [coordinatorRes, ipRes, supportmentRes, assessmentRes] = await Promise.allSettled([
     queryClient.fetchQuery({
       queryKey: ["getCoordinatorByCaseId", caseInfo.id],
@@ -50,7 +59,7 @@ export async function fetchCasePdfData(
     c: caseInfo,
     appointments: caseInfo.appointments || [],
     coordinatorData: coordinatorData,
-    ipList: Array.isArray(ipData) ? ipData : (ipData ? [ipData] : []),
+    ipList: ipData,
     supportmentData: supportmentData,
     assessmentData: assessmentData,
   };

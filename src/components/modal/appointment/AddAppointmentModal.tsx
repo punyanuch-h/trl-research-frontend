@@ -6,13 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { CaseResponse, AppointmentResponse, ResearcherResponse } from '@/types/type';
+import { CaseResponse, AppointmentResponse, UserProfileResponse } from '@/types/type';
 
 import { useCreateAppointment } from "@/hooks/index";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
-  ResearcherResponse?: ResearcherResponse;
+  researcherInfo?: UserProfileResponse;
 }
 
 interface Props {

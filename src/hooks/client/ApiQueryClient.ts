@@ -7,12 +7,13 @@ import {
   IntellectualPropertyResponse,
   LoginResponse,
   SupportmentResponse,
-  ResearcherResponse,
   UserProfileResponse,
   PostResearcherData,
   PostAdminData,
   PostAppointmentData,
   NotificationListResponse,
+  PresignUploadResponse,
+  DownloadUrlResponse,
 } from "@/types/type";
 import { getUserRole } from "@/lib/auth";
 import { SubmitResearcherFormRequest, SubmitResearcherFormResponse } from "@/types/request";
@@ -32,13 +33,13 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string): Promise<{ message: string }> {
     const response = await this.axiosInstance.post(`/auth/forget-password`, { email });
     return response.data;
   }
 
-  async createResearcher(data: PostResearcherData) {
-    const response = await this.axiosInstance.post(`/researcher`, data);
+  async createResearcher(data: PostResearcherData): Promise<UserProfileResponse> {
+    const response = await this.axiosInstance.post<UserProfileResponse>(`/researcher`, data);
     return response.data;
   }
 
@@ -48,7 +49,7 @@ export class ApiQueryClient extends ApiBaseClient {
 
   // ---------- Auth ---------- //
 
-  async resetPassword(data: { old_password: string; new_password: string }) {
+  async resetPassword(data: { old_password: string; new_password: string }): Promise<{ message: string }> {
     const response = await this.axiosInstance.post(`/trl/auth/reset-password`, data);
     return response.data;
   }
@@ -83,20 +84,20 @@ export class ApiQueryClient extends ApiBaseClient {
 
   // ---------- Admins ---------- //
 
-  async createAdmin(data: PostAdminData) {
-    const response = await this.axiosInstance.post(`/trl/admin`, data);
+  async createAdmin(data: PostAdminData): Promise<UserProfileResponse> {
+    const response = await this.axiosInstance.post<UserProfileResponse>(`/trl/admin`, data);
     return response.data;
   }
 
   // ---------- Researchers ---------- //
 
-  async getAllResearchers(): Promise<ResearcherResponse[]> {
-    const response = await this.axiosInstance.get<ResearcherResponse[]>(`/trl/researchers`);
+  async getAllResearchers(): Promise<UserProfileResponse[]> {
+    const response = await this.axiosInstance.get<UserProfileResponse[]>(`/trl/researchers`);
     return response.data;
   }
 
-  async getResearcherById(researcherId: string): Promise<ResearcherResponse> {
-    const response = await this.axiosInstance.get<ResearcherResponse>(`/trl/researcher/${researcherId}`);
+  async getResearcherById(researcherId: string): Promise<UserProfileResponse> {
+    const response = await this.axiosInstance.get<UserProfileResponse>(`/trl/researcher/${researcherId}`);
     return response.data;
   }
 
@@ -151,13 +152,13 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async createAppointment(data: PostAppointmentData) {
-    const response = await this.axiosInstance.post(`/trl/appointment`, data);
+  async createAppointment(data: PostAppointmentData): Promise<AppointmentResponse> {
+    const response = await this.axiosInstance.post<AppointmentResponse>(`/trl/appointment`, data);
     return response.data;
   }
 
-  async updateAppointment(id: string, data: Partial<PostAppointmentData>) {
-    const response = await this.axiosInstance.patch(`/trl/appointment/${id}`, data);
+  async updateAppointment(id: string, data: Partial<PostAppointmentData>): Promise<AppointmentResponse> {
+    const response = await this.axiosInstance.patch<AppointmentResponse>(`/trl/appointment/${id}`, data);
     return response.data;
   }
 
@@ -193,18 +194,18 @@ export class ApiQueryClient extends ApiBaseClient {
     return response.data;
   }
 
-  async updateStatusById(caseId: string, statusData: { status: boolean }) {
-    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, statusData);
+  async updateStatusById(caseId: string, statusData: { status: boolean }): Promise<CaseResponse> {
+    const response = await this.axiosInstance.patch<CaseResponse>(`/trl/case/${caseId}`, statusData);
     return response.data;
   }
 
-  async updateTrlScoreById(caseId: string, trlData: { trl_score: number }) {
-    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, trlData);
+  async updateTrlScoreById(caseId: string, trlData: { trl_score: number }): Promise<CaseResponse> {
+    const response = await this.axiosInstance.patch<CaseResponse>(`/trl/case/${caseId}`, trlData);
     return response.data;
   }
 
-  async updateUrgentStatusById(caseId: string, urgentData: { is_urgent: boolean; urgent_feedback: string }) {
-    const response = await this.axiosInstance.patch(`/trl/case/${caseId}`, urgentData);
+  async updateUrgentStatusById(caseId: string, urgentData: { is_urgent: boolean; urgent_feedback: string }): Promise<CaseResponse> {
+    const response = await this.axiosInstance.patch<CaseResponse>(`/trl/case/${caseId}`, urgentData);
     return response.data;
   }
 
@@ -237,14 +238,11 @@ export class ApiQueryClient extends ApiBaseClient {
 
     if (researchFiles && researchFiles.length > 0) {
       for (const file of researchFiles) {
-        console.log(`📎 Uploading research file: ${file.name}`);
         try {
           const { upload_url, object_path } = await this.presignUpload(file);
           await this.uploadToSignedUrl(upload_url, file);
           casesAttachments.push(object_path);
-          console.log(`✅ Uploaded research file: ${file.name}`);
         } catch (error) {
-          console.error(`❌ Failed to upload research file ${file.name}:`, error);
           throw error;
         }
       }
@@ -252,7 +250,7 @@ export class ApiQueryClient extends ApiBaseClient {
 
     // Create Case
     const casePayload: Record<string, unknown> = {
-      researcher_id: formData.id ?? "",
+      researcher_id: formData.id,
       coordinator_id: coordinatorResponse.data.id,
       trl_score: formData.trlScore ?? null,
       is_urgent: formData.isUrgent ?? false,
@@ -356,13 +354,10 @@ export class ApiQueryClient extends ApiBaseClient {
         const ipAttachments: string[] = [];
         if (ipForm.file) {
           try {
-            console.log(`📎 Uploading IP file: ${ipForm.file.name}`);
             const { upload_url, object_path } = await this.presignUpload(ipForm.file);
             await this.uploadToSignedUrl(upload_url, ipForm.file);
             ipAttachments.push(object_path);
-            console.log(`✅ Uploaded IP file: ${ipForm.file.name}`);
           } catch (error) {
-            console.error(`❌ Failed to upload IP file:`, error);
             throw error;
           }
         }
@@ -451,8 +446,8 @@ export class ApiQueryClient extends ApiBaseClient {
 
   // ---------- File Management ---------- //
 
-  async presignUpload(file: File) {
-    const response = await this.axiosInstance.post("/trl/presign/upload", {
+  async presignUpload(file: File): Promise<PresignUploadResponse> {
+    const response = await this.axiosInstance.post<PresignUploadResponse>("/trl/presign/upload", {
       file_name: file.name,
       content_type: file.type || "application/octet-stream",
     });
@@ -476,8 +471,8 @@ export class ApiQueryClient extends ApiBaseClient {
     }
   }
 
-  async getDownloadUrl(path: string): Promise<{ download_url: string }> {
-    const response = await this.axiosInstance.get(`/trl/file/download`, {
+  async getDownloadUrl(path: string): Promise<DownloadUrlResponse> {
+    const response = await this.axiosInstance.get<DownloadUrlResponse>(`/trl/file/download`, {
       params: { path },
     });
     return response.data; // { download_url: "..." }

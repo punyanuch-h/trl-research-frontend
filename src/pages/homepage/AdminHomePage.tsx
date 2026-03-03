@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { pdf } from "@react-pdf/renderer";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import type { CaseResponse, AppointmentResponse, ResearcherResponse, AssessmentResponse } from "@/types/type";
+import type { CaseResponse, AppointmentResponse, UserProfileResponse, AssessmentResponse } from "@/types/type";
 
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminManagement from "../../components/admin/AdminManagement";
@@ -20,7 +20,7 @@ import { fetchCasePdfData } from "@/lib/pdf-helper";
 function mergeCasesData(
   cases: CaseResponse[],
   appointments: AppointmentResponse[],
-  researchers: ResearcherResponse[],
+  researchers: UserProfileResponse[],
   assessmentData?: AssessmentResponse[]
 ) {
   return cases.map((c) => {
@@ -41,7 +41,7 @@ function mergeCasesData(
 
 type AdminCase = CaseResponse & {
   appointments: AppointmentResponse[];
-  researcherInfo: ResearcherResponse | null;
+  researcherInfo: UserProfileResponse | null;
   latestAppointment: AppointmentResponse | null;
   trl_estimate: number | null;
 };

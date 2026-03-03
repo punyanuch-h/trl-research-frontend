@@ -21,12 +21,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { CaseResponse, AppointmentResponse, ResearcherResponse } from '@/types/type';
+import { CaseResponse, AppointmentResponse, UserProfileResponse } from '@/types/type';
 import { useUpdateAppointment } from "@/hooks/index";
 
 interface Project extends CaseResponse {
   appointments?: AppointmentResponse[];
-  researcherInfo?: ResearcherResponse;
+  researcherInfo?: UserProfileResponse;
 }
 
 interface Props {
