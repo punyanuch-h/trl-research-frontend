@@ -129,10 +129,15 @@ const AssessmentResult = () => {
       }
 
       if (caseData?.is_urgent) {
-        await updateUrgentStatusMutation.mutateAsync({
-          caseId: caseId,
-          urgentData: { is_urgent: false, urgent_feedback: caseData.urgent_feedback || "" }
-        });
+        try {
+          await updateUrgentStatusMutation.mutateAsync({
+            caseId: caseId,
+            urgentData: { is_urgent: false, urgent_feedback: caseData.urgent_feedback || "" }
+          });
+        } catch (error) {
+          console.error("Failed to clear urgent status:", error);
+          toast.error(t("toast.urgentClearError"));
+        }
       }
 
       toast.success(t("toast.approveSuccess", { id: caseData?.id }));

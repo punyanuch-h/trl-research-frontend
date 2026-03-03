@@ -245,6 +245,7 @@
     "addAppointmentWarning": "Please enter research title and date/time to add appointment",
     "addAppointmentError": "Error creating appointment",
     "urgentStatusError": "Failed to update urgent status. Please try again.",
+    "urgentClearError": "Failed to clear urgent status, but approval was successful.",
     "caseDetailError": "Research details cannot be displayed at this time."
   },
   "home": {
