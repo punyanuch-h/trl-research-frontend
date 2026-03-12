@@ -49,8 +49,24 @@ export default function LoginPage() {
   useEffect(() => {
     if (!response) return;
 
+    interface AuthData {
+      token?: string;
+      accessToken?: string;
+      access_token?: string;
+      refresh_token?: string;
+      refreshToken?: string;
+      role?: string;
+      user?: {
+        role?: string;
+      };
+    }
+
     // Handle both wrapped { data: { ... } } and flat responses
-    const authData = (response as any).data || response;
+    const authData = (
+      response && typeof response === "object" && "data" in response
+        ? (response as { data: AuthData }).data
+        : (response as AuthData)
+    );
 
     // Support multiple naming conventions for tokens
     const token = authData.token || authData.accessToken || authData.access_token;
