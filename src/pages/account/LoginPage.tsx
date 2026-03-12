@@ -4,20 +4,25 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useNavigate } from "react-router-dom";
-import { GraduationCap, Loader2, User, Lock, EyeOff, Eye } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { GraduationCap, Loader2, User, Lock, EyeOff, Eye, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLogin } from "@/hooks/index";
+import { setTokens } from "@/lib/auth";
 
 interface LoginFormData {
   email: string;
   password: string;
+  rememberMe: boolean;
 }
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
+  const sessionExpired = searchParams.get("session_expired") === "true";
 
   const {
     register,
@@ -26,9 +31,10 @@ export default function LoginPage() {
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
+    setValue,
   } = useForm<LoginFormData>({
     mode: "onSubmit",
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", password: "", rememberMe: true },
   });
 
   const {
@@ -43,14 +49,36 @@ export default function LoginPage() {
   useEffect(() => {
     if (!response) return;
 
-    const { role, token } = response;
+    // Handle both wrapped { data: { ... } } and flat responses
+    const authData = (response as any).data || response;
 
-    if (token) localStorage.setItem("token", token);
+    // Support multiple naming conventions for tokens
+    const token = authData.token || authData.accessToken || authData.access_token;
+    const refresh_token = authData.refresh_token || authData.refreshToken;
+    const role = authData.role || (authData.user && authData.user.role);
 
-    if (role === "admin") navigate("/admin/homepage");
-    else if (role === "researcher") navigate("/researcher/homepage");
-    else navigate("/login");
-  }, [response, navigate]);
+    if (token && refresh_token) {
+      setTokens(token, refresh_token, watch("rememberMe"));
+      console.log("Tokens stored successfully");
+    } else {
+      console.error("Login success but tokens missing in response:", response);
+    }
+
+    if (role === "admin") {
+      navigate("/admin/homepage", { replace: true });
+    } else if (role === "researcher") {
+      navigate("/researcher/homepage", { replace: true });
+    } else {
+      console.warn("User role missing or unrecognized:", role);
+      // If we have tokens but no role, maybe we can redirect to a default or try to get profile
+      if (token) {
+        // Fallback for missing role in login response
+        navigate("/profile", { replace: true });
+      } else {
+        navigate("/login", { replace: true });
+      }
+    }
+  }, [response, navigate, watch]);
 
   /* ================= LOGIN ERROR ================= */
   useEffect(() => {
@@ -104,6 +132,12 @@ export default function LoginPage() {
               <GraduationCap className="w-8 h-8 text-primary" />
             </div>
             <CardTitle className="text-center text-2xl">{t("auth.login")}</CardTitle>
+            {sessionExpired && (
+              <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-3 text-destructive animate-in fade-in slide-in-from-top-2">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <p className="text-sm font-medium">{t("auth.sessionExpired")}</p>
+              </div>
+            )}
           </CardHeader>
 
           <CardContent>
@@ -182,11 +216,24 @@ export default function LoginPage() {
                   </p>
                 )}
 
-                <div className="text-right text-sm">
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="rememberMe"
+                      checked={watch("rememberMe")}
+                      onCheckedChange={(checked) => setValue("rememberMe", !!checked)}
+                    />
+                    <label
+                      htmlFor="rememberMe"
+                      className="text-sm font-medium leading-none cursor-pointer select-none"
+                    >
+                      {t("common.rememberMe") || "Remember me"}
+                    </label>
+                  </div>
                   <button
                     type="button"
                     onClick={() => navigate("/forget-password")}
-                    className="text-primary hover:underline"
+                    className="text-sm text-primary hover:underline"
                   >
                     {t("auth.forgotPassword")}
                   </button>

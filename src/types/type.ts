@@ -1,6 +1,7 @@
 export type LoginResponse = {
     token: string;
-    expires_in: number; // in hours (1 week)
+    refresh_token: string;
+    expires_in: number; // in hours (1 week) or minutes (backend update)
     role: string;
 };
 

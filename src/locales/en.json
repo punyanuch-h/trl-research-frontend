@@ -21,7 +21,8 @@
     "noData": "No data",
     "other": "Other",
     "select": "Select",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "rememberMe": "Remember me"
   },
   "header": {
     "appTitle": "Technology Readiness Level Assessment System",
@@ -96,7 +97,8 @@
     "backToLogin": "Back to Login",
     "sendingEmail": "Sending email...",
     "back": "Back",
-    "resettingPassword": "Changing password..."
+    "resettingPassword": "Changing password...",
+    "sessionExpired": "Your session has expired. Please log in again."
   },
   "form": {
     "none": "None",
