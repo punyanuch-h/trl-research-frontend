@@ -16,15 +16,22 @@ export function getRefreshToken(): string | null {
   return localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken");
 }
 
+/** Check if the current session should be persistent (Remember Me was checked) */
+export function isPersistent(): boolean {
+  return !!localStorage.getItem("refreshToken");
+}
+
 /** 
  * Set both tokens in the specified storage. 
  * Default is sessionStorage if rememberMe is false.
  */
-export function setTokens(token: string, refreshToken: string, rememberMe: boolean = false) {
-  const storage = rememberMe ? localStorage : sessionStorage;
+export function setTokens(token: string, refreshToken: string, rememberMe?: boolean) {
+  // If rememberMe is not provided, try to detect from current storage
+  const persistent = rememberMe !== undefined ? rememberMe : isPersistent();
+  const storage = persistent ? localStorage : sessionStorage;
 
   // Clear other storage to avoid confusion
-  const otherStorage = rememberMe ? sessionStorage : localStorage;
+  const otherStorage = persistent ? sessionStorage : localStorage;
   otherStorage.removeItem("token");
   otherStorage.removeItem("refreshToken");
 

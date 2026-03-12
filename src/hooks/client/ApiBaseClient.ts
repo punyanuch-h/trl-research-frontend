@@ -48,12 +48,24 @@ export class ApiBaseClient {
         // Check _retry to prevent infinite feedback loops if refresh also fails
         const status = error.response?.status;
         if ((status === 401 || status === 498) && !originalRequest._retry) {
+          // If this was a login attempt, don't trigger refresh/redirect logic
+          if (originalRequest.url?.includes("/auth/login")) {
+            return Promise.reject(error);
+          }
+
           originalRequest._retry = true;
 
           const refreshToken = getRefreshToken();
           if (!refreshToken) {
+            // Only redirect if we were actually authenticated before (had a refresh token)
+            // If we didn't even have a refresh token, we probably weren't logged in,
+            // but we should still clear everything just in case.
             logout();
-            window.location.href = "/login?session_expired=true";
+            
+            // Avoid redirecting if we are already on the login page to prevent reloads/lost state
+            if (!window.location.hash.includes("/login")) {
+              window.location.href = "/login?session_expired=true";
+            }
             return Promise.reject(error);
           }
 
@@ -103,9 +115,8 @@ export class ApiBaseClient {
 
       const { token, refresh_token } = response.data;
 
-      // Check if we were using localStorage or sessionStorage
-      const isPersistent = !!localStorage.getItem("token");
-      setTokens(token, refresh_token, isPersistent);
+      // Update tokens (automatically detects storage type)
+      setTokens(token, refresh_token);
 
       return token;
     } catch (err) {
