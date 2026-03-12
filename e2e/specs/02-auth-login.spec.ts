@@ -35,12 +35,18 @@ test.describe('Login', () => {
 
     await expect(page).toHaveURL(/\/researcher\/homepage/);
 
-    // Check localStorage
-    const hasToken = await page.evaluate(() => !!localStorage.getItem('token'));
-    const hasRefreshToken = await page.evaluate(() => !!localStorage.getItem('refreshToken'));
+    // Check localStorage has BOTH tokens
+    const hasLocalToken = await page.evaluate(() => !!localStorage.getItem('token'));
+    const hasLocalRefreshToken = await page.evaluate(() => !!localStorage.getItem('refreshToken'));
 
-    expect(hasToken).toBe(true);
-    expect(hasRefreshToken).toBe(true);
+    // Check sessionStorage is EMPTY (tokens must not be in both storages)
+    const hasSessionToken = await page.evaluate(() => !!sessionStorage.getItem('token'));
+    const hasSessionRefreshToken = await page.evaluate(() => !!sessionStorage.getItem('refreshToken'));
+
+    expect(hasLocalToken).toBe(true);
+    expect(hasLocalRefreshToken).toBe(true);
+    expect(hasSessionToken).toBe(false);
+    expect(hasSessionRefreshToken).toBe(false);
   });
 
   test('should use sessionStorage when Remember Me is unchecked', async ({ page }) => {
@@ -50,16 +56,18 @@ test.describe('Login', () => {
 
     await expect(page).toHaveURL(/\/researcher\/homepage/);
 
-    // Check sessionStorage
+    // Check sessionStorage has BOTH tokens
     const hasSessionToken = await page.evaluate(() => !!sessionStorage.getItem('token'));
     const hasSessionRefreshToken = await page.evaluate(() => !!sessionStorage.getItem('refreshToken'));
 
-    // Check localStorage (should be empty if we unchecked Remember Me)
+    // Check localStorage is EMPTY (tokens must not be in both storages)
     const hasLocalToken = await page.evaluate(() => !!localStorage.getItem('token'));
+    const hasLocalRefreshToken = await page.evaluate(() => !!localStorage.getItem('refreshToken'));
 
     expect(hasSessionToken).toBe(true);
     expect(hasSessionRefreshToken).toBe(true);
     expect(hasLocalToken).toBe(false);
+    expect(hasLocalRefreshToken).toBe(false);
   });
 
   test('should show session expired alert when redirected with query param', async ({ page }) => {
