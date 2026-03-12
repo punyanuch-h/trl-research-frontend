@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useGetUserProfile } from "@/hooks/index";
-import { getUserRole } from "@/lib/auth";
+import { getUserRole, isAuthenticated, logout } from "@/lib/auth";
 
 interface Props {
   children: React.ReactNode;
@@ -9,21 +9,22 @@ interface Props {
 }
 
 const PrivateRoute: React.FC<Props> = ({ children, allowRoles }) => {
-  const localToken = localStorage.getItem("token");
-  const sessionToken = sessionStorage.getItem("token");
-  const token = localToken || sessionToken;
+  const isAuth = isAuthenticated();
   const { data, isLoading, isError } = useGetUserProfile();
   const role = getUserRole();
-  if (!token) {
-    console.log("No token found");
+
+  if (!isAuth) {
+    console.log("Not authenticated");
     return <Navigate to="/login" />;
   }
 
+  // If we are authenticated but the profile is still loading, 
+  // it might be because a silent refresh is in progress.
   if (isLoading) return null;
+
   if (isError) {
-    console.log("Error fetching user profile");
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("token");
+    console.log("Error fetching user profile after authentication check");
+    logout();
     return <Navigate to="/login" replace />;
   }
 

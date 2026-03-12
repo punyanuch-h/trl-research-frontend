@@ -23,6 +23,8 @@ export const authLocators = {
   passwordInput: (page: Page) => page.getByTestId(/password/i).first(),
   /** Forgot password link */
   forgotPasswordLink: (page: Page) => page.getByRole('button', { name: /forgot password/i }),
+  /** Remember me checkbox */
+  rememberMeCheckbox: (page: Page) => page.getByRole('checkbox', { name: /remember me/i }),
 
   /** Prefix select on signup */
   prefixSelect: (page: Page) => page.getByTestId(/prefix/),

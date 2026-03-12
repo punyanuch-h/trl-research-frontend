@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import { useResetPassword } from "@/hooks/index";
+import { logout } from "@/lib/auth";
 import { toast } from "@/lib/toast";
 
 interface ResetPasswordData {
@@ -52,8 +53,7 @@ export default function ResetPasswordPage() {
         new_password: data.newPassword,
       });
       toast.success(t("auth.resetPasswordSuccess"));
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
+      logout();
       setTimeout(() => {
         navigate("/login", { replace: true });
       }, 1200);

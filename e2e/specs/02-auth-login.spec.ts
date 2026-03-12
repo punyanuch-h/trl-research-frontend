@@ -28,33 +28,60 @@ test.describe('Login', () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test('should login as researcher and redirect to dashboard', async ({ page }) => {
+  test('should login and store both token and refresh_token in localStorage (Remember Me)', async ({ page }) => {
     const credentials = getResearcherCredentials();
-    // Act: Login with valid researcher credentials
+    await loginPage.toggleRememberMe(true); // Default is true
     await loginPage.login(credentials.email, credentials.password);
-    // Assert: Redirect to researcher homepage
-    await expect(page).toHaveURL(/\/researcher\/homepage/, { timeout: 15000 });
+
+    await expect(page).toHaveURL(/\/researcher\/homepage/);
+
+    // Check localStorage has BOTH tokens
+    const hasLocalToken = await page.evaluate(() => !!localStorage.getItem('token'));
+    const hasLocalRefreshToken = await page.evaluate(() => !!localStorage.getItem('refreshToken'));
+
+    // Check sessionStorage is EMPTY (tokens must not be in both storages)
+    const hasSessionToken = await page.evaluate(() => !!sessionStorage.getItem('token'));
+    const hasSessionRefreshToken = await page.evaluate(() => !!sessionStorage.getItem('refreshToken'));
+
+    expect(hasLocalToken).toBe(true);
+    expect(hasLocalRefreshToken).toBe(true);
+    expect(hasSessionToken).toBe(false);
+    expect(hasSessionRefreshToken).toBe(false);
   });
 
-  test('should login as admin and redirect to dashboard', async ({ page }) => {
-    const credentials = getAdminCredentials();
-    // Act: Login with valid admin credentials
+  test('should use sessionStorage when Remember Me is unchecked', async ({ page }) => {
+    const credentials = getResearcherCredentials();
+    await loginPage.toggleRememberMe(false);
     await loginPage.login(credentials.email, credentials.password);
-    // Assert: Redirect to admin homepage
-    await expect(page).toHaveURL(/\/admin\/homepage/, { timeout: 15000 });
+
+    await expect(page).toHaveURL(/\/researcher\/homepage/);
+
+    // Check sessionStorage has BOTH tokens
+    const hasSessionToken = await page.evaluate(() => !!sessionStorage.getItem('token'));
+    const hasSessionRefreshToken = await page.evaluate(() => !!sessionStorage.getItem('refreshToken'));
+
+    // Check localStorage is EMPTY (tokens must not be in both storages)
+    const hasLocalToken = await page.evaluate(() => !!localStorage.getItem('token'));
+    const hasLocalRefreshToken = await page.evaluate(() => !!localStorage.getItem('refreshToken'));
+
+    expect(hasSessionToken).toBe(true);
+    expect(hasSessionRefreshToken).toBe(true);
+    expect(hasLocalToken).toBe(false);
+    expect(hasLocalRefreshToken).toBe(false);
+  });
+
+  test('should show session expired alert when redirected with query param', async ({ page }) => {
+    await page.goto('/#/login?session_expired=true');
+    await expect(page.locator('text=Your session has expired')).toBeVisible();
   });
 
   test('should navigate to signup when clicking sign up link', async ({ page }) => {
-    // Act: Click "Don't have an account? Sign up"
     await page.getByText(/sign up/i).last().click();
-    // Assert: Navigate to signup
     await expect(page).toHaveURL(/\/signup/);
   });
 
   test('should navigate to forget password when clicking forgot password', async ({ page }) => {
-    // Act: Click Forgot password link
     await page.getByText(/forgot password/i).click();
-    // Assert: Navigate to forget password page
     await expect(page).toHaveURL(/\/forget-password/);
   });
 });

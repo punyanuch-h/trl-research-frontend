@@ -5,7 +5,7 @@ import { authLocators } from '../locators/auth.locators';
  * Page Object for Login page
  */
 export class LoginPage {
-  constructor(private readonly page: Page) {}
+  constructor(private readonly page: Page) { }
 
   /** Navigate to login page (app uses HashRouter) */
   async goto() {
@@ -25,6 +25,15 @@ export class LoginPage {
   /** Click Login button */
   async clickLogin() {
     await authLocators.loginButton(this.page).click();
+  }
+
+  /** Toggle Remember Me checkbox */
+  async toggleRememberMe(checked: boolean) {
+    const checkbox = authLocators.rememberMeCheckbox(this.page);
+    const isChecked = await checkbox.isChecked();
+    if (isChecked !== checked) {
+      await checkbox.click();
+    }
   }
 
   /** Perform full login */
