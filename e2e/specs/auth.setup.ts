@@ -3,12 +3,12 @@
  * Run: npx playwright test auth.setup.ts
  */
 import { test as setup } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
 import { LoginPage } from '../pages/LoginPage';
 import { getResearcherCredentials, getAdminCredentials, buildResearcherSignupData, buildAdminData } from '../test-data/auth.data';
 import { SignupPage } from '../pages/SignupPage';
 
-const fs = require('fs');
-const path = require('path');
 const researcherAuthFile = 'e2e/.auth/researcher.json';
 const adminAuthFile = 'e2e/.auth/admin.json';
 

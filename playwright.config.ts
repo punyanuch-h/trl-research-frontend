@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const isCI = !!process.env.CI;
+
 /**
  * Playwright E2E configuration for TRL Research Frontend
  * @see https://playwright.dev/docs/test-configuration
@@ -31,18 +33,25 @@ export default defineConfig({
   ],
   outputDir: 'e2e/test-results',
   snapshotPathTemplate: '{testDir}/__snapshots__/{arg}-{projectName}{ext}',
-  webServer: [
-    {
-      command: 'npm run start:backend',
-      url: 'http://localhost:8080/health',
-      timeout: 120000,
-      reuseExistingServer: !process.env.CI,
-    },
-    {
-      command: 'npm run dev',
-      url: 'http://localhost:3000',
-      timeout: 120000,
-      reuseExistingServer: !process.env.CI,
-    },
-  ],
+  webServer: isCI
+    ? {
+        command: 'npm run dev',
+        url: 'http://localhost:3000',
+        timeout: 120000,
+        reuseExistingServer: false,
+      }
+    : [
+        {
+          command: 'npm run start:backend',
+          url: 'http://localhost:8080/health',
+          timeout: 120000,
+          reuseExistingServer: true,
+        },
+        {
+          command: 'npm run dev',
+          url: 'http://localhost:3000',
+          timeout: 120000,
+          reuseExistingServer: true,
+        },
+      ],
 });
