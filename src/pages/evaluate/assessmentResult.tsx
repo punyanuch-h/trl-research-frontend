@@ -141,7 +141,7 @@ const AssessmentResult = () => {
       }
 
       toast.success(t("toast.approveSuccess", { id: caseData?.id }));
-      navigate('/admin-homepage');
+      navigate('/admin/homepage');
     } catch (error) {
       console.error("Error during approval process:", error);
       toast.error(t("toast.approveProcessError"));

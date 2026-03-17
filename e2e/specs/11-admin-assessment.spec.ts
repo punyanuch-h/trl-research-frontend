@@ -1,13 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { getAdminCredentials } from '../test-data/auth.data';
+import { ensureAdminLogin } from '../helpers/auth.helpers';
 
 test.describe('Assessment research', () => {
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    const credentials = getAdminCredentials();
-    await loginPage.goto();
-    await loginPage.login(credentials.email, credentials.password);
+    const isLoggedIn = await ensureAdminLogin(page);
+    test.skip(!isLoggedIn, 'Admin E2E tests require a valid seeded admin account. Set ADMIN_EMAIL and ADMIN_PASSWORD in e2e/.env.');
     await expect(page).toHaveURL(/admin/, { timeout: 15000 });
     const viewBtn = page.getByRole('button', { name: /view details|ดูรายละเอียด/i }).first();
     await viewBtn.click();

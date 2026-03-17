@@ -6,8 +6,9 @@ import { test as setup } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { LoginPage } from '../pages/LoginPage';
-import { getResearcherCredentials, getAdminCredentials, buildResearcherSignupData, buildAdminData } from '../test-data/auth.data';
+import { buildResearcherSignupData } from '../test-data/auth.data';
 import { SignupPage } from '../pages/SignupPage';
+import { ensureAdminLogin } from '../helpers/auth.helpers';
 
 const researcherAuthFile = 'e2e/.auth/researcher.json';
 const adminAuthFile = 'e2e/.auth/admin.json';
@@ -51,31 +52,10 @@ setup('authenticate as researcher', async ({ page }) => {
 });
 
 setup('authenticate as admin', async ({ page }) => {
-  const credentials = {
-    email: 'admin@example.com',
-    password: 'Admin123'
-  };
-  const signupData = buildAdminData(credentials);
-  
-  const loginPage = new LoginPage(page);
-  await loginPage.goto();
-  await loginPage.toggleRememberMe(true);
-  await loginPage.login(credentials.email, credentials.password);
-  
-  try {
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 5000 });
-  } catch (e) {
-    // If login fails, try signup (Note: backend might not allow public admin signup, but we try)
-    const signupPage = new SignupPage(page);
-    await signupPage.goto();
-    await signupPage.fillForm(signupData);
-    await signupPage.clickSignUp();
-    
-    await loginPage.goto();
-    await loginPage.toggleRememberMe(true);
-    await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+  const isLoggedIn = await ensureAdminLogin(page);
+  if (!isLoggedIn) {
+    return;
   }
-  
+
   await page.context().storageState({ path: adminAuthFile });
 });

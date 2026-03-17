@@ -110,7 +110,7 @@ export default function CaseDetail() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate(role === "admin" ? "/admin-homepage" : "/researcher-homepage")}
+                onClick={() => navigate(role === "admin" ? "/admin/homepage" : "/researcher/homepage")}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />

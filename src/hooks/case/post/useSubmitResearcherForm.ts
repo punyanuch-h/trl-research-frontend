@@ -27,7 +27,7 @@ export function useSubmitResearcherForm(setShowConfirmDialog?: (v: boolean) => v
       toast.success(i18n.t("toast.saveSuccess"));
       localStorage.removeItem("currentFormStep");
       localStorage.removeItem("researcherFormData");
-      navigate('/researcher-homepage');
+      navigate('/researcher/homepage');
     },
     onError: (error: unknown) => {
       console.error("submit error:", error);
