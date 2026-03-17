@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
-import { getResearcherCredentials, getAdminCredentials, invalidCredentials } from '../test-data/auth.data';
+import { getResearcherCredentials, getAdminCredentials, invalidCredentials, buildResearcherSignupData } from '../test-data/auth.data';
+import { SignupPage } from '../pages/SignupPage';
 
 test.describe('Login', () => {
   let loginPage: LoginPage;
@@ -28,20 +29,27 @@ test.describe('Login', () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test('should login and store both token and refresh_token in localStorage (Remember Me)', async ({ page }) => {
-    const credentials = getResearcherCredentials();
-    await loginPage.toggleRememberMe(true); // Default is true
-    await loginPage.login(credentials.email, credentials.password);
+  test('should login and store both token and refresh_token in localStorage (Remember Me checked)', async ({ page }) => {
+    // 1. Create a fresh user first to ensure login will succeed
+    const signupData = buildResearcherSignupData();
+    const signupPage = new SignupPage(page);
+    await signupPage.goto();
+    await signupPage.fillForm(signupData);
+    await signupPage.clickSignUp();
+    await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
 
-    await expect(page).toHaveURL(/\/researcher\/homepage/);
+    // 2. Perform login with Remember Me
+    await loginPage.toggleRememberMe(true);
+    await loginPage.login(signupData.email, signupData.password);
+    await expect(page.getByRole('heading', { name: /my research/i })).toBeVisible({ timeout: 15000 });
 
-    // Check localStorage has BOTH tokens
+    // 3. Assert: Check localStorage has BOTH tokens
     const hasLocalToken = await page.evaluate(() => !!localStorage.getItem('token'));
-    const hasLocalRefreshToken = await page.evaluate(() => !!localStorage.getItem('refreshToken'));
+    const hasLocalRefreshToken = await page.evaluate(() => !!localStorage.getItem('refresh_token'));
 
-    // Check sessionStorage is EMPTY (tokens must not be in both storages)
+    // Assert: Check sessionStorage is EMPTY (tokens must not be in both storages)
     const hasSessionToken = await page.evaluate(() => !!sessionStorage.getItem('token'));
-    const hasSessionRefreshToken = await page.evaluate(() => !!sessionStorage.getItem('refreshToken'));
+    const hasSessionRefreshToken = await page.evaluate(() => !!sessionStorage.getItem('refresh_token'));
 
     expect(hasLocalToken).toBe(true);
     expect(hasLocalRefreshToken).toBe(true);
@@ -49,20 +57,27 @@ test.describe('Login', () => {
     expect(hasSessionRefreshToken).toBe(false);
   });
 
-  test('should use sessionStorage when Remember Me is unchecked', async ({ page }) => {
-    const credentials = getResearcherCredentials();
+  test('should login and store both token and refresh_token in sessionStorage (Remember Me unchecked)', async ({ page }) => {
+    // 1. Create a fresh user first
+    const signupData = buildResearcherSignupData();
+    const signupPage = new SignupPage(page);
+    await signupPage.goto();
+    await signupPage.fillForm(signupData);
+    await signupPage.clickSignUp();
+    await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
+
+    // 2. Perform login without Remember Me
     await loginPage.toggleRememberMe(false);
-    await loginPage.login(credentials.email, credentials.password);
+    await loginPage.login(signupData.email, signupData.password);
+    await expect(page.getByRole('heading', { name: /my research/i })).toBeVisible({ timeout: 15000 });
 
-    await expect(page).toHaveURL(/\/researcher\/homepage/);
-
-    // Check sessionStorage has BOTH tokens
+    // 3. Assert: Check sessionStorage has BOTH tokens
     const hasSessionToken = await page.evaluate(() => !!sessionStorage.getItem('token'));
-    const hasSessionRefreshToken = await page.evaluate(() => !!sessionStorage.getItem('refreshToken'));
+    const hasSessionRefreshToken = await page.evaluate(() => !!sessionStorage.getItem('refresh_token'));
 
-    // Check localStorage is EMPTY (tokens must not be in both storages)
+    // Assert: Check localStorage is EMPTY (tokens must not be in both storages)
     const hasLocalToken = await page.evaluate(() => !!localStorage.getItem('token'));
-    const hasLocalRefreshToken = await page.evaluate(() => !!localStorage.getItem('refreshToken'));
+    const hasLocalRefreshToken = await page.evaluate(() => !!localStorage.getItem('refresh_token'));
 
     expect(hasSessionToken).toBe(true);
     expect(hasSessionRefreshToken).toBe(true);

@@ -36,11 +36,34 @@ export class LoginPage {
     }
   }
 
-  /** Perform full login */
+  /** Perform full login and wait for dashboard */
   async login(email: string, password: string) {
     await this.fillEmail(email);
     await this.fillPassword(password);
-    await this.clickLogin();
+    
+    // We wait for either a successful redirect or an error message to appear
+    const loginAttempt = Promise.all([
+      // Use Promise.race for the outcome of the click
+      Promise.race([
+        this.page.waitForURL(/\/researcher\/homepage|\/admin\/homepage/, { timeout: 15000 }),
+        this.page.locator('.text-destructive').waitFor({ state: 'visible', timeout: 15000 })
+      ]),
+      this.clickLogin()
+    ]);
+
+    await loginAttempt.catch(() => {
+      console.log('Login attempt timed out or failed to redirect/show error');
+    });
+
+    const isDashboard = this.page.url().includes('homepage');
+    if (isDashboard) {
+      // Ensure dashboard UI is ready by waiting for stable elements (Table or Heading)
+      await Promise.race([
+        this.page.locator('table').waitFor({ state: 'visible', timeout: 7000 }),
+        this.page.getByRole('heading').first().waitFor({ state: 'visible', timeout: 7000 })
+      ]).catch(() => {});
+      await this.page.waitForLoadState('networkidle').catch(() => {});
+    }
   }
 
   /** Click Forgot Password link */
@@ -65,6 +88,18 @@ export class LoginPage {
 
   /** Wait for redirect to dashboard (researcher or admin) */
   async expectRedirectToDashboard() {
-    await this.page.waitForURL(/\/researcher\/homepage|\/admin\/homepage/, { timeout: 10000 });
+    // Wait for the URL
+    await this.page.waitForURL(/\/researcher\/homepage|\/admin\/homepage/, { timeout: 15000 });
+    
+    // UI-based waiting – use heading or table as they are more stable
+    const heading = this.page.getByRole('heading').first();
+    const table = this.page.locator('table');
+    
+    await Promise.race([
+      heading.waitFor({ state: 'visible', timeout: 5000 }),
+      table.waitFor({ state: 'visible', timeout: 5000 })
+    ]).catch(() => {
+      console.log('Timeout waiting for dashboard UI elements (heading/table)');
+    });
   }
 }

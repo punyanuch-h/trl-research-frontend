@@ -14,7 +14,6 @@ const PrivateRoute: React.FC<Props> = ({ children, allowRoles }) => {
   const role = getUserRole();
 
   if (!isAuth) {
-    console.log("Not authenticated");
     return <Navigate to="/login" />;
   }
 
@@ -23,7 +22,6 @@ const PrivateRoute: React.FC<Props> = ({ children, allowRoles }) => {
   if (isLoading) return null;
 
   if (isError) {
-    console.log("Error fetching user profile after authentication check");
     logout();
     return <Navigate to="/login" replace />;
   }

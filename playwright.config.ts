@@ -6,10 +6,10 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e/specs',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: 1,
   reporter: [
     ['html', { open: 'never' }],
     ['list'],
@@ -31,12 +31,18 @@ export default defineConfig({
   ],
   outputDir: 'e2e/test-results',
   snapshotPathTemplate: '{testDir}/__snapshots__/{arg}-{projectName}{ext}',
-  webServer: process.env.CI
-    ? {
-      command: 'npm run preview -- --port 3000',
+  webServer: [
+    {
+      command: 'npm run start:backend',
+      url: 'http://localhost:8080/health',
+      timeout: 120000,
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: 'npm run dev',
       url: 'http://localhost:3000',
       timeout: 120000,
       reuseExistingServer: !process.env.CI,
-    }
-    : undefined,
+    },
+  ],
 });

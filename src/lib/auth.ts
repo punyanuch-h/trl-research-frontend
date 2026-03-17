@@ -13,12 +13,12 @@ export function getToken(): string | null {
 
 /** Get the refresh token from any available storage */
 export function getRefreshToken(): string | null {
-  return localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken");
+  return localStorage.getItem("refresh_token") || sessionStorage.getItem("refresh_token");
 }
 
 /** Check if the current session should be persistent (Remember Me was checked) */
 export function isPersistent(): boolean {
-  return !!localStorage.getItem("refreshToken");
+  return !!localStorage.getItem("refresh_token");
 }
 
 /** 
@@ -33,10 +33,10 @@ export function setTokens(token: string, refreshToken: string, rememberMe?: bool
   // Clear other storage to avoid confusion
   const otherStorage = persistent ? sessionStorage : localStorage;
   otherStorage.removeItem("token");
-  otherStorage.removeItem("refreshToken");
+  otherStorage.removeItem("refresh_token");
 
   storage.setItem("token", token);
-  storage.setItem("refreshToken", refreshToken);
+  storage.setItem("refresh_token", refreshToken);
 }
 
 /** Decode role directly from stored token */
@@ -83,21 +83,28 @@ export function isAuthenticated(): boolean {
 /** Simple local logout - clear all tokens */
 export function logout() {
   localStorage.removeItem("token");
-  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("refresh_token");
   sessionStorage.removeItem("token");
-  sessionStorage.removeItem("refreshToken");
+  sessionStorage.removeItem("refresh_token");
   localStorage.removeItem("pendingLogout");
 }
 
 /** 
  * API-based logout - notifies the backend to revoke the token.
  * Should be called whenever possible instead of raw logout().
+ * Enforces a 5-second timeout so a slow backend can't hang the UI.
  */
 export async function apiLogout(baseURL: string) {
   const refreshToken = getRefreshToken();
   if (refreshToken) {
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Logout request timed out")), 5000)
+    );
     try {
-      await axios.post(`${baseURL}/auth/logout`, { refresh_token: refreshToken });
+      await Promise.race([
+        axios.post(`${baseURL}/auth/logout`, { refresh_token: refreshToken }),
+        timeoutPromise,
+      ]);
     } catch (error) {
       console.warn("Backend logout failed:", error);
     }

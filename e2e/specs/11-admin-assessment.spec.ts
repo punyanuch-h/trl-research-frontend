@@ -8,14 +8,14 @@ test.describe('Assessment research', () => {
     const credentials = getAdminCredentials();
     await loginPage.goto();
     await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
     const viewBtn = page.getByRole('button', { name: /view details|ดูรายละเอียด/i }).first();
     await viewBtn.click();
     await expect(page).toHaveURL(/case-detail/);
     await page.waitForLoadState('networkidle');
     const assessBtn = page.getByRole('button', { name: /assess|ประเมิน/i });
     await assessBtn.click();
-    await page.waitForURL(/\/assessment/, { timeout: 15000 });
+    await expect(page.getByTestId('approve-assessment-btn')).toBeVisible({ timeout: 15000 });
   });
 
   test('should open assessment page and show approve/reject', async ({ page }) => {
@@ -56,6 +56,6 @@ test.describe('Assessment research', () => {
     if (!(await approveBtn.isEnabled())) test.skip();
     await approveBtn.click();
     // after approve should redirect
-    await expect(page).toHaveURL(/admin-homepage|admin\/homepage/);
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
   });
 });

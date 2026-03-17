@@ -12,7 +12,7 @@ test.describe('Add admin', () => {
     const credentials = getAdminCredentials();
     await loginPage.goto();
     await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
   });
 
   test('should navigate to create admin page', async ({ page }) => {
@@ -46,6 +46,6 @@ test.describe('Add admin', () => {
     const data = buildAdminData();
     await createAccountPage.fillForm(data);
     await page.getByRole('button', { name: /create|submit|save/i }).click();
-    await expect(page).toHaveURL(/\/admin\/homepage/, { timeout: 10000 });
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
   });
 });

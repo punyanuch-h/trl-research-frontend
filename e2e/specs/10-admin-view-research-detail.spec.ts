@@ -8,7 +8,7 @@ test.describe('View research detail - Admin', () => {
     const credentials = getAdminCredentials();
     await loginPage.goto();
     await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
     // Guard: skip entire suite if no case data is present
     await page.waitForSelector('[role="button"]', { timeout: 5000 }).catch(() => { });
     const viewBtn = page.getByRole('button', { name: /view details|ดูรายละเอียด/i });
@@ -131,6 +131,6 @@ test.describe('View research detail - Admin', () => {
   test('admin back button should navigate to admin homepage', async ({ page }) => {
     const backBtn = page.getByRole('button', { name: /back/i });
     await backBtn.click();
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
   });
 });

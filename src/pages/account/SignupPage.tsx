@@ -92,9 +92,7 @@ export default function SignupPage() {
         password: data.password,
       });
       toast.success(t("auth.signupSuccess"));
-      setTimeout(() => {
-        navigate("/login");
-      }, 1200);
+      navigate("/login");
 
     } catch (err: unknown) {
       console.error(err);

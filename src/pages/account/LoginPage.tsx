@@ -10,6 +10,7 @@ import { GraduationCap, Loader2, User, Lock, EyeOff, Eye, AlertCircle } from "lu
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLogin } from "@/hooks/index";
 import { setTokens } from "@/lib/auth";
+import type { LoginResponse } from "@/types/type";
 
 interface LoginFormData {
   email: string;
@@ -28,6 +29,7 @@ export default function LoginPage() {
     register,
     handleSubmit,
     watch,
+    getValues,
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
@@ -49,32 +51,20 @@ export default function LoginPage() {
   useEffect(() => {
     if (!response) return;
 
-    interface AuthData {
-      token?: string;
-      accessToken?: string;
-      access_token?: string;
-      refresh_token?: string;
-      refreshToken?: string;
-      role?: string;
-      user?: {
-        role?: string;
-      };
-    }
+    // Cast to the shared LoginResponse type (covers flat + wrapped responses)
+    const loginResponse = response as LoginResponse;
 
     // Handle both wrapped { data: { ... } } and flat responses
-    const authData = (
-      response && typeof response === "object" && "data" in response
-        ? (response as { data: AuthData }).data
-        : (response as AuthData)
-    );
+    const authData = loginResponse.data ?? loginResponse;
 
     // Support multiple naming conventions for tokens
-    const token = authData.token || authData.accessToken || authData.access_token;
-    const refresh_token = authData.refresh_token || authData.refreshToken;
-    const role = authData.role || (authData.user && authData.user.role);
+    const token = authData.token ?? authData.accessToken ?? authData.access_token;
+    const refresh_token = authData.refresh_token ?? authData.refreshToken;
+    const role = authData.role ?? authData.user?.role;
 
     if (token && refresh_token) {
-      setTokens(token, refresh_token, watch("rememberMe"));
+      // Read the checkbox value at execution time; avoids stale-closure via getValues
+      setTokens(token, refresh_token, getValues("rememberMe"));
       console.log("Tokens stored successfully");
     } else {
       console.error("Login success but tokens missing in response:", response);
@@ -86,15 +76,13 @@ export default function LoginPage() {
       navigate("/researcher/homepage", { replace: true });
     } else {
       console.warn("User role missing or unrecognized:", role);
-      // If we have tokens but no role, maybe we can redirect to a default or try to get profile
       if (token) {
-        // Fallback for missing role in login response
         navigate("/profile", { replace: true });
       } else {
         navigate("/login", { replace: true });
       }
     }
-  }, [response, navigate, watch]);
+  }, [response, navigate, getValues]);
 
   /* ================= LOGIN ERROR ================= */
   useEffect(() => {

@@ -15,14 +15,14 @@ export interface SignupFormData {
 
 /** Build researcher signup data with optional overrides */
 export function buildResearcherSignupData(overrides?: Partial<SignupFormData>): SignupFormData {
-  const timestamp = Date.now();
+  const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   return {
     prefix: 'Mr.',
     firstName: 'Test',
     lastName: 'Researcher',
     department: 'Computer Engineering',
     phone: '0812345678',
-    email: `test.researcher.${timestamp}@example.com`,
+    email: `test.researcher.${uniqueSuffix}@example.com`,
     password: 'TestPass123',
     confirmPassword: 'TestPass123',
     ...overrides,
@@ -31,14 +31,14 @@ export function buildResearcherSignupData(overrides?: Partial<SignupFormData>): 
 
 /** Build researcher signup data with optional overrides */
 export function buildAdminData(overrides?: Partial<SignupFormData>): SignupFormData {
-  const timestamp = Date.now();
+  const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   return {
     prefix: 'Mr.',
     firstName: 'Test',
     lastName: 'Admin',
     department: 'Computer Engineering',
     phone: '0812345678',
-    email: `test.admin.${timestamp}@example.com`,
+    email: `test.admin.${uniqueSuffix}@example.com`,
     password: 'TestPass123',
     confirmPassword: 'TestPass123',
     ...overrides,

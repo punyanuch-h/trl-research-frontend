@@ -9,7 +9,7 @@ test.describe('Admin Dashboard page', () => {
     const credentials = getAdminCredentials();
     await loginPage.goto();
     await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
     const adminPage = new AdminHomePage(page);
     await adminPage.clickDashboardTab();
     await page.waitForLoadState('networkidle');

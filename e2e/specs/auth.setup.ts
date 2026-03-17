@@ -4,25 +4,78 @@
  */
 import { test as setup } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
-import { getResearcherCredentials, getAdminCredentials } from '../test-data/auth.data';
+import { getResearcherCredentials, getAdminCredentials, buildResearcherSignupData, buildAdminData } from '../test-data/auth.data';
+import { SignupPage } from '../pages/SignupPage';
 
+const fs = require('fs');
+const path = require('path');
 const researcherAuthFile = 'e2e/.auth/researcher.json';
 const adminAuthFile = 'e2e/.auth/admin.json';
 
+// Ensure .auth directory exists
+const authDir = path.dirname(researcherAuthFile);
+if (!fs.existsSync(authDir)) {
+  fs.mkdirSync(authDir, { recursive: true });
+}
+
 setup('authenticate as researcher', async ({ page }) => {
-  const credentials = getResearcherCredentials();
+  const credentials = {
+    email: 'researcher@example.com',
+    password: 'Researcher123'
+  };
+  const signupData = buildResearcherSignupData(credentials);
+  
   const loginPage = new LoginPage(page);
   await loginPage.goto();
+  await loginPage.toggleRememberMe(true);
   await loginPage.login(credentials.email, credentials.password);
-  await page.waitForURL(/\/researcher\/homepage/, { timeout: 15000 });
+  
+  try {
+    // If we can login, great!
+    await page.waitForURL(/\/researcher\/homepage/, { timeout: 5000 });
+  } catch (e) {
+    // If login fails, user might not exist. Try signup.
+    const signupPage = new SignupPage(page);
+    await signupPage.goto();
+    await signupPage.fillForm(signupData);
+    await signupPage.clickSignUp();
+    
+    // Login again
+    await loginPage.goto();
+    await loginPage.toggleRememberMe(true);
+    await loginPage.login(credentials.email, credentials.password);
+    await page.waitForURL(/\/researcher\/homepage/, { timeout: 15000 });
+  }
+  
   await page.context().storageState({ path: researcherAuthFile });
 });
 
 setup('authenticate as admin', async ({ page }) => {
-  const credentials = getAdminCredentials();
+  const credentials = {
+    email: 'admin@example.com',
+    password: 'Admin123'
+  };
+  const signupData = buildAdminData(credentials);
+  
   const loginPage = new LoginPage(page);
   await loginPage.goto();
+  await loginPage.toggleRememberMe(true);
   await loginPage.login(credentials.email, credentials.password);
-  await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+  
+  try {
+    await page.waitForURL(/\/admin\/homepage/, { timeout: 5000 });
+  } catch (e) {
+    // If login fails, try signup (Note: backend might not allow public admin signup, but we try)
+    const signupPage = new SignupPage(page);
+    await signupPage.goto();
+    await signupPage.fillForm(signupData);
+    await signupPage.clickSignUp();
+    
+    await loginPage.goto();
+    await loginPage.toggleRememberMe(true);
+    await loginPage.login(credentials.email, credentials.password);
+    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+  }
+  
   await page.context().storageState({ path: adminAuthFile });
 });

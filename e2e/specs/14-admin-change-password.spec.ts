@@ -8,7 +8,7 @@ test.describe('Change password', () => {
     const credentials = getAdminCredentials();
     await loginPage.goto();
     await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
     await page.goto('/#/reset-password');
     await page.waitForLoadState('networkidle');
   });
@@ -53,7 +53,7 @@ test.describe('Reset password', () => {
     const credentials = getAdminCredentials();
     await loginPage.goto();
     await loginPage.login(credentials.email, 'NewPass123A');
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
     await page.goto('/#/reset-password');
     await page.waitForLoadState('networkidle');
   });

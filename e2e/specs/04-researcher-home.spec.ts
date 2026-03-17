@@ -1,15 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { ResearcherHomePage } from '../pages/ResearcherHomePage';
-import { getResearcherCredentials } from '../test-data/auth.data';
-import { LoginPage } from '../pages/LoginPage';
+import { ensureResearcherLogin } from '../helpers/auth.helpers';
 
 test.describe('Researcher Home page', () => {
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    const credentials = getResearcherCredentials();
-    await loginPage.goto();
-    await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/\/researcher\/homepage/, { timeout: 15000 });
+    await ensureResearcherLogin(page);
+    await expect(page.getByRole('heading', { name: /my research/i })).toBeVisible({ timeout: 15000 });
   });
 
   test('should load page successfully', async ({ page }) => {

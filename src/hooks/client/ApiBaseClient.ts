@@ -64,7 +64,7 @@ export class ApiBaseClient {
             
             // Avoid redirecting if we are already on the login page to prevent reloads/lost state
             if (!window.location.hash.includes("/login")) {
-              window.location.href = "/login?session_expired=true";
+              window.location.href = "/#/login?session_expired=true";
             }
             return Promise.reject(error);
           }
@@ -72,13 +72,12 @@ export class ApiBaseClient {
           try {
             // If a refresh is already in progress, wait for it
             if (!ApiBaseClient.refreshPromise) {
-              ApiBaseClient.refreshPromise = this.performRefresh(baseURL, refreshToken);
+              ApiBaseClient.refreshPromise = ApiBaseClient.performRefresh(baseURL, refreshToken);
             }
 
             const newToken = await ApiBaseClient.refreshPromise;
-
-            // Critical: Reset the promise for the NEXT time we need to refresh
-            ApiBaseClient.refreshPromise = null;
+            // NOTE: refreshPromise is cleared in performRefresh's finally block;
+            //       do NOT reset it here to avoid the thundering-herd race condition.
 
             if (newToken) {
               // Update the original request with the new access token
@@ -87,13 +86,12 @@ export class ApiBaseClient {
             } else {
               // Refresh failed to return a token
               logout();
-              window.location.href = "/login?session_expired=true";
+              window.location.href = "/#/login?session_expired=true";
               return Promise.reject(error);
             }
           } catch (refreshError) {
-            ApiBaseClient.refreshPromise = null;
             logout();
-            window.location.href = "/login?session_expired=true";
+            window.location.href = "/#/login?session_expired=true";
             return Promise.reject(refreshError);
           }
         }
@@ -105,23 +103,39 @@ export class ApiBaseClient {
 
   /**
    * Calls the backend refresh endpoint to obtain a new set of tokens.
+   * Static so it matches the static refreshPromise field.
+   * Clears refreshPromise in a finally block — single authoritative reset.
    */
-  private async performRefresh(baseURL: string, refreshToken: string): Promise<string | null> {
+  private static async performRefresh(baseURL: string, refreshToken: string): Promise<string | null> {
     try {
       // Use a clean axios instance to avoid interceptor loops
       const response = await axios.post(`${baseURL}/auth/refresh`, {
         refresh_token: refreshToken,
       });
 
-      const { token, refresh_token } = response.data;
+      const { token, refresh_token } = response.data as { token?: string; refresh_token?: string };
 
-      // Update tokens (automatically detects storage type)
-      setTokens(token, refresh_token);
+      if (!token || !refresh_token) {
+        console.error("Refresh endpoint returned incomplete tokens", response.data);
+        return null;
+      }
+
+      // Detect persistence by checking where the CURRENT refresh token lives
+      // (the access token may be absent at this point, so we can't rely on it)
+      const isPersistent =
+        localStorage.getItem("refreshToken") !== null ||
+        localStorage.getItem("refresh_token") !== null;
+
+      setTokens(token, refresh_token, isPersistent);
 
       return token;
     } catch (err) {
       console.error("Refresh token attempt failed:", err);
       return null;
+    } finally {
+      // Single authoritative reset — all waiting requests share this promise
+      // and will read the resolved value without triggering another refresh.
+      ApiBaseClient.refreshPromise = null;
     }
   }
 }

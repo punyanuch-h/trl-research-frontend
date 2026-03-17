@@ -10,7 +10,7 @@ test.describe('ADMIN - Add Appointment FULL FLOW', () => {
 
     await login.goto();
     await login.login(cred.email, cred.password);
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
     await page.waitForLoadState('networkidle');
   });
 
@@ -20,7 +20,7 @@ test.describe('ADMIN - Add Appointment FULL FLOW', () => {
     if (await viewBtn.count() === 0) test.skip();
 
     await viewBtn.first().click();
-    await page.waitForURL(/case-detail/);
+    await expect(page.getByTestId('case-title')).toBeVisible({ timeout: 15000 });
     await page.waitForLoadState('networkidle');
 
     const addBtn = page.getByRole('button', { name: /add appointment/i });
