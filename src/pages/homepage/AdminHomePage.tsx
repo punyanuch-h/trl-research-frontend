@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { pdf } from "@react-pdf/renderer";
@@ -254,6 +255,11 @@ export default function AdminHomePage() {
   }
 
   const handleDownloadResult = async (caseInfo: CaseResponse & { appointments: AppointmentResponse[]; latestAppointment: AppointmentResponse | null }) => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     try {
       console.log("Generating PDF for:", caseInfo.title);
 
@@ -274,6 +280,14 @@ export default function AdminHomePage() {
 
     } catch (error) {
       console.error("Error generating PDF:", error);
+
+      if (axios.isAxiosError(error)) {
+        if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
+          toast.error(t("common.serverConnectionError"));
+          return;
+        }
+      }
+
       toast.error(t("toast.pdfError"));
     }
   };

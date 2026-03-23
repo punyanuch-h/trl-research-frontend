@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useForgotPassword } from "@/hooks/index";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "@/lib/toast";
 
 interface ForgotPasswordFormData {
   email: string;
@@ -48,15 +50,30 @@ export default function ForgotPasswordPage() {
   }, [isSuccess, response, t]);
 
   useEffect(() => {
-    if (forgotPasswordError) {
-      setError("root", {
-        type: "manual",
-        message: t("auth.sendEmailError"),
-      });
+    if (!forgotPasswordError) return;
+
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
     }
+
+    if (axios.isAxiosError(forgotPasswordError) && (!forgotPasswordError.response || forgotPasswordError.code === 'ERR_NETWORK' || forgotPasswordError.response.status === 404 || forgotPasswordError.response.status >= 500)) {
+      toast.error(t("common.serverConnectionError"));
+      return;
+    }
+
+    setError("root", {
+      type: "manual",
+      message: t("auth.sendEmailError"),
+    });
   }, [forgotPasswordError, setError, t]);
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     setSuccessMessage(null);
     clearErrors("root");
     resetMutation();

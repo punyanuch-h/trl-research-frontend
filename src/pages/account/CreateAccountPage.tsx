@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "@/lib/toast";
+import axios from "axios";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,6 +86,11 @@ export default function CreateAccountPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data: CreateAccountFormValues) => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     const academicPosition =
       data.academic_position === "other"
         ? data.academic_position_other
@@ -103,6 +109,13 @@ export default function CreateAccountPage() {
       });
       toast.success(t("auth.signupSuccess"));
     } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        if (!err.response || err.code === 'ERR_NETWORK' || err.response.status === 404 || err.response.status >= 500) {
+          toast.error(t("common.serverConnectionError"));
+          return;
+        }
+      }
+
       console.error(err);
       toast.error(t("auth.signupError"));
       setError("root", {

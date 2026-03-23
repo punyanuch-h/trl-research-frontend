@@ -20,6 +20,7 @@ import {
   useUpdateTrlScoreById,
   useUpdateUrgentStatusById
 } from '@/hooks/index';
+import axios from 'axios';
 import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IntellectualPropertyResponse } from '@/types/type';
@@ -89,6 +90,11 @@ const AssessmentResult = () => {
   };
 
   const handleApproveAssessment = async () => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     const currentTrlScore = caseData?.trl_score;
     const estimatedTrl = assessmentData?.trl_estimate;
     const caseId = caseData?.id || id;
@@ -124,6 +130,12 @@ const AssessmentResult = () => {
           status: true
         });
       } catch (error) {
+        if (axios.isAxiosError(error)) {
+          if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
+            toast.error(t("common.serverConnectionError"));
+            return;
+          }
+        }
         toast.error(t("toast.approveError", { id: caseData?.id }));
         return;
       }
@@ -136,6 +148,12 @@ const AssessmentResult = () => {
           });
         } catch (error) {
           console.error("Failed to clear urgent status:", error);
+          if (axios.isAxiosError(error)) {
+            if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
+              toast.error(t("common.serverConnectionError"));
+              return;
+            }
+          }
           toast.error(t("toast.urgentClearError"));
         }
       }
@@ -144,6 +162,12 @@ const AssessmentResult = () => {
       navigate('/admin-homepage');
     } catch (error) {
       console.error("Error during approval process:", error);
+      if (axios.isAxiosError(error)) {
+        if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
+          toast.error(t("common.serverConnectionError"));
+          return;
+        }
+      }
       toast.error(t("toast.approveProcessError"));
     }
   };
@@ -154,6 +178,11 @@ const AssessmentResult = () => {
   };
 
   const handleSaveTrlLevel = async () => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     const caseId = caseData?.id || id;
 
     if (!caseId) {
@@ -164,16 +193,12 @@ const AssessmentResult = () => {
     setIsUpdatingTrl(true);
     try {
       const previousTrl = Number(caseData?.trl_score ?? assessmentData?.trl_estimate);
-      try {
-        // Update Case TRL Score
-        await updateTrlScoreMutation.mutateAsync({
-          caseId: caseId,
-          trlData: { trl_score: manualTrl }
-        });
-      } catch (error) {
-        console.error("Error updating TRL Score:", error);
-        throw new Error(t("assessment.trlScoreError"));
-      }
+      
+      // Update Case TRL Score
+      await updateTrlScoreMutation.mutateAsync({
+        caseId: caseId,
+        trlData: { trl_score: manualTrl }
+      });
 
       // Re-fetch case data to ensure UI is in sync
       await refetchCase();
@@ -181,9 +206,17 @@ const AssessmentResult = () => {
       if (manualTrl !== previousTrl) {
         toast.success(t("toast.trlUpdateSuccess", { level: manualTrl }));
       }
+      
+      setIsEditingTrl(false);
 
     } catch (error: unknown) {
       console.error(error);
+      if (axios.isAxiosError(error)) {
+        if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
+          toast.error(t("common.serverConnectionError"));
+          return;
+        }
+      }
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -193,7 +226,6 @@ const AssessmentResult = () => {
       refetchCase();
     } finally {
       setIsUpdatingTrl(false);
-      setIsEditingTrl(false);
     }
   };
 
@@ -244,6 +276,11 @@ const AssessmentResult = () => {
   };
 
   const handleSaveSuggestion = (text: string) => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     setSuggestions(prev => ({ ...prev, "all": text }));
 
     const assessmentId = assessmentData?.id;
@@ -266,6 +303,13 @@ const AssessmentResult = () => {
         },
         onError: (err: Error) => {
           console.error("Update suggestion error:", err);
+
+          if (axios.isAxiosError(err)) {
+            if (!err.response || err.code === 'ERR_NETWORK' || err.response.status === 404 || err.response.status >= 500) {
+              toast.error(t("common.serverConnectionError"));
+              return;
+            }
+          }
 
           const message =
             err instanceof Error

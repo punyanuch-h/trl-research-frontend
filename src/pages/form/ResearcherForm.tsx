@@ -13,6 +13,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useSubmitResearcherForm, useGetUserProfile } from "@/hooks/index";
+import { toast } from "@/lib/toast";
+import axios from "axios";
 
 // Import components
 import ResearcherDetails from '@/pages/form/researcherDetails';
@@ -201,6 +203,16 @@ export default function ResearcherForm() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentFormStep]);
+
+  useEffect(() => {
+    if (!submitFormMutation.error) return;
+
+    if (axios.isAxiosError(submitFormMutation.error)) {
+      if (!submitFormMutation.error.response || submitFormMutation.error.code === 'ERR_NETWORK' || submitFormMutation.error.response.status === 404 || submitFormMutation.error.response.status >= 500) {
+        toast.error(t("common.serverConnectionError"));
+      }
+    }
+  }, [submitFormMutation.error, t]);
 
   const refs = {
     headPrefix: useRef<HTMLInputElement>(null),
@@ -421,6 +433,11 @@ export default function ResearcherForm() {
   };
 
   const handleConfirmSubmit = async () => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     submitFormMutation.mutate(formData);
   };
 

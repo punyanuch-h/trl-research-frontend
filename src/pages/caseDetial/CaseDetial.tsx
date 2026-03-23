@@ -21,19 +21,20 @@ import {
 } from "@/hooks/index";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppointmentResponse } from "@/types/type";
+import axios from "axios";
 
 export default function CaseDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const role = getUserRole();
   const { id } = useParams<{ id: string }>();
-  const { data: caseData, isPending: isCasePending, isError: isCaseError } = useGetCaseById(id || '');
-  const { data: coordinatorData, isPending: isCoordinatorPending, isError: isCoordinatorError } = useGetCoordinatorByCaseId(id || '');
-  const { data: appointmentData, isPending: isAppointmentPending, isError: isAppointmentError } = useGetAppointmentByCaseId(id || '');
-  const { data: assessmentData, isPending: isAssessmentPending, isError: isAssessmentError } = useGetAssessmentByCaseId(id || '');
-  const { data: ipData, isPending: isIPPending, isError: isIPError } = useGetIPByCaseId(id || '');
-  const { data: supportmentData, isPending: isSupporterPending, isError: isSupporterError } = useGetSupportmentByCaseId(id || '');
-  const { data: researcherData, isPending: isResearcherPending, isError: isResearcherError } = useGetResearcherById(caseData?.researcher_id || '');
+  const { data: caseData, isPending: isCasePending, isError: isCaseError, error: errorCase } = useGetCaseById(id || '');
+  const { data: coordinatorData, isPending: isCoordinatorPending, isError: isCoordinatorError, error: errorCoordinator } = useGetCoordinatorByCaseId(id || '');
+  const { data: appointmentData, isPending: isAppointmentPending, isError: isAppointmentError, error: errorAppointment } = useGetAppointmentByCaseId(id || '');
+  const { data: assessmentData, isPending: isAssessmentPending, isError: isAssessmentError, error: errorAssessment } = useGetAssessmentByCaseId(id || '');
+  const { data: ipData, isPending: isIPPending, isError: isIPError, error: errorIP } = useGetIPByCaseId(id || '');
+  const { data: supportmentData, isPending: isSupporterPending, isError: isSupporterError, error: errorSupportment } = useGetSupportmentByCaseId(id || '');
+  const { data: researcherData, isPending: isResearcherPending, isError: isResearcherError, error: errorResearcher } = useGetResearcherById(caseData?.researcher_id || '');
 
   console.log("CaseDetail Render State:", {
     id,
@@ -85,6 +86,26 @@ export default function CaseDetail() {
     return type;
   };
 
+  const hasAnyError = isCaseError || isCoordinatorError || isAppointmentError || isAssessmentError || isIPError || isSupporterError || isResearcherError;
+
+  useEffect(() => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"), { id: "casedetail-error" });
+      return;
+    }
+
+    if (!hasAnyError) return;
+
+    const apiErrors = [errorCase, errorCoordinator, errorAppointment, errorAssessment, errorIP, errorSupportment, errorResearcher];
+    const isServerError = apiErrors.some((err) => {
+      return axios.isAxiosError(err) && (!err.response || err.code === 'ERR_NETWORK' || err.response.status === 404 || err.response.status >= 500);
+    });
+
+    if (isServerError) {
+      toast.error(t("common.serverConnectionError"), { id: "casedetail-error" });
+    }
+  }, [hasAnyError, errorCase, errorCoordinator, errorAppointment, errorAssessment, errorIP, errorSupportment, errorResearcher, t]);
+
   useEffect(() => {
     if (!id) {
       toast.error(t("toast.caseDetailError"));
@@ -95,10 +116,14 @@ export default function CaseDetail() {
     if (isCasePending) return;
 
     if (isCaseError || !caseData) {
-      toast.error(t("toast.caseDetailError"));
+      const isNetworkOrServerIssue = !navigator.onLine || (axios.isAxiosError(errorCase) && (!errorCase.response || errorCase.code === 'ERR_NETWORK' || errorCase.response.status >= 500));
+      
+      if (!isNetworkOrServerIssue) {
+        toast.error(t("toast.caseDetailError"));
+      }
       navigate(role === "admin" ? "/admin/homepage" : "/researcher/homepage", { replace: true });
     }
-  }, [id, isCaseError, caseData, isCasePending, navigate, role, t]);
+  }, [id, isCaseError, caseData, isCasePending, navigate, role, t, errorCase]);
 
   return (
     <div className="min-h-screen bg-gray-50">

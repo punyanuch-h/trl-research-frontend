@@ -18,8 +18,6 @@ interface NotificationOverlayProps {
 export function NotificationOverlay({
     notifications,
     loading,
-    error,
-    onRetry,
     onNotificationClick,
     onMarkAllAsRead,
 }: NotificationOverlayProps) {
@@ -44,27 +42,15 @@ export function NotificationOverlay({
                 {/* loading */}
                 {loading && <NotificationSkeleton />}
 
-                {/* offline/backend error */}
-                {error && !loading && (
-                    <div className="p-8 flex flex-col items-center gap-3 text-center">
-                        <div className="text-sm text-red-500 font-medium">
-                            {t("dashboard.unableNotifications")}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                            {t("dashboard.checkInternet")}
-                        </div>
-                    </div>
-                )}
-
                 {/* empty */}
-                {!loading && !error && notifications.length === 0 && (
+                {!loading && notifications.length === 0 && (
                     <div className="p-8 text-center text-muted-foreground italic">
                         {t("dashboard.noNotifications")}
                     </div>
                 )}
 
                 {/* success */}
-                {!loading && !error && notifications.length > 0 && (
+                {!loading && notifications.length > 0 && (
                     <div className="flex flex-col">
                         {notifications.map((notif) => (
                             <button

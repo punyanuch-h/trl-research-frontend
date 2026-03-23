@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { GraduationCap, Loader2, User, Lock, EyeOff, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLogin } from "@/hooks/index";
+import { toast } from "@/lib/toast";
+import axios from "axios";
 
 interface LoginFormData {
   email: string;
@@ -56,6 +58,16 @@ export default function LoginPage() {
   useEffect(() => {
     if (!loginError) return;
 
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
+    if (axios.isAxiosError(loginError) && (!loginError.response || loginError.code === 'ERR_NETWORK' || loginError.response.status === 404 || loginError.response.status >= 500)) {
+      toast.error(t("common.serverConnectionError"));
+      return;
+    }
+
     setError("root", {
       type: "manual",
       message: t("auth.loginError"),
@@ -73,6 +85,11 @@ export default function LoginPage() {
 
   /* ================= SUBMIT ================= */
   const onSubmit = (data: LoginFormData) => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     if (loginPending || isSubmitting) return; // กันยิงซ้ำ
 
     clearErrors("root");
