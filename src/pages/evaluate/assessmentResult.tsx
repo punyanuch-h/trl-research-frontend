@@ -158,8 +158,10 @@ const AssessmentResult = () => {
           console.error("Failed to clear urgent status:", error);
           if (isServerConnectionError(error)) {
             toast.error(t("common.serverConnectionError"));
+            return;
           } else {
             toast.error(t("toast.urgentClearError"));
+            return;
           }
         }
       }
@@ -181,7 +183,7 @@ const AssessmentResult = () => {
     setIsEditingTrl(true);
   };
 
-  const handleSaveTrlLevel = async () => {
+  const handleSaveTrlLevel = () => {
     if (!navigator.onLine) {
       toast.error(t("common.internetError"));
       return;
@@ -195,40 +197,41 @@ const AssessmentResult = () => {
     }
 
     setIsUpdatingTrl(true);
-    try {
-      const previousTrl = Number(caseData?.trl_score ?? assessmentData?.trl_estimate);
-      
-      // Update Case TRL Score
-      await updateTrlScoreMutation.mutateAsync({
+    const previousTrl = Number(caseData?.trl_score ?? assessmentData?.trl_estimate);
+    
+    // Update Case TRL Score
+    updateTrlScoreMutation.mutate(
+      {
         caseId: caseId,
         trlData: { trl_score: manualTrl }
-      });
-
-      // Re-fetch case data to ensure UI is in sync
-      await refetchCase();
-
-      if (manualTrl !== previousTrl) {
-        toast.success(t("toast.trlUpdateSuccess", { level: manualTrl }));
+      },
+      {
+        onSuccess: () => {
+          if (manualTrl !== previousTrl) {
+            toast.success(t("toast.trlUpdateSuccess", { level: manualTrl }));
+          }
+          setIsEditingTrl(false);
+          
+          // Re-fetch case data to ensure UI is in sync (Best-effort)
+          refetchCase().catch((refetchError) => {
+            console.error("Failed to refetch case after TRL update:", refetchError);
+          });
+        },
+        onError: (error: unknown) => {
+          console.error(error);
+          if (isServerConnectionError(error)) {
+            toast.error(t("common.serverConnectionError"));
+            return;
+          }
+          const errorMessage = error instanceof Error ? error.message : t("assessment.trlScoreError");
+          toast.error(errorMessage);
+          refetchCase();
+        },
+        onSettled: () => {
+          setIsUpdatingTrl(false);
+        }
       }
-      
-      setIsEditingTrl(false);
-
-    } catch (error: unknown) {
-      console.error(error);
-      if (isServerConnectionError(error)) {
-        toast.error(t("common.serverConnectionError"));
-        return;
-      }
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : t("assessment.trlScoreError");
-      toast.error(errorMessage);
-
-      refetchCase();
-    } finally {
-      setIsUpdatingTrl(false);
-    }
+    );
   };
 
   // Toggle TRL level collapse
