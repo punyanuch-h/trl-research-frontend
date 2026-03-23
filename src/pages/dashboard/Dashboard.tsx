@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FileText, Users, Zap, AlertCircle } from "lucide-react";
 import { 
@@ -18,6 +19,7 @@ import { SupportmentCharts } from "@/components/dashboard/Supportment";
 import { AveragesCard } from "@/components/dashboard/AveragesTrl";
 import { TopResearchersCard } from "@/components/dashboard/TopResearcher";
 import { AppointmentsCard } from "@/components/dashboard/Appointments";
+import { toast } from "@/lib/toast";
 
 // Dashboard colors (Original Aquamarine)
 const PRIMARY_COLOR = "#63C8DA";
@@ -84,6 +86,23 @@ export default function Dashboard() {
     agencyData: [],
     neededSupportData: [],
   };
+
+  const shownToastRef = useRef(false);
+
+  useEffect(() => {
+    if (shownToastRef.current) return;
+
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      shownToastRef.current = true;
+      return;
+    }
+
+    if (hasError) {
+      toast.error(t("common.serverConnectionError"));
+      shownToastRef.current = true;
+    }
+  }, [hasError, t]);
 
   if (isLoading) {
     return (

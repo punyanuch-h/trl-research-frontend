@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
+import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +81,11 @@ export default function SignupPage() {
   const password = watch("password");
 
   const onSubmit = async (data: SignupFormValues) => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     try {
       await createResearcher({
         prefix: data.prefix,
@@ -97,6 +103,13 @@ export default function SignupPage() {
       }, 1200);
 
     } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        if (!err.response || err.code === 'ERR_NETWORK' || err.response.status === 404 || err.response.status >= 500) {
+          toast.error(t("common.serverConnectionError"));
+          return;
+        }
+      }
+
       console.error(err);
       setError("root", {
         message: t("auth.signupError"),

@@ -46,6 +46,11 @@ export default function ResetPasswordPage() {
   const { postResetPassword } = useResetPassword();
 
   const onSubmit = async (data: ResetPasswordData) => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     try {
       await postResetPassword({
         old_password: data.oldPassword,
@@ -59,6 +64,11 @@ export default function ResetPasswordPage() {
       }, 1200);
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
+          toast.error(t("common.serverConnectionError"));
+          return;
+        }
+
         if (error.response?.status === 401) {
           setError("root", {
             message: t("auth.oldPasswordInvalid"),

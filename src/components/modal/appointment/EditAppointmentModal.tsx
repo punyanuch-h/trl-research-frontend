@@ -49,13 +49,27 @@ export default function EditAppointmentModal({
   const { t } = useTranslation();
   const [form, setForm] = useState<AppointmentResponse | null>(appointment);
 
-  const { updateAppointment, loading } = useUpdateAppointment(
+  const { updateAppointment, loading, error: updateError } = useUpdateAppointment(
     (updated) => {
       toast.success(t("toast.editAppointmentSuccess"));
       onSave(updated);
     },
     onClose
   );
+
+  useEffect(() => {
+    if (!updateError) return;
+
+    if (axios.isAxiosError(updateError)) {
+      if (!updateError.response || updateError.code === 'ERR_NETWORK' || updateError.response.status === 404 || updateError.response.status >= 500) {
+        toast.error(t("common.serverConnectionError"));
+        return;
+      }
+    }
+
+    const msg = axios.isAxiosError(updateError) ? (updateError as AxiosError<{ message?: string }>).response?.data?.message : undefined;
+    toast.error(msg || t("toast.editAppointmentError"));
+  }, [updateError, t]);
 
   useEffect(() => {
     setForm(appointment);
@@ -81,6 +95,11 @@ export default function EditAppointmentModal({
   };
 
   const handleSubmit = () => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     if (!form) return;
 
     const dateObj = new Date(form.date);
@@ -94,12 +113,7 @@ export default function EditAppointmentModal({
       date: dateObj.toISOString(),
     };
 
-    updateAppointment(formToSubmit, {
-      onError: (err: unknown) => {
-        const msg = axios.isAxiosError(err) ? (err as AxiosError<{ message?: string }>).response?.data?.message : undefined;
-        toast.error(msg || t("toast.editAppointmentError"));
-      },
-    });
+    updateAppointment(formToSubmit);
   };
 
   return (

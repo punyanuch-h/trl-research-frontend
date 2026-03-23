@@ -6,7 +6,7 @@ export function useUpdateAppointment(onSave: (updated: AppointmentResponse) => v
   const queryClient = useQueryClient();
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending, error } = useMutation({
     mutationFn: (form: AppointmentResponse) => 
       apiQueryClient.updateAppointment(form.id, {
         id: form.id,
@@ -28,5 +28,5 @@ export function useUpdateAppointment(onSave: (updated: AppointmentResponse) => v
     },
   });
 
-  return { updateAppointment: mutate, loading: isPending };
+  return { updateAppointment: mutate, loading: isPending, error };
 }

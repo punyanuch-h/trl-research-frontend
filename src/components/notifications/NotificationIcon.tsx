@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useTranslation } from "react-i18next";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +13,15 @@ import { useGetAppointmentNotifications, useMarkAppointmentNotificationAsRead, u
 import { NotificationOverlay } from "./NotificationOverlay";
 import { AppointmentModal } from "./AppointmentModal";
 import { AppointmentResponse } from "@/types/type";
+import { toast } from "@/lib/toast";
 
 export function NotificationIcon() {
+    const { t } = useTranslation();
     const {
         data,
         isLoading,
         isError,
+        error,
         refetch,
     } = useGetAppointmentNotifications();
     const isOffline = !navigator.onLine;
@@ -42,9 +47,20 @@ export function NotificationIcon() {
         }
     };
 
+    const handleOpenChange = (open: boolean) => {
+        if (open) {
+            if (!navigator.onLine) {
+                toast.error(t("common.internetError"));
+            } else if (isError && error && axios.isAxiosError(error) && (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500)) {
+                toast.error(t("common.serverConnectionError"));
+            }
+        }
+        setIsPopoverOpen(open);
+    };
+
     return (
         <>
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <Popover open={isPopoverOpen} onOpenChange={handleOpenChange}>
                 <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon" className="relative h-9 w-9">
                         <Bell className="h-5 w-5" />
