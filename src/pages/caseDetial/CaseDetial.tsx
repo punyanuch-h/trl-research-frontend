@@ -116,7 +116,7 @@ export default function CaseDetail() {
     if (isCasePending) return;
 
     if (isCaseError || !caseData) {
-      const isNetworkOrServerIssue = !navigator.onLine || (axios.isAxiosError(errorCase) && (!errorCase.response || errorCase.code === 'ERR_NETWORK' || errorCase.response.status >= 500));
+      const isNetworkOrServerIssue = !navigator.onLine || (axios.isAxiosError(errorCase) && (!errorCase.response || errorCase.code === 'ERR_NETWORK' || errorCase.response.status === 404 || errorCase.response.status >= 500));
       
       if (!isNetworkOrServerIssue) {
         toast.error(t("toast.caseDetailError"));

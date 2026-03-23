@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FileText, Users, Zap, AlertCircle } from "lucide-react";
 import { 
@@ -87,16 +87,21 @@ export default function Dashboard() {
     neededSupportData: [],
   };
 
+  const shownToastRef = useRef(false);
+
   useEffect(() => {
+    if (shownToastRef.current) return;
+
     if (!navigator.onLine) {
       toast.error(t("common.internetError"));
+      shownToastRef.current = true;
+      return;
     }
 
     if (hasError) {
       toast.error(t("common.serverConnectionError"));
-      return;
+      shownToastRef.current = true;
     }
-
   }, [hasError, t]);
 
   if (isLoading) {

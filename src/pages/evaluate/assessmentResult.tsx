@@ -148,13 +148,11 @@ const AssessmentResult = () => {
           });
         } catch (error) {
           console.error("Failed to clear urgent status:", error);
-          if (axios.isAxiosError(error)) {
-            if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
-              toast.error(t("common.serverConnectionError"));
-              return;
-            }
+          if (axios.isAxiosError(error) && (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500)) {
+            toast.error(t("common.serverConnectionError"));
+          } else {
+            toast.error(t("toast.urgentClearError"));
           }
-          toast.error(t("toast.urgentClearError"));
         }
       }
 

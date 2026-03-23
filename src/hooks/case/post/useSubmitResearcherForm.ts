@@ -34,7 +34,11 @@ export function useSubmitResearcherForm(setShowConfirmDialog?: (v: boolean) => v
 
       if (axios.isAxiosError(error)) {
         const err = error as AxiosError<{ message?: string }>;
-        toast.error(err.response?.data?.message || err.message);
+        if (!err.response || err.code === 'ERR_NETWORK' || err.response.status === 404 || err.response.status >= 500) {
+          toast.error(i18n.t("common.serverConnectionError"));
+        } else {
+          toast.error(err.response?.data?.message || err.message);
+        }
         return;
       }
 

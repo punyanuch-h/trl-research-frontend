@@ -9,8 +9,6 @@ import { cn } from "@/lib/utils";
 interface NotificationOverlayProps {
     notifications: AppointmentResponse[];
     loading?: boolean;
-    error?: boolean;
-    onRetry?: () => void;
     onNotificationClick: (notification: AppointmentResponse) => void;
     onMarkAllAsRead?: () => void;
 }
