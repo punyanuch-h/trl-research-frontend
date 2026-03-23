@@ -25,6 +25,16 @@ import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IntellectualPropertyResponse } from '@/types/type';
 
+const isServerConnectionError = (error: unknown): boolean => {
+  if (!axios.isAxiosError(error)) return false;
+  return (
+    !error.response ||
+    error.code === 'ERR_NETWORK' ||
+    error.response.status === 404 ||
+    error.response.status >= 500
+  );
+};
+
 const AssessmentResult = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -130,11 +140,9 @@ const AssessmentResult = () => {
           status: true
         });
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
-            toast.error(t("common.serverConnectionError"));
-            return;
-          }
+        if (isServerConnectionError(error)) {
+          toast.error(t("common.serverConnectionError"));
+          return;
         }
         toast.error(t("toast.approveError", { id: caseData?.id }));
         return;
@@ -148,7 +156,7 @@ const AssessmentResult = () => {
           });
         } catch (error) {
           console.error("Failed to clear urgent status:", error);
-          if (axios.isAxiosError(error) && (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500)) {
+          if (isServerConnectionError(error)) {
             toast.error(t("common.serverConnectionError"));
           } else {
             toast.error(t("toast.urgentClearError"));
@@ -160,11 +168,9 @@ const AssessmentResult = () => {
       navigate('/admin-homepage');
     } catch (error) {
       console.error("Error during approval process:", error);
-      if (axios.isAxiosError(error)) {
-        if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
-          toast.error(t("common.serverConnectionError"));
-          return;
-        }
+      if (isServerConnectionError(error)) {
+        toast.error(t("common.serverConnectionError"));
+        return;
       }
       toast.error(t("toast.approveProcessError"));
     }
@@ -209,11 +215,9 @@ const AssessmentResult = () => {
 
     } catch (error: unknown) {
       console.error(error);
-      if (axios.isAxiosError(error)) {
-        if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
-          toast.error(t("common.serverConnectionError"));
-          return;
-        }
+      if (isServerConnectionError(error)) {
+        toast.error(t("common.serverConnectionError"));
+        return;
       }
       const errorMessage =
         error instanceof Error
@@ -302,11 +306,9 @@ const AssessmentResult = () => {
         onError: (err: Error) => {
           console.error("Update suggestion error:", err);
 
-          if (axios.isAxiosError(err)) {
-            if (!err.response || err.code === 'ERR_NETWORK' || err.response.status === 404 || err.response.status >= 500) {
-              toast.error(t("common.serverConnectionError"));
-              return;
-            }
+          if (isServerConnectionError(err)) {
+            toast.error(t("common.serverConnectionError"));
+            return;
           }
 
           const message =

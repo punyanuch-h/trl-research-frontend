@@ -4,12 +4,14 @@ import { ApiQueryClient } from "../../client/ApiQueryClient";
 import axios, { AxiosError } from "axios";
 import { SubmitResearcherFormRequest } from "@/types/request";
 import { toast } from "@/lib/toast";
-import i18n from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 
 export function useSubmitResearcherForm(setShowConfirmDialog?: (v: boolean) => void) {
+  const { t } = useTranslation();
   const apiClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
 
   return useMutation({
     mutationFn: (form: SubmitResearcherFormRequest) =>
@@ -24,7 +26,7 @@ export function useSubmitResearcherForm(setShowConfirmDialog?: (v: boolean) => v
 
       // Success - clear and navigate
       setShowConfirmDialog?.(false);
-      toast.success(i18n.t("toast.saveSuccess"));
+      toast.success(t("toast.saveSuccess"));
       localStorage.removeItem("currentFormStep");
       localStorage.removeItem("researcherFormData");
       navigate('/researcher-homepage');
@@ -35,7 +37,7 @@ export function useSubmitResearcherForm(setShowConfirmDialog?: (v: boolean) => v
       if (axios.isAxiosError(error)) {
         const err = error as AxiosError<{ message?: string }>;
         if (!err.response || err.code === 'ERR_NETWORK' || err.response.status === 404 || err.response.status >= 500) {
-          toast.error(i18n.t("common.serverConnectionError"));
+          toast.error(t("common.serverConnectionError"));
         } else {
           toast.error(err.response?.data?.message || err.message);
         }
@@ -47,7 +49,7 @@ export function useSubmitResearcherForm(setShowConfirmDialog?: (v: boolean) => v
         return;
       }
 
-      toast.error(i18n.t("toast.unknownError"));
+      toast.error(t("toast.unknownError"));
     },
   });
 }
