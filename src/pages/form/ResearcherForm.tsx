@@ -503,7 +503,7 @@ export default function ResearcherForm() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate('/researcher-homepage')}
+            onClick={() => navigate('/researcher/homepage')}
             className="mr-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -568,7 +568,11 @@ export default function ResearcherForm() {
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
-                  <Button data-testid="next-btn" onClick={handleNext}>
+                  <Button
+                    data-testid="next-btn"
+                    onClick={handleNext}
+                    disabled={currentFormStep === 3 && (!trlCompleted || !isEvaluated)}
+                  >
                     {t("form.nextStep")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
