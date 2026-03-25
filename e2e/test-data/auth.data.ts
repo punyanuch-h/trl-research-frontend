@@ -48,16 +48,16 @@ export function buildAdminData(overrides?: Partial<SignupFormData>): SignupFormD
 /** Valid researcher credentials (pre-seeded or from env) */
 export function getResearcherCredentials() {
   return {
-    email: process.env.RESEARCHER_EMAIL || 'researcher@example.com',
-    password: process.env.RESEARCHER_PASSWORD || 'Researcher123',
+    email: process.env.RESEARCHER_EMAIL || 'somchai.med@uni.ac.th',
+    password: process.env.RESEARCHER_PASSWORD || 'password123',
   };
 }
 
 /** Valid admin credentials */
 export function getAdminCredentials() {
   return {
-    email: process.env.ADMIN_EMAIL || 'admin@example.com',
-    password: process.env.ADMIN_PASSWORD || 'Admin123',
+    email: process.env.ADMIN_EMAIL || 'admin.wichai@uni.ac.th',
+    password: process.env.ADMIN_PASSWORD || 'password123',
   };
 }
 

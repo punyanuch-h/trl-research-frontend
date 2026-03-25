@@ -38,6 +38,12 @@ export class LoginPage {
 
   /** Perform full login and wait for dashboard */
   async login(email: string, password: string) {
+    // Ensure the login page is fully mounted before interacting
+    await authLocators.loginButton(this.page).waitFor({ state: 'visible' });
+    
+    // Add a short delay to ensure React Router transitions and state updates are complete
+    await this.page.waitForTimeout(500);
+
     await this.fillEmail(email);
     await this.fillPassword(password);
     

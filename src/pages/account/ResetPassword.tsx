@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
       }, 1200);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 400 || error.response?.status === 401) {
           setError("root", {
             message: t("auth.oldPasswordInvalid"),
           });

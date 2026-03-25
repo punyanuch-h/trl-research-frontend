@@ -59,7 +59,9 @@ export default function LoginPage() {
 
     // Support multiple naming conventions for tokens
     const token = authData.token ?? authData.accessToken ?? authData.access_token;
-    const refresh_token = authData.refresh_token ?? authData.refreshToken;
+    // Some environments still return only an access token. Use it as a
+    // session fallback so protected routes and E2E auth flows remain stable.
+    const refresh_token = authData.refresh_token ?? authData.refreshToken ?? token;
     const role = authData.role ?? authData.user?.role;
 
     if (token && refresh_token) {

@@ -53,6 +53,12 @@ export class ApiBaseClient {
             return Promise.reject(error);
           }
 
+          // Reset-password can legitimately return 401 for an incorrect current
+          // password. Let the page handle that response instead of forcing logout.
+          if (originalRequest.url?.includes("/trl/auth/reset-password")) {
+            return Promise.reject(error);
+          }
+
           originalRequest._retry = true;
 
           const refreshToken = getRefreshToken();

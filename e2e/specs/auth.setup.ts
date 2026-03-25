@@ -6,7 +6,7 @@ import { test as setup } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { LoginPage } from '../pages/LoginPage';
-import { buildResearcherSignupData } from '../test-data/auth.data';
+import { buildResearcherSignupData, getResearcherCredentials } from '../test-data/auth.data';
 import { SignupPage } from '../pages/SignupPage';
 import { ensureAdminLogin } from '../helpers/auth.helpers';
 
@@ -20,10 +20,7 @@ if (!fs.existsSync(authDir)) {
 }
 
 setup('authenticate as researcher', async ({ page }) => {
-  const credentials = {
-    email: 'researcher@example.com',
-    password: 'Researcher123'
-  };
+  const credentials = getResearcherCredentials();
   const signupData = buildResearcherSignupData(credentials);
   
   const loginPage = new LoginPage(page);

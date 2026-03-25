@@ -18,9 +18,9 @@ export const authLocators = {
   loginLink: (page: Page) => page.getByRole('button', { name: /log in/i }),
 
   /** Email input on login */
-  emailInput: (page: Page) => page.getByTestId(/email/i).first(),
+  emailInput: (page: Page) => page.getByPlaceholder('example@email.com'),
   /** Password input on login */
-  passwordInput: (page: Page) => page.getByTestId(/password/i).first(),
+  passwordInput: (page: Page) => page.getByPlaceholder('••••••••'),
   /** Forgot password link */
   forgotPasswordLink: (page: Page) => page.getByRole('button', { name: /forgot password/i }),
   /** Remember me checkbox */
