@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit, Save, X } from "lucide-react";
@@ -11,7 +12,8 @@ import ProfileField, {
   UserProfile,
 } from "@/components/profile/ProfileField";
 
-import { useGetUserProfile, useUpdateUserProfile, useToast } from "@/hooks/index";
+import { useGetUserProfile, useUpdateUserProfile } from "@/hooks/index";
+import { toast } from "@/lib/toast";
 
 export default function ProfilePage() {
   const { t } = useTranslation();
@@ -32,7 +34,6 @@ export default function ProfilePage() {
       { label: t("profile.phone"), name: "phone_number" },
     ],
   ];
-  const { toast } = useToast();
 
   const { data: userProfile, refetch } = useGetUserProfile();
   const updateUserProfile = useUpdateUserProfile();
@@ -64,20 +65,25 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     try {
       await updateUserProfile.mutateAsync(form);
-      toast({
-        title: t("common.success"),
-        description: t("profile.updateSuccess"),
-      });
+      toast.success(t("profile.updateSuccess"));
       await refetch();
       setIsEditing(false);
-    } catch {
-      toast({
-        title: t("common.error"),
-        description: t("profile.updateError"),
-        variant: "destructive",
-      });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (!error.response || error.code === 'ERR_NETWORK' || error.response.status === 404 || error.response.status >= 500) {
+          toast.error(t("common.serverConnectionError"));
+          return;
+        }
+      }
+
+      toast.error(t("profile.updateError"));
     }
   };
 

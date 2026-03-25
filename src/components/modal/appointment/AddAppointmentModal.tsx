@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ export function AddAppointmentModal({
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
   // 🔄 ใช้ hook ใหม่ที่มี query invalidation
-  const { createAppointment, loading } = useCreateAppointment(
+  const { createAppointment, loading, error: createError } = useCreateAppointment(
     () => {
       // Success callback
       toast.success(t("toast.addAppointmentSuccess"));
@@ -54,9 +55,27 @@ export function AddAppointmentModal({
     onClose
   );
 
+  useEffect(() => {
+    if (!createError) return;
+
+    if (axios.isAxiosError(createError)) {
+      if (!createError.response || createError.code === 'ERR_NETWORK' || createError.response.status === 404 || createError.response.status >= 500) {
+        toast.error(t("common.serverConnectionError"));
+        return;
+      }
+    }
+
+    toast.error(t("toast.addAppointmentError"));
+  }, [createError, t]);
+
   if (!isOpen) return null;
 
   const handleAdd = async () => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     if (!selectedProjectId || !selectedDate || !selectedTime) {
       toast.warning(t("toast.addAppointmentWarning"));
       return;
@@ -73,11 +92,7 @@ export function AddAppointmentModal({
       detail: detail,
     };
 
-    try {
-      await createAppointment({ ...appointmentData, status: "pending" });
-    } catch (error) {
-      toast.error(t("toast.addAppointmentError"));
-    }
+    createAppointment({ ...appointmentData, status: "pending" });
   };
 
   return (

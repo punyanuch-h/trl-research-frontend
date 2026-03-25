@@ -20,9 +20,20 @@ import {
   useUpdateTrlScoreById,
   useUpdateUrgentStatusById
 } from '@/hooks/index';
+import axios from 'axios';
 import { toast } from '@/lib/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IntellectualPropertyResponse } from '@/types/type';
+
+const isServerConnectionError = (error: unknown): boolean => {
+  if (!axios.isAxiosError(error)) return false;
+  return (
+    !error.response ||
+    error.code === 'ERR_NETWORK' ||
+    error.response.status === 404 ||
+    error.response.status >= 500
+  );
+};
 
 const AssessmentResult = () => {
   const { t } = useTranslation();
@@ -89,6 +100,11 @@ const AssessmentResult = () => {
   };
 
   const handleApproveAssessment = async () => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     const currentTrlScore = caseData?.trl_score;
     const estimatedTrl = assessmentData?.trl_estimate;
     const caseId = caseData?.id || id;
@@ -124,6 +140,10 @@ const AssessmentResult = () => {
           status: true
         });
       } catch (error) {
+        if (isServerConnectionError(error)) {
+          toast.error(t("common.serverConnectionError"));
+          return;
+        }
         toast.error(t("toast.approveError", { id: caseData?.id }));
         return;
       }
@@ -136,7 +156,13 @@ const AssessmentResult = () => {
           });
         } catch (error) {
           console.error("Failed to clear urgent status:", error);
-          toast.error(t("toast.urgentClearError"));
+          if (isServerConnectionError(error)) {
+            toast.error(t("common.serverConnectionError"));
+            return;
+          } else {
+            toast.error(t("toast.urgentClearError"));
+            return;
+          }
         }
       }
 
@@ -144,6 +170,10 @@ const AssessmentResult = () => {
       navigate('/admin/homepage');
     } catch (error) {
       console.error("Error during approval process:", error);
+      if (isServerConnectionError(error)) {
+        toast.error(t("common.serverConnectionError"));
+        return;
+      }
       toast.error(t("toast.approveProcessError"));
     }
   };
@@ -153,7 +183,12 @@ const AssessmentResult = () => {
     setIsEditingTrl(true);
   };
 
-  const handleSaveTrlLevel = async () => {
+  const handleSaveTrlLevel = () => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     const caseId = caseData?.id || id;
 
     if (!caseId) {
@@ -162,39 +197,41 @@ const AssessmentResult = () => {
     }
 
     setIsUpdatingTrl(true);
-    try {
-      const previousTrl = Number(caseData?.trl_score ?? assessmentData?.trl_estimate);
-      try {
-        // Update Case TRL Score
-        await updateTrlScoreMutation.mutateAsync({
-          caseId: caseId,
-          trlData: { trl_score: manualTrl }
-        });
-      } catch (error) {
-        console.error("Error updating TRL Score:", error);
-        throw new Error(t("assessment.trlScoreError"));
+    const previousTrl = Number(caseData?.trl_score ?? assessmentData?.trl_estimate);
+    
+    // Update Case TRL Score
+    updateTrlScoreMutation.mutate(
+      {
+        caseId: caseId,
+        trlData: { trl_score: manualTrl }
+      },
+      {
+        onSuccess: () => {
+          if (manualTrl !== previousTrl) {
+            toast.success(t("toast.trlUpdateSuccess", { level: manualTrl }));
+          }
+          setIsEditingTrl(false);
+          
+          // Re-fetch case data to ensure UI is in sync (Best-effort)
+          refetchCase().catch((refetchError) => {
+            console.error("Failed to refetch case after TRL update:", refetchError);
+          });
+        },
+        onError: (error: unknown) => {
+          console.error(error);
+          if (isServerConnectionError(error)) {
+            toast.error(t("common.serverConnectionError"));
+            return;
+          }
+          const errorMessage = error instanceof Error ? error.message : t("assessment.trlScoreError");
+          toast.error(errorMessage);
+          refetchCase();
+        },
+        onSettled: () => {
+          setIsUpdatingTrl(false);
+        }
       }
-
-      // Re-fetch case data to ensure UI is in sync
-      await refetchCase();
-
-      if (manualTrl !== previousTrl) {
-        toast.success(t("toast.trlUpdateSuccess", { level: manualTrl }));
-      }
-
-    } catch (error: unknown) {
-      console.error(error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : t("assessment.trlScoreError");
-      toast.error(errorMessage);
-
-      refetchCase();
-    } finally {
-      setIsUpdatingTrl(false);
-      setIsEditingTrl(false);
-    }
+    );
   };
 
   // Toggle TRL level collapse
@@ -244,6 +281,11 @@ const AssessmentResult = () => {
   };
 
   const handleSaveSuggestion = (text: string) => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     setSuggestions(prev => ({ ...prev, "all": text }));
 
     const assessmentId = assessmentData?.id;
@@ -266,6 +308,11 @@ const AssessmentResult = () => {
         },
         onError: (err: Error) => {
           console.error("Update suggestion error:", err);
+
+          if (isServerConnectionError(err)) {
+            toast.error(t("common.serverConnectionError"));
+            return;
+          }
 
           const message =
             err instanceof Error

@@ -22,7 +22,9 @@
     "other": "Other",
     "select": "Select",
     "processing": "Processing...",
-    "rememberMe": "Remember me"
+    "rememberMe": "Remember me",
+    "internetError": "Please check your internet connection.",
+    "serverConnectionError": "System error. Please try again or contact support."
   },
   "header": {
     "appTitle": "Technology Readiness Level Assessment System",

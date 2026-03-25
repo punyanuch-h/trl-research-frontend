@@ -52,11 +52,8 @@ test.describe('Submit research - 5-step form', () => {
 
     await test.step('STEP 3: TRL Assessment :', async () => {
       await expect(page.getByText(/Step 3: TRL Assessment/i)).toBeVisible();
-      await test.step('show error when required missing', async () => {
-        await page.getByTestId('next-btn').click();
-        await expect(page.getByTestId('step-error')).toBeVisible();
-        await expect(page.getByTestId('step-error')).toContainText(/กรุณากรอก|fill/i);
-        await expect(page.getByText(/Step 3: TRL Assessment/i)).toBeVisible();
+      await test.step('next button is disabled before evaluate', async () => {
+        await expect(page.getByTestId('next-btn')).toBeDisabled();
       });
       await test.step('submit form', async () => {
         await page.getByTestId('rq1-yes').click();

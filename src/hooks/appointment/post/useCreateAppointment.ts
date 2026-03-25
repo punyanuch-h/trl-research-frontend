@@ -6,7 +6,7 @@ export function useCreateAppointment(onSuccess: () => void, onClose: () => void)
   const queryClient = useQueryClient();
   const apiQueryClient = new ApiQueryClient(import.meta.env.VITE_PUBLIC_API_URL);
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending, error } = useMutation({
     mutationFn: (appointmentData: PostAppointmentData) =>
       apiQueryClient.createAppointment(appointmentData),
     onSuccess: async (_, variables) => {
@@ -23,5 +23,5 @@ export function useCreateAppointment(onSuccess: () => void, onClose: () => void)
     },
   });
 
-  return { createAppointment: mutate, loading: isPending };
+  return { createAppointment: mutate, loading: isPending, error };
 }

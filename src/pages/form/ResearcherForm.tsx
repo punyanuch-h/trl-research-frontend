@@ -13,6 +13,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useSubmitResearcherForm, useGetUserProfile } from "@/hooks/index";
+import { toast } from "@/lib/toast";
 
 // Import components
 import ResearcherDetails from '@/pages/form/researcherDetails';
@@ -421,6 +422,11 @@ export default function ResearcherForm() {
   };
 
   const handleConfirmSubmit = async () => {
+    if (!navigator.onLine) {
+      toast.error(t("common.internetError"));
+      return;
+    }
+
     submitFormMutation.mutate(formData);
   };
 
@@ -562,7 +568,11 @@ export default function ResearcherForm() {
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
-                  <Button data-testid="next-btn" onClick={handleNext}>
+                  <Button
+                    data-testid="next-btn"
+                    onClick={handleNext}
+                    disabled={currentFormStep === 3 && (!trlCompleted || !isEvaluated)}
+                  >
                     {t("form.nextStep")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>

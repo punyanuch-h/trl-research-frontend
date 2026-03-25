@@ -1,29 +1,29 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { Lock, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
+import axios from 'axios'
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { Lock, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react'
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import Header from "@/components/Header";
-import { useResetPassword } from "@/hooks/index";
-import { logout } from "@/lib/auth";
-import { toast } from "@/lib/toast";
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent } from '@/components/ui/card'
+import Header from '@/components/Header'
+import { useResetPassword } from '@/hooks/index'
+import { logout } from '@/lib/auth'
+import { toast } from '@/lib/toast'
 
 interface ResetPasswordData {
-  oldPassword: string;
-  newPassword: string;
-  confirmNewPassword: string;
+  oldPassword: string
+  newPassword: string
+  confirmNewPassword: string
 }
 
 export default function ResetPasswordPage() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -32,48 +32,63 @@ export default function ResetPasswordPage() {
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
-  } = useForm<ResetPasswordData>();
+  } = useForm<ResetPasswordData>()
 
   useEffect(() => {
     const subscription = watch(() => {
-      clearErrors("root");
-    });
+      clearErrors('root')
+    })
 
-    return () => subscription.unsubscribe();
-  }, [watch, clearErrors]);
+    return () => subscription.unsubscribe()
+  }, [watch, clearErrors])
 
-  const newPassword = watch("newPassword");
+  const newPassword = watch('newPassword')
 
-  const { postResetPassword } = useResetPassword();
+  const { postResetPassword } = useResetPassword()
 
   const onSubmit = async (data: ResetPasswordData) => {
+    if (!navigator.onLine) {
+      toast.error(t('common.internetError'))
+      return
+    }
+
     try {
       await postResetPassword({
         old_password: data.oldPassword,
         new_password: data.newPassword,
-      });
-      toast.success(t("auth.resetPasswordSuccess"));
-      logout();
+      })
+      toast.success(t('auth.resetPasswordSuccess'))
+      logout()
       setTimeout(() => {
-        navigate("/login", { replace: true });
-      }, 1200);
+        navigate('/login', { replace: true })
+      }, 1200)
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        if (
+          !error.response ||
+          error.code === 'ERR_NETWORK' ||
+          error.response.status === 404 ||
+          error.response.status >= 500
+        ) {
+          toast.error(t('common.serverConnectionError'))
+          return
+        }
+
         if (error.response?.status === 400 || error.response?.status === 401) {
-          setError("root", {
-            message: t("auth.oldPasswordInvalid"),
-          });
-          return;
+          setError('root', {
+            message: t('auth.oldPasswordInvalid'),
+          })
+          return
         }
       }
 
-      toast.error(t("auth.resetPasswordError"));
+      toast.error(t('auth.resetPasswordError'))
 
-      setError("root", {
-        message: t("auth.resetPasswordError"),
-      });
+      setError('root', {
+        message: t('auth.resetPasswordError'),
+      })
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,19 +96,12 @@ export default function ResetPasswordPage() {
 
       <div className="flex flex-col items-center py-10 px-4 gap-6">
         <div className="w-full max-w-xl grid grid-cols-3 items-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="w-fit"
-          >
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="w-fit">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {t("auth.back")}
+            {t('auth.back')}
           </Button>
 
-          <h2 className="text-2xl text-center font-semibold">
-            {t("auth.resetPassword")}
-          </h2>
+          <h2 className="text-2xl text-center font-semibold">{t('auth.resetPassword')}</h2>
         </div>
 
         <Card className="w-full max-w-xl shadow-md">
@@ -105,15 +113,15 @@ export default function ResetPasswordPage() {
             >
               {/* Old Password */}
               <div className="space-y-2">
-                <Label>{t("auth.oldPassword")}</Label>
+                <Label>{t('auth.oldPassword')}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     data-testid="oldPassword"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     className="pl-10 pr-10"
-                    {...register("oldPassword", {
-                      required: t("auth.oldPasswordRequired"),
+                    {...register('oldPassword', {
+                      required: t('auth.oldPasswordRequired'),
                     })}
                   />
                   <PasswordToggle
@@ -130,22 +138,22 @@ export default function ResetPasswordPage() {
 
               {/* New Password */}
               <div className="space-y-2">
-                <Label>{t("auth.newPassword")}</Label>
+                <Label>{t('auth.newPassword')}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     data-testid="newPassword"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     className="pl-10 pr-10"
-                    {...register("newPassword", {
-                      required: t("auth.newPasswordRequired"),
+                    {...register('newPassword', {
+                      required: t('auth.newPasswordRequired'),
                       minLength: {
                         value: 8,
-                        message: t("auth.passwordMin8"),
+                        message: t('auth.passwordMin8'),
                       },
                       pattern: {
                         value: /^(?=.*[A-Z])(?=.*\d).+$/,
-                        message: t("auth.passwordStrength"),
+                        message: t('auth.passwordStrength'),
                       },
                     })}
                   />
@@ -163,17 +171,16 @@ export default function ResetPasswordPage() {
 
               {/* Confirm New Password */}
               <div className="space-y-2">
-                <Label>{t("auth.confirmNewPassword")}</Label>
+                <Label>{t('auth.confirmNewPassword')}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
                     data-testid="confirmNewPassword"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     className="pl-10 pr-10"
-                    {...register("confirmNewPassword", {
-                      required: t("auth.confirmNewPasswordRequired"),
-                      validate: (value) =>
-                        value === newPassword || t("auth.newPasswordMismatch"),
+                    {...register('confirmNewPassword', {
+                      required: t('auth.confirmNewPasswordRequired'),
+                      validate: (value) => value === newPassword || t('auth.newPasswordMismatch'),
                     })}
                   />
                   <PasswordToggle
@@ -189,19 +196,22 @@ export default function ResetPasswordPage() {
               </div>
 
               {errors.root && (
-                <p className="text-sm text-destructive text-center">
-                  {errors.root.message}
-                </p>
+                <p className="text-sm text-destructive text-center">{errors.root.message}</p>
               )}
 
-              <Button data-testid="reset-password-submit" type="submit" className="w-full" disabled={isSubmitting}>
+              <Button
+                data-testid="reset-password-submit"
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t("auth.resettingPassword")}
+                    {t('auth.resettingPassword')}
                   </>
                 ) : (
-                  t("auth.resetPassword")
+                  t('auth.resetPassword')
                 )}
               </Button>
             </form>
@@ -209,16 +219,10 @@ export default function ResetPasswordPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
 
-function PasswordToggle({
-  show,
-  onClick,
-}: {
-  show: boolean;
-  onClick: () => void;
-}) {
+function PasswordToggle({ show, onClick }: { show: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
@@ -227,5 +231,5 @@ function PasswordToggle({
     >
       {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
     </button>
-  );
+  )
 }
