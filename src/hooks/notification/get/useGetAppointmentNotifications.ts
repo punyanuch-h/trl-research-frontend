@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
+import { getToken } from "@/lib/auth";
 
 export const useGetAppointmentNotifications = () => {
     const apiQueryClient = new ApiQueryClient(
         import.meta.env.VITE_PUBLIC_API_URL
     );
 
-    const token = localStorage.getItem("token");
+    const token = getToken();
 
     return useQuery({
         queryKey: ["getAppointmentNotifications"],

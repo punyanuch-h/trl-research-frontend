@@ -1,26 +1,23 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useGetUserProfile } from "@/hooks/index";
-import { getUserRole } from "@/lib/auth";
+import { getUserRole, isAuthenticated, logout } from "@/lib/auth";
 
 interface Props {
   children: React.ReactNode;
 }
 
 const PublicRoute: React.FC<Props> = ({ children }) => {
-  const localToken = localStorage.getItem("token");
-  const sessionToken = sessionStorage.getItem("token");
-  const token = localToken || sessionToken;
+  const isAuth = isAuthenticated();
   const role = getUserRole();
   const { data, isLoading, isError } = useGetUserProfile();
 
-  if (!token) return <>{children}</>;
+  if (!isAuth) return <>{children}</>;
 
   if (isLoading) return null;
 
   if (isError) {
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("token");
+    logout();
     return <>{children}</>;
   }
 

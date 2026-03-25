@@ -1,7 +1,23 @@
 export type LoginResponse = {
-    token: string;
-    expires_in: number; // in hours (1 week)
-    role: string;
+    // Top-level fields (flat response)
+    token?: string;
+    accessToken?: string;
+    access_token?: string;
+    refresh_token?: string;
+    refreshToken?: string;
+    expires_in?: number;
+    role?: string;
+    user?: { role?: string };
+    // Wrapped response { data: { ... } }
+    data?: {
+        token?: string;
+        accessToken?: string;
+        access_token?: string;
+        refresh_token?: string;
+        refreshToken?: string;
+        role?: string;
+        user?: { role?: string };
+    };
 };
 
 export type CaseResponse = {

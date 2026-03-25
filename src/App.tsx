@@ -21,19 +21,20 @@ import PublicRoute from "./routers/PublicRoute.tsx";
 import PrivateRoute from "./routers/PrivateRoute.tsx";
 import Unauthorized from "./pages/notFound/UnauthorizedPage.tsx";
 import { OfflineLogoutHandler } from "@/components/OfflineLogoutHandler";
+import { isAuthenticated } from "@/lib/auth";
 
 const queryClient = new QueryClient();
 
 const App: React.FC = () => {
   useLocation();
-  const isAuthenticated = !!localStorage.getItem("token");
+  const isAuth = isAuthenticated();
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        {isAuthenticated && <DifyChatIframe />}
+        {isAuth && <DifyChatIframe />}
         <OfflineLogoutHandler />
 
         <Routes>
@@ -41,7 +42,7 @@ const App: React.FC = () => {
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
           <Route path="/forget-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
-          
+
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route path="/case-detail/:id" element={<PrivateRoute><CaseDetial /></PrivateRoute>} />
           <Route path="/reset-password" element={<PrivateRoute><ResetPasswordPage /></PrivateRoute>} />

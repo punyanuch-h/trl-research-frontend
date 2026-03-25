@@ -1,15 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { getResearcherCredentials } from '../test-data/auth.data';
+import { ensureResearcherLogin } from '../helpers/auth.helpers';
 
 test.describe('View research detail - Researcher', () => {
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    const credentials = getResearcherCredentials();
-
-    await loginPage.goto();
-    await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/researcher\/homepage/, { timeout: 15000 });
+    await ensureResearcherLogin(page);
+    await expect(page.getByRole('heading', { name: /my research/i })).toBeVisible({ timeout: 15000 });
 
     const viewBtn = page.getByRole('button', { name: /view details|ดูรายละเอียด/i });
     if (await viewBtn.count() === 0) {
@@ -17,8 +12,7 @@ test.describe('View research detail - Researcher', () => {
       return;
     }
     await viewBtn.first().click();
-
-    await expect(page).toHaveURL(/case-detail/);
+    await expect(page.getByTestId('case-title')).toBeVisible({ timeout: 15000 });
     await page.waitForLoadState('networkidle');
   });
 

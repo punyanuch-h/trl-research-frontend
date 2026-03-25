@@ -15,7 +15,8 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "start:backend": "cd ../trl-research-backend && go run cmd/api-server/main.go"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useGetUserProfile } from "@/hooks/user/get/useGetUserProfile";
-import { getUserRole } from "@/lib/auth";
+import { getUserRole, getToken } from "@/lib/auth";
 import { sendDifyMessage } from "@/lib/dify";
 
 export type Message = {
@@ -12,7 +12,7 @@ export const useDifyChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [authToken, setAuthToken] = useState<string | null>(() => localStorage.getItem("token"));
+  const [authToken, setAuthToken] = useState<string | null>(() => getToken());
   const { data: userProfile } = useGetUserProfile();
   const userId = userProfile?.id ?? "undefined";
   const userRole = getUserRole();
@@ -35,7 +35,7 @@ export const useDifyChat = () => {
     if (msgs.length === 0) return;
 
     if (!userIdRef.current || userIdRef.current === "undefined") return;
-    
+
     const payload: { history: Message[]; admin_id?: string; researcher_id?: string } = {
       history: msgs,
     };
@@ -62,7 +62,7 @@ export const useDifyChat = () => {
   useEffect(() => {
     return () => {
       controllerRef.current?.abort();
-      const current = localStorage.getItem("token");
+      const current = getToken();
       if (!current && authTokenRef.current) {
         saveChatHistory(authTokenRef.current).catch(console.error);
       }
@@ -144,7 +144,7 @@ export const useDifyChat = () => {
 
     try {
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-      
+
       let assistantMessage = "";
 
       await sendDifyMessage(

@@ -1,15 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { AdminHomePage } from '../pages/AdminHomePage';
-import { LoginPage } from '../pages/LoginPage';
-import { getAdminCredentials } from '../test-data/auth.data';
+import { ensureAdminLogin } from '../helpers/auth.helpers';
 
 test.describe('Admin Dashboard page', () => {
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    const credentials = getAdminCredentials();
-    await loginPage.goto();
-    await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
+    const isLoggedIn = await ensureAdminLogin(page);
+    test.skip(!isLoggedIn, 'Admin E2E tests require a valid seeded admin account. Set ADMIN_EMAIL and ADMIN_PASSWORD in e2e/.env.');
+    await expect(page).toHaveURL(/admin/, { timeout: 15000 });
     const adminPage = new AdminHomePage(page);
     await adminPage.clickDashboardTab();
     await page.waitForLoadState('networkidle');

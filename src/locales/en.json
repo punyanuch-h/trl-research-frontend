@@ -22,6 +22,7 @@
     "other": "Other",
     "select": "Select",
     "processing": "Processing...",
+    "rememberMe": "Remember me",
     "internetError": "Please check your internet connection.",
     "serverConnectionError": "System error. Please try again or contact support."
   },
@@ -98,7 +99,8 @@
     "backToLogin": "Back to Login",
     "sendingEmail": "Sending email...",
     "back": "Back",
-    "resettingPassword": "Changing password..."
+    "resettingPassword": "Changing password...",
+    "sessionExpired": "Your session has expired. Please log in again."
   },
   "form": {
     "none": "None",

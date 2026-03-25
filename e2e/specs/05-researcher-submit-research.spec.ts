@@ -1,23 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { ResearcherHomePage } from '../pages/ResearcherHomePage';
-import { LoginPage } from '../pages/LoginPage';
-import { researcherLocators } from '../locators/researcher.locators';
-import { getResearcherCredentials } from '../test-data/auth.data';
+import { ensureResearcherLogin } from '../helpers/auth.helpers';
 
 test.describe('Submit research - 5-step form', () => {
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    const credentials = getResearcherCredentials();
-    await loginPage.goto();
-    await loginPage.login(credentials.email, credentials.password);
-    await page.waitForURL(/\/researcher\/homepage/, { timeout: 15000 });
-    // Navigate to researcher form
+    await ensureResearcherLogin(page);
+    await expect(page.getByRole('heading', { name: /my research/i })).toBeVisible({ timeout: 15000 });
     await page.goto('/#/researcher-form');
     await page.waitForLoadState('networkidle');
   });
 
   test('should display and complete step1 → step5', async ({ page }) => {
-    //--- Step 1: Researcher info
     await test.step('STEP 1: Researcher info :', async () => {
       await expect(page.getByText(/step 1: researcher info/i)).toBeVisible();
       await test.step('show error when required missing', async () => {
@@ -55,7 +47,6 @@ test.describe('Submit research - 5-step form', () => {
         await page.getByTestId(/keywords/i).fill('Test keywords');
         await page.getByTestId('next-btn').click();
         await expect(page.getByText(/Step 3: TRL Assessment/i)).toBeVisible();
-
       });
     });
 
@@ -99,16 +90,16 @@ test.describe('Submit research - 5-step form', () => {
         await page.getByTestId('ip-type-pettyPatent-0').click();
         await test.step('IP format', async () => {
           const ipTypes = [
-            { type: "patent", value: "1234567" },        // 7 digits
-            { type: "pettyPatent", value: "2123456" },   // must start with 2
-            { type: "designPatent", value: "D123456" },  // D + 6
-            { type: "copyright", value: "CR-2024-001" }, // free pattern
-            { type: "trademark", value: "12345678" },    // 7-8 digits
-            { type: "tradeSecret", value: "secret01" },  // any text
+            { type: 'patent', value: '1234567' },
+            { type: 'pettyPatent', value: '2123456' },
+            { type: 'designPatent', value: 'D123456' },
+            { type: 'copyright', value: 'CR-2024-001' },
+            { type: 'trademark', value: '12345678' },
+            { type: 'tradeSecret', value: 'secret01' },
           ];
 
           for (let i = 1; i < ipTypes.length; i++) {
-            await page.getByTestId("ip-add-btn").click();
+            await page.getByTestId('ip-add-btn').click();
             await page.getByTestId(`ip-yes-${i}`).click();
             await page.getByTestId(`ip-status-number-${i}`).click();
             await page.getByTestId(`ip-type-${ipTypes[i].type}-${i}`).click();
@@ -117,7 +108,6 @@ test.describe('Submit research - 5-step form', () => {
         });
         await page.getByTestId('next-btn').click();
         await expect(page.getByText(/Step 5: Support Needed/i)).toBeVisible();
-
       });
     });
 
@@ -130,16 +120,16 @@ test.describe('Submit research - 5-step form', () => {
         await expect(page.getByText(/Step 5: Support Needed/i)).toBeVisible();
       });
       await test.step('submit form', async () => {
-        await page.getByTestId('support-dev-ฝ่ายวิจัย').click();
-        await page.getByTestId('support-dev-ศูนย์ขับเคลื่อนคุณค่าการบริการ (Center for Value Driven Care: VDC)').click();
-        await page.getByTestId('support-market-การคุ้มครองทรัพย์สินทางปัญญา').click();
-        await page.getByTestId('support-market-หาผู้ร่วม/โรงงานผลิตและพัฒนานวัตกรรม').click();
-        await page.getByTestId('support-market-หาแหล่งทุน').click();
+        await page.getByLabel(/Research Division/i).check();
+        await page.getByLabel(/Center for Value Driven Care \(VDC\)/i).check();
+        await page.getByLabel(/IP protection/i).check();
+        await page.getByLabel(/Find manufacturing\/development partner/i).check();
+        await page.getByLabel(/Find funding/i).check();
 
         await page.getByTestId('submit-btn').click();
         await page.getByTestId('confirm-submit').click();
-        await expect(page.getByText(/success|สำเร็จ/i)).toBeVisible();
-
+        await expect(page).toHaveURL(/\/researcher\/homepage/, { timeout: 20000 });
+        await expect(page.getByRole('heading', { name: /my research/i })).toBeVisible({ timeout: 10000 });
       });
     });
   });

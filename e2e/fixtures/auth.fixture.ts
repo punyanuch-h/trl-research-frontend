@@ -3,7 +3,8 @@ import { test as base } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { ResearcherHomePage } from '../pages/ResearcherHomePage';
 import { AdminHomePage } from '../pages/AdminHomePage';
-import { getResearcherCredentials, getAdminCredentials } from '../test-data/auth.data';
+import { getResearcherCredentials } from '../test-data/auth.data';
+import { ensureAdminLogin } from '../helpers/auth.helpers';
 
 /**
  * Extended test fixture with authenticated sessions
@@ -35,10 +36,10 @@ export const test = base.extend<AuthFixtures>({
     await use(new ResearcherHomePage(page));
   },
   adminPage: async ({ page, baseURL }, use) => {
-    const credentials = getAdminCredentials();
-    const loginPage = new LoginPage(page);
-    await loginPage.goto();
-    await loginPage.login(credentials.email, credentials.password);
+    const isLoggedIn = await ensureAdminLogin(page);
+    if (!isLoggedIn) {
+      throw new Error('Admin E2E tests require a valid seeded admin account. Set ADMIN_EMAIL and ADMIN_PASSWORD in e2e/.env.');
+    }
     await page.waitForURL(/\/admin\/homepage/, { timeout: 15000 });
     await use(new AdminHomePage(page));
   },
