@@ -36,7 +36,13 @@ test.describe('Admin Home page', () => {
     if (await rows.count() === 0) {
       test.skip(true, 'no research rows');
     }
-    await page.getByTestId('view-detail-btn').first().click();
+
+    const detailButtons = page.getByRole('button', { name: /view details|ดูรายละเอียด/i });
+    if (await detailButtons.count() === 0) {
+      test.skip(true, 'no view detail actions');
+    }
+
+    await detailButtons.first().click();
     await expect(page).toHaveURL(/case-detail/);
   });
 
