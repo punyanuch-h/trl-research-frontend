@@ -26,9 +26,30 @@ export default async function globalSetup() {
 
   const backendDir = path.resolve(process.cwd(), '..', 'trl-research-backend');
   const seedScript = path.join('internal', 'script', 'seed_data', 'seed_all_data.go');
+  const seedScriptPath = path.join(backendDir, seedScript);
+  const apiUrl = process.env.VITE_PUBLIC_API_URL || '';
+  const shouldForceSeed = process.env.PLAYWRIGHT_FORCE_BACKEND_SEED === 'true';
+  const shouldSkipSeed = process.env.PLAYWRIGHT_SKIP_BACKEND_SEED === 'true';
+  const usesLocalApi =
+    !apiUrl ||
+    apiUrl.includes('localhost') ||
+    apiUrl.includes('127.0.0.1') ||
+    apiUrl.includes('0.0.0.0');
 
-  if (!fs.existsSync(path.join(backendDir, seedScript))) {
-    throw new Error(`Backend seed script not found at ${path.join(backendDir, seedScript)}`);
+  if (shouldSkipSeed) {
+    console.log('[playwright] Skipping backend seed because PLAYWRIGHT_SKIP_BACKEND_SEED=true.');
+    return;
+  }
+
+  if (!fs.existsSync(seedScriptPath)) {
+    if (shouldForceSeed || usesLocalApi) {
+      throw new Error(`Backend seed script not found at ${seedScriptPath}`);
+    }
+
+    console.log(
+      `[playwright] Backend seed script not found at ${seedScriptPath}; continuing because VITE_PUBLIC_API_URL points to a non-local backend (${apiUrl}).`,
+    );
+    return;
   }
 
   execFileSync('go', ['run', seedScript], {

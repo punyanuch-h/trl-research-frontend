@@ -73,11 +73,18 @@ Or add to your project (already in package.json):
 2. Edit `e2e/.env` with your values:
    ```
    BASE_URL=http://localhost:3000
+   VITE_PUBLIC_API_URL=http://localhost:8080
    RESEARCHER_EMAIL=researcher@example.com
    RESEARCHER_PASSWORD=Password123
    ADMIN_EMAIL=admin@example.com
    ADMIN_PASSWORD=AdminPass123
    ```
+
+Backend seeding behavior:
+- If `VITE_PUBLIC_API_URL` points to a local backend and `../trl-research-backend/internal/script/seed_data/seed_all_data.go` exists, Playwright seeds test data automatically before the suite runs.
+- If `VITE_PUBLIC_API_URL` points to a deployed backend, missing local backend files are ignored so CI can run with only the frontend repository checked out.
+- Set `PLAYWRIGHT_FORCE_BACKEND_SEED=true` to fail fast when the seed script is missing.
+- Set `PLAYWRIGHT_SKIP_BACKEND_SEED=true` to skip seeding even for local runs.
 
 ## Running Tests
 
