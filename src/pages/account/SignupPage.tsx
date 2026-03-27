@@ -106,6 +106,15 @@ export default function SignupPage() {
           toast.error(t("common.serverConnectionError"));
           return;
         }
+
+        // Handle Duplicate Email
+        if (err.response.status === 409) {
+          setError("email", {
+            type: "manual",
+            message: t("auth.emailAlreadyExists", "Email already exists"),
+          });
+          return;
+        }
       }
 
       console.error(err);
