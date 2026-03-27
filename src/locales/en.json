@@ -50,6 +50,7 @@
     "loginError": "Invalid email or password",
     "emailRequired": "Please enter email",
     "emailInvalid": "Invalid email format",
+    "emailAlreadyExists": "This email is already in use. Please try another.",
     "passwordRequired": "Please enter password",
     "passwordMin6": "Password must be at least 6 characters",
     "passwordMin8": "Password must be at least 8 characters",

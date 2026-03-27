@@ -114,6 +114,16 @@ export default function CreateAccountPage() {
           toast.error(t("common.serverConnectionError"));
           return;
         }
+
+        // Handle Duplicate Email
+        if (err.response.status === 409) {
+          clearErrors("root");
+          setError("email", {
+            type: "manual",
+            message: t("auth.emailAlreadyExists", "Email already exists"),
+          });
+          return;
+        }
       }
 
       console.error(err);
