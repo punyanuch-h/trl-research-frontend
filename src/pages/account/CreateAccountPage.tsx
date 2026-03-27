@@ -117,6 +117,7 @@ export default function CreateAccountPage() {
 
         // Handle Duplicate Email
         if (err.response.status === 409) {
+          clearErrors("root");
           setError("email", {
             type: "manual",
             message: t("auth.emailAlreadyExists", "Email already exists"),
