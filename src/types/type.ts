@@ -151,6 +151,7 @@ export type UserProfileResponse = {
     department: string;
     phone_number: string;
     email: string;
+    is_temp?: boolean;
 };
 
 export interface FileResponse {

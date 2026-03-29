@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import Header from '@/components/Header'
-import { useResetPassword } from '@/hooks/index'
+import { useResetPassword, useGetUserProfile } from '@/hooks/index'
 import { logout } from '@/lib/auth'
 import { toast } from '@/lib/toast'
 
@@ -24,10 +24,10 @@ export default function ResetPasswordPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
-  const isTemp = location.state?.isTemp || false
-  const tempPassword = location.state?.tempPassword || ''
   const [showPassword, setShowPassword] = useState(false)
 
+  const { data: userProfile, isLoading: isLoadingProfile } = useGetUserProfile()
+  const isTemp = location.state?.isTemp || userProfile?.is_temp || false
   const {
     register,
     handleSubmit,
@@ -57,7 +57,7 @@ export default function ResetPasswordPage() {
 
     try {
       await postResetPassword({
-        old_password: isTemp ? tempPassword : (data.oldPassword || ''),
+        old_password: isTemp ? '' : data.oldPassword || '',
         new_password: data.newPassword,
       })
       toast.success(t('auth.resetPasswordSuccess'))
@@ -91,6 +91,14 @@ export default function ResetPasswordPage() {
         message: t('auth.resetPasswordError'),
       })
     }
+  }
+
+  if (isLoadingProfile) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    )
   }
 
   return (

@@ -27,8 +27,8 @@ const PrivateRoute: React.FC<Props> = ({ children, allowRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if ((data as { is_temp?: boolean })?.is_temp && location.pathname !== '/reset-password') {
-    return <Navigate to="/reset-password" state={{ isTemp: true }} replace />;
+  if (data?.is_temp && location.pathname !== '/reset-password') {
+    return <Navigate to="/reset-password" replace />;
   }
 
   if (allowRoles && (!role || !allowRoles.includes(role))) {
