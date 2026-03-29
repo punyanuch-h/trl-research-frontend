@@ -76,7 +76,10 @@ export default function LoginPage() {
     }
 
     if (isTemp) {
-      navigate('/reset-password', { replace: true })
+      navigate('/reset-password', {
+        state: { isTemp: true, tempPassword: getValues('password') },
+        replace: true,
+      })
       return
     }
 

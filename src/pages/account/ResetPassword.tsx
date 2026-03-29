@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Lock, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,7 @@ import { logout } from '@/lib/auth'
 import { toast } from '@/lib/toast'
 
 interface ResetPasswordData {
-  oldPassword: string
+  oldPassword?: string
   newPassword: string
   confirmNewPassword: string
 }
@@ -23,6 +23,9 @@ interface ResetPasswordData {
 export default function ResetPasswordPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
+  const isTemp = location.state?.isTemp || false
+  const tempPassword = location.state?.tempPassword || ''
   const [showPassword, setShowPassword] = useState(false)
 
   const {
@@ -54,7 +57,7 @@ export default function ResetPasswordPage() {
 
     try {
       await postResetPassword({
-        old_password: data.oldPassword,
+        old_password: isTemp ? tempPassword : (data.oldPassword || ''),
         new_password: data.newPassword,
       })
       toast.success(t('auth.resetPasswordSuccess'))
@@ -112,29 +115,31 @@ export default function ResetPasswordPage() {
               className="space-y-6 mt-6"
             >
               {/* Old Password */}
-              <div className="space-y-2">
-                <Label>{t('auth.oldPassword')}</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    data-testid="oldPassword"
-                    type={showPassword ? 'text' : 'password'}
-                    className="pl-10 pr-10"
-                    {...register('oldPassword', {
-                      required: t('auth.oldPasswordRequired'),
-                    })}
-                  />
-                  <PasswordToggle
-                    show={showPassword}
-                    onClick={() => setShowPassword(!showPassword)}
-                  />
+              {!isTemp && (
+                <div className="space-y-2">
+                  <Label>{t('auth.oldPassword')}</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      data-testid="oldPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      className="pl-10 pr-10"
+                      {...register('oldPassword', {
+                        required: !isTemp ? t('auth.oldPasswordRequired') : false,
+                      })}
+                    />
+                    <PasswordToggle
+                      show={showPassword}
+                      onClick={() => setShowPassword(!showPassword)}
+                    />
+                  </div>
+                  {errors.oldPassword && (
+                    <p data-testid="form-error" className="text-sm text-destructive">
+                      {errors.oldPassword.message}
+                    </p>
+                  )}
                 </div>
-                {errors.oldPassword && (
-                  <p data-testid="form-error" className="text-sm text-destructive">
-                    {errors.oldPassword.message}
-                  </p>
-                )}
-              </div>
+              )}
 
               {/* New Password */}
               <div className="space-y-2">
