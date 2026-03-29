@@ -7,7 +7,8 @@ export type LoginResponse = {
     refreshToken?: string;
     expires_in?: number;
     role?: string;
-    user?: { role?: string };
+    is_temp?: boolean;
+    user?: { role?: string; is_temp?: boolean };
     // Wrapped response { data: { ... } }
     data?: {
         token?: string;
@@ -16,7 +17,8 @@ export type LoginResponse = {
         refresh_token?: string;
         refreshToken?: string;
         role?: string;
-        user?: { role?: string };
+        is_temp?: boolean;
+        user?: { role?: string; is_temp?: boolean };
     };
 };
 
@@ -149,6 +151,7 @@ export type UserProfileResponse = {
     department: string;
     phone_number: string;
     email: string;
+    is_temp?: boolean;
 };
 
 export interface FileResponse {

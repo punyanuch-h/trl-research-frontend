@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useGetUserProfile } from "@/hooks/index";
 import { getUserRole, isAuthenticated, logout } from "@/lib/auth";
 
@@ -12,6 +12,7 @@ const PrivateRoute: React.FC<Props> = ({ children, allowRoles }) => {
   const isAuth = isAuthenticated();
   const { data, isLoading, isError } = useGetUserProfile();
   const role = getUserRole();
+  const location = useLocation();
 
   if (!isAuth) {
     return <Navigate to="/login" />;
@@ -24,6 +25,10 @@ const PrivateRoute: React.FC<Props> = ({ children, allowRoles }) => {
   if (isError) {
     logout();
     return <Navigate to="/login" replace />;
+  }
+
+  if (data?.is_temp && location.pathname !== '/reset-password') {
+    return <Navigate to="/reset-password" replace />;
   }
 
   if (allowRoles && (!role || !allowRoles.includes(role))) {

@@ -65,6 +65,7 @@ export default function LoginPage() {
     // session fallback so protected routes and E2E auth flows remain stable.
     const refresh_token = authData.refresh_token ?? authData.refreshToken ?? token
     const role = authData.role ?? authData.user?.role
+    const isTemp = authData.is_temp ?? authData.user?.is_temp
 
     if (token && refresh_token) {
       // Read the checkbox value at execution time; avoids stale-closure via getValues
@@ -72,6 +73,11 @@ export default function LoginPage() {
       console.log('Tokens stored successfully')
     } else {
       console.error('Login success but tokens missing in response:', response)
+    }
+
+    if (isTemp) {
+      navigate('/reset-password', { state: { isTemp: true }, replace: true })
+      return
     }
 
     if (role === 'admin') {
