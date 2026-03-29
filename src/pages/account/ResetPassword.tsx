@@ -56,10 +56,12 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      await postResetPassword({
-        old_password: isTemp ? '' : data.oldPassword || '',
+      const payload = {
         new_password: data.newPassword,
-      })
+        ...(isTemp ? {} : { old_password: data.oldPassword || '' }),
+      }
+
+      await postResetPassword(payload as Parameters<typeof postResetPassword>[0])
       toast.success(t('auth.resetPasswordSuccess'))
       logout()
       setTimeout(() => {
