@@ -12,8 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { useGetAppointmentNotifications, useMarkAppointmentNotificationAsRead, useMarkAllAppointmentNotificationsAsRead } from "@/hooks/index";
 import { NotificationOverlay } from "./NotificationOverlay";
 import { AppointmentModal } from "./AppointmentModal";
-import { AppointmentResponse } from "@/types/type";
+import type { AppointmentResponse } from "@/types/type";
 import { toast } from "@/lib/toast";
+import { getUserRole } from "@/lib/auth";
 
 export function NotificationIcon() {
     const { t } = useTranslation();
@@ -34,10 +35,17 @@ export function NotificationIcon() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-    const notifications = data?.data || [];
+    const role = getUserRole()?.toLowerCase();
+    const notifications =
+        data?.data.map((notif) => ({
+            ...notif,
+            is_read: role === "admin" ? notif.is_read_admin : notif.is_read_researcher,
+        })) || [];
     const unreadCount = data?.unread_count ?? 0;
 
-    const handleNotificationClick = (notif: AppointmentResponse) => {
+    const handleNotificationClick = (
+        notif: AppointmentResponse & { is_read: boolean }
+    ) => {
         setSelectedAppointment(notif);
         setIsModalOpen(true);
         setIsPopoverOpen(false); // Close dropdown when opening modal
@@ -78,8 +86,6 @@ export function NotificationIcon() {
                     <NotificationOverlay
                         notifications={notifications}
                         loading={isLoading}
-                        error={showError}
-                        onRetry={refetch}
                         onNotificationClick={handleNotificationClick}
                         onMarkAllAsRead={() => markAllAsRead()}
                     />
