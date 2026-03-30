@@ -22,7 +22,16 @@ export const useMarkAppointmentNotificationAsRead = () => {
             // Optimistically update to the new value
             if (previousNotifications) {
                 const role = getUserRole()?.toLowerCase();
-                const readKey = (role === "admin" ? "is_read_admin" : "is_read_researcher") as keyof AppointmentResponse;
+                const readKey =
+                    role === "admin"
+                        ? "is_read_admin"
+                        : role === "researcher"
+                          ? "is_read_researcher"
+                          : null;
+
+                if (!readKey) {
+                    return { previousNotifications };
+                }
 
                 const isCurrentlyUnread =
                     previousNotifications.data.find(n => n.id === id)?.[readKey] === false;
