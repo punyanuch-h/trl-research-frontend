@@ -6,10 +6,12 @@ import { format, isValid } from "date-fns";
 import { th } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
+type ProcessedNotification = AppointmentResponse & { is_read: boolean };
+
 interface NotificationOverlayProps {
-    notifications: AppointmentResponse[];
+    notifications: ProcessedNotification[];
     loading?: boolean;
-    onNotificationClick: (notification: AppointmentResponse) => void;
+    onNotificationClick: (notification: ProcessedNotification) => void;
     onMarkAllAsRead?: () => void;
 }
 

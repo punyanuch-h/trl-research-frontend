@@ -91,7 +91,8 @@ export type AppointmentResponse = {
     location: string;
     detail: string;
     summary: string;
-    is_read: boolean;
+    is_read_admin: boolean;
+    is_read_researcher: boolean;
     is_notify: boolean;
     created_at: string;
     updated_at: string;
