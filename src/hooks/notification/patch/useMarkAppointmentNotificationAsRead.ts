@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import { NotificationListResponse } from "@/types/type";
+import { NotificationListResponse, AppointmentResponse } from "@/types/type";
+import { getUserRole } from "@/lib/auth";
 
 export const useMarkAppointmentNotificationAsRead = () => {
     const apiQueryClient = new ApiQueryClient(
@@ -20,14 +21,20 @@ export const useMarkAppointmentNotificationAsRead = () => {
 
             // Optimistically update to the new value
             if (previousNotifications) {
-                const isCurrentlyUnread = previousNotifications.data.find(n => n.id === id)?.is_read === false;
-                
+                const role = getUserRole()?.toLowerCase();
+                const readKey = (role === "admin" ? "is_read_admin" : "is_read_researcher") as keyof AppointmentResponse;
+
+                const isCurrentlyUnread =
+                    previousNotifications.data.find(n => n.id === id)?.[readKey] === false;
+
                 queryClient.setQueryData<NotificationListResponse>(
                     ["getAppointmentNotifications"],
                     {
                         ...previousNotifications,
                         unread_count: isCurrentlyUnread ? Math.max(0, previousNotifications.unread_count - 1) : previousNotifications.unread_count,
-                        data: previousNotifications.data.map((notif) => notif.id === id ? { ...notif, is_read: true } : notif)
+                        data: previousNotifications.data.map((notif) =>
+                            notif.id === id ? { ...notif, [readKey]: true } : notif
+                        )
                     }
                 );
             }

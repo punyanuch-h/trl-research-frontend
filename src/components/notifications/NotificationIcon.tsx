@@ -35,7 +35,7 @@ export function NotificationIcon() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-    const role = getUserRole();
+    const role = getUserRole()?.toLowerCase();
     const notifications =
         data?.data.map((notif) => ({
             ...notif,
@@ -86,8 +86,6 @@ export function NotificationIcon() {
                     <NotificationOverlay
                         notifications={notifications}
                         loading={isLoading}
-                        error={showError}
-                        onRetry={refetch}
                         onNotificationClick={handleNotificationClick}
                         onMarkAllAsRead={() => markAllAsRead()}
                     />
