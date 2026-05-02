@@ -38,7 +38,8 @@ export function AddAppointmentModal({
   const [location, setLocation] = useState<string>("");
   const [detail, setDetail] = useState<string>("");
 
-  const selectedProject = projects.find((p) => p.id === selectedProjectId);
+  const availableProjects = projects.filter((project) => !project.status);
+  const selectedProject = availableProjects.find((p) => p.id === selectedProjectId);
 
   // 🔄 ใช้ hook ใหม่ที่มี query invalidation
   const { createAppointment, loading, error: createError } = useCreateAppointment(
@@ -67,6 +68,15 @@ export function AddAppointmentModal({
 
     toast.error(t("toast.addAppointmentError"));
   }, [createError, t]);
+
+  useEffect(() => {
+    if (
+      selectedProjectId &&
+      !availableProjects.some((project) => project.id === selectedProjectId)
+    ) {
+      setSelectedProjectId(null);
+    }
+  }, [availableProjects, selectedProjectId]);
 
   if (!isOpen) return null;
 
@@ -111,7 +121,7 @@ export function AddAppointmentModal({
               <SelectValue placeholder={t("form.selectResearch")} />
             </SelectTrigger>
             <SelectContent>
-              {projects.map((p) => (
+              {availableProjects.map((p) => (
                 <SelectItem key={p.id} value={p.id.toString()}>
                   {p.title}
                 </SelectItem>
@@ -182,7 +192,11 @@ export function AddAppointmentModal({
           <Button data-testid="appointment-cancel-btn" variant="ghost" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button data-testid="appointment-save-btn" onClick={handleAdd} disabled={loading}>
+          <Button
+            data-testid="appointment-save-btn"
+            onClick={handleAdd}
+            disabled={loading || availableProjects.length === 0}
+          >
             {loading ? t("common.loading") : t("common.save")}
           </Button>
         </div>

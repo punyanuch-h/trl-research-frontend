@@ -342,6 +342,7 @@ export default function CaseDetail() {
                 size="sm"
                 className="mt-2 mr-2"
                 onClick={() => setShowAddModal(true)}
+                disabled={caseData?.status === true}
               >
                 <CalendarPlus className="w-4 h-4 mr-2" />
                 {t("form.addAppointmentTitle")}
@@ -607,7 +608,7 @@ export default function CaseDetail() {
 
         {/* Appointment Modal */}
         <AddAppointmentModal
-          projects={caseData ? [caseData] : []}
+          projects={caseData && caseData.status !== true ? [caseData] : []}
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
           onAdd={() => setShowAddModal(false)}
