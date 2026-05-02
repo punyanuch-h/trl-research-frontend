@@ -1,0 +1,53 @@
+@startuml
+title Sequence Diagram: Researcher Views Research Details
+
+actor Researcher
+participant "Frontend/UI" as UI
+participant "Backend/API" as API
+participant "Auth Middleware (JWT)" as AUTH
+participant "Service Layer" as SERVICE
+database "Database (Neon)" as DB
+participant "Cache Layer (Optional)" as CACHE
+
+== Open Research Details Page ==
+Researcher -> UI: Navigate to 'Research Details' page
+
+UI -> API: GET /trl/case/{id} (JWT)
+UI -> API: GET /trl/research/{id} (JWT)
+UI -> API: GET /trl/coordinator/{id} (JWT)
+UI -> API: GET /trl/assessment/{id} (JWT)
+UI -> API: GET /trl/appointment/{id} (JWT)
+UI -> API: GET /trl/ip/{id} (JWT)
+UI -> API: GET /trl/supportment/{id}(JWT)
+
+API -> AUTH: Verify JWT & role=Researcher
+AUTH --> API: Valid / Invalid
+
+alt Invalid Token
+    API --> UI: 401 Unauthorized
+    UI --> Researcher: Redirect to Login
+else Valid
+    API -> CACHE: Check cache (case details)
+    alt Cache Hit
+        CACHE --> API: Return cached details
+    else Cache Miss
+        API -> SERVICE: Aggregate research details
+
+        SERVICE -> DB: Fetch case info
+        SERVICE -> DB: Fetch researcher info
+        SERVICE -> DB: Fetch coordinator info
+        SERVICE -> DB: Fetch appointments
+        SERVICE -> DB: Fetch IP data
+        SERVICE -> DB: Fetch supportment data
+
+        DB --> SERVICE: Return all related data
+        SERVICE --> API: Combined research detail object
+        API -> CACHE: Store aggregated data (TTL 60s)
+    end
+
+    API --> UI: 200 OK (Full Research Details)
+    UI --> Researcher: Render research details page
+    UI --> Researcher: Display full research details page
+end
+
+@enduml

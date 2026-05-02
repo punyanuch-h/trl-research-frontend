@@ -69,10 +69,11 @@ export default function EvaluateTRL({
   const updateTrlLevel = (level: number | null) => {
     if (!setTrlLevel) return;
 
-    if (level !== null && level >= 1 && level <= 9) {
-      setTrlLevel(level);
-    } else {
+    // Ensure TRL level is set to 0 if out of range
+    if (level === null || level < 1 || level > 9) {
       setTrlLevel(0);
+    } else {
+      setTrlLevel(level);
     }
   };
 
@@ -84,7 +85,7 @@ export default function EvaluateTRL({
     // Store answer in formData
     handleInputChange(rqField, answerBool);
 
-    setRadioAnswers(prev => {
+    setRadioAnswers((prev) => {
       const updated = prev.slice(0, index);
 
       updated.push({ index, value: answerText });
@@ -96,7 +97,7 @@ export default function EvaluateTRL({
       ? decision?.yesStartTRL
       : decision?.noStartTRL;
 
-    if (startTRL) {
+    if (startTRL || startTRL === 0) {
       setCheckboxSteps([
         {
           level: startTRL,
@@ -105,7 +106,7 @@ export default function EvaluateTRL({
       ]);
       setPhase("checkbox");
       setRadioIndex(index);
-      updateTrlLevel(0);
+      updateTrlLevel(startTRL);
       setIsEvaluated(false);
       setTrlCompleted(false);
       return;
@@ -122,6 +123,7 @@ export default function EvaluateTRL({
 
   const isChecklistComplete = (level: number, value: number[]) => {
     const questions = checkboxQuestionList[level - 1];
+    if (!questions) return false;
     return questions.every((_, idx) => value[idx] === 1);
   };
 
@@ -129,7 +131,7 @@ export default function EvaluateTRL({
     stepIndex: number,
     newValue: number[]
   ) => {
-    setCheckboxSteps(prev => {
+    setCheckboxSteps((prev) => {
       const updated = [...prev];
       const step = updated[stepIndex];
 
@@ -195,14 +197,24 @@ export default function EvaluateTRL({
       setTrlCompleted(true);
       return;
     }
-    setCheckboxSteps(prev => [
+    const nextLevel = currentStep.level - 1;
+    if (nextLevel < 1) {
+      setPhase("result");
+      setMaxLevel(0);
+      updateTrlLevel(0);
+      setIsEvaluated(true);
+      setTrlCompleted(true);
+      return;
+    }
+
+    setCheckboxSteps((prev) => [
       ...prev,
       {
-        level: currentStep.level - 1,
+        level: nextLevel,
         value: [],
       },
     ]);
-    updateTrlLevel(0);
+    updateTrlLevel(currentStep.level - 1);
     setIsEvaluated(false);
     setTrlCompleted(false);
   };
@@ -241,7 +253,6 @@ export default function EvaluateTRL({
     setIsHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   /* ================= Render ================= */
   return (
