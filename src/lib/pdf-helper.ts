@@ -1,10 +1,11 @@
 import { QueryClient } from "@tanstack/react-query";
 import { ApiQueryClient } from "@/hooks/client/ApiQueryClient";
-import { CaseResponse, AppointmentResponse, CoordinatorResponse, IntellectualPropertyResponse, SupportmentResponse, AssessmentResponse } from "@/types/type";
+import { CaseResponse, AppointmentResponse, CoordinatorResponse, IntellectualPropertyResponse, SupportmentResponse, AssessmentResponse, UserProfileResponse } from "@/types/type";
 
 export interface CasePdfData {
   c: CaseResponse & { appointments?: AppointmentResponse[] };
   appointments: AppointmentResponse[];
+  researcherData: UserProfileResponse | null;
   coordinatorData: CoordinatorResponse | null;
   ipList: IntellectualPropertyResponse[];
   supportmentData: SupportmentResponse | null;
@@ -16,7 +17,11 @@ export async function fetchCasePdfData(
   apiQueryClient: ApiQueryClient,
   caseInfo: CaseResponse & { appointments?: AppointmentResponse[] }
 ): Promise<CasePdfData> {
-  const [coordinatorRes, ipRes, supportmentRes, assessmentRes] = await Promise.allSettled([
+  const [researcherRes, coordinatorRes, ipRes, supportmentRes, assessmentRes] = await Promise.allSettled([
+    queryClient.fetchQuery({
+      queryKey: ["getResearcherById", caseInfo.researcher_id],
+      queryFn: () => apiQueryClient.getResearcherById(caseInfo.researcher_id),
+    }),
     queryClient.fetchQuery({
       queryKey: ["getCoordinatorByCaseId", caseInfo.id],
       queryFn: () => apiQueryClient.getCoordinatorByCaseId(caseInfo.id),
@@ -34,6 +39,11 @@ export async function fetchCasePdfData(
       queryFn: () => apiQueryClient.getAssessmentByCaseId(caseInfo.id),
     }),
   ]);
+
+  const researcherData = researcherRes.status === "fulfilled" ? researcherRes.value : null;
+  if (researcherRes.status === "rejected") {
+    console.warn("No researcher data found or error fetching", researcherRes.reason);
+  }
 
   const coordinatorData = coordinatorRes.status === "fulfilled" ? coordinatorRes.value : null;
   if (coordinatorRes.status === "rejected") {
@@ -58,6 +68,7 @@ export async function fetchCasePdfData(
   return {
     c: caseInfo,
     appointments: caseInfo.appointments || [],
+    researcherData: researcherData,
     coordinatorData: coordinatorData,
     ipList: ipData,
     supportmentData: supportmentData,
