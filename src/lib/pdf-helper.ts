@@ -5,7 +5,7 @@ import { CaseResponse, AppointmentResponse, CoordinatorResponse, IntellectualPro
 export interface CasePdfData {
   c: CaseResponse & { appointments?: AppointmentResponse[] };
   appointments: AppointmentResponse[];
-  researcherData: UserProfileResponse;
+  researcherData: UserProfileResponse | null;
   coordinatorData: CoordinatorResponse | null;
   ipList: IntellectualPropertyResponse[];
   supportmentData: SupportmentResponse | null;

@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
 
 interface Props {
   c: CaseResponse;
-  researcherData?: UserProfileResponse;
+  researcherData?: UserProfileResponse | null;
   coordinatorData?: CoordinatorResponse;
   appointments?: AppointmentResponse[];
   ipList?: IntellectualPropertyResponse[];
