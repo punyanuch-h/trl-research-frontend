@@ -2,7 +2,7 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
-import type { CaseResponse, CoordinatorResponse, AppointmentResponse, IntellectualPropertyResponse, SupportmentResponse, AssessmentResponse } from '@/types/type';
+import type { CaseResponse, CoordinatorResponse, AppointmentResponse, IntellectualPropertyResponse, SupportmentResponse, AssessmentResponse, UserProfileResponse } from '@/types/type';
 // Register Fonts
 try {
   Font.register({
@@ -312,6 +312,7 @@ const styles = StyleSheet.create({
 
 interface Props {
   c: CaseResponse;
+  researcherData?: UserProfileResponse;
   coordinatorData?: CoordinatorResponse;
   appointments?: AppointmentResponse[];
   ipList?: IntellectualPropertyResponse[];
@@ -321,6 +322,7 @@ interface Props {
 
 export const CaseReportPDF: React.FC<Props> = ({
   c,
+  researcherData,
   coordinatorData,
   appointments = [],
   ipList = [],
@@ -384,15 +386,44 @@ export const CaseReportPDF: React.FC<Props> = ({
           </View>
         </View>
 
-        {/* 2. Personnel in Charge */}
+        {/* 2. Researcher Information */}
+        {researcherData && (
+          <View style={styles.section}>
+            <View wrap={false}>
+              <Text style={styles.sectionTitle} wrap={false}>Researcher Information</Text>
+              <View style={styles.row}>
+                <Text style={styles.label}>Name:</Text>
+                <Text style={styles.value}>
+                  {researcherData.academic_position && `${researcherData.academic_position} `}{researcherData.prefix && `${researcherData.prefix} `}{fixThaiEndLine(researcherData.first_name)} {fixThaiEndLine(researcherData.last_name)}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Department:</Text>
+              <Text style={styles.value}>{fixThaiEndLine(researcherData.department) || '-'}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Contact:</Text>
+              <Text style={styles.value}>{researcherData.email || '-'} / Tel: {researcherData.phone_number || '-'}</Text>
+            </View>
+          </View>
+        )}
+
+        {/* 3. Personnel in Charge */}
         {coordinatorData && (
           <View style={styles.section}>
             <View wrap={false}>
               <Text style={styles.sectionTitle} wrap={false}>Personnel in Charge</Text>
               <View style={styles.row}>
                 <Text style={styles.label}>Coordinator:</Text>
-                <Text style={styles.value}>{fixThaiEndLine(coordinatorData.first_name)} {fixThaiEndLine(coordinatorData.last_name)}</Text>
+                <Text style={styles.value}>
+                  {coordinatorData.academic_position && `${coordinatorData.academic_position} `}{coordinatorData.prefix && `${coordinatorData.prefix} `}{fixThaiEndLine(coordinatorData.first_name)} {fixThaiEndLine(coordinatorData.last_name)}
+                </Text>
               </View>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Department:</Text>
+              <Text style={styles.value}>{fixThaiEndLine(coordinatorData.department) || '-'}</Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.label}>Contact:</Text>
@@ -401,7 +432,7 @@ export const CaseReportPDF: React.FC<Props> = ({
           </View>
         )}
 
-        {/* 3. Activity & Follow-up Log (Appointments) */}
+        {/* 4. Activity & Follow-up Log (Appointments) */}
         {appointments.length > 0 && (
           <View style={styles.section}>
             {appointments.map((a, i) => (
@@ -460,7 +491,7 @@ export const CaseReportPDF: React.FC<Props> = ({
           </View>
         )}
 
-        {/* 4. Intellectual Property */}
+        {/* 5. Intellectual Property */}
         {ipList.length > 0 && (
           <View style={styles.section}>
             {ipList.map((ip, i) => (
@@ -493,14 +524,14 @@ export const CaseReportPDF: React.FC<Props> = ({
           </View>
         )}
 
-        {/* 5. Supporter Information */}
+        {/* 6. Supporter Information */}
         {supportmentData && (
           <View style={styles.section}>
             <View wrap={false}>
-              <Text style={styles.sectionTitle} wrap={false}>Supporter Information</Text>
+              <Text style={styles.sectionTitle}>Supporter Information</Text>
 
               {/* หน่วยงานสนับสนุนเดิม */}
-              <View style={{ flexWrap: 'wrap' }}>
+              <View wrap={false}>
                 <Text style={[styles.label, { width: '100%', marginTop: 3, marginBottom: 3 }]}>Existing Support:</Text>
 
                 {(supportmentData.support_research || supportmentData.support_vdc || supportmentData.support_sieic) ? (
@@ -518,7 +549,7 @@ export const CaseReportPDF: React.FC<Props> = ({
             </View>
 
             {/* ความช่วยเหลือที่ต้องการ */}
-            <View style={{ flexWrap: 'wrap' }}>
+            <View wrap={false}>
               <Text style={[styles.label, { width: '100%', marginTop: 3, marginBottom: 3 }]}>Requirements & Assistance Needed:</Text>
 
               {/* ตรวจสอบว่ามีความต้องการไหม */}
@@ -546,7 +577,7 @@ export const CaseReportPDF: React.FC<Props> = ({
 
             {/* ความต้องการอื่นๆ */}
             {supportmentData.need && (
-              <View>
+              <View wrap={false}>
                 <View minPresenceAhead={80}>
                   <Text style={[styles.label, { width: '100%', marginTop: 5, marginBottom: 3 }]}>Additional Requirements:</Text>
                   <Text style={{
@@ -565,7 +596,7 @@ export const CaseReportPDF: React.FC<Props> = ({
           </View>
         )}
 
-        {/* 6. Improvement Suggestions */}
+        {/* 7. Improvement Suggestions */}
         {assessmentData && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle} wrap={false}>Improvement Suggestions</Text>
